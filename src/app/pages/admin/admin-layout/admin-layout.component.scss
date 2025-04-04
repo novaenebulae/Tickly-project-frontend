@@ -1,0 +1,27 @@
+mat-toolbar {
+    position: relative;
+    z-index: 5;
+}
+
+.content {
+    padding: 24px;
+}
+
+mat-sidenav-container {
+    height: calc(100vh - 64px);
+
+}
+
+.mat-drawer-inner-container {
+  overflow-x: hidden !important;
+
+}
+
+.mat-drawer {
+  transition: width 500ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.burger-button {
+    margin-left: 10px;
+    margin-top: 10px;
+}

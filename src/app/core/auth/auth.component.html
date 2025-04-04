@@ -1,0 +1,49 @@
+<div class="d-flex flex-column align-items-center justify-content-center vh-100">
+  <!-- Logo centré -->
+  <img src="icons/tickly-logo.svg" alt="Logo" class="mb-4" style="width: 150px; height: auto;">
+
+  <!-- Card de connexion -->
+  <mat-card class="p-4 shadow-lg" style="width: 100%; max-width: 400px; border-radius: 12px;">
+    <mat-card-title class="text-center mb-3">Bienvenue</mat-card-title>
+    <mat-card-subtitle class="text-center mb-4 text-muted">
+      Connectez-vous pour accéder à votre compte
+    </mat-card-subtitle>
+    <mat-card-content>
+      <form>
+        <!-- Champ Email -->
+        <div class="mb-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Adresse e-mail</mat-label>
+            <mat-icon matPrefix>email</mat-icon>
+            <input matInput type="email" placeholder="Entrez votre e-mail" required>
+          </mat-form-field>
+        </div>
+
+        <!-- Champ Mot de Passe -->
+        <div class="mb-3">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Mot de passe</mat-label>
+            <mat-icon matPrefix>lock</mat-icon>
+            <input matInput type="password" placeholder="Entrez votre mot de passe" required>
+          </mat-form-field>
+        </div>
+
+        <!-- Case à cocher "Rester connecté" -->
+        <div class="form-check mb-3 d-flex align-items-center">
+          <input type="checkbox" class="form-check-input me-2" id="rememberMe">
+          <label for="rememberMe" class="form-check-label">Rester connecté</label>
+        </div>
+
+        <!-- Bouton Connexion -->
+        <button mat-raised-button (click)="appStore.login()" color="primary" type="button" class="w-100 mb-3">Se connecter</button>
+      </form>
+    </mat-card-content>
+
+    <!-- Message pour créer un compte -->
+    <mat-card-actions class="text-center mt-3">
+      <p>Pas encore de compte ? 
+        <a routerLink="/register" class="text-primary">Créer un compte</a>
+      </p>
+    </mat-card-actions>
+  </mat-card>
+</div>
