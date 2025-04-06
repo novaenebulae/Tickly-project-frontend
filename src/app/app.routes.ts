@@ -8,11 +8,6 @@ import {
 
 export const routes: Routes = [
   {
-    path: 'login',
-    component: AuthComponent,
-    canActivate: [redirectLoginIfAuthenticated], // Redirige vers /admin/dashboard si connecté
-  },
-  {
     path: '',
     canActivate: [redirectLoginIfNotAuthenticated], // Protège toutes les autres routes
     children: [
@@ -21,5 +16,10 @@ export const routes: Routes = [
         children: adminRoutes,
       },
     ],
+  },
+  {
+    path: 'login',
+    component: AuthComponent,
+    canActivate: [redirectLoginIfAuthenticated], // Redirige vers /admin/dashboard si connecté
   },
 ];
