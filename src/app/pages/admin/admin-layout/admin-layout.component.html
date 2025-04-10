@@ -1,17 +1,13 @@
 <!-- <div class="admin-container"> -->
   <mat-toolbar class="mat-elevation-z3">
-    @if (appStore.user(); as user) {
-    <button mat-icon-button [mat-menu-trigger-for]="profileMenu">
-      <img [src]="user.image" class="rounded-full w-8 h-8 object-cover">
-    </button>
-    <mat-menu #profileMenu="matMenu">
-      <button mat-menu-item (click)="appStore.logout()">
-        <mat-icon>exit_to_app</mat-icon>
-        Se déconnecter
-      </button>
-    </mat-menu>
-    }
-  </mat-toolbar>
+    <mat-toolbar color="primary">
+  <button mat-icon-button (click)="auth.logout()">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
+
+  
+</mat-toolbar>
   <mat-sidenav-container>
     <mat-sidenav opened mode="side" [style.width]="sidenavWidth()">
       <button mat-icon-button class="burger-button" (click)="collapsed.set(!collapsed())" >

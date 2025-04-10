@@ -1,4 +1,3 @@
-import { AppStore } from './../../../app.store';
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -7,6 +6,8 @@ import {MatSidenavModule } from '@angular/material/sidenav'
 import { AdminSidenavComponent } from "../components/admin-sidenav/admin-sidenav.component";
 import { RouterModule } from '@angular/router';
 import {MatMenuModule} from '@angular/material/menu';
+import { AuthService } from '../../../core/services/auth.service';
+
 
 
 @Component({
@@ -18,16 +19,16 @@ import {MatMenuModule} from '@angular/material/menu';
     MatSidenavModule,
     AdminSidenavComponent,
     RouterModule,
-    MatMenuModule
+    MatMenuModule,
   ],
 
   templateUrl: './admin-layout.component.html',
   styleUrl: './admin-layout.component.scss',
 })
 export class AdminLayoutComponent {
-
-  appStore = inject(AppStore);
+  auth = inject(AuthService);
   collapsed = signal(false);
-
   sidenavWidth = computed(() => (this.collapsed() ? '65px' : '250px'));
 }
+
+

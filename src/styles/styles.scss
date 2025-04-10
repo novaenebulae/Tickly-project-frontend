@@ -17,3 +17,22 @@ html {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif;}
+
+mat-snack-bar-container {
+  &.valid .mat-mdc-snackbar-surface {
+    background-color: green;
+  }
+
+  &.error .mat-mdc-snackbar-surface {
+    background-color:crimson;
+    
+  }
+
+  &.warning .mat-mdc-snackbar-surface {
+    background-color: orange;
+  }
+
+  &.info .mat-mdc-snackbar-surface {
+    background-color: gray;
+  }
+}
