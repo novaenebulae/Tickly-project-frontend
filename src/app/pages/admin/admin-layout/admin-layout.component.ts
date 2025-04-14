@@ -6,6 +6,7 @@ import {MatSidenavModule } from '@angular/material/sidenav'
 import { AdminSidenavComponent } from "../components/admin-sidenav/admin-sidenav.component";
 import { RouterModule } from '@angular/router';
 import {MatMenuModule} from '@angular/material/menu';
+import { AuthComponent } from '../../../core/auth/auth.component';
 import { AuthService } from '../../../core/services/auth.service';
 
 
@@ -26,9 +27,10 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './admin-layout.component.scss',
 })
 export class AdminLayoutComponent {
-  auth = inject(AuthService);
+  authService = inject(AuthService);
   collapsed = signal(false);
   sidenavWidth = computed(() => (this.collapsed() ? '65px' : '250px'));
+
 }
 
 

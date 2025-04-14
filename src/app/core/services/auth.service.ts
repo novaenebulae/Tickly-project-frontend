@@ -1,33 +1,25 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class AuthService {
-  private readonly TEST_USER = {
-    email: 'test@test.com',
-    password: 'password',
-  };
+  constructor(private http: HttpClient, private router: Router) {}
 
-  constructor(private router: Router) {}
-
-  login(email: string, password: string): boolean {
-    if (
-      email === this.TEST_USER.email &&
-      password === this.TEST_USER.password
-    ) {
-      localStorage.setItem('isLoggedIn', 'true');
-      this.router.navigate(['/admin/dashboard']);
-      return true;
-    }
-    return false;
+  login(credentials: { email: string | null; password: string | null }) {
+    return this.http.post('http://localhost:8080/login', credentials, {
+      responseType: 'text',
+    });
   }
 
-  logout(): void {
-    localStorage.removeItem('isLoggedIn');
-    this.router.navigate(['/login']);
+  logout() {
+    localStorage.removeItem('jwt');
+    this.router.navigateByUrl('/login');
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('isLoggedIn');
+    return localStorage.getItem('jwt') !== null;
   }
 }

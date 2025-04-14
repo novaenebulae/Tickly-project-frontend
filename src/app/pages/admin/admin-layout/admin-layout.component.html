@@ -1,25 +1,27 @@
 <!-- <div class="admin-container"> -->
-  <mat-toolbar class="mat-elevation-z3">
-    <mat-toolbar color="primary">
-  <button mat-icon-button (click)="auth.logout()">
+<mat-toolbar class="mat-elevation-z3">
+    <!-- <mat-toolbar color="primary"> -->
+  <button mat-icon-button (click)="authService.logout()">
     <mat-icon>logout</mat-icon>
   </button>
 </mat-toolbar>
 
-  
-</mat-toolbar>
-  <mat-sidenav-container>
-    <mat-sidenav opened mode="side" [style.width]="sidenavWidth()">
-      <button mat-icon-button class="burger-button" (click)="collapsed.set(!collapsed())" >
+<mat-sidenav-container>
+  <mat-sidenav opened mode="side" [style.width]="sidenavWidth()">
+    <button
+      mat-icon-button
+      class="burger-button"
+      (click)="collapsed.set(!collapsed())"
+    >
       <mat-icon>menu</mat-icon>
     </button>
-      <app-admin-sidenav [collapsed]="collapsed()"></app-admin-sidenav>
-    </mat-sidenav>
-    <mat-sidenav-content class="content" [style.margin-left]="sidenavWidth()">
-      <router-outlet></router-outlet>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
-  <!-- <div class="content">
+    <app-admin-sidenav [collapsed]="collapsed()"></app-admin-sidenav>
+  </mat-sidenav>
+  <mat-sidenav-content class="content" [style.margin-left]="sidenavWidth()">
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+<!-- <div class="content">
     <router-outlet></router-outlet>
   </div> -->
 <!-- </div> -->
