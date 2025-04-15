@@ -1,29 +1,52 @@
+import { jwtInterceptor } from './../interceptors/jwt.interceptor';
 import { Component, inject } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
-import { RouterModule } from '@angular/router';
-import { AppStore } from '../../app.store';
-import { MatIcon } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { FormBuilder } from '@angular/forms';
+import { NotificationService } from '../services/notification.service';
+import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-auth',
+  templateUrl: './auth.component.html',
   imports: [
     MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCheckboxModule,
     MatButtonModule,
-    RouterModule,
-    MatIcon
+    MatInputModule,
+    MatIconModule,
+    FormsModule,
+    ReactiveFormsModule,
   ],
-  templateUrl: './auth.component.html',
   styleUrl: './auth.component.scss',
 })
 export class AuthComponent {
+  formBuilder = inject(FormBuilder);
+  http = inject(HttpClient);
+  router: Router = inject(Router);
+  authService = inject(AuthService);
 
-  appStore = inject(AppStore);
-  
+  formulaire = this.formBuilder.group({
+    email: ['admin@example.com', [Validators.required, Validators.email]],
+    password: ['root', Validators.required],
+  });
+
+  onLogin() {
+    if (this.formulaire.valid) {
+      const credentials = {
+        email: this.formulaire.value.email || null,
+        password: this.formulaire.value.password || null,
+      };
+
+      this.authService.login(credentials);
+    }
+  }
+
+  onLogout() {
+    this.authService.logout();
+  }
 }

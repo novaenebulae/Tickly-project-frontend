@@ -1,25 +1,22 @@
 import { Routes } from '@angular/router';
+import { LoginGuard } from './core/guards/login.guard';
 import { adminRoutes } from './pages/admin/admin.routes';
+import { spectatorRoutes } from './pages/spectator/spectator.routes';
 import { AuthComponent } from './core/auth/auth.component';
-import {
-  redirectLoginIfAuthenticated,
-  redirectLoginIfNotAuthenticated,
-} from './core/guards/auth.guards';
 
 export const routes: Routes = [
   {
-    path: '',
-    canActivate: [redirectLoginIfNotAuthenticated], // Protège toutes les autres routes
-    children: [
-      {
-        path: 'admin',
-        children: adminRoutes,
-      },
-    ],
+    path: 'staff',
+    canActivate: [LoginGuard],
+    children: adminRoutes,
   },
   {
-    path: 'login',
+    path: 'spectator',
+    canActivate: [LoginGuard],
+    children: spectatorRoutes,
+  },
+  {
+    path: '**',
     component: AuthComponent,
-    canActivate: [redirectLoginIfAuthenticated], // Redirige vers /admin/dashboard si connecté
   },
 ];
