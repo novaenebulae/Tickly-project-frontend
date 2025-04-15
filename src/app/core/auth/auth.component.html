@@ -1,7 +1,6 @@
 <div
   class="d-flex flex-column align-items-center justify-content-center vh-100"
 >
-  <!-- Logo centré -->
   <img
     src="icons/tickly-logo.svg"
     alt="Logo"
@@ -9,7 +8,6 @@
     style="width: 300px; height: auto"
   />
 
-  <!-- Card de connexion -->
   <mat-card
     class="p-4 shadow-lg"
     style="width: 100%; max-width: 400px; border-radius: 12px"
@@ -36,7 +34,7 @@
         </div>
 
         <!-- Champ Mot de Passe -->
-        <div class="mb-3">
+        <div class="mb-2">
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>Mot de passe</mat-label>
             <mat-icon matPrefix>lock</mat-icon>
@@ -51,7 +49,7 @@
         </div>
 
         <!-- Case à cocher "Rester connecté" -->
-        <div class="form-check mb-3 d-flex align-items-center">
+        <div class="form-check mb-5 d-flex align-items-center">
           <input
             type="checkbox"
             class="form-check-input me-2"
@@ -76,12 +74,11 @@
       </form>
     </mat-card-content>
 
-    <!-- Message pour créer un compte -->
     <mat-card-actions class="text-center mt-3">
-      <p>
+      <span>
         Pas encore de compte ?
         <a routerLink="/register" class="text-primary">Créer un compte</a>
-      </p>
+      </span>
     </mat-card-actions>
   </mat-card>
 </div>

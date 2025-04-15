@@ -1,14 +1,23 @@
 import { Routes } from '@angular/router';
 import { LoginGuard } from './core/guards/login.guard';
-import { adminRoutes } from './pages/admin/admin.routes';
-import { spectatorRoutes } from './pages/spectator/spectator.routes';
 import { AuthComponent } from './core/auth/auth.component';
+import { staffRoutes } from './pages/private/staff/staff.routes';
+import { spectatorRoutes } from './pages/private/spectator/spectator.routes';
+import { RegisterPageComponent } from './pages/public/register/register-page/register-page.component';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    component: AuthComponent,
+  },
+  {
+    path: 'register',
+    component: RegisterPageComponent,
+  },
+  {
     path: 'staff',
     canActivate: [LoginGuard],
-    children: adminRoutes,
+    children: staffRoutes,
   },
   {
     path: 'spectator',
@@ -17,6 +26,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    component: AuthComponent,
+    component: RegisterPageComponent,
   },
 ];

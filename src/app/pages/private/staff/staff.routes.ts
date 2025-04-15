@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { AdminLayoutComponent } from './admin-layout/admin-layout.component';
+import { StaffLayoutComponent } from './staff-layout/staff-layout.component';
 import { OrganisationComponent } from './panels/organisation/organisation.component';
 import { EventsComponent } from './panels/events/events.component';
 import { DashboardComponent } from './panels/dashboard/dashboard.component';
@@ -8,10 +8,10 @@ import { CalendarComponent } from './panels/events/calendar/calendar.component';
 import { TeamComponent } from './panels/organisation/team/team.component';
 import { AreasComponent } from './panels/organisation/areas/areas.component';
 
-export const adminRoutes: Routes = [
+export const staffRoutes: Routes = [
   {
     path: '',
-    component: AdminLayoutComponent,
+    component: StaffLayoutComponent,
     children: [
       {
         path: 'dashboard',
