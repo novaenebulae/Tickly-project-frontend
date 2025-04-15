@@ -1,3 +1,4 @@
+import { jwtInterceptor } from './../interceptors/jwt.interceptor';
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -26,7 +27,6 @@ import { AuthService } from '../services/auth.service';
 export class AuthComponent {
   formBuilder = inject(FormBuilder);
   http = inject(HttpClient);
-  notification = inject(NotificationService);
   router: Router = inject(Router);
   authService = inject(AuthService);
 
@@ -36,34 +36,17 @@ export class AuthComponent {
   });
 
   onLogin() {
-    
     if (this.formulaire.valid) {
-
       const credentials = {
         email: this.formulaire.value.email || null,
         password: this.formulaire.value.password || null,
       };
 
-      this.authService.login(credentials).subscribe({
-        next: (jwt) => {
-          localStorage.setItem('jwt', jwt);
-          this.router.navigateByUrl('/admin/dashboard');
-        },
-        error: (error) => {
-          if (error.status === 401) {
-            this.notification.displayNotification(
-              "Erreur d'authentification",
-              'error',
-              'Fermer'
-            );
-          }
-        },
-      });
+      this.authService.login(credentials);
     }
   }
 
   onLogout() {
-    localStorage.removeItem('jwt');
-    this.router.navigateByUrl('/login');
+    this.authService.logout();
   }
 }
