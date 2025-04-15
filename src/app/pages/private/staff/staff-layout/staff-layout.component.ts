@@ -6,13 +6,13 @@ import {MatSidenavModule } from '@angular/material/sidenav'
 import { AdminSidenavComponent } from "../components/admin-sidenav/admin-sidenav.component";
 import { RouterModule } from '@angular/router';
 import {MatMenuModule} from '@angular/material/menu';
-import { AuthComponent } from '../../../core/auth/auth.component';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthComponent } from '../../../../core/auth/auth.component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 
 
 @Component({
-  selector: 'app-admin-layout',
+  selector: 'app-staff-layout',
   imports: [
     MatToolbarModule,
     MatButtonModule,
@@ -23,10 +23,10 @@ import { AuthService } from '../../../core/services/auth.service';
     MatMenuModule,
   ],
 
-  templateUrl: './admin-layout.component.html',
-  styleUrl: './admin-layout.component.scss',
+  templateUrl: './staff-layout.component.html',
+  styleUrl: './staff-layout.component.scss',
 })
-export class AdminLayoutComponent {
+export class StaffLayoutComponent {
   authService = inject(AuthService);
   collapsed = signal(false);
   sidenavWidth = computed(() => (this.collapsed() ? '65px' : '250px'));

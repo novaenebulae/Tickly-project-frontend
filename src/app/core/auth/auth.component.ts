@@ -8,7 +8,7 @@ import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder } from '@angular/forms';
 import { NotificationService } from '../services/notification.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -21,6 +21,7 @@ import { AuthService } from '../services/auth.service';
     MatIconModule,
     FormsModule,
     ReactiveFormsModule,
+    RouterModule,
   ],
   styleUrl: './auth.component.scss',
 })
@@ -32,7 +33,7 @@ export class AuthComponent {
 
   formulaire = this.formBuilder.group({
     email: ['admin@example.com', [Validators.required, Validators.email]],
-    password: ['root', Validators.required],
+    password: ['rootroot', Validators.required],
   });
 
   onLogin() {

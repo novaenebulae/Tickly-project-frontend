@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { NotificationService } from './notification.service';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -77,4 +78,13 @@ export class AuthService {
     );
     this.router.navigateByUrl('/login');
   }
+
+  register(userRegistrationDto: any): Observable<any> {
+    return this.http.post(
+      `http://localhost:8080/register`,
+      userRegistrationDto
+    );
+  }
 }
+
+
