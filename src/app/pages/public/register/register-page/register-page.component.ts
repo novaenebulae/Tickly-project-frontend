@@ -72,11 +72,19 @@ export class RegisterPageComponent implements OnInit {
     this.authService.register(userRegistrationDto).subscribe({
       next: (response) => {
         this.isLoading = false;
-        this.snackBar.open('Compte créé avec succès! Vous pouvez maintenant vous connecter.', 'Fermer', {
+        this.authService.login({
+          email: userRegistrationDto.email,
+          password: userRegistrationDto.password
+        });
+        this.snackBar.open('Compte créé avec succès!', 'Fermer', {
           duration: 5000,
           panelClass: ['success-snackbar']
         });
-        this.router.navigate(['/login']);
+        if (userRegistrationDto.createStructure) {
+          this.router.navigate(['/create-structure']);
+        } else {  
+        this.router.navigate(['/spectator']);
+        }
       },
       error: (error) => {
         this.isLoading = false;

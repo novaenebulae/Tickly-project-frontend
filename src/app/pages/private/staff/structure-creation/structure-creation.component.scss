@@ -1,0 +1,342 @@
+// Variables - Système de couleurs vibrant et jeune
+$primary: #1976d2;
+$secondary: #ff6d00;
+$accent: #03a9f4;
+$gradient-start: #2962ff;
+$gradient-end: #00bcd4;
+$text-dark: #263238;
+$text-light: #78909c;
+$background: #f7f9fc;
+$card-bg: #ffffff;
+$error: #f44336;
+$success: #00c853;
+
+// Mixins
+@mixin card-hover {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@mixin gradient-text {
+  background: linear-gradient(45deg, $gradient-start, $gradient-end);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+// Styles principaux
+.structure-creation-container {
+  min-height: 100vh;
+  background-color: $background;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Roboto', sans-serif;
+}
+
+.creation-card {
+  width: 100%;
+  max-width: 1200px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  @include card-hover;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.mat-mdc-form-field {
+  width: 100% !important;
+}
+
+
+// Section formulaire (gauche)
+.form-section {
+  padding: 2.5rem;
+  background-color: $card-bg;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.logo-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: lighten($accent, 35%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 1.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: lighten($accent, 30%);
+    transform: scale(1.05);
+  }
+  
+  i {
+    color: $accent;
+    font-size: 28px;
+  }
+}
+
+.upload-btn {
+  background-color: transparent;
+  border: 2px solid $accent;
+  color: $accent;
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background-color: $accent;
+    color: white;
+    box-shadow: 0 4px 10px rgba($accent, 0.3);
+  }
+}
+
+
+.structure-form {
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  // Styles pour les composants Angular Material
+  ::ng-deep {
+    .mat-form-field {
+      width: 100%;
+    }
+    
+    .mat-form-field-appearance-outline .mat-form-field-outline {
+      color: rgba($text-light, 0.3);
+      border-radius: 8px;
+    }
+    
+    .mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+      color: $accent;
+    }
+    
+    .mat-form-field-label {
+      color: $text-light;
+    }
+    
+    .mat-form-field.mat-focused .mat-form-field-label {
+      color: $accent;
+    }
+    
+    .mat-input-element {
+      color: $text-dark;
+    }
+    
+    .mat-form-field-subscript-wrapper {
+      font-size: 12px;
+    }
+    
+    .mat-select-arrow {
+      color: $accent;
+    }
+    
+    .mat-hint {
+      color: $text-light;
+    }
+  }
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  gap: 1rem;
+  
+  .cancel-btn {
+    color: $text-light;
+    border-color: rgba($text-light, 0.3);
+    border-radius: 30px;
+    padding: 0.5rem 1.5rem;
+    width: 30%;
+    
+    &:hover {
+      background-color: rgba($text-light, 0.05);
+    }
+  }
+  
+  .save-btn {
+    background: linear-gradient(45deg, $gradient-start, $gradient-end);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 0.5rem 1.8rem;
+    box-shadow: 0 4px 15px rgba($gradient-start, 0.3);
+    transition: all 0.3s ease;
+    width: 30%;
+
+    
+    &:hover {
+      box-shadow: 0 6px 20px rgba($gradient-start, 0.4);
+      transform: translateY(-2px);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;;
+    }
+  }
+}
+
+// Section d'information (droite)
+.info-section {
+  position: relative;
+  background: linear-gradient(135deg, $gradient-start, $gradient-end);
+  color: white;
+  
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100%;
+    padding: 2.5rem;
+  }
+}
+
+.step-indicator {
+  text-align: right;
+  font-weight: 500;
+  
+  span {
+    display: inline-block;
+    position: relative;
+    padding-bottom: 5px;
+    font-size: 1.1rem;
+    
+    &:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: rgba(white, 0.5);
+    }
+  }
+}
+
+.title-content {
+  margin: 5rem 0;
+  
+  h2 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    
+    &:before {
+      content: '';
+      position: absolute;
+      width: 40px;
+      height: 3px;
+      background-color: white;
+      bottom: -10px;
+      left: 0;
+    }
+  }
+  
+  p {
+    font-size: 1rem;
+    opacity: 0.9;
+    line-height: 1.6;
+  }
+}
+
+.brand-logo {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  margin-top: auto;
+  
+  img {
+    max-width: 200px;
+    filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.15));
+    // transform: rotate(5deg);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: rotate(8deg) scale(1.05);
+    }
+  }
+}
+
+// Animations
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .creation-card {
+    margin: 1rem;
+  }
+  
+  .info-section {
+    .content-wrapper {
+      padding: 2rem;
+    }
+  }
+  
+  .title-content {
+    margin: 2rem 0;
+    
+    h2 {
+      font-size: 2rem;
+    }
+  }
+  
+  .brand-logo {
+    justify-content: center;
+    margin-top: 2rem;
+    
+    img {
+      max-width: 140px;
+    }
+  }
+  
+  .action-buttons {
+    justify-content: center;
+  }
+  
+  .form-section,
+  .info-section .content-wrapper {
+    padding: 2rem;
+  }
+}
+
+// Effets visuels supplémentaires
+.info-section:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+  pointer-events: none;
+}

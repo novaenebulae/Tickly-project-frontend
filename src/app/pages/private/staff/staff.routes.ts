@@ -7,8 +7,13 @@ import { StatsComponent } from './panels/stats/stats.component';
 import { CalendarComponent } from './panels/events/calendar/calendar.component';
 import { TeamComponent } from './panels/organisation/team/team.component';
 import { AreasComponent } from './panels/organisation/areas/areas.component';
+import { StructureCreationComponent } from './structure-creation/structure-creation.component';
 
 export const staffRoutes: Routes = [
+  {
+    path: 'create-structure',
+    component: StructureCreationComponent,
+  },
   {
     path: '',
     component: StaffLayoutComponent,
@@ -29,7 +34,7 @@ export const staffRoutes: Routes = [
             path: 'calendar',
             component: CalendarComponent,
           },
-        ]
+        ],
       },
       {
         path: 'organisation',
@@ -43,7 +48,7 @@ export const staffRoutes: Routes = [
             path: 'areas',
             component: AreasComponent,
           },
-        ]
+        ],
       },
       {
         path: 'stats',
