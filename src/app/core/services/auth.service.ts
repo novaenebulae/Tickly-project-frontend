@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 export class AuthService {
   notification = inject(NotificationService);
   role: string | null = null;
+  id: number | null = null;
   isLoggedIn = false;
 
   constructor(private http: HttpClient, private router: Router) {
@@ -32,10 +33,19 @@ export class AuthService {
         return '/staff';
       case 'SPECTATOR':
         return '/spectator';
+      case 'PENDING_STRUCTURE_ADMINISTRATOR':
+        return '/staff/create-structure';
       default:
         return '/login';
     }
   }
+
+  // getUserInfos() {
+  //   this.http.get('http://localhost:8080/api/users/' + this.id)
+  //   .subscribe((user: any) => {
+  //     this.name = user.role;
+  //   });
+  // }
   
 
   login(credentials: { email: string | null; password: string | null }) {
@@ -47,6 +57,7 @@ export class AuthService {
         next: (jwt) => {
           localStorage.setItem('jwt', jwt);
           this.role = this.decodeJwt(jwt);
+          this.id = this.decodeJwt(jwt);
           this.isLoggedIn = true;
           this.notification.displayNotification(
             'Connexion réussie',
