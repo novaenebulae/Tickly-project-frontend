@@ -1,5 +1,5 @@
 import { jwtInterceptor } from './../interceptors/jwt.interceptor';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
@@ -35,6 +35,12 @@ export class AuthComponent {
     email: ['admin@example.com', [Validators.required, Validators.email]],
     password: ['rootroot', Validators.required],
   });
+
+  ngOnInit() {
+    if (this.authService.isLoggedIn) {
+      this.router.navigateByUrl(this.authService.getRedirectionUrl(this.authService.role));
+    }
+  }
 
   onLogin() {
     if (this.formulaire.valid) {

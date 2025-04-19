@@ -10,13 +10,16 @@ import { Observable } from 'rxjs';
 export class AuthService {
   notification = inject(NotificationService);
   role: string | null = null;
-  id: number | null = null;
+  username: string | null = null;
   isLoggedIn = false;
 
   constructor(private http: HttpClient, private router: Router) {
     const jwt = localStorage.getItem('jwt');
     if (jwt !== null) {
-      this.decodeJwt(jwt);
+      this.role = this.decodeJwt(jwt);
+      if (this.isLoggedIn) {
+          this.router.navigateByUrl(this.getRedirectionUrl(this.role));
+      }
     }
   }
 
@@ -28,13 +31,14 @@ export class AuthService {
   }
 
   getRedirectionUrl(role: string | null) {
+    console.log(role);
     switch (role) {
       case 'STRUCTURE_ADMINISTRATOR':
-        return '/staff';
+        return '/admin';
       case 'SPECTATOR':
-        return '/spectator';
+        return '/user';
       case 'PENDING_STRUCTURE_ADMINISTRATOR':
-        return '/staff/create-structure';
+        return '/admin/create-structure';
       default:
         return '/login';
     }
@@ -56,9 +60,15 @@ export class AuthService {
       .subscribe({
         next: (jwt) => {
           localStorage.setItem('jwt', jwt);
-          this.role = this.decodeJwt(jwt);
-          this.id = this.decodeJwt(jwt);
+          const payloadDecoded = JSON.parse(atob(jwt.split('.')[1]));
+          this.role = payloadDecoded.role;
+          this.username = payloadDecoded.user;
+          
+          localStorage.setItem('role', this.role ? this.role : '');
+          localStorage.setItem('username', this.username ? this.username : '');
+
           this.isLoggedIn = true;
+          
           this.notification.displayNotification(
             'Connexion réussie',
             'valid',
@@ -80,7 +90,10 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('jwt');
+    localStorage.removeItem('role');
+    localStorage.removeItem('username');
     this.role = null;
+    this.username = null;
     this.isLoggedIn = false;
     this.notification.displayNotification(
       'Déconnexion réussie',

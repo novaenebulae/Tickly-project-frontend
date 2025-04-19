@@ -1,31 +1,35 @@
 import { Routes } from '@angular/router';
 import { LoginGuard } from './core/guards/login.guard';
 import { AuthComponent } from './core/auth/auth.component';
-import { staffRoutes } from './pages/private/staff/staff.routes';
-import { spectatorRoutes } from './pages/private/spectator/spectator.routes';
+import { adminRoutes } from './pages/private/admin/admin.routes';
+import { userRoutes } from './pages/private/user/user.routes';
 import { RegisterPageComponent } from './pages/public/register/register-page/register-page.component';
+import { PublicGuard } from './core/guards/public.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
     component: AuthComponent,
+    canActivate: [PublicGuard],
   },
   {
     path: 'register',
     component: RegisterPageComponent,
+    canActivate: [PublicGuard],
   },
   {
-    path: 'staff',
+    path: 'user',
     canActivate: [LoginGuard],
-    children: staffRoutes,
+    children: userRoutes,
   },
   {
-    path: 'spectator',
+    path: 'admin',
     canActivate: [LoginGuard],
-    children: spectatorRoutes,
+    children: adminRoutes,
   },
   {
-    path: '**',
-    component: RegisterPageComponent,
+    path: '',
+    redirectTo: '/login',
+    pathMatch: 'full',
   },
 ];
