@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
 import { LoginGuard } from './core/guards/login.guard';
 import { AuthComponent } from './core/auth/auth.component';
-import { staffRoutes } from './pages/private/staff/staff.routes';
-import { spectatorRoutes } from './pages/private/spectator/spectator.routes';
 import { RegisterPageComponent } from './pages/public/register/register-page/register-page.component';
+import { adminRoutes } from './pages/private/admin/admin.routes';
+import { userRoutes } from './pages/private/user/user.routes';
 
 export const routes: Routes = [
   {
@@ -15,14 +15,14 @@ export const routes: Routes = [
     component: RegisterPageComponent,
   },
   {
-    path: 'staff',
+    path: 'user',
     canActivate: [LoginGuard],
-    children: staffRoutes,
+    children: userRoutes,
   },
   {
-    path: 'spectator',
+    path: 'structure-admin',
     canActivate: [LoginGuard],
-    children: spectatorRoutes,
+    children: adminRoutes,
   },
   {
     path: '**',

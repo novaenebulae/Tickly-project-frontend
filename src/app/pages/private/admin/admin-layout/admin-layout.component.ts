@@ -23,10 +23,10 @@ import { AuthService } from '../../../../core/services/auth.service';
     MatMenuModule,
   ],
 
-  templateUrl: './staff-layout.component.html',
-  styleUrl: './staff-layout.component.scss',
+  templateUrl: './admin-layout.component.html',
+  styleUrl: './admin-layout.component.scss',
 })
-export class StaffLayoutComponent {
+export class AdminLayoutComponent {
   authService = inject(AuthService);
   collapsed = signal(false);
   sidenavWidth = computed(() => (this.collapsed() ? '65px' : '250px'));
