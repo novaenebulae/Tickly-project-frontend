@@ -1,3 +1,4 @@
+import { StructureCreationResponse } from './../models/StructureCreationResponse.interface';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -11,11 +12,11 @@ export class StructureService {
   http = inject(HttpClient);
   apiUrl = 'http://localhost:8080/api';
 
-  createStructure<StructureDto>(
+  createStructure(
     structureValues: StructureDto
-  ): Observable<StructureDto> {
+  ): Observable<StructureCreationResponse> {
     console.log(structureValues);
-    return this.http.post<StructureDto>(
+    return this.http.post<StructureCreationResponse>(
       `${this.apiUrl}/structures/create-structure`,
       structureValues
     );

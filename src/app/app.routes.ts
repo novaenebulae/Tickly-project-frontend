@@ -5,8 +5,14 @@ import { adminRoutes } from './pages/private/admin/admin.routes';
 import { userRoutes } from './pages/private/user/user.routes';
 import { RegisterPageComponent } from './pages/public/register/register-page/register-page.component';
 import { PublicGuard } from './core/guards/public.guard';
+import { HomePageComponent } from './pages/public/home/home-page/home-page.component';
+import { StructureCreationComponent } from './pages/private/admin/structure-creation/structure-creation.component';
 
 export const routes: Routes = [
+  {
+    path: 'home',
+    component: HomePageComponent,
+  },
   {
     path: 'login',
     component: AuthComponent,
@@ -16,6 +22,11 @@ export const routes: Routes = [
     path: 'register',
     component: RegisterPageComponent,
     canActivate: [PublicGuard],
+  },
+  {
+    path: 'create-structure',
+    component: StructureCreationComponent,
+    canActivate: [LoginGuard],
   },
   {
     path: 'user',

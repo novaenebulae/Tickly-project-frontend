@@ -96,9 +96,9 @@
             </div>
             
             <div class="action-buttons">
-              <button mat-stroked-button class="back-btn" type="button" (click)="onBack()">
+              <button mat-stroked-button class="back-btn" type="button" (click)="onCancel()">
                 <mat-icon>arrow_back</mat-icon>
-                Retour
+                Annuler
               </button>
               <button mat-flat-button class="save-btn" type="submit" [disabled]="registerForm.invalid">
                 Créer le compte
@@ -111,9 +111,13 @@
         <div class="col-md-4 info-section">
           <div class="content-wrapper">
             <div class="step-indicator">
-              <span>Étape 1/2</span>
+              @if (registerForm.get('createStructure')?.value) {
+                <span>Étape 1/2</span>
+              } @else {
+                <span>Étape 1/1</span>
+              }
             </div>
-            
+     
             <div class="title-content">
               <h2>Rejoignez Tickly</h2>
               <p *ngIf="!registerForm.get('createStructure')?.value">

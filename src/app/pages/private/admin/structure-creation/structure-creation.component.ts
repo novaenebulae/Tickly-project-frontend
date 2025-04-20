@@ -1,133 +1,162 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core'; // Ajout OnInit
 import {
-  Form,
   FormBuilder,
-  FormControl,
+  FormControl, // Import FormControl
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  MatFormFieldControl,
-  MatFormFieldModule,
-} from '@angular/material/form-field';
-import { MatInputModule, MatLabel } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input'; // MatLabel est inclus
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
+// import { MatSnackBar } from '@angular/material/snack-bar'; // Utiliser NotificationService
 import { Router } from '@angular/router';
+// import { AuthService } from '../../../../core/services/auth.service'; // Pas nécessaire ici
+import { StructureService } from '../../../../core/services/structure.service'; // Vérifier le chemin
+import { NotificationService } from '../../../../core/services/notification.service';
+import { CommonModule } from '@angular/common'; // Ajouter CommonModule pour *ngIf
+import { MatButtonModule } from '@angular/material/button'; // Pour les boutons
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; // Pour le spinner
 import { AuthService } from '../../../../core/services/auth.service';
-import { HttpClient } from '@angular/common/http';
-import { StructureService } from '../../../../core/services/structure.service';
+import { StructureCreationResponse } from '../../../../core/models/StructureCreationResponse.interface';
+
 
 @Component({
   selector: 'app-structure-creation',
+  standalone: true, // Assurez-vous que c'est bien standalone
   imports: [
-    MatLabel,
+    CommonModule, // Ajouter CommonModule
+    ReactiveFormsModule,
     MatFormFieldModule,
     MatSelectModule,
     MatInputModule,
-    ReactiveFormsModule,
+    MatButtonModule, // Ajouter MatButtonModule
+    MatProgressSpinnerModule, // Ajouter le spinner
   ],
-  standalone: true,
-  providers: [],
-  templateUrl: './structure-creation.component.html',
-  styleUrl: './structure-creation.component.scss',
+  providers: [], // Garder vide si services sont 'root'
+  templateUrl: './structure-creation.component.html', // Fichier HTML [7] - Assurez-vous qu'il existe
+  styleUrls: ['./structure-creation.component.scss'], // Corrigé 'styleUrl'
 })
-export class StructureCreationComponent {
+export class StructureCreationComponent implements OnInit {
+  // Implémenter OnInit
+
   structureCreationForm!: FormGroup;
-  isLoading = false;
-
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-    private snackBar: MatSnackBar,
-    private http: HttpClient,
-    private structureService: StructureService
-  ) {}
-
-  structureDto: StructureDto | null = null;
+  isLoading = false; // Pour le spinner
   structureTypesOptions: StructureType[] = [];
 
+  // Injection
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private structureService = inject(StructureService);
+  private notification = inject(NotificationService);
+  private auth = inject(AuthService); 
+
   ngOnInit(): void {
+    // L'utilisateur est déjà authentifié (géré par AuthGuard)
+    // On initialise le formulaire et charge les données nécessaires
     this.initForm();
+    this.loadStructureTypes();
+  }
+
+  initForm(): void {
+    this.structureCreationForm = this.fb.group({
+      structureName: ['', [Validators.required]],
+      structureTypes: [[], [Validators.required]],
+      structureCountry: ['', [Validators.required]],
+      structureCity: ['', [Validators.required]],
+      structureStreet: ['', [Validators.required]],
+      structureAddressNumber: [''],
+      structureDescription: [''], 
+    });
+  }
+
+  loadStructureTypes(): void {
+    this.isLoading = true; // Activer spinner pendant le chargement
     this.structureService.getStructureTypes().subscribe({
       next: (types) => {
         this.structureTypesOptions = types;
         console.log('Structure types loaded:', this.structureTypesOptions);
+        this.isLoading = false; // Désactiver spinner après succès
       },
       error: (error) => {
         console.error('Error loading structure types:', error);
-      }
-    })
-  }
-
-
-  initForm(): void {
-    this.structureCreationForm = this.fb.group({
-      structureName: new FormControl('', [Validators.required]),
-      structureTypes: new FormControl(''),
-      structureCountry: new FormControl('', [Validators.required]),
-      structureCity: new FormControl('', [Validators.required]),
-      structureStreet: new FormControl('', [Validators.required]),
-      structureAddressNumber: new FormControl(''),
-      structureDescription: new FormControl(''),
-      // structureWebsite: new FormControl(''),
+        this.notification.displayNotification(
+          'Erreur lors du chargement des types de structure.',
+          'error',
+          'Fermer'
+        );
+        this.isLoading = false; // Désactiver spinner en cas d'erreur
+      },
     });
-    console.log(this.structureTypesOptions);
-
   }
 
   onSubmit(): void {
+    this.structureCreationForm.markAllAsTouched(); // Afficher les erreurs si invalide
+
     if (this.structureCreationForm.invalid) {
-      return;
+      console.warn('Structure creation form is invalid.');
+      return; // Ne pas soumettre si invalide
     }
 
-    this.isLoading = true;
+    this.isLoading = true; // Activer le spinner pour la soumission
 
+    // Préparer le DTO de la structure
     const newStructureValues: StructureDto = {
       name: this.structureCreationForm.get('structureName')?.value,
-      typeIds: this.structureCreationForm.get('structureTypes')?.value,
+      // Assurez-vous que typeIds est un tableau si multi-select
+      typeIds: Array.isArray(
+        this.structureCreationForm.get('structureTypes')?.value
+      )
+        ? this.structureCreationForm.get('structureTypes')?.value
+        : [this.structureCreationForm.get('structureTypes')?.value].filter(
+            (id) => !!id
+          ), // Conversion en tableau si besoin
       adress: {
         city: this.structureCreationForm.get('structureCity')?.value,
         street: this.structureCreationForm.get('structureStreet')?.value,
-        number: this.structureCreationForm.get('structureAddressNumber')?.value,
+        number:
+          this.structureCreationForm.get('structureAddressNumber')?.value || '', // Valeur par défaut si vide
         country: this.structureCreationForm.get('structureCountry')?.value,
       },
-      description: this.structureCreationForm.get('structureDescription')?.value,
+      description:
+        this.structureCreationForm.get('structureDescription')?.value || '', // Valeur par défaut si vide
     };
 
-    this.structureService
-      .createStructure<StructureDto>(newStructureValues)
-      .subscribe({
-        next: (response) => {
-          this.isLoading = false;
-          this.snackBar.open(
-            'Structure créé avec succès! Vous pouvez maintenant accéder à votre espace.',
-            'Fermer',
-            {
-              duration: 5000,
-              panelClass: ['success-snackbar'],
-            }
-          );
-          this.router.navigate(['staff/dashboard']);
-        },
-        error: (error) => {
-          this.isLoading = false;
-          this.snackBar.open(
-            error.error?.message ||
-              'Une erreur est survenue lors de la création.',
-            'Fermer',
-            {
-              duration: 5000,
-              panelClass: ['error-snackbar'],
-            }
-          );
-        },
-      });
+    console.log('Submitting structure creation:', newStructureValues);
+
+    // Appeler SEULEMENT le service de création de structure
+    // L'intercepteur JWT ajoute le token automatiquement
+    this.structureService.createStructure(newStructureValues).subscribe({
+      next: (response: StructureCreationResponse) => {
+        // Le backend renvoie la structure créée (ou juste 200/201 OK)
+        console.log('Structure created successfully');
+        this.notification.displayNotification(
+          'Structure créée avec succès !',
+          'valid',
+          'Fermer'
+        );
+        this.auth.updateTokenAndState(response.newToken)
+        this.isLoading = false;
+        // Rediriger vers le dashboard admin une fois la structure créée
+        this.router.navigateByUrl('/admin'); // Ou une autre route admin appropriée
+      },
+      error: (error) => {
+        console.error('Error during structure creation:', error);
+        const errorMessage =
+          error.error?.message ||
+          error.message ||
+          'Une erreur est survenue lors de la création de la structure.';
+        this.notification.displayNotification(
+          `Erreur: ${errorMessage}`,
+          'error',
+          'Fermer'
+        );
+        this.isLoading = false; // Désactiver le spinner en cas d'erreur
+      },
+    });
   }
 
-  onResetForm() {
-    this.structureCreationForm.reset();
+  onBack(): void {
+    this.router.navigate(['/home']);
   }
 }

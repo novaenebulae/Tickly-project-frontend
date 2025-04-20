@@ -7,13 +7,8 @@ import { StatsComponent } from './panels/stats/stats.component';
 import { CalendarComponent } from './panels/events/calendar/calendar.component';
 import { TeamComponent } from './panels/organisation/team/team.component';
 import { AreasComponent } from './panels/organisation/areas/areas.component';
-import { StructureCreationComponent } from './structure-creation/structure-creation.component';
 
 export const adminRoutes: Routes = [
-  {
-    path: 'create-structure',
-    component: StructureCreationComponent,
-  },
   {
     path: '',
     component: AdminLayoutComponent,
