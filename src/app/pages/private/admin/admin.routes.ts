@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { AdminLayoutComponent } from './admin-layout/admin-layout.component';
 import { OrganisationComponent } from './panels/organisation/organisation.component';
 import { EventsComponent } from './panels/events/events.component';
 import { DashboardComponent } from './panels/dashboard/dashboard.component';
@@ -6,7 +7,6 @@ import { StatsComponent } from './panels/stats/stats.component';
 import { CalendarComponent } from './panels/events/calendar/calendar.component';
 import { TeamComponent } from './panels/organisation/team/team.component';
 import { AreasComponent } from './panels/organisation/areas/areas.component';
-import { AdminLayoutComponent } from './admin-layout/admin-layout.component';
 
 export const adminRoutes: Routes = [
   {
@@ -29,7 +29,7 @@ export const adminRoutes: Routes = [
             path: 'calendar',
             component: CalendarComponent,
           },
-        ]
+        ],
       },
       {
         path: 'organisation',
@@ -43,7 +43,7 @@ export const adminRoutes: Routes = [
             path: 'areas',
             component: AreasComponent,
           },
-        ]
+        ],
       },
       {
         path: 'stats',

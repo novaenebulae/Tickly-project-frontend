@@ -1,20 +1,21 @@
-import { jwtInterceptor } from './../interceptors/jwt.interceptor';
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { FormBuilder } from '@angular/forms';
-import { NotificationService } from '../services/notification.service';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { AuthService } from '../services/auth.service'; 
+import { CommonModule } from '@angular/common'; 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; 
 
 @Component({
   selector: 'app-auth',
-  templateUrl: './auth.component.html',
+  templateUrl: './auth.component.html', 
+  standalone: true, 
   imports: [
+    CommonModule, 
     MatCardModule,
     MatButtonModule,
     MatInputModule,
@@ -22,32 +23,52 @@ import { AuthService } from '../services/auth.service';
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
+    MatProgressSpinnerModule, 
   ],
-  styleUrl: './auth.component.scss',
+  styleUrls: ['./auth.component.scss'], 
 })
-export class AuthComponent {
+export class AuthComponent  {
+
   formBuilder = inject(FormBuilder);
-  http = inject(HttpClient);
   router: Router = inject(Router);
   authService = inject(AuthService);
+  isLoading = false; 
+  hidePassword = true; 
 
   formulaire = this.formBuilder.group({
     email: ['admin@example.com', [Validators.required, Validators.email]],
     password: ['rootroot', Validators.required],
   });
 
-  onLogin() {
+
+  onLogin(): void {
+    this.formulaire.markAllAsTouched();
     if (this.formulaire.valid) {
+      this.isLoading = true; 
       const credentials = {
         email: this.formulaire.value.email || null,
         password: this.formulaire.value.password || null,
       };
 
-      this.authService.login(credentials);
-    }
-  }
+      this.authService.login(credentials).subscribe({
+        next: () => {
+          console.log(
+            'AuthComponent: Login call successful (navigation handled by AuthService).'
+          ); 
 
-  onLogout() {
+          this.isLoading = false; 
+        },
+        error: (err) => {
+          console.error('Login Component Error:', err);
+          this.isLoading = false; 
+        },
+      });
+    } else {
+      console.warn('Login form is invalid');
+    }
+  } 
+
+  onLogout(): void {
     this.authService.logout();
-  }
-}
+  } 
+} 

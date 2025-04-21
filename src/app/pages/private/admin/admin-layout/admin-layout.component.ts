@@ -12,7 +12,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 
 
 @Component({
-  selector: 'app-staff-layout',
+  selector: 'app-admin-layout',
   imports: [
     MatToolbarModule,
     MatButtonModule,
@@ -30,7 +30,6 @@ export class AdminLayoutComponent {
   authService = inject(AuthService);
   collapsed = signal(false);
   sidenavWidth = computed(() => (this.collapsed() ? '65px' : '250px'));
-
 }
 
 

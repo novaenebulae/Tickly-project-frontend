@@ -1,17 +1,30 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { AuthService } from './../services/auth.service';
+import {
+  HttpInterceptorFn,
+  HttpRequest,
+  HttpHandlerFn,
+  HttpEvent,
+} from '@angular/common/http';
+import { inject } from '@angular/core'; 
+import { Observable } from 'rxjs';
 
-export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
+export const jwtInterceptor: HttpInterceptorFn = (
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn
+): Observable<HttpEvent<unknown>> => {
 
-  const jwt = localStorage.getItem('jwt');
+  const authService = inject(AuthService); 
+  const token = authService.getToken();
 
-  if (jwt) {
-    const clone = req.clone({
+  // Cloner la requête et ajouter l'en-tête SEULEMENT si un token existe
+  if (token) {
+    const clonedReq = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${jwt}`,
+        Authorization: `Bearer ${token}`, 
       },
     });
-    console.log(clone);
-    return next(clone);
+    return next(clonedReq); 
   }
-  return next(req);
+
+  return next(req); 
 };
