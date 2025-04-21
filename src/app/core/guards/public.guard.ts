@@ -11,51 +11,51 @@ export class PublicGuard implements CanActivate {
   private notification = inject(NotificationService);
 
   canActivate(
+    // Route souhaitant être accédée
     route: ActivatedRouteSnapshot,
+
+    // Etat actuel du routeur
     state: RouterStateSnapshot
   ):
+  // Types de retours flexibles permettant l'implémentation dans pluisieurs scénarios (peut-être too much)
     | Observable<boolean | UrlTree>
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
     const targetUrl = state.url;
-    console.log(`PublicGuard: Checking access for public URL: ${targetUrl}`); // LOG P1
+    console.log(`PublicGuard: Checking access for public URL: ${targetUrl}`);
 
     if (this.authService.isLoggedIn) {
       console.log(
         'PublicGuard: User is logged in. Preventing access to public route.'
-      ); // LOG P2
+      ); 
       this.notification.displayNotification(
         'Vous êtes déjà connecté.',
         'info',
         'Fermer'
       );
 
-      // Redirection appropriée
       const currentUser = this.authService.currentUserValue;
       let redirectUrl: string;
 
       if (currentUser?.needsStructureSetup === true) {
-        redirectUrl = '/create-structure'; // Adapter
+        redirectUrl = '/create-structure'; 
         console.log(
           `PublicGuard: Redirecting to ${redirectUrl} (needs setup).`
-        ); // LOG P3a
+        ); 
       } else if (currentUser?.role === 'STRUCTURE_ADMINISTRATOR') {
         redirectUrl = '/admin';
-        console.log(`PublicGuard: Redirecting to ${redirectUrl} (admin).`); // LOG P3b
+        console.log(`PublicGuard: Redirecting to ${redirectUrl} (admin).`); 
       } else {
-        redirectUrl = '/user'; // Ou autre page par défaut
+        redirectUrl = '/user'; 
         console.log(
           `PublicGuard: Redirecting to ${redirectUrl} (default/spectator).`
-        ); // LOG P3c
+        );
       }
-      // Utiliser router.parseUrl pour retourner UrlTree
-      return this.router.parseUrl(redirectUrl); // <<<=== CHANGER ICI
-      // this.router.navigate([redirectUrl]); // navigate retourne Promise<boolean>, pas idéal dans un guard synchrone
-      // return false; // Empêcher l'accès à la page publique
+      return this.router.parseUrl(redirectUrl); 
     } else {
       // Non connecté, autoriser l'accès
-      console.log('PublicGuard: User not logged in. Access GRANTED.'); // LOG P4
+      console.log('PublicGuard: User not logged in. Access GRANTED.'); 
       return true;
     }
   }

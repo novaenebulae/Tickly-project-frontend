@@ -1,144 +1,176 @@
-<div class="structure-creation-container">
-  <div class="card creation-card">
+<div
+  class="structure-creation-container d-flex align-items-center justify-content-center min-vh-100 p-0 p-md-4"
+>
+  <mat-card
+    class="creation-card w-100 border-0 rounded-4 shadow-sm overflow-hidden"
+    style="max-width: 1200px"
+  >
     <div class="row g-0">
-      <!-- Section gauche - Formulaire -->
-      <div class="col-md-7 form-section">
-        <!-- Logo upload -->
-        <div class="logo-container">
-          <div class="logo-placeholder">
-            <i class="material-icons">add_a_photo</i>
+      <div
+        class="col-md-4 order-1 order-md-2 info-section info-section-bg text-white"
+      >
+        <div class="content-wrapper d-flex flex-column h-100 p-4 p-lg-5">
+          <div class="step-indicator text-end">
+            <span>Étape 2/2</span>
           </div>
-          <button class="upload-btn">Upload photo</button>
-        </div>
 
-        <!-- Formulaire -->
+          <div class="title-content text-start">
+            <h2>Création de la structure</h2>
+            <p>
+              Renseignez les informations pour enregistrer votre organisation
+              sur notre plateforme.
+            </p>
+          </div>
+
+          <div class="brand-logo text-center text-md-end mt-auto">
+            <img
+              src="icons/tickly-logo.svg"
+              alt="Tickly Logo"
+              class="brand-logo-img"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-8 order-2 order-md-1 form-section bg-white">
+        <!-- <div
+        class="logo-container d-flex flex-column align-items-center flex-md-row mb-4"
+        >
+        <button mat-stroked-button class="upload-btn">Choisir un Logo</button>
+      </div> -->
+
         <form
           class="structure-form"
           [formGroup]="structureCreationForm"
           (ngSubmit)="onSubmit()"
         >
-          <div class="form-group d-flex flex-row gap-3">
-            <div class="d-flex flex-column w-100">
-              <mat-form-field appearance="outline">
-                <mat-label>Nom de la structure</mat-label>
-                <input matInput formControlName="structureName" />
-                @if(structureCreationForm.controls['structureName'].errors?.['required']
-                && structureCreationForm.controls['structureName'].touched) {
-                <mat-error>Le champs est requis</mat-error>
+          <h3 class="form-title">Créer ma structure</h3>
+          <div class="form-group d-flex flex-column flex-md-row gap-3 mb-3">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Nom de la structure</mat-label>
+              <mat-icon matPrefix>business</mat-icon>
+              <input matInput formControlName="structureName" required />
+              @if(structureCreationForm.controls['structureName'].errors?.['required']
+              && structureCreationForm.controls['structureName'].touched) {
+              <mat-error>Le nom est requis</mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Type(s) de structure</mat-label>
+              <mat-icon matPrefix>category</mat-icon>
+              <mat-select formControlName="structureTypes" multiple required>
+                @for (type of structureTypesOptions; track type.id) {
+                <mat-option [value]="type.id">{{ type.type }}</mat-option>
                 }
-              </mat-form-field>
-            </div>
-            <div class="d-flex flex-column gap-2">
-              <mat-form-field appearance="outline">
-                <mat-label>Type de structure</mat-label>
-                <mat-select formControlName="structureTypes" multiple>
-                  <mat-option>Sélectionner...</mat-option>
-                  @for (type of structureTypesOptions; track $index) {
-                    <mat-option [value]="type.id">{{type.type}}</mat-option>
-                  }
-                </mat-select>
-                @if(structureCreationForm.controls['structureTypes'].errors?.['required']
-                && structureCreationForm.controls['structureTypes'].touched) {
-                <mat-error>Le champs est requis</mat-error>
-                }
-              </mat-form-field>
-            </div>
+              </mat-select>
+              @if(structureCreationForm.controls['structureTypes'].errors?.['required']
+              && structureCreationForm.controls['structureTypes'].touched) {
+              <mat-error>Au moins un type est requis</mat-error>
+              }
+            </mat-form-field>
           </div>
-          <div class="form-group d-flex justify-content-between flex-row gap-3">
-            <mat-form-field appearance="outline">
+
+          <div class="form-group d-flex flex-column flex-md-row gap-3 mb-3">
+            <mat-form-field appearance="outline" class="w-100">
               <mat-label>Pays</mat-label>
-              <input matInput formControlName="structureCountry" />
+              <mat-icon matPrefix>public</mat-icon>
+              <input matInput formControlName="structureCountry" required />
               @if(structureCreationForm.controls['structureCountry'].errors?.['required']
               && structureCreationForm.controls['structureCountry'].touched) {
-              <mat-error>Le champs est requis</mat-error>
+              <mat-error>Le pays est requis</mat-error>
               }
             </mat-form-field>
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="w-100">
               <mat-label>Ville</mat-label>
-              <input matInput formControlName="structureCity" />
+              <mat-icon matPrefix>location_city</mat-icon>
+              <input matInput formControlName="structureCity" required />
               @if(structureCreationForm.controls['structureCity'].errors?.['required']
               && structureCreationForm.controls['structureCity'].touched) {
-              <mat-error>Le champs est requis</mat-error>
+              <mat-error>La ville est requise</mat-error>
               }
             </mat-form-field>
           </div>
-          <div
-            class="form-group"
-            class="form-group d-flex justify-content-between flex-row gap-3"
-          >
-            <mat-form-field appearance="outline">
+
+          <div class="form-group d-flex flex-column flex-md-row gap-3 mb-3">
+            <mat-form-field appearance="outline" class="w-100">
               <mat-label>Rue</mat-label>
-              <input matInput formControlName="structureStreet" />
+              <mat-icon matPrefix>signpost</mat-icon>
+              <input matInput formControlName="structureStreet" required />
               @if(structureCreationForm.controls['structureStreet'].errors?.['required']
               && structureCreationForm.controls['structureStreet'].touched) {
-              <mat-error>Le champs est requis</mat-error>
+              <mat-error>La rue est requise</mat-error>
               }
             </mat-form-field>
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="w-100">
               <mat-label>Numéro</mat-label>
+              <mat-icon matPrefix>pin</mat-icon>
               <input matInput formControlName="structureAddressNumber" />
             </mat-form-field>
           </div>
 
-          <div class="form-group">
-            <mat-form-field appearance="outline">
+          <div class="form-group mb-3">
+            <mat-form-field appearance="outline" class="w-100">
               <mat-label>Description de la structure</mat-label>
+              <mat-icon matPrefix>description</mat-icon>
               <textarea
                 matInput
                 rows="4"
                 formControlName="structureDescription"
+                maxlength="300"
                 #description
               ></textarea>
-              <mat-hint align="end">{{description.value.length}} / 300</mat-hint>
+              <mat-hint align="end"
+                >{{ description.value?.length || 0 }} / 300</mat-hint
+              >
             </mat-form-field>
           </div>
 
-          <!-- <div class="form-group">
-            <mat-form-field appearance="outline">
-              <mat-label>http://votre-site.com</mat-label>
-              <input matInput formControlName="structureWebsite" />
+          <!-- Champ Website  -->
+          <!-- <div class="form-group mb-4">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Site Web</mat-label>
+              <mat-icon matPrefix>language</mat-icon>
+              <input matInput type="url" formControlName="structureWebsite" placeholder="https://votre-site.com" />
+              @if(structureCreationForm.controls['structureWebsite']?.errors?.['pattern'] && structureCreationForm.controls['structureWebsite'].touched) {
+                <mat-error>Format d'URL invalide</mat-error>
+              }
             </mat-form-field>
           </div> -->
 
-          <div class="action-buttons">
+          <div
+            class="action-buttons d-flex flex-row justify-content-center justify-content-md-end gap-2 mt-4"
+          >
             <button
               mat-stroked-button
-              class="cancel-btn" type="reset" (click)="onBack()"
+              type="button"
+              class="cancel-btn w-75 w-md-auto mx-auto mx-md-0"
+              (click)="onBack()"
             >
-              Retour
+              <mat-icon>close</mat-icon>
+              Annuler
             </button>
             <button
-              mat-raised-button
-              class="save-btn"
-              [disabled]="!structureCreationForm.valid"
+              mat-flat-button
+              class="save-btn w-75 w-md-auto mx-auto mx-md-0"
+              [disabled]="
+                !structureCreationForm.valid || structureCreationForm.pending
+              "
               type="submit"
             >
-              Save
+              <mat-spinner
+                *ngIf="structureCreationForm.pending"
+                diameter="20"
+                style="display: inline-block; margin-right: 8px"
+              ></mat-spinner>
+              {{
+                structureCreationForm.pending
+                  ? "Enregistrement..."
+                  : "Enregistrer"
+              }}
             </button>
           </div>
         </form>
       </div>
-
-      <!-- Section droite - Information -->
-      <div class="col-md-5 info-section">
-        <div class="content-wrapper">
-          <div class="step-indicator">
-            <span>Étape 2/2</span>
-          </div>
-
-          <div class="title-content">
-            <h2>Création de la structure</h2>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              Suspendisse varius enim in eros.
-            </p>
-          </div>
-
-          <div class="brand-logo">
-            <img src="icons/tickly-logo.svg" alt="Tickly" />
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
+  </mat-card>
 </div>

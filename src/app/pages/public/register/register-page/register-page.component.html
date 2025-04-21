@@ -1,4 +1,4 @@
-<div class="register-container">
+<div class="register-container p-md-4">
   <div class="card creation-card">
     <div class="container-fluid">
       <div class="row">
@@ -85,7 +85,7 @@
               </div>
             </div>
             
-            <div class="row mt-3 mb-3">
+            <div class="row mt-1 mb-1">
               <div class="col-md-12 form-group account-type-toggle">
                 <div class="toggle-container">
                   <span [class.active]="!registerForm.get('createStructure')?.value">Compte spectateur</span>
@@ -98,7 +98,7 @@
             <div class="action-buttons">
               <button mat-stroked-button class="back-btn" type="button" (click)="onCancel()">
                 <mat-icon>arrow_back</mat-icon>
-                Annuler
+                Retour
               </button>
               <button mat-flat-button class="save-btn" type="submit" [disabled]="registerForm.invalid">
                 Créer le compte
@@ -108,7 +108,7 @@
         </div>
         
         <!-- Section d'information (droite) -->
-        <div class="col-md-4 info-section">
+        <div class="col-md-4 info-section order-first">
           <div class="content-wrapper">
             <div class="step-indicator">
               @if (registerForm.get('createStructure')?.value) {

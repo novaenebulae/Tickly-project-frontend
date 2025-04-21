@@ -4,16 +4,16 @@ import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../services/notification.service';
 
 
-export const LoginGuard: CanActivateFn = (route, state): boolean | UrlTree => {
+export const LoginGuard: CanActivateFn = (state): boolean | UrlTree => {
   const authService = inject(AuthService);
   const notification = inject(NotificationService);
   const router = inject(Router);
-  const targetUrl = state.url; // URL cible
+  const targetUrl = state.url; 
 
-  console.log(`LoginGuard: Checking access for URL: ${targetUrl}`); // LOG G1
+  console.log(`LoginGuard: Checking access for URL: ${targetUrl}`); 
 
   if (!authService.isLoggedIn) {
-    console.log('LoginGuard: User not logged in. Redirecting to /login.'); // LOG G2
+    console.log('LoginGuard: User not logged in. Redirecting to /login.'); 
     notification.displayNotification(
       'Erreur : Vous devez être connecté pour accéder à cette page.',
       'error',
@@ -24,7 +24,7 @@ export const LoginGuard: CanActivateFn = (route, state): boolean | UrlTree => {
 
 
   // Autorisé si : (connecté ET n'a pas besoin de setup) OU (connecté ET a besoin de setup ET va vers la page de setup)
-  console.log('LoginGuard: Access GRANTED.'); // LOG G5
+  console.log('LoginGuard: Access GRANTED.'); 
   return true;
 };
 

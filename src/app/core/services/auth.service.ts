@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { NotificationService } from './notification.service';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
-import { jwtDecode } from 'jwt-decode'; // Installer : npm install jwt-decode
+import { jwtDecode } from 'jwt-decode'; 
 import { JwtPayload } from '../models/JwtPayload.interface';
 import { AuthResponseDto } from '../models/AuthResponse.interface';
 
@@ -16,24 +16,25 @@ import { AuthResponseDto } from '../models/AuthResponse.interface';
   providedIn: 'root',
 })
 export class AuthService {
-  // Injections via inject() pattern (ou via constructeur si préféré)
   private notification = inject(NotificationService);
   private http = inject(HttpClient);
   private router = inject(Router);
 
   // --- State Management with BehaviorSubject ---
+  // Crée et stocke le payload jwt (BehaviorSubject) en privé pour être accessible uniquement depuis AuthService
   private currentUserSubject = new BehaviorSubject<JwtPayload | null>(null);
+
+  // Observable public (currentUser$) permettant aux composants d'accéder à l'utilisateur par .subscribe (de manière réactive)
   public currentUser$ = this.currentUserSubject.asObservable();
 
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   public isLoggedIn$ = this.isLoggedInSubject.asObservable();
-  // --------------------------------------------
 
-  private readonly JWT_STORAGE_KEY = 'jwt_token'; // Clé unique pour localStorage
-  private apiUrl = 'http://localhost:8080'; // URL base de votre API
+  private readonly JWT_STORAGE_KEY = 'jwt_token'; 
+  private apiUrl = 'http://localhost:8080'; 
 
   constructor() {
-    this.checkInitialAuthState(); // Vérifier l'état au démarrage
+    this.checkInitialAuthState(); 
   }
 
   /** Récupère l'utilisateur actuel (payload décodé). */
@@ -58,14 +59,13 @@ export class AuthService {
           this.currentUserSubject.next(decodedToken);
           this.isLoggedInSubject.next(true);
           console.log('AuthService: User restored from token.', decodedToken);
-          // La redirection initiale est mieux gérée par les guards ou le composant racine
         } else {
           console.log('AuthService: Token found but expired.');
-          this.clearAuthData(); // Nettoyer si expiré
+          this.clearAuthData();
         }
       } catch (error) {
         console.error('AuthService: Error decoding initial token:', error);
-        this.clearAuthData(); // Nettoyer si invalide
+        this.clearAuthData();
       }
     } else {
       this.isLoggedInSubject.next(false);
@@ -79,12 +79,12 @@ export class AuthService {
    * @param response La réponse du backend.
    */
   private handleAuthResponse(response: AuthResponseDto): void {
-    console.log('AuthService: handleAuthResponse received:', response); // LOG 1
+    console.log('AuthService: handleAuthResponse received:', response); 
     if (response && response.token) {
       localStorage.setItem(this.JWT_STORAGE_KEY, response.token);
       try {
         const decodedToken = jwtDecode<JwtPayload>(response.token);
-        console.log('AuthService: Token decoded:', decodedToken); // LOG 2
+        console.log('AuthService: Token decoded:', decodedToken); 
         this.currentUserSubject.next(decodedToken);
         this.isLoggedInSubject.next(true);
         this.notification.displayNotification(
@@ -95,7 +95,7 @@ export class AuthService {
         this.navigateBasedOnAuthState(decodedToken);
       } catch (error) {
         console.error('Error decoding token after auth:', error);
-        this.logout(); // Déconnecter en cas d'erreur
+        this.logout(); 
         this.notification.displayNotification(
           'Erreur interne lors du traitement du token.',
           'error',
@@ -121,10 +121,10 @@ export class AuthService {
     let targetUrl: string; // Pour logger l'URL cible
 
     if (decodedToken.needsStructureSetup === true) {
-      targetUrl = '/create-structure'; // Adapter si besoin
+      targetUrl = '/create-structure'; 
       console.log(
         `AuthService: Navigating to ${targetUrl} (needsStructureSetup=true)`
-      ); // LOG 3a
+      ); 
     } else {
       switch (decodedToken.role) {
         case 'STRUCTURE_ADMINISTRATOR':
@@ -139,18 +139,17 @@ export class AuthService {
       }
       console.log(
         `AuthService: Navigating to ${targetUrl} (role: ${decodedToken.role})`
-      ); // LOG 3b
+      ); 
     }
     // Exécuter la navigation
     this.router.navigateByUrl(targetUrl).catch((err) => {
-      console.error(`AuthService: Navigation to ${targetUrl} failed!`, err); // LOG 4: Erreur de navigation
-      // Que faire si la navigation échoue ? Peut-être rediriger vers login ?
+      console.error(`AuthService: Navigation to ${targetUrl} failed!`, err); 
       this.notification.displayNotification(
         'Erreur de redirection interne.',
         'error',
         'Fermer'
       );
-      this.logout(); // Sécurité
+      this.logout(); 
     });
   }
 
@@ -196,7 +195,7 @@ export class AuthService {
   registerAndHandleAuth(userRegistrationDto: any): Observable<void> {
     return this.register(userRegistrationDto).pipe(
       tap((response) => {
-        this.handleAuthResponse(response); // Gérer la réponse comme pour le login
+        this.handleAuthResponse(response); 
       }),
       map(() => void 0), // Transformer en Observable<void>
       // L'erreur est déjà gérée par le catchError de register(), mais on la propage
@@ -212,13 +211,12 @@ export class AuthService {
       'valid',
       'Fermer'
     );
-    this.router.navigateByUrl('/login'); // Rediriger vers la page de connexion
+    this.router.navigateByUrl('/login'); 
   }
 
   /** Nettoie les données d'authentification (token, état). */
   private clearAuthData(): void {
     localStorage.removeItem(this.JWT_STORAGE_KEY);
-    // Effacer aussi les anciennes clés si elles existent encore
     localStorage.removeItem('role');
     localStorage.removeItem('username');
     this.currentUserSubject.next(null);
@@ -240,7 +238,7 @@ export class AuthService {
       console.error(
         'AuthService: updateTokenAndState called with null or empty token.'
       );
-      return; // Ne rien faire si le token est invalide
+      return; 
     }
     localStorage.setItem(this.JWT_STORAGE_KEY, newToken);
     try {
@@ -251,13 +249,11 @@ export class AuthService {
       console.log(
         'AuthService: Token and state updated successfully from new token.'
       );
-      // La navigation est généralement gérée par le composant appelant après cet appel
     } catch (error) {
       console.error(
         'AuthService: Error decoding new token during update:',
         error
       );
-      // Si le nouveau token est invalide, déconnecter l'utilisateur est le plus sûr
       this.logout();
     }
   }
@@ -274,28 +270,22 @@ export class AuthService {
   ): Observable<never> {
     let userMessage: string;
     if (error.status === 401 && context === 'login') {
-      // Unauthorized
       userMessage = 'Email ou mot de passe incorrect.';
     } else if (error.status === 409 && context === 'register') {
-      // Conflict (Email exists)
-      // Utiliser le message du backend s'il existe, sinon un message générique
       userMessage =
         typeof error.error === 'string'
           ? error.error
           : error.error?.message || 'Cette adresse email est déjà utilisée.';
     } else if (error.status === 400) {
-      // Bad Request (Validation)
-      // Essayer d'extraire des détails de validation si le backend les fournit
       userMessage =
         error.error?.message ||
         'Données invalides. Veuillez vérifier les champs.';
     } else {
-      // Autres erreurs (500, réseau, etc.)
       userMessage =
         'Une erreur technique est survenue. Veuillez réessayer plus tard.';
     }
     console.error(`${context} failed:`, error);
     this.notification.displayNotification(userMessage, 'error', 'Fermer');
-    return throwError(() => new Error(userMessage)); // Renvoyer l'erreur
+    return throwError(() => new Error(userMessage)); 
   }
 }

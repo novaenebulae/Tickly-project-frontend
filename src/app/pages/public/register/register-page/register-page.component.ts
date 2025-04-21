@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core'; // Ajout inject
+import { Component, OnInit, inject } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl,
@@ -14,24 +14,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-// import { MatSnackBar } from '@angular/material/snack-bar'; // AuthService gère les notifs
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../../../core/services/auth.service'; // Vérifier le chemin
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; // Pour le spinner
+import { AuthService } from '../../../../core/services/auth.service'; 
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; 
+import { UserRegistrationInterface } from '../../../../core/models/userRegistration.interface';
 
-// Interface pour la clarté, même si non strictement nécessaire ici
-interface UserRegistrationDto {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password?: string; // Rendre optionnel car non envoyé si confirm ne matche pas
-  createStructure: boolean;
-}
 
 @Component({
   selector: 'app-register-page',
-  standalone: true, // Assurez-vous que c'est bien standalone
+  standalone: true, 
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -43,20 +35,19 @@ interface UserRegistrationDto {
     MatIconModule,
     MatSlideToggleModule,
     MatTooltipModule,
-    MatProgressSpinnerModule, // Importer le spinner
+    MatProgressSpinnerModule, 
   ],
-  templateUrl: './register-page.component.html', // Fichier HTML [4]
-  styleUrls: ['./register-page.component.scss'], // Corrigé 'styleUrl' en 'styleUrls' avec '[]'
+  templateUrl: './register-page.component.html', 
+  styleUrls: ['./register-page.component.scss'], 
 })
 export class RegisterPageComponent implements OnInit {
   registerForm!: FormGroup;
   hidePassword = true;
   isLoading = false; // Pour gérer l'état de chargement
 
-  // Injection via constructeur ou inject()
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private router = inject(Router); // Gardé pour onCancel
+  private router = inject(Router); 
 
   ngOnInit(): void {
     this.initForm();
@@ -71,7 +62,7 @@ export class RegisterPageComponent implements OnInit {
         email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required, Validators.minLength(8)]],
         confirmPassword: ['', [Validators.required]], // Validation passwordMatch s'en occupe
-        createStructure: [false], // Valeur par défaut false
+        createStructure: [false], 
       },
       { validators: this.passwordMatchValidator } // Validateur pour le groupe
     );
@@ -83,14 +74,12 @@ export class RegisterPageComponent implements OnInit {
     const confirmPassword = control.get('confirmPassword')?.value;
     // Ne retourner une erreur que si les deux champs sont remplis ET différents
     if (password && confirmPassword && password !== confirmPassword) {
-      // Appliquer l'erreur au champ confirmPassword pour l'affichage
       control.get('confirmPassword')?.setErrors({ passwordMismatch: true });
-      return { passwordMismatch: true }; // Retourner l'erreur pour le groupe aussi
+      return { passwordMismatch: true }; 
     } else {
       // Si les mots de passe correspondent ou qu'un champ est vide, retirer l'erreur potentielle
       const confirmPasswordControl = control.get('confirmPassword');
       if (confirmPasswordControl?.hasError('passwordMismatch')) {
-        // Retirer spécifiquement cette erreur sans affecter les autres validateurs (comme required)
         const errors = confirmPasswordControl.errors ?? {};
         delete errors['passwordMismatch'];
         if (Object.keys(errors).length === 0) {
@@ -99,7 +88,7 @@ export class RegisterPageComponent implements OnInit {
           confirmPasswordControl.setErrors(errors);
         }
       }
-      return null; // Pas d'erreur pour le groupe
+      return null;
     }
   }
 
@@ -108,18 +97,17 @@ export class RegisterPageComponent implements OnInit {
 
     if (this.registerForm.invalid) {
       console.warn('Registration form is invalid.');
-      return; // Arrêter si le formulaire n'est pas valide
+      return; 
     }
 
-    this.isLoading = true; // Activer le spinner
+    this.isLoading = true; 
 
-    // Préparer le DTO (exclure confirmPassword)
-    const newUserRegistration: UserRegistrationDto = {
+    const newUserRegistration: UserRegistrationInterface = {
       firstName: this.registerForm.get('firstName')?.value,
       lastName: this.registerForm.get('lastName')?.value,
       email: this.registerForm.get('email')?.value,
-      password: this.registerForm.get('password')?.value, // Inclure le mot de passe
-      createStructure: this.registerForm.get('createStructure')?.value ?? false, // Assurer une valeur booléenne
+      password: this.registerForm.get('password')?.value, 
+      createStructure: this.registerForm.get('createStructure')?.value ?? false, 
     };
 
     console.log('Submitting registration:', newUserRegistration);
@@ -129,21 +117,20 @@ export class RegisterPageComponent implements OnInit {
         // Exécuté si l'observable de register se complète SANS erreur
         console.log(
           'RegisterPageComponent: Registration call successful (navigation handled by AuthService).'
-        ); // LOG 6
+        ); 
         // Si la navigation réussit, ce composant sera détruit.
         // Si elle échoue, on arrête le spinner.
-        this.isLoading = false; // <<<=== AJOUT IMPORTANT
+        this.isLoading = false; 
       },
       error: (err) => {
         console.error('Component received registration error:', err);
-        this.isLoading = false; // Déjà présent
+        this.isLoading = false; 
       },
     });
   }
 
   // Méthode pour annuler et retourner à l'accueil
   onCancel(): void {
-    // Pas besoin de localStorage.removeItem ici
-    this.router.navigate(['/home']); // Naviguer vers la page d'accueil
+    this.router.navigate(['/home']); 
   }
 }

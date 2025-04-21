@@ -1,8 +1,6 @@
 import { StructureCreationResponse } from './../models/StructureCreationResponse.interface';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { NotificationService } from './notification.service';
 import { Observable } from 'rxjs';
 
 @Injectable({
