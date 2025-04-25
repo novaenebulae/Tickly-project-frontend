@@ -4,13 +4,9 @@ import { Router } from '@angular/router';
 import { NotificationService } from './notification.service';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap, catchError, map } from 'rxjs/operators';
-import { jwtDecode } from 'jwt-decode'; 
+import { jwtDecode } from 'jwt-decode';
 import { JwtPayload } from '../models/JwtPayload.interface';
 import { AuthResponseDto } from '../models/AuthResponse.interface';
-
-
-
-
 
 @Injectable({
   providedIn: 'root',
@@ -30,23 +26,25 @@ export class AuthService {
   private isLoggedInSubject = new BehaviorSubject<boolean>(false);
   public isLoggedIn$ = this.isLoggedInSubject.asObservable();
 
-  private readonly JWT_STORAGE_KEY = 'jwt_token'; 
-  private apiUrl = 'http://localhost:8080'; 
+  private readonly JWT_STORAGE_KEY = 'jwt_token';
+  private apiUrl = 'http://localhost:8080';
 
+  private keepLoggedIn: boolean = false;
+  
   constructor() {
-    this.checkInitialAuthState(); 
+    this.checkInitialAuthState();
   }
-
+  
   /** Récupère l'utilisateur actuel (payload décodé). */
   public get currentUserValue(): JwtPayload | null {
     return this.currentUserSubject.getValue();
   }
-
+  
   /** Indique si l'utilisateur est actuellement connecté. */
   public get isLoggedIn(): boolean {
     return this.isLoggedInSubject.getValue();
   }
-
+  
   /** Vérifie l'état d'authentification initial basé sur le token stocké. */
   private checkInitialAuthState(): void {
     const token = this.getToken();
@@ -54,7 +52,6 @@ export class AuthService {
       try {
         const decodedToken = jwtDecode<JwtPayload>(token);
         const isExpired = (decodedToken.exp ?? 0) * 1000 < Date.now();
-
         if (!isExpired) {
           this.currentUserSubject.next(decodedToken);
           this.isLoggedInSubject.next(true);
@@ -77,14 +74,18 @@ export class AuthService {
    * Gère la réponse réussie de /login ou /register.
    * Stocke le token, décode, met à jour l'état, et navigue.
    * @param response La réponse du backend.
-   */
-  private handleAuthResponse(response: AuthResponseDto): void {
-    console.log('AuthService: handleAuthResponse received:', response); 
-    if (response && response.token) {
-      localStorage.setItem(this.JWT_STORAGE_KEY, response.token);
+  */
+ private handleAuthResponse(response: AuthResponseDto): void {
+   console.log('AuthService: handleAuthResponse received:', response);
+   if (response && response.token) {
+     if (this.keepLoggedIn) {
+        localStorage.setItem(this.JWT_STORAGE_KEY, response.token);
+      } else {
+        sessionStorage.setItem(this.JWT_STORAGE_KEY, response.token);
+      }
       try {
         const decodedToken = jwtDecode<JwtPayload>(response.token);
-        console.log('AuthService: Token decoded:', decodedToken); 
+        console.log('AuthService: Token decoded:', decodedToken);
         this.currentUserSubject.next(decodedToken);
         this.isLoggedInSubject.next(true);
         this.notification.displayNotification(
@@ -95,7 +96,7 @@ export class AuthService {
         this.navigateBasedOnAuthState(decodedToken);
       } catch (error) {
         console.error('Error decoding token after auth:', error);
-        this.logout(); 
+        this.logout();
         this.notification.displayNotification(
           'Erreur interne lors du traitement du token.',
           'error',
@@ -111,58 +112,58 @@ export class AuthService {
       );
     }
   }
-
+  
   /**
    * Navigue vers la page appropriée basé sur le payload du token.
    * Priorise needsStructureSetup si présent et true.
    * @param decodedToken Le payload JWT décodé.
-   */
-  public navigateBasedOnAuthState(decodedToken: JwtPayload): void {
-    let targetUrl: string; // Pour logger l'URL cible
-
-    if (decodedToken.needsStructureSetup === true) {
-      targetUrl = '/create-structure'; 
-      console.log(
-        `AuthService: Navigating to ${targetUrl} (needsStructureSetup=true)`
-      ); 
+  */
+ public navigateBasedOnAuthState(decodedToken: JwtPayload): void {
+   let targetUrl: string; // Pour logger l'URL cible
+   
+   if (decodedToken.needsStructureSetup === true) {
+     targetUrl = '/create-structure';
+     console.log(
+       `AuthService: Navigating to ${targetUrl} (needsStructureSetup=true)`
+      );
     } else {
       switch (decodedToken.role) {
         case 'STRUCTURE_ADMINISTRATOR':
           targetUrl = '/admin';
           break;
-        case 'SPECTATOR':
-          targetUrl = '/user';
+          case 'SPECTATOR':
+            targetUrl = '/user';
           break;
         default:
           targetUrl = '/login'; // Fallback
           console.warn(`Unknown role for redirection: ${decodedToken.role}`);
-      }
-      console.log(
-        `AuthService: Navigating to ${targetUrl} (role: ${decodedToken.role})`
-      ); 
+        }
+        console.log(
+          `AuthService: Navigating to ${targetUrl} (role: ${decodedToken.role})`
+        );
     }
     // Exécuter la navigation
     this.router.navigateByUrl(targetUrl).catch((err) => {
-      console.error(`AuthService: Navigation to ${targetUrl} failed!`, err); 
+      console.error(`AuthService: Navigation to ${targetUrl} failed!`, err);
       this.notification.displayNotification(
         'Erreur de redirection interne.',
         'error',
         'Fermer'
       );
-      this.logout(); 
+      this.logout();
     });
   }
 
   /**
    * Tente de connecter l'utilisateur.
    * Attend AuthResponseDto du backend.
-   */
-  login(credentials: {
-    email: string | null;
-    password: string | null;
+  */
+ login(credentials: {
+   email: string | null;
+   password: string | null;
   }): Observable<void> {
     return this.http
-      .post<AuthResponseDto>(`${this.apiUrl}/login`, credentials)
+    .post<AuthResponseDto>(`${this.apiUrl}/login`, credentials)
       .pipe(
         tap((response) => {
           this.handleAuthResponse(response); // Gérer la réponse en cas de succès
@@ -172,18 +173,18 @@ export class AuthService {
           this.handleAuthError(error, 'login')
         )
       );
-  }
-
-  /**
-   * Enregistre un nouvel utilisateur.
-   * Attend AuthResponseDto du backend car l'inscription connecte aussi.
-   */
-  register(userRegistrationDto: any): Observable<AuthResponseDto> {
-    return this.http
-      .post<AuthResponseDto>(`${this.apiUrl}/register`, userRegistrationDto)
-      .pipe(
-        catchError((error: HttpErrorResponse) =>
-          this.handleAuthError(error, 'register')
+    }
+    
+    /**
+     * Enregistre un nouvel utilisateur.
+     * Attend AuthResponseDto du backend car l'inscription connecte aussi.
+    */
+   register(userRegistrationDto: any): Observable<AuthResponseDto> {
+     return this.http
+     .post<AuthResponseDto>(`${this.apiUrl}/register`, userRegistrationDto)
+     .pipe(
+       catchError((error: HttpErrorResponse) =>
+        this.handleAuthError(error, 'register')
         )
       );
   }
@@ -191,18 +192,18 @@ export class AuthService {
   /**
    * Méthode combinée pour s'inscrire ET gérer la réponse d'authentification.
    * C'est celle à utiliser depuis RegisterComponent.
-   */
-  registerAndHandleAuth(userRegistrationDto: any): Observable<void> {
-    return this.register(userRegistrationDto).pipe(
-      tap((response) => {
-        this.handleAuthResponse(response); 
+  */
+ registerAndHandleAuth(userRegistrationDto: any): Observable<void> {
+   return this.register(userRegistrationDto).pipe(
+     tap((response) => {
+       this.handleAuthResponse(response);
       }),
       map(() => void 0), // Transformer en Observable<void>
       // L'erreur est déjà gérée par le catchError de register(), mais on la propage
       catchError((err) => throwError(() => err))
     );
   }
-
+  
   /** Déconnecte l'utilisateur. */
   logout(): void {
     this.clearAuthData();
@@ -211,23 +212,26 @@ export class AuthService {
       'valid',
       'Fermer'
     );
-    this.router.navigateByUrl('/login'); 
+    this.router.navigateByUrl('/login');
   }
-
+  
   /** Nettoie les données d'authentification (token, état). */
   private clearAuthData(): void {
-    localStorage.removeItem(this.JWT_STORAGE_KEY);
-    localStorage.removeItem('role');
-    localStorage.removeItem('username');
+    // localStorage.removeItem(this.JWT_STORAGE_KEY);
+    // localStorage.removeItem('role');
+    // localStorage.removeItem('username');
+    localStorage.clear();
+    sessionStorage.clear();
     this.currentUserSubject.next(null);
     this.isLoggedInSubject.next(false);
   }
-
+  
   /** Récupère le token actuel. */
   getToken(): string | null {
-    return localStorage.getItem(this.JWT_STORAGE_KEY);
+    this.keepLoggedIn = localStorage.getItem('keepLoggedIn') === 'true';
+    return this.keepLoggedIn ? localStorage.getItem(this.JWT_STORAGE_KEY) : sessionStorage.getItem(this.JWT_STORAGE_KEY);
   }
-
+  
   /**
    * Met à jour le token JWT stocké et l'état interne de l'utilisateur.
    * Appelé après une opération qui modifie l'état pertinent de l'utilisateur (ex: création structure).
@@ -238,9 +242,13 @@ export class AuthService {
       console.error(
         'AuthService: updateTokenAndState called with null or empty token.'
       );
-      return; 
+      return;
     }
-    localStorage.setItem(this.JWT_STORAGE_KEY, newToken);
+    if(this.keepLoggedIn){
+      localStorage.setItem(this.JWT_STORAGE_KEY, newToken);
+    }else{
+      sessionStorage.setItem(this.JWT_STORAGE_KEY, newToken);
+    }
     try {
       const decodedToken = jwtDecode<JwtPayload>(newToken);
       // Mettre à jour l'état interne avec le nouveau payload
@@ -286,6 +294,6 @@ export class AuthService {
     }
     console.error(`${context} failed:`, error);
     this.notification.displayNotification(userMessage, 'error', 'Fermer');
-    return throwError(() => new Error(userMessage)); 
+    return throwError(() => new Error(userMessage));
   }
 }

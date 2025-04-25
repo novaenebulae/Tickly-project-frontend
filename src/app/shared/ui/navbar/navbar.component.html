@@ -1,43 +1,63 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
+<nav class="navbar navbar-expand-lg mat-elevation-z1">
+  <div class="container-fluid my-3">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse">
-      <ul class="navbar-nav me-auto mb-2 mb-sm-0">
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/accueil" routerLinkActive="active"
-            >Accueil</a
-          >
-        </li>
+      <ul
+        class="navbar-nav m-auto mb-2 mb-sm-0 justify-content-between px-3 container-fluid"
+      >
+        <div class="d-flex justify-content-between">
+          <li class="nav-brand">
+            <img src="/logo/tickly-logo.svg" alt="Tickly Logo/" class="logo" />
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/home" routerLinkActive="active"
+              >Accueil</a
+            >
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/events" routerLinkActive="active"
+              >Tous les événements</a
+            >
+          </li>
 
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/connexion" routerLinkActive="active"
-            >Tous les événements</a
-          >
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/connexion" routerLinkActive="active"
-            >Toutes les structures</a
-          >
-        </li>
-
-        <form>
-          <input
-            class="form-control"
-            type="text"
-            placeholder="Search"
-            aria-label="Search"
-          />
-        </form>
-
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/connexion" routerLinkActive="active"
-            >Connexion</a
-          >
-        </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              routerLink="/structures"
+              routerLinkActive="active"
+              >Toutes les structures</a
+            >
+          </li>
+        </div>
+        <div class="d-flex align-items-center justify-content-between">
+          <form class="form-inline">
+            <input
+              class="form-control mr-sm-2"
+              type="search"
+              placeholder="Search"
+              aria-label="Search"
+            />
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+              Search
+            </button>
+          </form>
+          @if (authService.isLoggedIn) {
+          <li class="nav-item mx-2">
+            <a mat-icon-button (click)="authService.logout()">
+              <mat-icon>logout</mat-icon>
+            </a>
+          </li>
+          } @else {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/login" routerLinkActive="active">
+              Connexion
+            </a>
+          </li>
+          }
+        </div>
       </ul>
     </div>
   </div>

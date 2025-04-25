@@ -1,0 +1,93 @@
+<div
+  class="d-flex flex-column align-items-center justify-content-center vh-100"
+>
+  <img
+    src="logo/tickly-logo.svg"
+    alt="Logo"
+    class="mb-4"
+    style="width: 300px; height: auto"
+  />
+
+  <mat-card
+    class="p-4 shadow-lg"
+    style="width: 100%; max-width: 400px; border-radius: 12px"
+  >
+    <mat-card-title class="text-center mb-3">Bienvenue</mat-card-title>
+    <mat-card-subtitle class="text-center mb-4 text-muted">
+      Connectez-vous pour accéder à votre compte
+    </mat-card-subtitle>
+    <mat-card-content class="w-100 align-items-center">
+      <form [formGroup]="formulaire" (ngSubmit)="onLogin()">
+        <!-- Champ Email -->
+        <!-- <div class="mb-3"> -->
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Adresse e-mail</mat-label>
+          <mat-icon matPrefix>email</mat-icon>
+          <input
+            matInput
+            formControlName="email"
+            type="email"
+            placeholder="Entrez votre e-mail"
+            class=""
+          />
+
+          @if (formulaire.get('email')?.hasError('required')) {
+          <mat-error>L'email est requis</mat-error>
+          } @else if (formulaire.get('email')?.hasError('email')) {
+          <mat-error>Le format est invalide</mat-error>
+          }
+        </mat-form-field>
+        <!-- </div> -->
+
+        <!-- Champ Mot de Passe -->
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Mot de passe</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input
+            matInput
+            formControlName="password"
+            type="password"
+            placeholder="Entrez votre mot de passe"
+            required
+          />
+        </mat-form-field>
+
+        <div class="row gap-3">
+          <button
+            type="button"
+            mat-raised-button
+            color="secondary"
+            (click)="onLogin()"
+            type="button"
+            class="mb-3 col"
+          >
+            <mat-icon>arrow_back</mat-icon>
+            Retour
+          </button>
+          <button
+            type="submit"
+            mat-raised-button
+            color="primary"
+            (click)="onLogin()"
+            type="button"
+            class="mb-3 col"
+          >
+            Se connecter
+          </button>
+        </div>
+        <div class="form-check d-flex justify-content-end">
+          <mat-checkbox class="example-margin" formControlName="keepLoggedIn">
+            Rester connecté
+          </mat-checkbox>
+        </div>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions class="text-center mt-3">
+      <span>
+        Pas encore de compte ?
+        <a routerLink="/register" class="text-primary">Créer un compte</a>
+      </span>
+    </mat-card-actions>
+  </mat-card>
+</div>

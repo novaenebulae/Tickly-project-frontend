@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { LoginGuard } from './core/guards/login.guard';
-import { AuthComponent } from './core/auth/auth.component';
+import { AuthComponent } from './pages/public/auth/auth.component';
 import { adminRoutes } from './pages/private/admin/admin.routes';
 import { userRoutes } from './pages/private/user/user.routes';
 import { RegisterPageComponent } from './pages/public/register/register-page/register-page.component';
@@ -9,10 +9,6 @@ import { HomePageComponent } from './pages/public/home/home-page/home-page.compo
 import { StructureCreationComponent } from './pages/private/admin/structure-creation/structure-creation.component';
 
 export const routes: Routes = [
-  {
-    path: 'home',
-    component: HomePageComponent,
-  },
   {
     path: 'login',
     component: AuthComponent,
@@ -40,7 +36,7 @@ export const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: '/login',
+    component: HomePageComponent,
     pathMatch: 'full',
   },
 ];
