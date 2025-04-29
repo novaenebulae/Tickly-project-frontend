@@ -32,6 +32,7 @@ import {
 } from '@angular/material/stepper';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { LayoutService } from '../../../../../../core/services/layout.service';
+import { MatCardMdImage, MatCardModule } from '@angular/material/card';
 
 interface Location {
   id: number;
@@ -70,7 +71,8 @@ export function atLeastOneActiveValidator(): ValidatorFn {
     MatListModule,
     MatStepperModule,
     MatTimepickerModule,
-    AsyncPipe
+    AsyncPipe,
+    MatCardModule
   ],
   templateUrl: './event-creation.component.html',
   styleUrls: ['./event-creation.component.scss'],

@@ -43,7 +43,7 @@ export class AdminSidenavComponent {
     {
       icon: 'home',
       label: 'Structure',
-      route: 'organisation',
+      route: 'structure',
       subItems: [
         {
           icon: 'groups',

@@ -3,7 +3,6 @@ import {
   OnInit,
   AfterViewInit,
   ViewChild,
-  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms'; // Ajouté
@@ -22,7 +21,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog'; // Module
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
 import { ZoneDialogData } from '../../../../../../core/models/ZoneDialogData.interface';
-import { ConfirmationDialogComponent, ConfirmationDialogData } from './confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../../../../shared/ui/confirmation-dialog/confirmation-dialog.component';
 import { ZoneEditDialogComponent } from './zone-edit-dialog/zone-edit-dialog.component';
 
 // Interface Zone (répétée ou importée d'un fichier partagé)

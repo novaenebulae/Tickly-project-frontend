@@ -1,5 +1,16 @@
 <div class="container-fluid py-3">
-  <h1 class="py-2 py-lg-4">Créer un événement</h1>
+  <mat-card class="mat-elevation-z2 mb-4">
+    <mat-card-content
+      class="d-flex justify-content-between align-items-start flex-wrap gap-3 p-4"
+    >
+      <h1 class="mat-headline-3 mb-1">Créer un événement</h1>
+      <p class="mat-body-3 text-muted w-70 mt-1">
+        Organisez des événements, ajoutez des médias,
+        prévisualisez l'événement sur la page de la structure, enregistrez les
+        comme brouillon pour y revenir plus tard.
+      </p>
+    </mat-card-content>
+  </mat-card>
   <mat-stepper class="p-4" [orientation]="(stepperOrientation | async)!">
     <mat-step [stepControl]="eventForm" label="Informations">
       <form [formGroup]="eventForm">
@@ -299,7 +310,9 @@
         <div
           class="d-flex justify-content-end align-items-center gap-3 mt-2 pt-3 border-top"
         >
-          <button mat-button matStepperPrevious class="mt-2">← Précédent</button>
+          <button mat-button matStepperPrevious class="mt-2">
+            ← Précédent
+          </button>
           <button mat-raised-button matStepperNext color="primary" class="mt-2">
             Suivant →
           </button>

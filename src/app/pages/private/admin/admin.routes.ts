@@ -1,13 +1,12 @@
 import { Routes } from '@angular/router';
 import { AdminLayoutComponent } from './admin-layout/admin-layout.component';
-import { OrganisationComponent } from './panels/organisation/organisation.component';
 import { EventsPanelComponent } from './panels/events/events-panel/events-panel.component';
 import { DashboardComponent } from './panels/dashboard/dashboard.component';
 import { StatsComponent } from './panels/stats/stats.component';
 import { CalendarComponent } from './panels/events/calendar/calendar.component';
-import { TeamComponent } from './panels/organisation/team/team.component';
 import { EventCreationComponent } from './panels/events/event-creation/event-creation.component';
-import { ZoneManagementComponent } from './panels/organisation/zone-management/zone-management.component';
+import {ZoneManagementComponent} from './panels/structure/zone-management/zone-management.component';
+import {StructurePanelComponent} from './panels/structure/structure-panel/structure-panel.component';
 
 export const adminRoutes: Routes = [
   {
@@ -33,13 +32,13 @@ export const adminRoutes: Routes = [
         ],
       },
       {
-        path: 'organisation',
-        component: OrganisationComponent,
+        path: 'structure',
+        component: StructurePanelComponent,
         children: [
-          {
-            path: 'team',
-            component: TeamComponent,
-          },
+          // {
+          //   path: 'team-management',
+          //   component: ,
+          // },
           {
             path: 'zone-management',
             component: ZoneManagementComponent,
