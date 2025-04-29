@@ -1,0 +1,16 @@
+/* Forcer le bouton à prendre toute la hauteur de sa colonne flex */
+.row.align-items-stretch > .col-12.col-md-auto.d-flex > button {
+  height: 56px; /* Hauteur standard des mat-form-field outline */
+  min-height: 56px;
+  display: flex;
+  align-items: center;   /* Centrer verticalement le contenu */
+  justify-content: center; /* Centrer horizontalement le contenu */
+  padding: 0 16px;       /* Padding horizontal par défaut */
+  box-sizing: border-box;
+}
+
+/* Ajuster la taille et marge de l'icône dans le bouton */
+.row.align-items-stretch > .col-12.col-md-auto.d-flex > button .mat-icon {
+  font-size: 20px;
+  margin-right: 8px;
+}

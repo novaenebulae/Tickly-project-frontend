@@ -6,6 +6,7 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms'; // Ajouté
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -16,28 +17,28 @@ import { MatButtonModule } from '@angular/material/button';
 import {
   MatSlideToggleChange,
   MatSlideToggleModule,
-} from '@angular/material/slide-toggle'; // Importer MatSlideToggleChange
-import { MatDialog, MatDialogModule } from '@angular/material/dialog'; // Pour les dialogues
+} from '@angular/material/slide-toggle';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog'; // Module principal MatDialog
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCardModule } from '@angular/material/card';
+import { ZoneDialogData } from '../../../../../../core/models/ZoneDialogData.interface';
+import { ConfirmationDialogComponent, ConfirmationDialogData } from './confirmation-dialog/confirmation-dialog.component';
+import { ZoneEditDialogComponent } from './zone-edit-dialog/zone-edit-dialog.component';
 
-// --- Interface pour typer les données d'une Zone ---
+// Interface Zone (répétée ou importée d'un fichier partagé)
 interface Zone {
-  id: number; // Identifiant unique
-  name: string; // Nom de la zone
-  maxCapacity: number; // Capacité maximale
-  isActive: boolean; // Statut actif/inactif
+  id: number;
+  name: string;
+  maxCapacity: number;
+  isActive: boolean;
 }
 
-// --- Composant pour la boîte de dialogue (à créer dans un fichier séparé) ---
-// import { ZoneEditDialogComponent } from './zone-edit-dialog/zone-edit-dialog.component';
-// import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component'; // Exemple
-
 @Component({
-  selector: 'app-zone-management', // Sélecteur CSS pour utiliser ce composant
-  standalone: true, // Composant autonome (Angular 14+)
+  selector: 'app-zone-management',
+  standalone: true,
   imports: [
-    // Importation des modules requis par le template
     CommonModule,
+    ReactiveFormsModule, // Ajouté
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -46,25 +47,26 @@ interface Zone {
     MatIconModule,
     MatButtonModule,
     MatSlideToggleModule,
-    MatDialogModule,
+    MatDialogModule, // Important pour que le service MatDialog soit injectable
     MatTooltipModule,
+    MatCardModule,
+    // Pas besoin d'importer les composants de dialogue ici car ils sont ouverts via le service MatDialog
   ],
-  templateUrl: './zone-management.component.html', // Chemin vers le fichier HTML
-  styleUrls: ['./zone-management.component.scss'], // Chemin vers le fichier CSS/SCSS
+  templateUrl: './zone-management.component.html',
+  styleUrls: ['./zone-management.component.scss'],
 })
 export class ZoneManagementComponent implements OnInit, AfterViewInit {
-  // --- Colonnes affichées dans le tableau ---
-  // Doivent correspondre aux `matColumnDef` dans le HTML
+  // Colonnes à afficher dans le tableau
   displayedColumns: string[] = ['name', 'maxCapacity', 'status', 'actions'];
-
-  // --- Source de données pour le tableau Material ---
+  // Source de données pour le tableau
   dataSource: MatTableDataSource<Zone>;
 
-  // --- Références aux éléments MatSort et MatPaginator du template ---
+  // Accès aux éléments Paginator, Sort et Input du template
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild('filterInput') filterInput!: HTMLInputElement;
 
-  // --- Données mockées (remplacer par un appel service) ---
+  // Données locales (à remplacer par un service)
   private zones: Zone[] = [
     { id: 1, name: 'Scène Principale', maxCapacity: 1000, isActive: true },
     { id: 2, name: 'Zone VIP', maxCapacity: 50, isActive: true },
@@ -74,177 +76,121 @@ export class ZoneManagementComponent implements OnInit, AfterViewInit {
     { id: 6, name: 'Espace Chill', maxCapacity: 80, isActive: true },
   ];
 
-  // --- Injection du service MatDialog pour ouvrir des boîtes de dialogue ---
+  // Injection du service MatDialog
   constructor(
     public dialog: MatDialog /*, private zoneService: ZoneService */
   ) {
-    // Initialisation de la source de données avec les données mockées
     this.dataSource = new MatTableDataSource(this.zones);
   }
 
-  // --- Hook de cycle de vie : exécuté après l'initialisation du composant ---
   ngOnInit(): void {
-    // --- TODO: Remplacer par un appel service pour charger les vraies données ---
-    // this.loadZones();
+    // TODO: Charger les données initiales depuis un service
   }
 
-  // --- Hook de cycle de vie : exécuté après l'initialisation de la vue (pour @ViewChild) ---
+  // Après que la vue soit initialisée, lier paginator et sort
   ngAfterViewInit(): void {
-    // Association du paginator et du sort à la source de données
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
   }
 
-  /* --- Méthode pour charger les zones (depuis un service par exemple) ---
-  loadZones(): void {
-    this.zoneService.getZones().subscribe(data => {
-      this.zones = data;
-      this.dataSource.data = this.zones;
-    });
-  }
-  */
-
-  // --- Applique le filtre entré par l'utilisateur sur le tableau ---
-  applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
-    // Applique le filtre (en ignorant la casse et les espaces superflus)
+  // Appliquer le filtre sur la source de données
+  applyFilter(event: Event | string): void {
+    const filterValue =
+      typeof event === 'string'
+        ? event
+        : (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    // Si un paginator est utilisé, retourne à la première page lors du filtrage
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
   }
 
-  // --- Ouvre la boîte de dialogue pour ajouter ou modifier une zone ---
+  // Effacer le contenu du champ de filtre
+  clearFilter(): void {
+    if (this.filterInput) {
+      this.filterInput.value = ''; // Vide l'input
+    }
+    this.applyFilter(''); // Réapplique un filtre vide
+  }
+
+  // Ouvrir le dialogue d'ajout/modification de zone
   openZoneDialog(zoneToEdit?: Zone): void {
-    console.log('Ouverture dialogue pour :', zoneToEdit); // Log de débogage
+    const dialogRef = this.dialog.open<
+      ZoneEditDialogComponent,
+      ZoneDialogData,
+      Zone
+    >(ZoneEditDialogComponent, {
+      // Typage fort
+      width: '450px',
+      disableClose: true,
+      data: { zone: zoneToEdit ? { ...zoneToEdit } : null }, // Copie ou null
+    });
 
-    // Configuration de la boîte de dialogue
-    const dialogRef = this.dialog.open(
-      /* ZoneEditDialogComponent */ null as any,
-      {
-        // Remplacez null par votre composant de dialogue
-        width: '450px', // Largeur de la dialogue
-        disableClose: true, // Empêche la fermeture en cliquant en dehors
-        data: { zone: zoneToEdit ? { ...zoneToEdit } : null }, // Passe une copie de la zone à éditer ou null si ajout
-      }
-    );
-
-    // --- Après la fermeture de la dialogue ---
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log('Dialogue fermée, résultat:', result); // Log de débogage
-
-      // Si l'utilisateur a sauvegardé des données (result contient la zone ajoutée/modifiée)
+    dialogRef.afterClosed().subscribe((result: Zone | undefined) => {
       if (result) {
+        // Si des données valides sont retournées
         if (zoneToEdit) {
-          // --- Mode Modification ---
+          // Mode Modification
           const index = this.zones.findIndex((z) => z.id === result.id);
           if (index > -1) {
-            this.zones[index] = result; // Met à jour la zone dans le tableau local
-            // --- TODO: Appel API pour sauvegarder la modification en base de données ---
-            console.log('Appel API UPDATE pour zone ID:', result.id);
+            this.zones[index] = result; // Remplacer l'ancienne zone par la nouvelle
+            console.log('TODO: Appel API UPDATE pour zone ID:', result.id);
           }
         } else {
-          // --- Mode Ajout ---
-          // Simule un ID (à remplacer par l'ID retourné par le backend)
+          // Mode Ajout
+          // Assigner un ID temporaire (le backend devrait le fournir)
           result.id = Math.max(...this.zones.map((z) => z.id), 0) + 1;
-          result.isActive = result.isActive ?? true; // Valeur par défaut si non fournie
-          this.zones.push(result); // Ajoute la nouvelle zone au tableau local
-          // --- TODO: Appel API pour sauvegarder la nouvelle zone en base de données ---
-          console.log('Appel API CREATE pour nouvelle zone:', result);
+          // Assigner un statut par défaut si non défini (pourrait être fait dans le dialogue aussi)
+          result.isActive = result.isActive ?? true;
+          this.zones.push(result); // Ajouter au tableau local
+          console.log('TODO: Appel API CREATE pour nouvelle zone:', result);
         }
-        // Met à jour la source de données du tableau pour refléter les changements
-        this.dataSource.data = [...this.zones]; // Crée une nouvelle référence pour déclencher la mise à jour
+        this.dataSource.data = [...this.zones]; // Mettre à jour le tableau Material
       }
     });
   }
 
-  // --- Modifie le statut (actif/inactif) d'une zone ---
+  // Basculer le statut actif/inactif d'une zone
   toggleZoneStatus(zone: Zone, event: MatSlideToggleChange): void {
-    const isActive = event.checked;
-    console.log(`Changement statut pour zone ${zone.id} vers ${isActive}`); // Log de débogage
-
-    // Recherche de la zone dans les données locales
+    const isActive = event.checked; // Nouvel état du toggle
     const index = this.zones.findIndex((z) => z.id === zone.id);
     if (index > -1) {
-      this.zones[index].isActive = isActive; // Met à jour le statut localement
-
-      // Met à jour la source de données (important pour la réactivité visuelle immédiate)
-      // Bien que non strictement nécessaire ici car l'objet zone est muté, c'est une bonne pratique
-      // this.dataSource.data = [...this.zones];
-
-      // --- TODO: Appel API pour mettre à jour le statut en base de données ---
+      this.zones[index].isActive = isActive; // Mettre à jour localement
       console.log(
-        'Appel API UPDATE STATUS pour zone ID:',
+        'TODO: Appel API UPDATE STATUS zone ID:',
         zone.id,
-        ' Nouveau statut:',
+        ' => ',
         isActive
       );
-      // Gérer les erreurs potentielles de l'API (ex: remettre l'état précédent si l'API échoue)
-      /*
-      this.zoneService.updateZoneStatus(zone.id, isActive).subscribe({
-        next: () => console.log('Statut mis à jour avec succès'),
-        error: (err) => {
-          console.error('Erreur maj statut:', err);
-          // Rollback : remettre l'état précédent en cas d'erreur API
-          event.source.checked = !isActive; // Remet le toggle à son état précédent
-          this.zones[index].isActive = !isActive; // Remet le statut dans les données locales
-          // Afficher un message d'erreur à l'utilisateur (ex: avec MatSnackBar)
-        }
-      });
-      */
+      // En cas d'erreur API, inverser le changement :
+      // event.source.checked = !isActive; this.zones[index].isActive = !isActive;
     }
   }
 
-  // --- Supprime une zone (après confirmation) ---
+  // Ouvrir le dialogue de confirmation avant de supprimer une zone
   deleteZone(zoneToDelete: Zone): void {
-    console.log('Demande suppression pour zone:', zoneToDelete); // Log de débogage
+    const dialogRef = this.dialog.open<
+      ConfirmationDialogComponent,
+      ConfirmationDialogData,
+      boolean
+    >(ConfirmationDialogComponent, {
+      // Typage fort
+      width: '400px',
+      data: {
+        title: 'Confirmation de suppression',
+        message: `Êtes-vous sûr de vouloir supprimer la zone "${zoneToDelete.name}" ? Cette action est irréversible.`,
+        confirmButtonText: 'Supprimer',
+        cancelButtonText: 'Annuler',
+      },
+    });
 
-    // --- Étape 1 : Confirmation ---
-    // Ouvrir une dialogue de confirmation générique
-    const dialogRef = this.dialog.open(
-      /* ConfirmationDialogComponent */ null as any,
-      {
-        // Remplacez null par votre composant de confirmation
-        width: '350px',
-        data: {
-          title: 'Confirmation de suppression',
-          message: `Êtes-vous sûr de vouloir supprimer la zone "${zoneToDelete.name}" ? Cette action est irréversible.`,
-        },
-      }
-    );
-
-    // --- Étape 2 : Traitement après confirmation ---
-    dialogRef.afterClosed().subscribe((confirmed) => {
-      if (confirmed) {
-        console.log(
-          'Confirmation reçue, suppression zone ID:',
-          zoneToDelete.id
-        );
-
-        // Filtrer le tableau local pour retirer la zone
-        this.zones = this.zones.filter((z) => z.id !== zoneToDelete.id);
-
-        // Mettre à jour la source de données du tableau
-        this.dataSource.data = this.zones; // Pas besoin de [...this.zones] ici car filter crée un nouveau tableau
-
-        // --- TODO: Appel API pour supprimer la zone en base de données ---
-        console.log('Appel API DELETE pour zone ID:', zoneToDelete.id);
-        /*
-        this.zoneService.deleteZone(zoneToDelete.id).subscribe({
-          next: () => console.log('Zone supprimée avec succès'),
-          error: (err) => {
-            console.error('Erreur suppression:', err);
-            // Réinsérer la zone localement si l'API échoue (Rollback)
-            this.zones.push(zoneToDelete); // Peut nécessiter de trier à nouveau
-            this.dataSource.data = [...this.zones];
-            // Afficher un message d'erreur
-          }
-        });
-        */
-      } else {
-        console.log('Suppression annulée.');
+    dialogRef.afterClosed().subscribe((confirmed: boolean | undefined) => {
+      if (confirmed === true) {
+        // Si l'utilisateur a cliqué sur "Supprimer"
+        this.zones = this.zones.filter((z) => z.id !== zoneToDelete.id); // Retirer du tableau local
+        this.dataSource.data = this.zones; // Mettre à jour le tableau Material
+        console.log('TODO: Appel API DELETE pour zone ID:', zoneToDelete.id);
+        // En cas d'erreur API, réinsérer localement et notifier l'utilisateur
       }
     });
   }
