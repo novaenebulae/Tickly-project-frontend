@@ -1,0 +1,194 @@
+<div class="container-fluid py-3 team-management-page">
+
+  <!-- Section En-tête -->
+  <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
+    <div>
+      <h1 class="mat-headline-5 mb-1">Gestion de l'Équipe</h1>
+      <p class="mat-body-1 text-muted">
+        Invitez de nouveaux membres, gérez les rôles et l'accès à votre structure.
+      </p>
+    </div>
+    <!-- Bouton pour afficher/masquer le formulaire d'invitation -->
+    <button mat-stroked-button color="primary" (click)="toggleInviteForm()" class="flex-shrink-0">
+      <mat-icon>{{ showInviteForm ? 'close' : 'person_add' }}</mat-icon>
+      {{ showInviteForm ? 'Fermer l\'invitation' : 'Inviter un Membre' }}
+    </button>
+  </div>
+
+  <!-- Section Invitation (Affichée conditionnellement) -->
+  @if (showInviteForm) {
+    <mat-card class="mb-4 mat-elevation-z2 invitation-card slide-down">
+      <mat-card-header class="bg-light-subtle p-3 border-bottom">
+        <mat-card-title class="mat-headline-6">Inviter un nouveau membre</mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="p-3">
+        <form [formGroup]="inviteForm" (ngSubmit)="sendInvitation()">
+          <div class="row g-3 align-items-start">
+            <!-- Champ Email -->
+            <div class="col-md-6 col-lg-5">
+              <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
+                <mat-label>Adresse Email</mat-label>
+                <input matInput type="email" formControlName="email" required placeholder="nom@exemple.com">
+                <mat-icon matPrefix class="icon-muted me-2">email</mat-icon>
+                @if (inviteForm.get('email')?.hasError('required') && inviteForm.get('email')?.touched) {
+                  <mat-error>L'email est obligatoire</mat-error>
+                }
+                @if (inviteForm.get('email')?.hasError('email') && inviteForm.get('email')?.touched) {
+                  <mat-error>Format d'email invalide</mat-error>
+                }
+                @if (inviteForm.get('email')?.hasError('alreadyMember') && inviteForm.get('email')?.touched) {
+                  <mat-error>Cet utilisateur est déjà membre</mat-error>
+                }
+              </mat-form-field>
+            </div>
+            <!-- Champ Rôle -->
+            <div class="col-md-4 col-lg-4">
+              <mat-form-field appearance="outline" class="w-100 mb-0" subscriptSizing="dynamic">
+                <mat-label>Rôle initial</mat-label>
+                <mat-select formControlName="roleId" required>
+                  @for (role of availableRoles; track role.id) {
+                    <mat-option [value]="role.id">{{ role.name }}</mat-option>
+                  }
+                </mat-select>
+                <mat-icon matPrefix class="icon-muted me-2">supervised_user_circle</mat-icon>
+                @if (inviteForm.get('roleId')?.hasError('required') && inviteForm.get('roleId')?.touched) {
+                  <mat-error>Le rôle est obligatoire</mat-error>
+                }
+              </mat-form-field>
+            </div>
+            <!-- Bouton Envoyer -->
+            <div class="col-md-2 col-lg-3 d-flex align-items-center pt-md-1">
+              <button mat-raised-button color="primary" type="submit" [disabled]="inviteForm.invalid || isSendingInvite" class="w-100">
+                @if (isSendingInvite) {
+                  <mat-progress-spinner diameter="20" mode="indeterminate" class="d-inline-block me-2"></mat-progress-spinner>
+                } @else {
+                  <mat-icon>send</mat-icon>
+                }
+                Envoyer
+              </button>
+            </div>
+          </div>
+          @if (inviteError) {
+            <p class="mat-caption text-danger mt-2">{{ inviteError }}</p>
+          }
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Card Liste des Membres -->
+  <mat-card class="mat-elevation-z2 team-list-card">
+    <mat-card-content class="p-0">
+      <!-- Section Filtre -->
+      <div class="p-3 border-bottom bg-light-subtle">
+        <mat-form-field appearance="outline" class="w-100 filter-field" subscriptSizing="dynamic">
+          <mat-label>Rechercher un membre...</mat-label>
+          <mat-icon matPrefix class="icon-muted me-2">search</mat-icon>
+          <input matInput (keyup)="applyFilter($event)" placeholder="Nom, email, rôle..." #filterInput>
+          @if (filterInput.value) {
+            <button mat-icon-button matSuffix (click)="clearFilter()" aria-label="Vider le filtre" matTooltip="Effacer la recherche">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Tableau des membres -->
+      <div class="table-responsive">
+        <table mat-table [dataSource]="dataSource" matSort class="w-100 team-table" aria-label="Tableau des membres de l'équipe">
+
+          <!-- Colonne Avatar/Nom (cliquable) -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header scope="col"> Membre </th>
+            <td mat-cell *matCellDef="let member" data-label="Membre:"
+                (click)="openTeamDetailDialog(member)" class="clickable-cell"
+                matTooltip="Voir les détails de {{ member.firstName || member.email }}">
+              <div class="d-flex align-items-center gap-3 py-2">
+                <div class="team-avatar" [style.background-color]="getAvatarColor(member.id)">
+                  {{ getInitials(member.firstName, member.lastName) || '?' }}
+                </div>
+                <div>
+                  <span class="fw-medium d-block">{{ member.firstName || '' }} {{ member.lastName || '' }}</span>
+                  @if (!member.firstName && !member.lastName && member.status === 'PENDING') {
+                    <span class="mat-caption text-muted">Invitation envoyée</span>
+                  }
+                  <span class="mat-caption text-muted d-block d-md-none">{{ member.email }}</span>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Email (Masquée sur petits écrans) -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="d-none d-md-table-cell" scope="col"> Email </th>
+            <td mat-cell *matCellDef="let member" class="d-none d-md-table-cell" data-label="Email:">
+              {{member.email}}
+            </td>
+          </ng-container>
+
+          <!-- Colonne Rôle (Affichage simple) -->
+          <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center" scope="col"> Rôle </th>
+            <td mat-cell *matCellDef="let member" class="text-center role-cell" data-label="Rôle:">
+              <mat-chip-listbox aria-label="Rôle du membre">
+                <mat-chip [color]="getRoleChipColor(member.roleId)" selected disabled>
+                  {{ getRoleName(member.roleId) }}
+                </mat-chip>
+              </mat-chip-listbox>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Statut -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef class="text-center" scope="col"> Statut </th>
+            <td mat-cell *matCellDef="let member" class="text-center" data-label="Statut:">
+              @if (member.status === 'ACTIVE') {
+                <mat-icon class="status-icon text-success" matTooltip="Actif">check_circle</mat-icon>
+              } @else if (member.status === 'PENDING') {
+                <mat-icon class="status-icon text-warning" matTooltip="Invitation en attente">hourglass_empty</mat-icon>
+                <button mat-icon-button color="accent" class="ms-1" (click)="resendInvite(member)" matTooltip="Renvoyer l'invitation" aria-label="Renvoyer l'invitation">
+                  <mat-icon>outgoing_mail</mat-icon>
+                </button>
+              } @else {
+                <mat-icon class="status-icon text-muted" matTooltip="Inactif">remove_circle_outline</mat-icon>
+              }
+            </td>
+          </ng-container>
+
+          <!-- Colonne Actions (Voir/Supprimer) -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="text-end" scope="col"> Actions </th>
+            <td mat-cell *matCellDef="let member" class="text-end actions-cell" data-label="Actions:">
+              <!-- Bouton Voir Détails / Modifier -->
+              <button mat-icon-button color="primary" (click)="openTeamDetailDialog(member)" matTooltip="Voir les détails / Modifier" aria-label="Voir les détails ou modifier le membre">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <!-- Bouton Supprimer -->
+              <button mat-icon-button color="warn" (click)="confirmAndDeleteMember(member)" matTooltip="Retirer le membre" [disabled]="!canDeleteMember(member)" aria-label="Retirer le membre">
+                <mat-icon>person_remove</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- Définition des lignes -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr mat-row class="team-row" *matRowDef="let row; columns: displayedColumns;"></tr>
+
+          <!-- Ligne si aucune donnée -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell text-center p-4 text-muted" [attr.colspan]="displayedColumns.length">
+              Aucun membre trouvé @if(filterInput.value){ pour votre recherche }.
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <mat-paginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons
+                     aria-label="Sélectionner la page des membres">
+      </mat-paginator>
+
+    </mat-card-content>
+  </mat-card>
+
+</div>

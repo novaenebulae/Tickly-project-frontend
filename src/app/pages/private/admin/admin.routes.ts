@@ -7,6 +7,7 @@ import { CalendarComponent } from './panels/events/calendar/calendar.component';
 import { EventCreationComponent } from './panels/events/event-creation/event-creation.component';
 import {ZoneManagementComponent} from './panels/structure/zone-management/zone-management.component';
 import {StructurePanelComponent} from './panels/structure/structure-panel/structure-panel.component';
+import {TeamManagementComponent} from './panels/structure/team-management/team-management.component';
 
 export const adminRoutes: Routes = [
   {
@@ -35,10 +36,10 @@ export const adminRoutes: Routes = [
         path: 'structure',
         component: StructurePanelComponent,
         children: [
-          // {
-          //   path: 'team-management',
-          //   component: ,
-          // },
+          {
+            path: 'team-management',
+            component: TeamManagementComponent,
+          },
           {
             path: 'zone-management',
             component: ZoneManagementComponent,

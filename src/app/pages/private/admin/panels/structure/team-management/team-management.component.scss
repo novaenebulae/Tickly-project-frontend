@@ -1,0 +1,188 @@
+// Fichier: team-management.component.scss
+
+// Couleurs pour les avatars (conservée, car décorative)
+$avatar-colors: (#673AB7, #3F51B5, #009688, #FF5722, #795548, #E91E63, #03A9F4);
+
+:host {
+  display: block; // Assure que le composant hôte prend de la place
+}
+
+// Nom de classe mis à jour
+.team-management-page {
+  // Animation pour le formulaire d'invitation
+  .invitation-card.slide-down {
+    animation: slideDown 0.3s ease-out forwards;
+    overflow: hidden;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); max-height: 0; }
+    to { opacity: 1; transform: translateY(0); max-height: 300px; } // Hauteur max suffisante
+  }
+}
+
+// Style pour la card d'invitation
+.invitation-card {
+  mat-card-header {
+    // Utiliser la variable CSS du thème pour la couleur de la bordure
+    border-bottom: 1px solid var(--mat-divider-color);
+  }
+}
+
+// Nom de classe mis à jour
+.team-list-card {
+  // Styles pour le champ de filtre (voir ci-dessous .filter-field)
+}
+
+// Nom de classe mis à jour
+.team-table {
+  th.mat-mdc-header-cell {
+    font-weight: 500;
+    // Utiliser une couleur de fond subtile, potentiellement liée au thème
+    background-color: var(--mat-table-header-background-color, rgba(0, 0, 0, 0.02)); // Fallback léger
+    // Utiliser la couleur de diviseur du thème pour la bordure
+    border-bottom: 1px solid var(--mat-divider-color);
+  }
+
+  td.mat-mdc-cell {
+    // Utiliser la couleur de diviseur du thème
+    border-bottom: 1px solid var(--mat-divider-color);
+    vertical-align: middle;
+
+    // Rendre la cellule du nom cliquable
+    &.clickable-cell {
+      cursor: pointer;
+      &:hover .fw-medium { // Souligner le nom au survol
+        text-decoration: underline;
+        color: var(--mat-primary-color); // Optionnel : couleur primaire au survol
+      }
+    }
+  }
+
+  // Nom de classe mis à jour
+  .team-row:hover {
+    // Couleur de fond au survol
+    background-color: var(--mat-row-hover-background-color, rgba(0, 0, 0, 0.04)); // Fallback
+  }
+
+  // Pas de bordure pour la dernière ligne ou la ligne "pas de données"
+  tr.team-row:last-child td.mat-mdc-cell,
+  tr.mat-mdc-no-data-row td.mat-mdc-cell {
+    border-bottom: none;
+  }
+
+  // Nom de classe mis à jour
+  .team-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // Couleur de texte pour l'avatar
+    color: var(--mat-avatar-text-color, white);
+    font-weight: 500;
+    font-size: 1rem;
+    flex-shrink: 0;
+    text-transform: uppercase;
+  }
+
+  // Styles pour la cellule du rôle (affichage simple via chip)
+  .role-cell {
+    .mat-mdc-chip-set {
+      justify-content: center;
+    }
+    // Les couleurs des chips sont gérées par [color] dans le HTML
+  }
+
+  // Styles pour l'indicateur de statut
+  .status-icon {
+    vertical-align: middle;
+    font-size: 1.25rem;
+    // Couleurs sémantiques (utiliser des variables CSS globales si définies)
+    &.text-success { color: var(--app-success-color, #198754); } // Vert Bootstrap ou Fallback
+    &.text-warning { color: var(--app-warning-color, #ffc107); } // Jaune Bootstrap ou Fallback
+    &.text-muted { color: var(--mat-secondary-text-color); }    // Couleur texte secondaire du thème Material
+  }
+
+  // Styles pour la cellule des actions
+  .actions-cell {
+    min-width: 80px; // Ajusté légèrement si besoin
+    white-space: nowrap; // Empêche le retour à la ligne des boutons
+    button {
+      margin-left: 0px; // Enlever la marge gauche si les boutons sont proches
+      &:first-of-type { margin-left: 0; } // Pas de marge pour le premier bouton
+    }
+  }
+
+  // --- Styles Responsives ---
+  @media (max-width: 768px) {
+    thead { display: none; }
+    // Nom de classe mis à jour
+    tr.team-row {
+      display: block;
+      margin-bottom: 1rem;
+      // Utiliser la couleur de diviseur du thème pour la bordure
+      border: 1px solid var(--mat-divider-color);
+      border-radius: 4px;
+      padding: 0.75rem;
+      &:hover { background-color: transparent; } // Pas de survol sur la carte entière
+    }
+    td.mat-mdc-cell {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      // Utiliser la couleur de diviseur pour le séparateur interne
+      border-bottom: 1px dashed var(--mat-card-internal-divider-color, rgba(0,0,0, 0.08)); // Fallback léger
+      padding: 0.6rem 0;
+      text-align: right;
+      &::before {
+        content: attr(data-label); // Récupère le texte du data-label
+        font-weight: 500;
+        text-align: left;
+        padding-right: 1rem;
+        // Utiliser une couleur de texte secondaire pour le label
+        color: var(--mat-secondary-text-color);
+        flex-shrink: 0;
+      }
+      &:last-child { border-bottom: none; }
+
+      // Ajustements spécifiques pour le mode carte
+      &[data-label="Membre:"]::before { display: none; }
+      &[data-label="Membre:"] { justify-content: flex-start; } // Aligne avatar/nom à gauche
+
+      &[data-label="Rôle:"], &[data-label="Statut:"] { justify-content: center; }
+      &[data-label="Rôle:"]::before, &[data-label="Statut:"]::before { flex-grow: 1; text-align: left;}
+
+      &[data-label="Actions:"] { justify-content: flex-end; padding-top: 0.8rem; }
+      &[data-label="Actions:"]::before { display: none; } // Pas de label pour les actions
+
+      // Style spécifique pour le statut avec bouton renvoi sur mobile
+      &[data-label="Statut:"] {
+        .status-icon + button { margin-left: 8px; } // Espace entre icône statut et bouton renvoi
+      }
+    }
+  }
+}
+
+// Style pour le champ de filtre
+.filter-field {
+  .mat-mdc-form-field-icon-prefix > .mat-icon,
+  .mat-mdc-form-field-icon-suffix > .mat-icon-button .mat-icon {
+    // Couleur d'icône standard ou secondaire
+    color: var(--mat-icon-color, var(--mat-secondary-text-color));
+    padding-bottom: 0.1em; // Ajustement vertical
+  }
+  .mat-mdc-form-field-icon-suffix > .mat-icon-button {
+    margin-right: -8px; // Compense padding interne
+  }
+}
+
+// Classes utilitaires
+.icon-muted {
+  color: var(--mat-secondary-text-color);
+}
+.bg-light-subtle {
+  // Fond très léger
+  background-color: var(--mat-app-background-hover-color, rgba(0, 0, 0, 0.02)); // Fallback
+}

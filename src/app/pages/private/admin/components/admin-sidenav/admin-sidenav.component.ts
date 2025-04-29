@@ -48,7 +48,7 @@ export class AdminSidenavComponent {
         {
           icon: 'groups',
           label: 'Équipe',
-          route: 'team',
+          route: 'team-management',
         },
         {
           icon: 'zoom_out_map',
