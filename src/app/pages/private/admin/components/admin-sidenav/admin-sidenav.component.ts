@@ -52,8 +52,8 @@ export class AdminSidenavComponent {
         },
         {
           icon: 'zoom_out_map',
-          label: 'Espaces',
-          route: 'areas',
+          label: 'Zones',
+          route: 'zone-management',
         },
       ],
     },

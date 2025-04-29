@@ -22,16 +22,16 @@ export const routes: Routes = [
   {
     path: 'create-structure',
     component: StructureCreationComponent,
-    canActivate: [LoginGuard],
+    // canActivate: [LoginGuard],
   },
   {
     path: 'user',
-    canActivate: [LoginGuard],
+    // canActivate: [LoginGuard],
     children: userRoutes,
   },
   {
     path: 'admin',
-    canActivate: [LoginGuard],
+    // canActivate: [LoginGuard],
     children: adminRoutes,
   },
   {
