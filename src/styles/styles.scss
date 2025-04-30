@@ -13,7 +13,23 @@ html {
     typography: Roboto,
     density: 0,
   ));
-}/* You can add global styles to this file, and also import other style files */
+}
+
+// Styles pour le panneau déroulant du sélecteur de rôle dans la dialogue
+.role-select-panel {
+  max-height: 350px !important; // Donner plus de place verticalement si besoin
+
+  .mat-mdc-select-panel {
+    overflow-y: auto;
+  }
+
+  // Optionnel: Augmenter légèrement la largeur si les noms de rôle sont très longs
+  // min-width: 250px !important;
+
+  .mat-mdc-option {
+    white-space: nowrap; // Empêche le retour à la ligne du texte de l'option
+  }
+}
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif;}
@@ -25,7 +41,7 @@ mat-snack-bar-container {
 
   &.error .mat-mdc-snackbar-surface {
     background-color:crimson;
-    
+
   }
 
   &.warning .mat-mdc-snackbar-surface {

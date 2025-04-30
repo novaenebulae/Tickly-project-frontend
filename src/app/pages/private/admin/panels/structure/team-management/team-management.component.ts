@@ -16,34 +16,33 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
 import { Subscription } from 'rxjs';
 
-// Importer la nouvelle dialogue de détails et l'ancienne de confirmation
-import { StaffDialogResult, StaffDialogData, StaffDetailDialogComponent} from './staff-detail-dialog/staff-detail-dialog.component';
+// Importer les dialogues (adapter les chemins)
+import { TeamDetailDialogComponent, TeamDialogResult, TeamDialogData} from './team-detail-dialog/team-detail-dialog.component'; // Renommé
 import { ConfirmationDialogComponent, ConfirmationDialogData} from '../../../../../../shared/ui/confirmation-dialog/confirmation-dialog.component';
 
-// Interfaces (dupliquées ou importées)
+// Interfaces
 interface Role { id: number; name: string; key?: string; }
-interface TeamMember {
+interface TeamMember { // Utilisation de TeamMember
   id: number; firstName: string | null; lastName: string | null; email: string;
   roleId: number; status: 'ACTIVE' | 'PENDING' | 'INACTIVE';
-  dateAdded?: Date; lastActivity?: Date; phone?: string; position?: string; // Champs simulés ajoutés
+  dateAdded?: Date; lastActivity?: Date; phone?: string; position?: string;
 }
 
-
 @Component({
-  selector: 'app-team-management',
+  selector: 'app-team-management', // Renommé si le fichier est aussi renommé
   standalone: true,
   imports: [
     CommonModule, ReactiveFormsModule, MatTableModule, MatPaginatorModule, MatSortModule,
     MatFormFieldModule, MatInputModule, MatIconModule, MatButtonModule, MatSelectModule,
     MatChipsModule, MatProgressSpinnerModule, MatDialogModule, MatTooltipModule, MatCardModule
   ],
-  templateUrl: './team-management.component.html',
-  styleUrls: ['./team-management.component.scss']
+  templateUrl: './team-management.component.html', // Assurez-vous que ce fichier existe
+  styleUrls: ['./team-management.component.scss']   // Assurez-vous que ce fichier existe
 })
 export class TeamManagementComponent implements OnInit, AfterViewInit, OnDestroy {
 
   displayedColumns: string[] = ['name', 'email', 'role', 'status', 'actions'];
-  dataSource: MatTableDataSource<TeamMember>;
+  dataSource: MatTableDataSource<TeamMember>; // Utilise TeamMember
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -54,11 +53,8 @@ export class TeamManagementComponent implements OnInit, AfterViewInit, OnDestroy
   isSendingInvite: boolean = false;
   inviteError: string | null = null;
 
-  // Suppression des états d'édition inline
-  // editingMemberId: number | null = null;
-  // selectedRoleId: number | null = null;
-
-  private teamMembers: TeamMember[] = [
+  // Données locales
+  private teamMembers: TeamMember[] = [ // Renommé
     { id: 1, firstName: 'Alice', lastName: 'Martin', email: 'alice.martin@example.com', roleId: 1, status: 'ACTIVE' },
     { id: 2, firstName: 'Bob', lastName: 'Durand', email: 'bob.durand@example.com', roleId: 2, status: 'ACTIVE' },
     { id: 3, firstName: null, lastName: null, email: 'invite.pending@example.com', roleId: 3, status: 'PENDING' },
@@ -73,13 +69,14 @@ export class TeamManagementComponent implements OnInit, AfterViewInit, OnDestroy
   ];
 
   private subscriptions = new Subscription();
+  private avatarColors = ['#673AB7', '#3F51B5', '#009688', '#FF5722', '#795548', '#E91E63', '#03A9F4']; // Défini ici ou service
 
   constructor(
     private fb: FormBuilder,
     public dialog: MatDialog
-    /*, private teamService: TeamService, private authService: AuthService */
+    /*, private teamService: TeamService, private authService: AuthService */ // Renommer le service si besoin
   ) {
-    this.dataSource = new MatTableDataSource(this.teamMembers);
+    this.dataSource = new MatTableDataSource(this.teamMembers); // Utilise teamMembers
     this.inviteForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       roleId: [null, Validators.required]
@@ -91,7 +88,7 @@ export class TeamManagementComponent implements OnInit, AfterViewInit, OnDestroy
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
-    this.dataSource.sortingDataAccessor = (item, property) => {
+    this.dataSource.sortingDataAccessor = (item, property) => { // Utilise TeamMember implicitement
       switch (property) {
         case 'name': return `${item.firstName} ${item.lastName}`.toLowerCase();
         case 'role': return this.getRoleName(item.roleId).toLowerCase();
@@ -102,7 +99,6 @@ export class TeamManagementComponent implements OnInit, AfterViewInit, OnDestroy
 
   ngOnDestroy(): void { this.subscriptions.unsubscribe(); }
 
-  // Appliquer le filtre sur la source de données
   applyFilter(event: Event | string): void {
     const filterValue = typeof event === 'string' ? event : (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
@@ -110,133 +106,76 @@ export class TeamManagementComponent implements OnInit, AfterViewInit, OnDestroy
       this.dataSource.paginator.firstPage();
     }
   }
-
-  // Effacer le contenu du champ de filtre
   clearFilter(): void {
-    if (this.filterInput) {
-      this.filterInput.value = '';
-    }
+    if (this.filterInput) { this.filterInput.value = ''; }
     this.applyFilter('');
   }
-
-  // --- Méthodes d'Invitation ---
-
-  // Afficher/Masquer le formulaire d'invitation
   toggleInviteForm(): void {
     this.showInviteForm = !this.showInviteForm;
-    if (!this.showInviteForm) {
-      this.inviteForm.reset(); // Réinitialiser le formulaire en le fermant
-      this.inviteError = null; // Effacer les erreurs précédentes
-    }
+    if (!this.showInviteForm) { this.inviteForm.reset(); this.inviteError = null; }
   }
 
-  // Envoyer l'invitation via le service
   sendInvitation(): void {
-    if (this.inviteForm.invalid) {
-      return; // Ne rien faire si le formulaire est invalide
-    }
-    this.isSendingInvite = true;
-    this.inviteError = null;
+    if (this.inviteForm.invalid) { return; }
+    this.isSendingInvite = true; this.inviteError = null;
     const { email, roleId } = this.inviteForm.value;
-
     console.log(`TODO: Appel API pour inviter ${email} avec rôle ID ${roleId}`);
-    // --- Simulation d'appel API ---
-    // Remplacer par this.teamService.inviteMember(email, roleId).subscribe(...)
+    // Simulation
     setTimeout(() => {
-      // --- Gestion du succès (simulé) ---
-      // Vérifier si l'email existe déjà (simulation)
       if (this.teamMembers.some(m => m.email.toLowerCase() === email.toLowerCase())) {
         this.inviteForm.get('email')?.setErrors({ alreadyMember: true });
-        this.inviteError = "Ce membre fait déjà partie de l'équipe.";
-        this.isSendingInvite = false;
-        return;
+        this.inviteError = "Ce membre fait déjà partie de l'équipe."; this.isSendingInvite = false; return;
       }
-      // Ajout simulé à la liste
       const newMember: TeamMember = {
-        id: Math.max(...this.teamMembers.map(m => m.id), 0) + 1,
-        firstName: null,
-        lastName: null,
-        email: email,
-        roleId: roleId,
-        status: 'PENDING'
+        id: Math.max(...this.teamMembers.map(m => m.id), 0) + 1, firstName: null, lastName: null,
+        email: email, roleId: roleId, status: 'PENDING'
       };
       this.teamMembers.push(newMember);
-      this.dataSource.data = [...this.teamMembers]; // Mettre à jour le tableau
-      this.showInviteForm = false; // Masquer le formulaire
-      this.inviteForm.reset(); // Réinitialiser le formulaire
-      this.isSendingInvite = false;
-      // Afficher un message de succès (ex: avec MatSnackBar)
+      this.dataSource.data = [...this.teamMembers];
+      this.showInviteForm = false; this.inviteForm.reset(); this.isSendingInvite = false;
       console.log("Invitation envoyée (simulé)");
-
-      // --- Gestion de l'erreur (simulé) ---
-      /*
-      this.inviteError = "Une erreur est survenue lors de l'invitation.";
-      this.isSendingInvite = false;
-      */
-    }, 1500); // Simule une latence réseau
+    }, 1500);
   }
 
-  // Renvoyer une invitation (pour les membres en attente)
-  resendInvite(member: TeamMember): void {
+  resendInvite(member: TeamMember): void { // Utilise TeamMember
     if (member.status !== 'PENDING') return;
     console.log(`TODO: Appel API pour renvoyer l'invitation à ${member.email}`);
-    // Afficher un indicateur de chargement ou un message de succès/erreur
-    // Exemple:
-    // this.teamService.resendInvitation(member.id).subscribe(...)
     alert(`Invitation renvoyée (simulé) à ${member.email}`);
   }
 
-  // --- Nouvelle Méthode pour ouvrir la dialogue de détails ---
-  openTeamDetailDialog(member: TeamMember): void {
-    const dialogRef = this.dialog.open<StaffDetailDialogComponent, StaffDialogData, StaffDialogResult>(StaffDetailDialogComponent, {
-      width: '650px', // Plus large pour 2 colonnes
+  // Ouvrir la dialogue de détails
+  openTeamDetailDialog(member: TeamMember): void { // Utilise TeamMember
+    const dialogRef = this.dialog.open<TeamDetailDialogComponent, TeamDialogData, TeamDialogResult>(TeamDetailDialogComponent, {
+      width: '800px', // Largeur augmentée
       maxWidth: '95vw',
-      data: {
-        member: { ...member }, // Passer une copie pour éviter modif directe
-        availableRoles: this.availableRoles
-      }
+      data: { member: { ...member }, availableRoles: this.availableRoles }
     });
 
-    // Gérer le résultat de la dialogue
-    dialogRef.afterClosed().subscribe((result: StaffDialogResult | undefined) => {
-      if (!result) return; // Si fermé sans action
-
+    dialogRef.afterClosed().subscribe((result: TeamDialogResult | undefined) => {
+      if (!result) return;
       switch (result.action) {
-        case 'save':
-          const newRoleId = result.payload;
-          this.updateMemberRole(member.id, newRoleId);
-          break;
-        case 'resend':
-          this.resendInvite(member);
-          break;
-        // case 'delete': // Si on mettait la suppression ici
-        //     this.confirmAndDeleteMember(member);
-        //     break;
-        case 'close':
-        default:
-          // Rien à faire
-          break;
+        case 'save': this.updateMemberRole(member.id, result.payload); break;
+        case 'resend': this.resendInvite(member); break;
+        case 'close': default: break;
       }
     });
   }
 
-  // --- Méthode pour mettre à jour le rôle (appelée après fermeture dialogue) ---
+  // Mettre à jour le rôle (après dialogue)
   private updateMemberRole(memberId: number, newRoleId: number): void {
-    console.log(`TODO: Appel API UPDATE ROLE pour membre ID ${memberId} vers Rôle ID ${newRoleId}`);
-    // --- Simulation Succès API ---
+    console.log(`TODO: Appel API UPDATE ROLE membre ID ${memberId} => Rôle ID ${newRoleId}`);
+    // Simulation succès
     const index = this.teamMembers.findIndex(m => m.id === memberId);
     if (index > -1 && this.teamMembers[index].roleId !== newRoleId) {
       this.teamMembers[index].roleId = newRoleId;
-      this.dataSource.data = [...this.teamMembers]; // Mettre à jour tableau
-      console.log("Rôle mis à jour localement (simulé)");
-      // Afficher feedback succès (SnackBar)
+      this.dataSource.data = [...this.teamMembers];
+      console.log("Rôle màj localement (simulé)");
     }
-    // --- Gérer Erreur API ---
-    /* else { console.error("Erreur API ou rôle non changé"); } */
+    // Gérer erreur API
   }
 
-  // --- Suppression (inchangée, mais renommée pour clarté) ---
-  confirmAndDeleteMember(memberToDelete: TeamMember): void {
+  // Confirmer et supprimer un membre
+  confirmAndDeleteMember(memberToDelete: TeamMember): void { // Utilise TeamMember
     const dialogRef = this.dialog.open<ConfirmationDialogComponent, ConfirmationDialogData, boolean>(ConfirmationDialogComponent, {
       width: '400px',
       data: {
@@ -248,69 +187,37 @@ export class TeamManagementComponent implements OnInit, AfterViewInit, OnDestroy
 
     dialogRef.afterClosed().subscribe((confirmed: boolean | undefined) => {
       if (confirmed === true) {
-        console.log(`TODO: Appel API DELETE pour membre ID ${memberToDelete.id}`);
-        // --- Simulation Succès API ---
+        console.log(`TODO: Appel API DELETE membre ID ${memberToDelete.id}`);
+        // Simulation succès
         this.teamMembers = this.teamMembers.filter(m => m.id !== memberToDelete.id);
         this.dataSource.data = this.teamMembers;
         console.log("Membre retiré (simulé)");
-        // --- Gérer Erreur API ---
+        // Gérer erreur API
       }
     });
   }
 
-  // --- Méthodes d'Affichage et Utilitaires ---
-
-  // Générer les initiales à partir du nom/prénom
+  // --- Utilitaires (inchangés) ---
   getInitials(firstName: string | null, lastName: string | null): string {
-    const first = firstName?.trim()?.[0] ?? '';
-    const last = lastName?.trim()?.[0] ?? '';
-    return `${first}${last}` || '?'; // Retourne '?' si aucun nom/prénom
+    const first = firstName?.trim()?.[0] ?? ''; const last = lastName?.trim()?.[0] ?? ''; return `${first}${last}` || '?';
   }
-
-  // Déterminer la couleur de fond de l'avatar basé sur l'ID
   getAvatarColor(memberId: number): string {
-    const colors = ['#673AB7', '#3F51B5', '#009688', '#FF5722', '#795548', '#E91E63', '#03A9F4'];
-    const index = memberId % colors.length; // Utilise modulo pour cycler dans les couleurs
-    return colors[index];
+    const index = memberId % this.avatarColors.length; return this.avatarColors[index];
   }
-
-  // Trouver le nom d'un rôle à partir de son ID
   getRoleName(roleId: number): string {
-    const role = this.availableRoles.find(r => r.id === roleId);
-    return role ? role.name : 'Inconnu';
+    return this.availableRoles.find(r => r.id === roleId)?.name ?? 'Inconnu';
   }
-
-  // Déterminer la couleur du MatChip basé sur l'ID du rôle
   getRoleChipColor(roleId: number): 'primary' | 'accent' | 'warn' | undefined {
     const role = this.availableRoles.find(r => r.id === roleId);
-    switch (role?.key) { // Utilise la clé unique si disponible
-      case 'ADMIN_STRUCTURE': return 'primary';
-      case 'ORGANIZER': return 'accent';
-      case 'BOOKING_SERVICE': return undefined; // Couleur par défaut (gris)
-      case 'RECEPTION_AGENT': return 'warn';
+    switch (role?.key) {
+      case 'ADMIN_STRUCTURE': return 'primary'; case 'ORGANIZER': return 'accent';
+      case 'BOOKING_SERVICE': return undefined; case 'RECEPTION_AGENT': return 'warn';
       default: return undefined;
     }
   }
-
-  // --- Logique de Permissions (Exemples simples, à adapter) ---
-
-  // Peut-on modifier le rôle de ce membre ?
-  canEditRole(member: TeamMember): boolean {
-    // Exemple: Ne pas modifier son propre rôle, ne pas modifier d'autres admins si on n'est pas admin
-    const currentUserId = 1; // TODO: Récupérer l'ID de l'utilisateur connecté via AuthService
-    const currentUserRoleId = 1; // TODO: Récupérer le rôle de l'utilisateur connecté
-    const isAdminRole = (roleId: number) => this.availableRoles.find(r => r.id === roleId)?.key === 'ADMIN_STRUCTURE';
-
-    if (member.id === currentUserId) return false; // Ne peut pas modifier son propre rôle
-    if (isAdminRole(member.roleId) && !isAdminRole(currentUserRoleId)) return false; // Seul un admin peut modifier un autre admin
-    // Peut-être d'autres règles...
-    return true;
-  }
-
-  canDeleteMember(member: TeamMember): boolean {
-    const currentUserId = 1; // TODO: Récupérer via AuthService
-    if (member.id === currentUserId) return false; // Ne pas se supprimer
-    // Le backend doit vérifier si c'est le dernier admin
-    return true; // On autorise le clic, la confirmation/backend gère le reste
+  canDeleteMember(member: TeamMember): boolean { // Utilise TeamMember
+    const currentUserId = 1; // TODO: AuthService
+    if (member.id === currentUserId) return false;
+    return true; // Simplifié, le backend gère le dernier admin
   }
 }

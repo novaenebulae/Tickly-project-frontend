@@ -26,12 +26,13 @@ export interface ConfirmationDialogData {
     MatButtonModule,
     MatIconModule,
   ],
+  styleUrls: ['./confirmation-dialog.component.scss'],
   // Template HTML directement dans le fichier TS
   template: `
-    <div class="mx-3 my-4">
-      <h2 mat-dialog-title class="d-flex align-items-center gap-2">
+    <div class="mx-3 mt-4 mb-3">
+      <h2 mat-dialog-title class="d-flex align-items-center gap-4">
         <!-- Icône d'avertissement -->
-        <mat-icon color="warn">warning_amber</mat-icon>
+        <mat-icon color="warn" class="dialog-icon">warning_amber</mat-icon>
         <!-- Titre (ou titre par défaut) -->
         {{ data.title || 'Confirmation' }}
       </h2>

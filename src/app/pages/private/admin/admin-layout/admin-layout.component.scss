@@ -12,6 +12,10 @@ mat-sidenav-container {
 
 }
 
+mat-sidenav-content {
+  background-color: var(--mat-app-background-dark-color, rgba(0, 0, 0, 0.1));
+}
+
 .mat-drawer-inner-container {
   overflow-x: hidden !important;
 

@@ -1,64 +1,54 @@
 import {Component, OnInit, inject, Inject} from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common'; // Ajout DatePipe
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+// InputModule n'est pas strictement nécessaire si pas d'input texte, mais MatFormFieldModule l'importe souvent
+// import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatListModule } from '@angular/material/list'; // Pour afficher les détails
-import { MatChipsModule } from '@angular/material/chips'; // Pour le statut visuel
+import { MatListModule } from '@angular/material/list';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-// Interfaces (doivent être définies ou importées)
+// --- Interfaces (Assurez-vous qu'elles sont cohérentes dans votre projet) ---
 interface Role { id: number; name: string; key?: string; }
-interface StaffMember {
+interface TeamMember { // Renommé de StaffMember
   id: number;
   firstName: string | null;
   lastName: string | null;
   email: string;
   roleId: number;
   status: 'ACTIVE' | 'PENDING' | 'INACTIVE';
-  // --- Champs simulés pour la démo ---
   dateAdded?: Date;
   lastActivity?: Date;
   phone?: string;
   position?: string;
 }
-export interface StaffDialogData {
-  member: StaffMember;
+export interface TeamDialogData { // Renommé de StaffDialogData
+  member: TeamMember;
   availableRoles: Role[];
-  // Potentiellement d'autres infos comme les permissions de l'utilisateur courant
 }
-// Interface pour le résultat retourné par la dialogue
-export interface StaffDialogResult {
+export interface TeamDialogResult { // Renommé de StaffDialogResult
   action: 'save' | 'delete' | 'resend' | 'close';
-  payload?: any; // Contient le roleId mis à jour si 'save'
+  payload?: any;
 }
 
 @Component({
-  selector: 'app-staff-detail-dialog',
+  selector: 'app-team-detail-dialog', // Renommé
   standalone: true,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule, // Bien que pas d'input texte, utile pour le style form-field
-    MatButtonModule,
-    MatIconModule,
-    MatSelectModule,
-    MatDividerModule,
-    MatListModule,
-    MatChipsModule,
-    MatTooltipModule
+    CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule,
+    /* MatInputModule, */ MatButtonModule, MatIconModule, MatSelectModule,
+    MatDividerModule, MatListModule, MatChipsModule, MatTooltipModule,
+    DatePipe // Ajouté pour le pipe date
   ],
   template: `
-  <div mat-dialog-title class="d-flex align-items-center gap-3 border-bottom pb-2 mb-3">
-     <!-- Avatar -->
-     <div class="staff-avatar-large" [style.background-color]="getAvatarColor(data.member.id)">
+  <div mat-dialog-title class="d-flex align-items-center gap-3 border-bottom pb-2 mb-4 mt-3"> <!-- Marge mb-4 ajoutée -->
+     <!-- Avatar (plus grand) -->
+     <div class="team-avatar-large" [style.background-color]="getAvatarColor(data.member.id)">
         {{ getInitials(data.member.firstName, data.member.lastName) || '?' }}
      </div>
      <!-- Nom & Email -->
@@ -69,34 +59,35 @@ export interface StaffDialogResult {
        <p class="mat-body-2 text-muted mb-0">{{ data.member.email }}</p>
      </div>
      <!-- Bouton Fermer -->
-      <button mat-icon-button class="ms-auto" (click)="onClose()" matTooltip="Fermer">
+      <button mat-icon-button class="ms-auto" (click)="onClose()" matTooltip="Fermer" aria-label="Fermer la dialogue">
         <mat-icon>close</mat-icon>
       </button>
   </div>
 
   <mat-dialog-content>
     <form [formGroup]="detailForm">
-       <div class="row">
-          <!-- Colonne Gauche: Infos & Rôle -->
-          <div class="col-md-6">
-              <h3 class="mat-subheader">Informations Structure</h3>
-              <mat-list dense>
-                 <mat-list-item>
-                    <mat-icon matListItemIcon class="icon-muted">assignment_ind</mat-icon>
-                    <span matListItemTitle>Rôle</span>
-                    <span matListItemLine>
-                      <!-- Select pour modifier le rôle -->
-                      <mat-form-field appearance="outline" class="w-100 mb-0 role-select-field" subscriptSizing="dynamic">
-                          <mat-label>Modifier le rôle</mat-label>
-                          <mat-select formControlName="roleId" required>
-                            @for (role of data.availableRoles; track role.id) {
-                              <mat-option [value]="role.id">{{ role.name }}</mat-option>
-                            }
-                          </mat-select>
-                           @if (detailForm.get('roleId')?.hasError('required')) {
-                            <mat-error>Le rôle est requis</mat-error>
+      <div class="row">
+        <!-- Colonne Gauche: Infos & Rôle -->
+        <div class="col-md-6">
+          <h3 class="mat-subheader">Informations Structure</h3>
+          <mat-list dense>
+            <mat-list-item class="h-auto">
+              <mat-icon matListItemIcon class="icon-muted">assignment_ind</mat-icon>
+              <span matListItemTitle>Rôle</span>
+              <span matListItemLine>
+                    <!-- Select pour modifier le rôle -->
+                    <mat-form-field appearance="outline" class="w-100 mb-0 role-select-field mt-3" subscriptSizing="dynamic">
+                        <mat-label>Modifier le rôle</mat-label>
+                      <!-- AJOUT de panelClass ici -->
+                        <mat-select formControlName="roleId" required panelClass="role-select-panel">
+                          @for (role of data.availableRoles; track role.id) {
+                            <mat-option [value]="role.id">{{ role.name }}</mat-option>
                           }
-                      </mat-form-field>
+                        </mat-select>
+                      @if (detailForm.get('roleId')?.hasError('required')) {
+                        <mat-error>Le rôle est requis</mat-error>
+                      }
+                    </mat-form-field>
                     </span>
                  </mat-list-item>
                  <mat-list-item>
@@ -135,14 +126,13 @@ export interface StaffDialogResult {
                  <span matListItemTitle>Poste / Fonction</span>
                  <span matListItemLine>{{ data.member.position || 'Non spécifié' }}</span>
                </mat-list-item>
-               <!-- Autres infos possibles -->
              </mat-list>
           </div>
        </div>
     </form>
   </mat-dialog-content>
 
-  <mat-dialog-actions align="end" class="pt-3 border-top">
+  <mat-dialog-actions align="end" class="pt-3 mt-3 border-top"> <!-- mt-3 ajouté -->
     <!-- Bouton Renvoyer Invitation (si PENDING) -->
     @if (data.member.status === 'PENDING') {
       <button mat-stroked-button color="accent" (click)="onResendInvite()" class="me-auto">
@@ -151,54 +141,59 @@ export interface StaffDialogResult {
       </button>
     }
 
-    <!-- Bouton Supprimer (si autorisé) -->
-    <!-- <button mat-stroked-button color="warn" (click)="onDelete()" [disabled]="!canBeDeleted">
-        <mat-icon>delete_outline</mat-icon>
-        Supprimer le membre
-    </button> -->
-
     <!-- Bouton Enregistrer (si rôle changé) -->
     <button mat-raised-button color="primary"
             [disabled]="detailForm.invalid || !isRoleChanged()"
             (click)="onSave()">
       <mat-icon>save</mat-icon>
-      Enregistrer les modifications
+      Enregistrer
     </button>
   </mat-dialog-actions>
   `,
   // Styles spécifiques à la dialogue
   styles: [`
-    .staff-avatar-large {
-      width: 50px; height: 50px; border-radius: 50%; display: flex;
+    // --- Styles En-tête (Avatar, etc.) ---
+    .team-avatar-large {
+      width: 64px; height: 64px; border-radius: 50%; display: flex;
       align-items: center; justify-content: center; color: white;
-      font-weight: 500; font-size: 1.3rem; flex-shrink: 0; text-transform: uppercase;
+      font-weight: 500; font-size: 1.8rem; flex-shrink: 0; text-transform: uppercase;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .mat-mdc-list-item-icon { margin-right: 16px !important; }
     .icon-muted { color: rgba(0,0,0,0.54); }
-    // Ajuster le champ select pour qu'il s'intègre mieux dans la liste
-    .role-select-field .mat-mdc-form-field-infix { padding-top: 0.5em; padding-bottom: 0.5em; }
-    .role-select-field .mat-mdc-select-value { padding-top: 0 !important; }
+
+    // --- Styles pour le MatFormField du Select ---
+    // Cibler spécifiquement les form-fields dans la mat-list pour éviter effets de bord
+    mat-list mat-form-field.role-select-field {
+      // Garantir la hauteur standard du conteneur outline
+      --mdc-outlined-text-field-container-height: 56px;
+      margin-bottom: 0; // Pas de marge superflue dans la liste
+      width: 100%;      // Prend toute la largeur disponible dans la cellule de liste
+    }
+
+    // Ajustement mineur pour l'alignement vertical du texte sélectionné si nécessaire
+    mat-list mat-form-field.role-select-field .mat-mdc-select-value {
+       // padding-top: 0 !important; // Généralement plus nécessaire si hauteur standard est bonne
+    }
   `]
 })
-export class StaffDetailDialogComponent implements OnInit {
+export class TeamDetailDialogComponent implements OnInit { // Renommé
   detailForm: FormGroup;
-  initialRoleId: number; // Pour vérifier si le rôle a changé
-  // Couleurs pour les avatars (dupliqué ici ou importé d'une constante partagée)
+  initialRoleId: number;
+  // Palette couleurs avatar
   private avatarColors = ['#673AB7', '#3F51B5', '#009688', '#FF5722', '#795548', '#E91E63', '#03A9F4'];
 
   constructor(
-    public dialogRef: MatDialogRef<StaffDetailDialogComponent, StaffDialogResult>, // Typer le résultat
-    @Inject(MAT_DIALOG_DATA) public data: StaffDialogData,
+    public dialogRef: MatDialogRef<TeamDetailDialogComponent, TeamDialogResult>, // Renommé
+    @Inject(MAT_DIALOG_DATA) public data: TeamDialogData, // Renommé
     private fb: FormBuilder
   ) {
-    // Créer le formulaire avec seulement le rôle comme contrôle modifiable
     this.detailForm = this.fb.group({
       roleId: [this.data.member.roleId, Validators.required]
     });
-    // Stocker le rôle initial
     this.initialRoleId = this.data.member.roleId;
 
-    // Simuler des données si elles manquent
+    // Simuler données manquantes (inchangé)
     this.data.member.dateAdded = this.data.member.dateAdded ?? new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
     this.data.member.lastActivity = this.data.member.lastActivity ?? (this.data.member.status === 'ACTIVE' ? new Date(Date.now() - Math.random() * 5 * 24 * 60 * 60 * 1000) : undefined);
     this.data.member.phone = this.data.member.phone ?? (Math.random() > 0.5 ? `06 XX XX XX ${Math.floor(Math.random()*90)+10}`: undefined);
@@ -207,35 +202,24 @@ export class StaffDetailDialogComponent implements OnInit {
 
   ngOnInit(): void { }
 
-  // Vérifie si le rôle a été modifié par rapport à l'initial
-  isRoleChanged(): boolean {
-    return this.detailForm.get('roleId')?.value !== this.initialRoleId;
-  }
+  isRoleChanged(): boolean { return this.detailForm.get('roleId')?.value !== this.initialRoleId; }
 
-  // Sauvegarde : retourne l'action 'save' et le nouveau roleId
   onSave(): void {
     if (this.detailForm.valid && this.isRoleChanged()) {
       this.dialogRef.close({ action: 'save', payload: this.detailForm.value.roleId });
     }
   }
 
-  // Fermeture simple : retourne l'action 'close'
-  onClose(): void {
-    this.dialogRef.close({ action: 'close' });
-  }
+  onClose(): void { this.dialogRef.close({ action: 'close' }); }
+  onResendInvite(): void { this.dialogRef.close({ action: 'resend' }); }
 
-  // Renvoyer l'invitation : retourne l'action 'resend'
-  onResendInvite(): void {
-    this.dialogRef.close({ action: 'resend' });
-  }
-
-  /* --- Optionnel : Si on déplace la suppression ici ---
-  onDelete(): void {
-     // Ici, on devrait ouvrir la dialogue de Confirmation
-     // Si confirmé, on ferme CE dialogue avec action: 'delete'
-     // this.dialogRef.close({ action: 'delete' });
-  }
-  */
+/* --- Optionnel : Si on déplace la suppression ici ---
+onDelete(): void {
+   // Ici, on devrait ouvrir la dialogue de Confirmation
+   // Si confirmé, on ferme CE dialogue avec action: 'delete'
+   // this.dialogRef.close({ action: 'delete' });
+}
+*/
 
   // --- Fonctions utilitaires (dupliquées ou importées) ---
   getInitials(firstName: string | null, lastName: string | null): string {
@@ -249,7 +233,7 @@ export class StaffDetailDialogComponent implements OnInit {
     return this.avatarColors[index];
   }
 
-  getStatusText(status: StaffMember['status']): string {
+  getStatusText(status: TeamMember['status']): string {
     switch(status) {
       case 'ACTIVE': return 'Actif';
       case 'PENDING': return 'En attente';
@@ -258,7 +242,7 @@ export class StaffDetailDialogComponent implements OnInit {
     }
   }
 
-  getStatusChipColor(status: StaffMember['status']): 'primary' | 'accent' | 'warn' | undefined {
+  getStatusChipColor(status: TeamMember['status']): 'primary' | 'accent' | 'warn' | undefined {
     switch(status) {
       case 'ACTIVE': return 'primary'; // Vert implicite via primary? ou une autre couleur
       case 'PENDING': return 'accent'; // Orange/Jaune
