@@ -63,14 +63,14 @@ export class AdminSidenavComponent {
       route: 'events',
       subItems: [
         {
-          icon: 'add',
-          label: 'Créer un événement',
-          route: 'create',
-        },
-        {
           icon: 'calendar_month',
           label: 'Calendrier',
           route: 'calendar',
+        },
+        {
+          icon: 'add',
+          label: 'Créer un événement',
+          route: 'create',
         },
       ],
     },

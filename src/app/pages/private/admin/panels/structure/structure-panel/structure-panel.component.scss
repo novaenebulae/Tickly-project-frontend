@@ -1,0 +1,86 @@
+// Fichier: structure-panel.component.scss
+
+:host {
+  display: block; // Assure que le composant prend de la place
+}
+
+.structure-panel-page {
+  // Style général si besoin
+}
+
+// Style commun pour les cartes de gestion
+.structure-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; // Animation douce
+  border: 1px solid var(--mat-divider-color); // Bordure subtile
+
+  // Styles pour l'en-tête avec icône avatar
+  .card-header-icon {
+    padding: 16px;
+    border-bottom: 1px solid var(--mat-divider-color);
+
+    // Style de l'avatar contenant l'icône
+    .mat-mdc-card-avatar {
+      color: var(--mat-card-header-text-color, black);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 16px; // Espace entre avatar et titre
+
+      .header-icon {
+        font-size: 40px; // Taille de l'icône
+        width: 40px;
+        height: 40px;
+      }
+    }
+
+    // Ajustement du titre/sous-titre si nécessaire
+    .mat-mdc-card-header-text {
+      margin: 0; // Reset marge par défaut
+    }
+  }
+
+  mat-card-content {
+    padding: 16px; // Espacement interne du contenu
+    p { margin-bottom: 0.75rem; } // Espacement standard des paragraphes
+  }
+
+  mat-card-actions {
+    padding: 8px 16px; // Espacement standard pour les actions
+    border-top: 1px solid var(--mat-divider-color); // Ligne de séparation au-dessus des actions
+    background-color: var(--mat-card-actions-background-color, transparent); // Fond optionnel pour les actions
+  }
+
+  // Effet de survol pour la carte entière
+  &.hover-shadow:hover {
+    transform: translateY(-3px); // Léger déplacement vers le haut
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1), 0 3px 6px rgba(0,0,0,0.08) !important; // Ombre plus prononcée
+  }
+}
+
+// Classes pour les fonds subtils des en-têtes de carte (basées sur les couleurs Material)
+// Vous pouvez les ajuster ou utiliser des variables CSS de votre thème si disponibles
+.bg-primary-subtle {
+  background-color: rgba(var(--palette-primary-rgb, 63, 81, 181), 0.1); // Bleu clair
+  color: var(--mat-primary-color); // Couleur de l'icône dans l'avatar
+}
+.bg-accent-subtle {
+  background-color: rgba(var(--palette-accent-rgb, 255, 64, 129), 0.1); // Rose/Cyan clair
+  color: var(--mat-accent-color);
+}
+.bg-warn-subtle {
+  background-color: rgba(var(--palette-warn-rgb, 244, 67, 54), 0.1); // Rouge/Orange clair
+  color: var(--mat-warn-color);
+}
+.bg-secondary-subtle { // Couleur "secondaire" ou grise
+  background-color: rgba(0, 0, 0, 0.04); // Gris très clair
+  color: var(--mat-secondary-text-color); // Gris pour l'icône
+}
+
+// Assurer que les colonnes flex prennent bien toute la hauteur
+// (Peut être nécessaire si `h-100` seul ne suffit pas)
+.row.g-4 > .d-flex {
+  align-items: stretch; // Force les enfants flex (la carte) à s'étirer
+}

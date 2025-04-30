@@ -1,1 +1,135 @@
-<router-outlet></router-outlet>
+<div class="container-fluid py-3 structure-panel-page">
+
+  <!-- En-tête de la Page -->
+  <div class="mb-4">
+    <h1 class="mat-headline-5 mb-1">Paramètres de la Structure</h1>
+    <p class="mat-body-1 text-muted">
+      Gérez les informations générales, l'équipe et les zones de
+      <!-- Affiche le nom de la structure une fois chargée -->
+      <span class="fw-medium">{{ structureInfo?.name || 'votre structure' }}</span>.
+    </p>
+  </div>
+
+  <!-- Indicateur de Chargement Initial -->
+  @if (isLoading) {
+    <div class="text-center my-5 py-5">
+      <mat-progress-spinner mode="indeterminate" diameter="60"></mat-progress-spinner>
+      <p class="mt-3 text-muted">Chargement des informations...</p>
+    </div>
+  }
+
+  <!-- Message d'Erreur de Chargement -->
+  @if (errorLoading && !isLoading) {
+    <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+      <mat-icon color="warn">error_outline</mat-icon>
+      {{ errorLoading }}
+      <button mat-icon-button (click)="loadInitialData()" class="ms-auto" matTooltip="Réessayer">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+  }
+
+  <!-- Contenu Principal (Cartes de Gestion) - Affiché si pas d'erreur et chargement terminé -->
+  @if (!isLoading && !errorLoading) {
+    <div class="row g-4"> <!-- g-4 pour plus d'espacement entre les cartes -->
+
+      <!-- Carte: Informations Générales -->
+      <div class="col-12 col-md-6  d-flex">
+        <mat-card class="w-100 h-100 d-flex flex-column mat-elevation-z2 hover-shadow structure-card pb-3">
+          <mat-card-header class="card-header-icon bg-primary-subtle">
+            <div mat-card-avatar><mat-icon class="header-icon">storefront</mat-icon></div>
+            <mat-card-title class="mat-headline-6">Informations</mat-card-title>
+            <mat-card-subtitle>Détails de la structure</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content class="flex-grow-1">
+            <p><strong>Nom:</strong> {{ structureInfo?.name || 'N/A' }}</p>
+            <p><strong>Lieu:</strong> {{ structureInfo?.city || 'N/A' }} {{ structureInfo?.zipCode || '' }}</p>
+            <p class="text-muted small mt-3">Modifiez le nom, le logo, l'adresse et les contacts.</p>
+          </mat-card-content>
+          <mat-card-actions class="mt-auto justify-content-end">
+            <!-- Bouton ouvrant potentiellement une modale ou naviguant -->
+            <button mat-flat-button color="primary" (click)="navigateToEditInfo()">
+              <mat-icon>edit</mat-icon> Modifier les infos
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+
+      <!-- Carte: Gestion de l'Équipe -->
+      <div class="col-12 col-md-6  d-flex">
+        <mat-card class="w-100 h-100 d-flex flex-column mat-elevation-z2 hover-shadow structure-card pb-3">
+          <mat-card-header class="card-header-icon bg-accent-subtle">
+            <div mat-card-avatar><mat-icon class="header-icon">group</mat-icon></div>
+            <mat-card-title class="mat-headline-6">Équipe</mat-card-title>
+            <mat-card-subtitle>Gestion des membres</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content class="flex-grow-1">
+            <!-- Affiche le compteur de membres -->
+            <p class="fs-5 fw-bold">{{ teamMemberCount ?? '-' }}
+              <span class="fs-6 fw-normal text-muted">membre{{ (teamMemberCount ?? 0) !== 1 ? 's' : '' }} actif{{ (teamMemberCount ?? 0) !== 1 ? 's' : '' }}</span>
+            </p>
+            <p class="text-muted small mt-3">Invitez de nouveaux membres, gérez les rôles et les accès.</p>
+          </mat-card-content>
+          <mat-card-actions class="mt-auto justify-content-end">
+            <!-- Lien vers la sous-section /admin/structure/team -->
+            <a mat-flat-button color="accent" routerLink="team-management">
+              <mat-icon>settings</mat-icon> Gérer l'équipe
+            </a>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+
+      <!-- Carte: Gestion des Zones -->
+      <div class="col-12 col-md-6  d-flex">
+        <mat-card class="w-100 h-100 d-flex flex-column mat-elevation-z2 hover-shadow structure-card pb-3">
+          <mat-card-header class="card-header-icon bg-warn-subtle">
+            <div mat-card-avatar><mat-icon class="header-icon">map</mat-icon></div>
+            <mat-card-title class="mat-headline-6">Zones</mat-card-title>
+            <mat-card-subtitle>Espaces de la structure</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content class="flex-grow-1">
+            <!-- Affiche le compteur de zones -->
+            <p class="fs-5 fw-bold">{{ zoneCount ?? '-' }}
+              <span class="fs-6 fw-normal text-muted">zone{{ (zoneCount ?? 0) !== 1 ? 's' : '' }} définie{{ (zoneCount ?? 0) !== 1 ? 's' : '' }}</span>
+            </p>
+            <p class="text-muted small mt-3">Définissez les scènes, bars, gradins utilisables pour vos événements.</p>
+          </mat-card-content>
+          <mat-card-actions class="mt-auto justify-content-end">
+            <!-- Lien vers la sous-section /admin/structure/zones -->
+            <a mat-flat-button color="warn" routerLink="zone-management">
+              <mat-icon>settings</mat-icon> Gérer les zones
+            </a>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+
+      <!-- Carte: Page Publique (Optionnelle) -->
+      @if (structureInfo?.publicUrl) {
+        <div class="col-12 col-md-6  d-flex">
+          <mat-card class="w-100 h-100 d-flex flex-column mat-elevation-z2 hover-shadow structure-card pb-3">
+            <mat-card-header class="card-header-icon bg-secondary-subtle">
+              <div mat-card-avatar><mat-icon class="header-icon">public</mat-icon></div>
+              <mat-card-title class="mat-headline-6">Page Publique</mat-card-title>
+              <mat-card-subtitle>Votre vitrine en ligne</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content class="flex-grow-1">
+              <p class="text-muted small mt-3">Accédez à la page de votre structure telle qu'elle apparaît aux visiteurs.</p>
+              <!-- Optionnel: petit aperçu ou juste le lien -->
+              <a [href]="structureInfo!.publicUrl" target="_blank" class="d-block text-truncate small mt-2">
+                {{ structureInfo!.publicUrl }}
+              </a>
+            </mat-card-content>
+            <mat-card-actions class="mt-auto justify-content-end">
+              <!-- Lien externe direct -->
+              <a mat-stroked-button color="secondary" [href]="structureInfo!.publicUrl" target="_blank">
+                <mat-icon>visibility</mat-icon> Voir la page
+              </a>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      }
+
+    </div>
+  }
+
+</div>
