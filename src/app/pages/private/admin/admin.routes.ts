@@ -8,6 +8,7 @@ import {EventCreationComponent} from './panels/events/event-creation/event-creat
 import {ZoneManagementComponent} from './panels/structure/zone-management/zone-management.component';
 import {StructurePanelComponent} from './panels/structure/structure-panel/structure-panel.component';
 import {TeamManagementComponent} from './panels/structure/team-management/team-management.component';
+import {StructureEditComponent} from './panels/structure/structure-edit/structure-edit.component';
 
 export const adminRoutes: Routes = [
   {
@@ -39,6 +40,10 @@ export const adminRoutes: Routes = [
       {
         path: 'structure/team-management',
         component: TeamManagementComponent,
+      },
+      {
+        path: 'structure/edit',
+        component: StructureEditComponent,
       },
       {
         path: 'structure/zone-management',

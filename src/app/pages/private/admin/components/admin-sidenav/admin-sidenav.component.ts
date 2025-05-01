@@ -55,6 +55,11 @@ export class AdminSidenavComponent {
           label: 'Zones',
           route: 'zone-management',
         },
+        {
+          icon: 'edit_note',
+          label: 'Édition infos',
+          route: 'edit',
+        },
       ],
     },
     {

@@ -130,7 +130,7 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
   // Navigue vers la page d'édition des informations de la structure
   navigateToEditInfo(): void {
     // Définissez la route '/admin/structure/edit' ou ouvrez une modale
-    console.log("TODO: Naviguer vers l'édition des infos structure");
+    this.router.navigate(['/admin/structure/edit'])
     // Exemple: this.router.navigate(['/admin/structure/edit']);
     // Ou: this.dialog.open(EditStructureInfoDialogComponent, { data: this.structureInfo });
   }
