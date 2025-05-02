@@ -1,3 +1,5 @@
+@use '@angular/material' as mat;
+
 // Fichier: events-panel.component.scss
 
 // Variables utilitaires (peuvent être déplacées dans un fichier global)
@@ -25,6 +27,7 @@ $card-border-radius: 8px; // Rayon pour les cartes
     color: var(--mat-icon-color, var(--mat-secondary-text-color));
     padding-bottom: 0.1em;
   }
+
   .mat-mdc-form-field-icon-suffix > .mat-icon-button {
     margin-right: -8px;
   }
@@ -57,7 +60,7 @@ $card-border-radius: 8px; // Rayon pour les cartes
 
   &.hover-shadow:hover {
     // Ombre plus prononcée au survol
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.08) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08) !important;
   }
 }
 
@@ -167,8 +170,10 @@ $card-border-radius: 8px; // Rayon pour les cartes
           }
         }
       }
+
       .event-status {
         margin-top: 12px;
+
         .mat-mdc-chip-set {
           justify-content: flex-start;
         }
@@ -200,6 +205,7 @@ $card-border-radius: 8px; // Rayon pour les cartes
 .icon-muted {
   color: var(--mat-secondary-text-color);
 }
+
 .bg-light-subtle {
   background-color: var(--mat-app-background-hover-color, rgba(0, 0, 0, 0.02));
 }
@@ -221,4 +227,13 @@ mat-card.bg-light-subtle {
   font-size: 48px;
   width: 48px;
   height: 48px;
+}
+
+
+.filter-button {
+  max-width: 200px;
+  height: 56px;
+  border-radius: 5px;
+  min-width: 175px !important;
+  padding: 0px !important;
 }
