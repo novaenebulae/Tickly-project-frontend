@@ -118,7 +118,7 @@ export class EventCreationComponent implements OnInit, OnDestroy {
     this.eventForm = this.fb.group({
       name: ['', Validators.required],
       category: ['', Validators.required],
-      shortDescription: ['', [Validators.maxLength(263)]],
+      shortDescription: ['', [Validators.maxLength(300)]],
       genre: [''],
       tags: [''],
       startDate: ['', Validators.required],
@@ -149,8 +149,8 @@ export class EventCreationComponent implements OnInit, OnDestroy {
       .controls as FormGroup[];
   }
 
-  get linkControls() {
-    return (this.eventForm.get('links') as FormArray).controls as FormControl[];
+  get linkControls(): AbstractControl[] {
+    return (this.eventForm.get('links') as FormArray).controls;
   }
 
   createLocationGroup(location: Location): FormGroup {
@@ -370,4 +370,23 @@ export class EventCreationComponent implements OnInit, OnDestroy {
       return;
     }
   }
+
+  get displayOnHomepage() { return this.eventForm.get('displayOnHomepage'); }
+  get isFeaturedEvent() { return this.eventForm.get('isFeaturedEvent'); }
+
+  get isFormTouched(): boolean {
+    // Retourne true si le formulaire FormGroup a été marqué comme 'touched'
+    return this.eventForm.touched;
+  }
+
+  get fullDescription() { return this.eventForm.get('fullDescription'); }
+
+  get links() { return this.eventForm.get('links') as FormArray; }
+  get saveAsDraft() { return this.eventForm.get('saveAsDraft'); }
+
+  get shortDescriptionLength(): number {
+    // Utilise le getter 'shortDescription' défini ci-dessus
+    return this.eventForm.get('shortDescription')?.value?.length || 0;
+  }
+
 }

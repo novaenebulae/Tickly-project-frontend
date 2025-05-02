@@ -6,7 +6,7 @@ import { LoginGuard } from '../../../core/guards/login.guard';
 export const userRoutes: Routes = [
   {
     path: '',
-    canActivate: [LoginGuard],
+    // canActivate: [LoginGuard],
     component: UserLayoutComponent,
   },
 ];

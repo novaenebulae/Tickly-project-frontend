@@ -8,18 +8,13 @@ $icon-prefix-color: var(--mat-secondary-text-color);
   display: block;
 }
 
-.edit-structure-page {
-  // Optionnel: Texture SVG subtile en fond
-  // background-image: url('/assets/patterns/subtle-pattern.svg');
-  // background-repeat: repeat;
-  // background-size: auto;
-  padding-bottom: 100px; // Espace pour la barre d'actions fixe
-}
-
 // Indicateur de chargement global
 .loading-overlay {
   position: fixed; // Ou absolute si contenu dans un parent relatif
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: rgba(255, 255, 255, 0.7); // Fond blanc semi-transparent
   display: flex;
   align-items: center;
@@ -30,7 +25,7 @@ $icon-prefix-color: var(--mat-secondary-text-color);
 // Style commun pour les cartes de section
 .form-section-card {
   overflow: hidden;
-  border: 1px solid var(--mat-divider-color, rgba(0,0,0,0.08));
+  border: 1px solid var(--mat-divider-color, rgba(0, 0, 0, 0.08));
 }
 
 // Style pour l'en-tête des cartes
@@ -54,11 +49,14 @@ $icon-prefix-color: var(--mat-secondary-text-color);
     // Taille augmentée pour l'icône
     .header-icon {
       font-size: 30px; // Augmenté
-      width: 30px;     // Augmenté
-      height: 30px;    // Augmenté
+      width: 30px; // Augmenté
+      height: 30px; // Augmenté
     }
   }
-  .mat-mdc-card-header-text { margin: 0; }
+
+  .mat-mdc-card-header-text {
+    margin: 0;
+  }
 }
 
 
@@ -70,16 +68,20 @@ $icon-prefix-color: var(--mat-secondary-text-color);
       margin-bottom: 1rem; // Standard 1rem (16px)
     }
   }
+
   // Assurer qu'un textarea dans un h-100 s'étire
   mat-form-field.h-100 {
     display: flex;
     flex-direction: column;
     height: 100%;
+
     .mat-mdc-form-field-flex {
       height: 100%;
     }
+
     .mat-mdc-form-field-infix {
       height: 100%;
+
       textarea {
         height: 100%; // Pour que le textarea remplisse l'espace
         resize: none; // Empêche le redimensionnement manuel
@@ -87,7 +89,9 @@ $icon-prefix-color: var(--mat-secondary-text-color);
     }
   }
 
-  p:last-child { margin-bottom: 0; }
+  p:last-child {
+    margin-bottom: 0;
+  }
 }
 
 // Section d'upload d'image
@@ -100,20 +104,30 @@ $icon-prefix-color: var(--mat-secondary-text-color);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--mat-icon-color, rgba(0,0,0,0.54));
+    color: var(--mat-icon-color, rgba(0, 0, 0, 0.54));
     margin-bottom: 0.5rem; // Espace sous l'aperçu avant les boutons/texte
 
-    img { display: block; width: 100%; height: 100%; object-fit: cover; }
-    mat-icon { font-size: 48px; width: 48px; height: 48px; }
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+    }
   }
 
   .logo-preview {
-    // Taille du logo (carré par défaut)
-    width: 120px;
-    height: 120px;
-    margin-left: auto; // Centrer horizontalement si seul
-    margin-right: auto;
-    // border-radius: 50%; // Pour logo rond
+    // MODIFICATION: Appliquer les mêmes styles que .cover-preview
+    aspect-ratio: 1 / 1; // Ratio large (identique à la couverture)
+    max-height: 200px; // Hauteur maximale (identique à la couverture)
+    margin: auto;
+    // border-radius: 50%; // Supprimé ou commenté si on ne veut plus un logo rond
+    // Les styles margin-left/right: auto ne sont plus nécessaires avec width: 100%
   }
 
   .cover-preview {
@@ -147,42 +161,58 @@ $icon-prefix-color: var(--mat-secondary-text-color);
 
 // Style pour la barre d'actions fixe en bas
 .action-bar {
-  position: sticky; bottom: 0; left: 0; right: 0; z-index: 10;
-  background-color: var(--mat-app-background-color);
-  padding: 0.75rem 0; // Padding vertical réduit légèrement
-  border-top: 1px solid var(--mat-divider-color);
-  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 0.75rem 0; // Padding vertical
+  background-color: var(--mat-primary-bg);
 
-  // Le conteneur flex dans la colonne a align-items-center
-  // Assurons-nous que le FAB s'aligne bien
-  button[mat-fab] {
-    // align-self: center; // Normalement géré par align-items-center du parent
-    // Si le spinner cause un décalage, on cible son conteneur
-    .mdc-fab__icon, .fab-spinner { // Cible l'icône ou le spinner
-      vertical-align: middle; // Essayer d'aligner verticalement
+  @include mat.button-overrides((
+    filled-label-text-size: 25px,
+    filled-container-height: 40px,
+    outlined-label-text-size: 25px,
+    outlined-container-height: 40px
+
+  ));
+
+  .mat-icon {
+    font-size: 25px;
+    overflow: visible;
+  }
+
+  // MODIFICATION: Appliquer une hauteur minimale cohérente à TOUS les boutons directs
+  // et s'assurer que leur contenu est centré verticalement.
+  > button { // Cible les boutons enfants directs (stroked et fab)
+    min-height: 40px; // Hauteur minimale cohérente
+    // Ou utiliser 'height: 40px;' pour une hauteur fixe stricte
+    display: flex !important; // Important pour s'assurer que flexbox est appliqué
+    align-items: center; // Centre verticalement le contenu interne (texte/icône)
+    justify-content: center; // Optionnel: Centre horizontalement si nécessaire
+    vertical-align: middle; // Aide à l'alignement si les boutons ne sont pas seuls sur la ligne
+  }
+
+  // Les styles spécifiques au spinner FAB sont conservés et ajustés si besoin
+  button[mat-flat-button] {
+
+    mat-progress-spinner.fab-spinner {
+      // Le diamètre est défini dans le HTML, ici on ajuste la position
+      display: inline-block;
+      vertical-align: middle; // Aide à l'alignement
+      margin: 0 8px 0 -4px; // Ajustement marges pour spinner dans FAB extended
     }
-  }
-  // Hauteur minimale pour le bouton stroked
-  button[mat-stroked-button] {
-    min-height: 40px; // Assure une bonne taille cliquable
-    // align-self: center; // Devrait être centré par le parent flex
+
+    :host ::ng-deep & .mdc-button__label { // Le '&' référence le parent (button[mat-flat-button])
+      display: flex;        // Nécessaire pour utiliser align-items/justify-content
+      align-items: center;  // Centre verticalement le texte dans le label
+      justify-content: center; // **Centre horizontalement le texte dans le label**
+      width: 100%;          // Assure que le label prend toute la largeur disponible DANS le bouton
+      height: auto;
+    }
+
   }
 }
-
-// Style pour le spinner dans le bouton FAB
-button[mat-fab] {
-  mat-progress-spinner.fab-spinner {
-    // Le diamètre est défini dans le HTML, ici on ajuste la position
-    display: inline-block;
-    vertical-align: middle; // Aide à l'alignement avec le texte/icône
-    margin: 0 8px 0 -4px; // Ajustement marges pour spinner dans FAB extended
-  }
-  .mdc-fab__label { // Conteneur texte/icône interne
-    display: inline-flex;
-    align-items: center;
-  }
-}
-
 
 
 // Classes de fond subtil (similaires à structure-panel)
@@ -191,14 +221,17 @@ button[mat-fab] {
   background-color: rgba(var(--palette-primary-rgb, 63, 81, 181), 0.08);
   color: var(--mat-primary-color);
 }
+
 .bg-accent-subtle {
   background-color: rgba(var(--palette-accent-rgb, 255, 64, 129), 0.08);
   color: var(--mat-accent-color);
 }
+
 .bg-warn-subtle {
   background-color: rgba(var(--palette-warn-rgb, 244, 67, 54), 0.08);
   color: var(--mat-warn-color);
 }
+
 .bg-secondary-subtle {
   background-color: rgba(0, 0, 0, 0.04);
   color: var(--mat-secondary-text-color);
@@ -234,6 +267,4 @@ button[mat-fab] {
 .icon-muted {
   color: var(--mat-secondary-text-color);
 }
-
-
 

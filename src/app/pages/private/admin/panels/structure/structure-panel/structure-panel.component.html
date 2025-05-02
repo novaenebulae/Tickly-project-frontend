@@ -1,14 +1,15 @@
-<div class="container-fluid py-3 structure-panel-page">
+<div class="container-fluid py-4 structure-panel-page">
 
-  <!-- En-tête de la Page -->
-  <div class="mb-4">
-    <h1 class="mat-headline-5 mb-1">Paramètres de la Structure</h1>
-    <p class="mat-body-1 text-muted">
-      Gérez les informations générales, l'équipe et les zones de
-      <!-- Affiche le nom de la structure une fois chargée -->
-      <span class="fw-medium">{{ structureInfo?.name || 'votre structure' }}</span>.
-    </p>
-  </div>
+  <mat-card class="mat-elevation-z2 mb-4">
+    <mat-card-content
+      class="d-flex justify-content-between align-items-start flex-wrap p-4"
+    >
+      <h1 class="mat-headline-6">Votre Structure</h1>
+      <h4 class="w-70 align-self-center mat-headline-1">
+        <span>{{ structureInfo?.name || 'votre structure' }}</span>
+      </h4>
+    </mat-card-content>
+  </mat-card>
 
   <!-- Indicateur de Chargement Initial -->
   @if (isLoading) {

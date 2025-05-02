@@ -24,7 +24,7 @@
 
           <div class="brand-logo text-center text-md-end mt-auto">
             <img
-              src="logo/tickly-logo.svg"
+              src="logos/tickly-logo.svg"
               alt="Tickly Logo"
               class="brand-logo-img"
             />
@@ -50,8 +50,8 @@
               <mat-label>Nom de la structure</mat-label>
               <mat-icon matPrefix>business</mat-icon>
               <input matInput formControlName="structureName" required />
-              @if(structureCreationForm.controls['structureName'].errors?.['required']
-              && structureCreationForm.controls['structureName'].touched) {
+              @if(structureName?.errors?.['required']
+              && structureName?.touched) {
               <mat-error>Le nom est requis</mat-error>
               }
             </mat-form-field>
@@ -63,8 +63,8 @@
                 <mat-option [value]="type.id">{{ type.type }}</mat-option>
                 }
               </mat-select>
-              @if(structureCreationForm.controls['structureTypes'].errors?.['required']
-              && structureCreationForm.controls['structureTypes'].touched) {
+              @if(structureType?.errors?.['required']
+              && structureType?.touched) {
               <mat-error>Au moins un type est requis</mat-error>
               }
             </mat-form-field>
@@ -75,8 +75,8 @@
               <mat-label>Pays</mat-label>
               <mat-icon matPrefix>public</mat-icon>
               <input matInput formControlName="structureCountry" required />
-              @if(structureCreationForm.controls['structureCountry'].errors?.['required']
-              && structureCreationForm.controls['structureCountry'].touched) {
+              @if(structureCountry?.errors?.['required']
+              && structureCountry?.touched) {
               <mat-error>Le pays est requis</mat-error>
               }
             </mat-form-field>
@@ -84,8 +84,8 @@
               <mat-label>Ville</mat-label>
               <mat-icon matPrefix>location_city</mat-icon>
               <input matInput formControlName="structureCity" required />
-              @if(structureCreationForm.controls['structureCity'].errors?.['required']
-              && structureCreationForm.controls['structureCity'].touched) {
+              @if(structureCity?.errors?.['required']
+              && structureCity?.touched) {
               <mat-error>La ville est requise</mat-error>
               }
             </mat-form-field>
@@ -96,8 +96,8 @@
               <mat-label>Rue</mat-label>
               <mat-icon matPrefix>signpost</mat-icon>
               <input matInput formControlName="structureStreet" required />
-              @if(structureCreationForm.controls['structureStreet'].errors?.['required']
-              && structureCreationForm.controls['structureStreet'].touched) {
+              @if(structureStreet?.hasValidator(Validators.required)
+              && structureStreet?.touched) {
               <mat-error>La rue est requise</mat-error>
               }
             </mat-form-field>

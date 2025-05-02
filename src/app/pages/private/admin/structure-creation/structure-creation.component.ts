@@ -1,57 +1,57 @@
-import { Component, OnInit, inject } from '@angular/core'; 
+import {Component, OnInit, inject} from '@angular/core';
 import {
   FormBuilder,
-  FormControl, 
+  FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input'; 
-import { MatSelectModule } from '@angular/material/select';
-import { Router } from '@angular/router';
-import { StructureService } from '../../../../core/services/structure.service'; 
-import { NotificationService } from '../../../../core/services/notification.service';
-import { CommonModule } from '@angular/common'; 
-import { MatButtonModule } from '@angular/material/button'; 
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; 
-import { AuthService } from '../../../../core/services/auth.service';
-import { StructureCreationResponse } from '../../../../core/models/StructureCreationResponse.interface';
-import { MatCard, MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatIconModule } from '@angular/material/icon';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {Router} from '@angular/router';
+import {StructureService} from '../../../../core/services/structure.service';
+import {NotificationService} from '../../../../core/services/notification.service';
+import {CommonModule} from '@angular/common';
+import {MatButtonModule} from '@angular/material/button';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {AuthService} from '../../../../core/services/auth.service';
+import {StructureCreationResponse} from '../../../../core/models/StructureCreationResponse.interface';
+import {MatCard, MatCardModule} from '@angular/material/card';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatIconModule} from '@angular/material/icon';
 
 
 @Component({
   selector: 'app-structure-creation',
-  standalone: true, 
+  standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatSelectModule,
     MatInputModule,
-    MatButtonModule, 
-    MatProgressSpinnerModule, 
+    MatButtonModule,
+    MatProgressSpinnerModule,
     MatCardModule,
     MatDividerModule,
     MatIconModule
   ],
-  providers: [], 
-  templateUrl: './structure-creation.component.html', 
-  styleUrls: ['./structure-creation.component.scss'], 
+  providers: [],
+  templateUrl: './structure-creation.component.html',
+  styleUrls: ['./structure-creation.component.scss'],
 })
 export class StructureCreationComponent implements OnInit {
 
   structureCreationForm!: FormGroup;
-  isLoading = false; 
+  isLoading = false;
   structureTypesOptions: StructureType[] = [];
 
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private structureService = inject(StructureService);
   private notification = inject(NotificationService);
-  private auth = inject(AuthService); 
+  private auth = inject(AuthService);
 
   ngOnInit(): void {
     // L'utilisateur est déjà authentifié (géré par AuthGuard)
@@ -68,17 +68,17 @@ export class StructureCreationComponent implements OnInit {
       structureCity: ['', [Validators.required]],
       structureStreet: ['', [Validators.required]],
       structureAddressNumber: [''],
-      structureDescription: [''], 
+      structureDescription: [''],
     });
   }
 
   loadStructureTypes(): void {
-    this.isLoading = true; 
+    this.isLoading = true;
     this.structureService.getStructureTypes().subscribe({
       next: (types) => {
         this.structureTypesOptions = types;
         console.log('Structure types loaded:', this.structureTypesOptions);
-        this.isLoading = false; 
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading structure types:', error);
@@ -87,20 +87,20 @@ export class StructureCreationComponent implements OnInit {
           'error',
           'Fermer'
         );
-        this.isLoading = false; 
+        this.isLoading = false;
       },
     });
   }
 
   onSubmit(): void {
-    this.structureCreationForm.markAllAsTouched(); 
+    this.structureCreationForm.markAllAsTouched();
 
     if (this.structureCreationForm.invalid) {
       console.warn('Structure creation form is invalid.');
-      return; 
+      return;
     }
 
-    this.isLoading = true; 
+    this.isLoading = true;
 
     // Préparer le DTO de la structure
     const newStructureValues: StructureDto = {
@@ -111,8 +111,8 @@ export class StructureCreationComponent implements OnInit {
       )
         ? this.structureCreationForm.get('structureTypes')?.value
         : [this.structureCreationForm.get('structureTypes')?.value].filter(
-            (id) => !!id
-          ), 
+          (id) => !!id
+        ),
       adress: {
         city: this.structureCreationForm.get('structureCity')?.value,
         street: this.structureCreationForm.get('structureStreet')?.value,
@@ -121,7 +121,7 @@ export class StructureCreationComponent implements OnInit {
         country: this.structureCreationForm.get('structureCountry')?.value,
       },
       description:
-        this.structureCreationForm.get('structureDescription')?.value || '', 
+        this.structureCreationForm.get('structureDescription')?.value || '',
     };
 
     console.log('Submitting structure creation:', newStructureValues);
@@ -136,7 +136,7 @@ export class StructureCreationComponent implements OnInit {
         );
         this.auth.updateTokenAndState(response.newToken)
         this.isLoading = false;
-        this.router.navigateByUrl('/admin'); 
+        this.router.navigateByUrl('/admin');
       },
       error: (error) => {
         console.error('Error during structure creation:', error);
@@ -149,7 +149,7 @@ export class StructureCreationComponent implements OnInit {
           'error',
           'Fermer'
         );
-        this.isLoading = false; 
+        this.isLoading = false;
       },
     });
   }
@@ -157,4 +157,26 @@ export class StructureCreationComponent implements OnInit {
   onBack(): void {
     this.router.navigate(['/home']);
   }
+
+  get structureName() {
+    return this.structureCreationForm.get('structureName');
+  }
+
+  get structureType() {
+    return this.structureCreationForm.get('structureType');
+  }
+
+  get structureCountry() {
+    return this.structureCreationForm.get('structureCountry');
+  }
+
+  get structureCity() {
+    return this.structureCreationForm.get('structureCity');
+  }
+
+  get structureStreet() {
+    return this.structureCreationForm.get('structureStreet');
+  }
+
+  protected readonly Validators = Validators;
 }

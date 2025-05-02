@@ -1,10 +1,10 @@
 <div class="container-fluid py-3">
   <mat-card class="mat-elevation-z2 mb-4">
     <mat-card-content
-      class="d-flex justify-content-between align-items-start flex-wrap gap-3 p-4"
+      class="d-flex flex-column justify-content-between align-items-start flex-wrap p-4"
     >
-      <h1 class="mat-headline-3 mb-1">Créer un événement</h1>
-      <p class="mat-body-3 text-muted w-70 mt-1">
+      <h1 class="mat-headline-3">Créer un événement</h1>
+      <p class="mat-body-3 text-muted w-70">
         Organisez des événements, ajoutez des médias,
         prévisualisez l'événement sur la page de la structure, enregistrez les
         comme brouillon pour y revenir plus tard.
@@ -63,7 +63,7 @@
               ></textarea>
               <mat-hint align="end"
                 >{{
-                  eventForm.get("shortDescription")?.value?.length || 0
+                  shortDescriptionLength || 0
                 }}/263</mat-hint
               >
               @if (eventForm.get('shortDescription')?.hasError('maxlength') &&
@@ -356,7 +356,7 @@
                 <mat-icon>upload</mat-icon> Choisir photo
               </button>
             </div>
-            @if (!mainPhotoFile && eventForm.touched) {
+            @if (!mainPhotoFile && isFormTouched) {
             <mat-error class="mt-2 d-block"
               >La photo principale est requise.</mat-error
             >
@@ -429,13 +429,13 @@
           <div class="col-md-6">
             <h5>Liens utiles</h5>
             <div formArrayName="links">
-              @for (linkControl of linkControls; track i; let i = $index) {
+              @for (linkControl of linkControls; track $index) {
               <div class="d-flex align-items-start gap-2 mb-2">
                 <mat-form-field appearance="outline" class="flex-grow-1">
                   <mat-label>Lien {{ $index + 1 }}</mat-label>
                   <input
                     matInput
-                    [formControlName]="i"
+                    [formControlName]="$index"
                     placeholder="http:// ou https://"
                   />
                   @if (linkControl.hasError('pattern') && linkControl.touched) {
@@ -446,7 +446,7 @@
                   mat-icon-button
                   color="warn"
                   type="button"
-                  (click)="removeLink(i)"
+                  (click)="removeLink($index)"
                   [disabled]="linkControls.length <= 1"
                   aria-label="Supprimer ce lien"
                 >

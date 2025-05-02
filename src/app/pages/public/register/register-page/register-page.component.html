@@ -5,7 +5,7 @@
         <!-- Section formulaire (gauche) -->
         <div class="col-md-8 form-section">
           <h3 class="form-title">Créer mon compte</h3>
-          
+
           <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
             <div class="row">
               <div class="col-md-6 form-group">
@@ -18,7 +18,7 @@
                   </mat-error>
                 </mat-form-field>
               </div>
-              
+
               <div class="col-md-6 form-group">
                 <mat-form-field appearance="outline">
                   <mat-label>Nom</mat-label>
@@ -30,7 +30,7 @@
                 </mat-form-field>
               </div>
             </div>
-            
+
             <div class="row">
               <div class="col-md-12 form-group">
                 <mat-form-field appearance="outline">
@@ -46,7 +46,7 @@
                 </mat-form-field>
               </div>
             </div>
-            
+
             <div class="row">
               <div class="col-md-12 form-group">
                 <mat-form-field appearance="outline">
@@ -65,7 +65,7 @@
                 </mat-form-field>
               </div>
             </div>
-            
+
             <div class="row">
               <div class="col-md-12 form-group">
                 <mat-form-field appearance="outline">
@@ -84,7 +84,7 @@
                 </mat-form-field>
               </div>
             </div>
-            
+
             <div class="row mt-1 mb-1">
               <div class="col-md-12 form-group account-type-toggle">
                 <div class="toggle-container">
@@ -94,7 +94,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="action-buttons">
               <button mat-stroked-button class="back-btn" type="button" (click)="onCancel()">
                 <mat-icon>arrow_back</mat-icon>
@@ -106,7 +106,7 @@
             </div>
           </form>
         </div>
-        
+
         <!-- Section d'information (droite) -->
         <div class="col-md-4 info-section order-first">
           <div class="content-wrapper">
@@ -117,7 +117,7 @@
                 <span>Étape 1/1</span>
               }
             </div>
-     
+
             <div class="title-content">
               <h2>Rejoignez Tickly</h2>
               <p *ngIf="!registerForm.get('createStructure')?.value">
@@ -131,9 +131,9 @@
                 Vous pourrez configurer votre structure après la création de votre compte.
               </p>
             </div>
-            
+
             <div class="brand-logo">
-              <img src="logo/tickly-logo.svg" alt="Logo de la plateforme">
+              <img src="logos/tickly-logo.svg" alt="Logo de la plateforme">
             </div>
           </div>
         </div>
