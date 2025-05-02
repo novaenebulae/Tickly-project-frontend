@@ -1,0 +1,239 @@
+@use '@angular/material' as mat;
+
+// Fichier: events-panel.component.scss
+
+// Variables utilitaires (peuvent être déplacées dans un fichier global)
+$card-border-radius: 8px; // Rayon pour les cartes
+
+:host {
+  display: block; // Assure que le composant prend de la place
+}
+
+// Classe principale du composant
+.events-panel-page {
+  // Styles généraux de la page
+}
+
+// Styles pour la barre de contrôle (filtres, recherche, etc.)
+.filter-select {
+  min-width: 180px; // Largeur minimale pour le sélecteur de tri
+}
+
+// Style pour le champ de filtre de recherche
+.filter-field {
+  // Styles pour les icônes prefix/suffix (inchangé)
+  .mat-mdc-form-field-icon-prefix > .mat-icon,
+  .mat-mdc-form-field-icon-suffix > .mat-icon-button .mat-icon {
+    color: var(--mat-icon-color, var(--mat-secondary-text-color));
+    padding-bottom: 0.1em;
+  }
+
+  .mat-mdc-form-field-icon-suffix > .mat-icon-button {
+    margin-right: -8px;
+  }
+}
+
+// Styles pour le menu de filtre par statut
+// Cibler globalement ou ajouter une classe via panelClass si besoin de styles spécifiques
+.filter-status-menu {
+  .mat-mdc-checkbox {
+    // Style pour les checkboxes dans le menu
+    padding: 0 16px; // Alignement standard menu item
+    display: block; // Pour prendre toute la largeur
+    line-height: 48px; // Hauteur standard menu item
+  }
+}
+
+// Style pour l'en-tête de groupe de date
+.event-group-header {
+  top: 0; // Ajustez si vous avez un header fixe au-dessus
+  background-color: var(--mat-app-background-color); // Fond pour masquer le contenu derrière
+  padding: 8px 0;
+  z-index: 1;
+  border-bottom: 1px solid var(--mat-divider-color);
+}
+
+// Styles communs aux cartes d'événement
+.event-card {
+  transition: box-shadow 0.3s ease-in-out; // Animation pour l'ombre au survol
+  border-radius: $card-border-radius;
+
+  &.hover-shadow:hover {
+    // Ombre plus prononcée au survol
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+  }
+}
+
+// --- Styles pour la Vue Liste ---
+.list-view {
+  .list-card {
+    overflow: hidden; // Empêche l'image de déborder
+
+    .list-image-container {
+      width: 150px; // Largeur fixe pour l'image en mode liste (ou utiliser col-md-2 etc.)
+      flex-shrink: 0; // Empêche l'image de rétrécir
+      background-color: var(--mat-divider-color); // Fond gris si image pas chargée
+
+      .event-image {
+        display: block;
+        width: 100%;
+        height: 100%; // L'image remplit le conteneur
+        object-fit: cover; // Recadre l'image pour remplir sans déformer
+      }
+    }
+
+    .event-title {
+      line-height: 1.3; // Ajustement pour le titre
+    }
+
+    .event-info {
+      span, div { // Assure que les éléments inline/block s'alignent bien
+        display: inline-flex;
+        align-items: center;
+        gap: 4px; // Espace entre icône et texte
+
+        .icon-sm { // Style pour les petites icônes d'info
+          font-size: 1rem; // Taille plus petite
+          height: 1rem;
+          width: 1rem;
+          margin-right: 2px; // Petit espace après l'icône
+        }
+      }
+    }
+
+    .event-status {
+      margin-top: 8px; // Espace au-dessus du statut
+      .mat-mdc-chip-set {
+        justify-content: flex-start; // Aligne la puce à gauche
+      }
+    }
+
+    .event-actions {
+      border-top: 1px solid var(--mat-divider-color); // Séparateur sur mobile
+      padding-top: 8px;
+      margin-top: 8px;
+    }
+
+    // Adaptation responsive pour la vue liste
+    @media (min-width: 768px) { // md et plus
+      .list-image-container {
+        width: 180px; // Image un peu plus large sur desktop
+      }
+      .event-actions {
+        border-top: none;
+        border-left: 1px solid var(--mat-divider-color); // Séparateur vertical
+        padding-top: 0;
+        margin-top: 0;
+        padding-left: 16px;
+      }
+    }
+  }
+}
+
+// --- Styles pour la Vue Grille ---
+.grid-view {
+  .grid-card {
+    // Utilisation de flex pour que le contenu remplisse la carte
+    display: flex;
+    flex-direction: column;
+
+    .grid-event-image {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9; // Ratio d'aspect pour l'image en grille
+      object-fit: cover;
+      background-color: var(--mat-divider-color); // Fond gris si image pas chargée
+    }
+
+    mat-card-header {
+      padding-bottom: 8px; // Moins d'espace sous le header
+    }
+
+    mat-card-content {
+      padding-top: 8px; // Moins d'espace au-dessus du contenu
+      flex-grow: 1; // Permet au contenu de prendre l'espace vertical
+      display: flex;
+      flex-direction: column;
+
+      .event-info {
+        flex-grow: 1; // Pousse le statut en bas
+
+        span { // Alignement icône/texte dans la grille
+          display: flex; // Utiliser flex plutôt que inline-flex ici
+          align-items: center;
+          gap: 6px;
+
+          .icon-sm {
+            font-size: 1.1rem;
+            height: 1.1rem;
+            width: 1.1rem;
+          }
+        }
+      }
+
+      .event-status {
+        margin-top: 12px;
+
+        .mat-mdc-chip-set {
+          justify-content: flex-start;
+        }
+      }
+    }
+
+    mat-card-actions.grid-actions {
+      padding: 8px 16px; // Ajustement padding actions
+    }
+  }
+}
+
+
+// Style pour l'indicateur de chargement
+.loading-indicator { // Assurez-vous d'avoir un conteneur avec cette classe si besoin
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  min-height: 200px; // Pour qu'il soit visible même si peu d'éléments
+}
+
+// Style pour les icônes petites (utilisées dans les infos)
+.icon-sm {
+  vertical-align: middle; // Meilleur alignement vertical
+}
+
+// Classes utilitaires (comme avant)
+.icon-muted {
+  color: var(--mat-secondary-text-color);
+}
+
+.bg-light-subtle {
+  background-color: var(--mat-app-background-hover-color, rgba(0, 0, 0, 0.02));
+}
+
+// Ajustement pour les mat-form-field dans la barre de contrôle
+mat-card.bg-light-subtle {
+  mat-form-field {
+    margin-bottom: 0; // Enlève la marge par défaut des form-fields dans cette barre
+  }
+}
+
+// Taille minimale pour le champ de recherche
+.min-w-200 {
+  min-width: 200px;
+}
+
+// Taille pour les icônes larges (ex: message "aucun événement")
+.large-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+}
+
+
+.filter-button {
+  max-width: 200px;
+  height: 56px;
+  border-radius: 5px;
+  min-width: 175px !important;
+  padding: 0px !important;
+}
