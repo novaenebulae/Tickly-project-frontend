@@ -55,7 +55,7 @@ const mockStructureService = {
   getStructureInfo: (id: number) => of<StructureInfo>({
     id: 1, name: 'Le Phare Éclectique', structureTypeId: 2,
     description: 'Un lieu unique pour des expériences culturelles variées.',
-    logoUrl: 'images/example_structure_logo.jpg', coverUrl: '',
+    logoUrl: '', coverUrl: '',
     addressLine1: '123 Rue des Lumières', addressLine2: '', zipCode: '57000', city: 'Métropole Fictive', country: 'France',
     phone: '+33 1 23 45 67 89', publicEmail: 'contact@lephare.example', websiteUrl: 'https://lephare.example',
     facebookUrl: 'https://facebook.com/lephare', instagramUrl: 'https://instagram.com/lephare'
@@ -125,7 +125,7 @@ export class StructureEditComponent implements OnInit, OnDestroy {
   coverPreviewUrl: string | null = null;
   selectedLogoFile: File | null = null;
   selectedCoverFile: File | null = null;
-  defaultImage: string = 'images/notfound.png';
+  defaultImage: string = 'images/no-image.svg';
 
   // Pour cleanup
   private subscriptions = new Subscription();

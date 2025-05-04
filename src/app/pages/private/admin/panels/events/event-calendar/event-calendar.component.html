@@ -1,0 +1,49 @@
+<div class="calendar-container">
+  <div id="cal-buttons">
+    <div id="cal-date-nav-buttons">
+      <button id="previous" mwlCalendarPreviousView [(viewDate)]="viewDate" [view]="view">Previous</button>
+      <button id="today" mwlCalendarToday [(viewDate)]="viewDate">Today</button>
+      <button id="next" mwlCalendarNextView [(viewDate)]="viewDate" [view]="view">Next</button>
+    </div>
+    <div id="cal-date-field">
+      {{ viewDate | calendarDate:(view + 'ViewTitle'):locale:weekStartsOn}}
+    </div>
+    <div id="cal-view-nav-buttons">
+      <button id="month" (click)="setView(CalendarView.Month)" [class.active]="view === CalendarView.Month">Month
+      </button>
+      <button id="week" (click)="setView(CalendarView.Week)" [class.active]="view === CalendarView.Week">Week</button>
+      <button id="day" (click)="setView(CalendarView.Day)" [class.active]="view === CalendarView.Day">Day</button>
+    </div>
+  </div>
+  @switch (view) {
+    @case (CalendarView.Month) {
+      <mwl-calendar-month-view
+        [viewDate]="viewDate"
+        [events]="events"
+        [activeDayIsOpen]="activeDayIsOpen"
+        (dayClicked)="dayClicked($event.day)"
+        [weekStartsOn]="weekStartsOn"
+        [weekendDays]="weekendDays"
+        [locale]="locale">
+      </mwl-calendar-month-view>
+    }
+    @case (CalendarView.Week) {
+      <mwl-calendar-week-view
+        [viewDate]="viewDate"
+        [events]="events"
+        [dayStartHour]="dayStartHour"
+        [weekStartsOn]="weekStartsOn"
+        [weekendDays]="weekendDays"
+        [locale]="locale">
+      </mwl-calendar-week-view>
+    }
+    @case (CalendarView.Day) {
+      <mwl-calendar-day-view
+        [viewDate]="viewDate"
+        [dayStartHour]="dayStartHour"
+        [events]="events"
+        [locale]="locale">
+      </mwl-calendar-day-view>
+    }
+  }
+</div>

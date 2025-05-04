@@ -106,6 +106,7 @@ $icon-prefix-color: var(--mat-secondary-text-color);
     justify-content: center;
     color: var(--mat-icon-color, rgba(0, 0, 0, 0.54));
     margin-bottom: 0.5rem; // Espace sous l'aperçu avant les boutons/texte
+    height: 200px;
 
     img {
       display: block;
@@ -132,7 +133,10 @@ $icon-prefix-color: var(--mat-secondary-text-color);
 
   .cover-preview {
     width: 100%;
+    align-self: stretch;
     aspect-ratio: 21 / 9; // Ratio large
+    margin: auto;
+
     max-height: 200px;
   }
 
