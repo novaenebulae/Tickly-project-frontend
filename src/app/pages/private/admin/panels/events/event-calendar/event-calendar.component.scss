@@ -93,6 +93,8 @@ $border-radius: 6px; // Coins arrondis pour un look moderne
     border-bottom: 1px solid $cell-border-color;
 
     .cal-cell {
+      height: fit-content;
+      min-height: fit-content;
       padding: 0.75rem 0;
       text-align: center;
     }
@@ -207,7 +209,6 @@ $border-radius: 6px; // Coins arrondis pour un look moderne
   .cal-hour-segment { // Segment d'heure
     border-bottom: 1px dotted $cell-border-color; // Ligne pointillée entre les heures
     border-right: 1px solid $cell-border-color;
-    min-height: 40px; // Hauteur minimale pour les segments horaires
     transition: background-color 0.25s ease;
 
     &:hover:not(.cal-disabled) {
@@ -265,3 +266,32 @@ $border-radius: 6px; // Coins arrondis pour un look moderne
     line-height: 1.8em;
   }
 }
+
+:host {
+  // La variable sera définie par TypeScript via Renderer2
+  --event-gap-height: 0px; // Valeur par défaut
+}
+
+// Cibler spécifiquement les vues jour et semaine
+mwl-calendar-day-view,
+mwl-calendar-week-view {
+
+  // Conteneur de l'événement auquel la classe `event-after-gap` est ajoutée
+  .cal-event-container.event-after-gap {
+    // Applique la transformation en utilisant la variable CSS
+    // `!important` peut être nécessaire pour surcharger le style 'top' inline
+    transform: translateY(var(--event-gap-height)) !important;
+
+    // Optionnel: Ajouter une transition pour un effet plus doux
+    // transition: transform 0.2s ease-in-out;
+  }
+}
+
+// La règle ci-dessous n'est plus utile avec l'approche de filtrage des heures
+// .cal-hour.ng-star-inserted:has(.no-display) {
+//   display: none;
+// }
+
+
+
+

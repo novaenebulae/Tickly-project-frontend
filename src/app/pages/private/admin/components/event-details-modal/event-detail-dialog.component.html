@@ -1,0 +1,78 @@
+<div class="modal-header event-modal-header">
+  <h4 class="modal-title">
+    {{ data?.event?.title || "Détails de l'événement" }}
+  </h4>
+  <button
+    type="button"
+    class="btn-close"
+    aria-label="Close"
+    (click)="closeDialog()"
+  ></button>
+</div>
+<div class="modal-body event-modal-body">
+  <!-- Type d'événement -->
+  @if (data?.event?.meta?.type) {
+    <div class="event-detail">
+      <span class="detail-label">Type :</span>
+      <span class="detail-value">{{ data.event.meta.type }}</span>
+    </div>
+  }
+
+  <!-- Horaires -->
+  <div class="event-detail">
+    <span class="detail-label">Début :</span>
+    <span class="detail-value">{{ data?.event?.start | date:'EEEE dd MMMM yyyy, HH:mm' : '' : 'fr' }}</span>
+  </div>
+  @if (data?.event?.end) {
+    <div class="event-detail">
+      <span class="detail-label">Fin :</span>
+      <span class="detail-value">{{ data.event.end | date:'EEEE dd MMMM yyyy, HH:mm' : '' : 'fr' }}</span>
+    </div>
+  } @else {
+    <div class="event-detail">
+      <span class="detail-label">Fin :</span>
+      <span class="detail-value">Non spécifiée</span>
+    </div>
+  }
+
+  <!-- Artistes -->
+  @if (data?.event?.meta?.artists && data.event.meta.artists.length > 0) {
+    <div class="event-detail">
+      <span class="detail-label">Artiste(s) :</span>
+      <span class="detail-value">{{ data.event.meta.artists.join(', ') }}</span>
+    </div>
+  }
+
+  <!-- Description -->
+  @if (data?.event?.meta?.description) {
+    <div class="event-description">
+      <span class="detail-label">Description :</span>
+      <p class="detail-value">{{ data.event.meta.description }}</p>
+    </div>
+  }
+
+  <!-- Autres infos (Ex: Lieu) -->
+  <!--
+  @if (data?.event?.meta?.location) {
+    <div class="event-detail">
+      <span class="detail-label">Lieu :</span>
+      <span class="detail-value">{{ data.event.meta.location }}</span>
+    </div>
+  }
+  -->
+
+</div>
+<div class="modal-footer event-modal-footer">
+  <button
+    type="button"
+    class="btn btn-outline-secondary"
+    (click)="closeDialog()"
+  >
+    Fermer
+  </button>
+  <!-- Optionnel : Bouton pour voir plus de détails -->
+  <button type="button" class="btn btn-primary" (click)="viewFullEventDetails()">
+     Voir les détails
+  </button>
+</div>
+

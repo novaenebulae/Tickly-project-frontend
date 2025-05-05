@@ -25,16 +25,22 @@ export class CustomDateFormatter extends CalendarDateFormatter {
     }).join(' ');
   }
 
-  public override weekViewTitle({date, locale}: DateFormatterParams): string {
-    return (formatDate(date.setDate(date.getDate() + 1), 'd MMMM', <string>locale)
-      + ' - '
-      + formatDate(date.setDate(date.getDate() + 7), 'd MMMM', <string>locale)
-      + ', ' + formatDate(date, 'y', <string>locale))
+  public override weekViewTitle({ date, locale }: DateFormatterParams): string {
+    const startDate: Date = new Date(date.getTime());
+    const endDate: Date = new Date(date.getTime());
+    startDate.setDate(startDate.getDate());
+    endDate.setDate(endDate.getDate() + 6);
+
+    return (formatDate(startDate, 'd MMMM', <string>locale) +
+      ' - ' +
+      formatDate(endDate, 'd MMMM', <string>locale) +
+      ', ' +
+      formatDate(date, 'y', <string>locale))
       .toLowerCase()
       .split(' ')
       .map((word: any) => {
-      return (word.charAt(0).toUpperCase() + word.slice(1));
-    }).join(' ');
+        return (word.charAt(0).toUpperCase() + word.slice(1));
+      }).join(' ');
   }
 
 }

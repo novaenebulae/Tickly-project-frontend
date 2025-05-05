@@ -106,7 +106,7 @@
   @if (!isLoading && !error) {
     <!-- Boucle sur les groupes de dates (variable groupedEvents, track dateString) -->
     @for (group of groupedEvents; track group.dateString) {
-      <h3 class="mat-subheader mt-4 mb-2 event-group-header">{{ group.date | date:'EEEE d MMMM yyyy' }}</h3>
+      <h3 class="mat-subheader mt-4 mb-2 event-group-header">{{ group.date | date:'EEEE d MMMM yyyy' | titlecase}}</h3>
 
       <!-- Conteneur pour la VUE LISTE (condition isListView) -->
       @if (isListView) {
