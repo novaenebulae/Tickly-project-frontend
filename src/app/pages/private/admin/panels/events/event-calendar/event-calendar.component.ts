@@ -53,17 +53,16 @@ export class EventCalendarComponent implements OnInit {
 
   actions: CalendarEventAction[] = [
     {
-      label: '<i class="fas fa-fw fa-pencil-alt"></i>',
+      label: '<img src="icons/edit.svg">',
       a11yLabel: 'Edit',
       onClick: ({event}: { event: CalendarEvent }): void => {
         this.handleEvent('Edited', event);
       },
     },
     {
-      label: '<i class="fas fa-fw fa-eye-alt"></i>',
+      label: '<img src="icons/show.svg">',
       a11yLabel: 'View',
       onClick: ({event}: { event: CalendarEvent }): void => {
-        this.events = this.events.filter((iEvent) => iEvent !== event);
         this.handleEvent('View', event);
       },
     },
@@ -248,6 +247,10 @@ export class EventCalendarComponent implements OnInit {
 
   setView(view: CalendarView) {
     this.view = view;
+  }
+
+  closeOpenMonthViewDay() {
+    this.activeDayIsOpen = false;
   }
 
   dayClicked({date, events}: { date: Date, events: CalendarEvent[] }): void {

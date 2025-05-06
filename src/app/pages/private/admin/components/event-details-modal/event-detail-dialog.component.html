@@ -1,7 +1,7 @@
 <div class="modal-header event-modal-header">
-  <h4 class="modal-title">
-    {{ data?.event?.title || "Détails de l'événement" }}
-  </h4>
+  <h2 class="modal-title">
+    {{ data.event.title || "Détails de l'événement" }}
+  </h2>
   <button
     type="button"
     class="btn-close"
@@ -11,7 +11,7 @@
 </div>
 <div class="modal-body event-modal-body">
   <!-- Type d'événement -->
-  @if (data?.event?.meta?.type) {
+  @if (data.event.meta.type) {
     <div class="event-detail">
       <span class="detail-label">Type :</span>
       <span class="detail-value">{{ data.event.meta.type }}</span>
@@ -21,9 +21,9 @@
   <!-- Horaires -->
   <div class="event-detail">
     <span class="detail-label">Début :</span>
-    <span class="detail-value">{{ data?.event?.start | date:'EEEE dd MMMM yyyy, HH:mm' : '' : 'fr' }}</span>
+    <span class="detail-value">{{ data.event.start | date:'EEEE dd MMMM yyyy, HH:mm' : '' : 'fr' }}</span>
   </div>
-  @if (data?.event?.end) {
+  @if (data.event.end) {
     <div class="event-detail">
       <span class="detail-label">Fin :</span>
       <span class="detail-value">{{ data.event.end | date:'EEEE dd MMMM yyyy, HH:mm' : '' : 'fr' }}</span>
@@ -36,7 +36,7 @@
   }
 
   <!-- Artistes -->
-  @if (data?.event?.meta?.artists && data.event.meta.artists.length > 0) {
+  @if (data.event.meta.artists && data.event.meta.artists.length > 0) {
     <div class="event-detail">
       <span class="detail-label">Artiste(s) :</span>
       <span class="detail-value">{{ data.event.meta.artists.join(', ') }}</span>
@@ -44,7 +44,7 @@
   }
 
   <!-- Description -->
-  @if (data?.event?.meta?.description) {
+  @if (data.event.meta.description) {
     <div class="event-description">
       <span class="detail-label">Description :</span>
       <p class="detail-value">{{ data.event.meta.description }}</p>

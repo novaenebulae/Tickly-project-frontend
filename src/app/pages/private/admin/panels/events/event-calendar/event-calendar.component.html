@@ -1,77 +1,96 @@
 <div class="container-fluid py-lg-4 py-2">
-<mat-card class="mat-elevation-z2 mb-lg-4 mb-2">
-  <mat-card-content
-    class="d-flex justify-content-between align-items-start flex-wrap p-4"
-  >
-    <div class="d-flex-column">
-      <h1 class="mat-headline-3">Calendrier des événements</h1>
-      <p class="mat-body-3 text-muted w-70">
-        Planning des prochains événements de la structure
-      </p>
-    </div>
-    <button mat-raised-button color="primary" (click)="addEvent()">
-      <mat-icon>add</mat-icon>
-      Ajouter un événement
-    </button>
-  </mat-card-content>
-</mat-card>
-<div class="calendar-container">
-  <div id="cal-buttons">
-    <div id="cal-date-nav-buttons">
-      <button id="previous" mwlCalendarPreviousView [(viewDate)]="viewDate" [view]="view">Previous</button>
-      <button id="today" mwlCalendarToday [(viewDate)]="viewDate">Today</button>
-      <button id="next" mwlCalendarNextView [(viewDate)]="viewDate" [view]="view">Next</button>
-    </div>
-    <div id="cal-date-field">
-      {{ viewDate | calendarDate:(view + 'ViewTitle'):locale}}
-    </div>
-    <div id="cal-view-nav-buttons">
-      <button id="month" (click)="setView(CalendarView.Month)" [class.active]="view === CalendarView.Month">Month
+  <mat-card class="mat-elevation-z2 mb-lg-4 mb-2">
+    <mat-card-content
+      class="d-flex justify-content-between align-items-start flex-wrap p-4"
+    >
+      <div class="d-flex-column">
+        <h1 class="mat-headline-3">Calendrier des événements</h1>
+        <p class="mat-body-3 text-muted w-70">
+          Planning des prochains événements de la structure
+        </p>
+      </div>
+      <button mat-raised-button color="primary" (click)="addEvent()">
+        <mat-icon>add</mat-icon>
+        Ajouter un événement
       </button>
-      <button id="week" (click)="setView(CalendarView.Week)" [class.active]="view === CalendarView.Week">Week</button>
-      <button id="day" (click)="setView(CalendarView.Day)" [class.active]="view === CalendarView.Day">Day</button>
+    </mat-card-content>
+  </mat-card>
+  <div class="calendar-container">
+    <div id="cal-buttons">
+      <div id="cal-date-nav-buttons">
+        <button
+          id="previous"
+          mwlCalendarPreviousView
+          [(viewDate)]="viewDate"
+          [view]="view"
+          (viewDateChange)="closeOpenMonthViewDay()">
+          Previous
+        </button>
+        <button
+          id="today"
+          mwlCalendarToday
+          [(viewDate)]="viewDate">
+          Today
+        </button>
+        <button
+          id="next"
+          mwlCalendarNextView
+          [(viewDate)]="viewDate"
+          [view]="view"
+          (viewDateChange)="closeOpenMonthViewDay()">
+          Next
+        </button>
+      </div>
+      <div id="cal-date-field">
+        {{ viewDate | calendarDate:(view + 'ViewTitle'):locale }}
+      </div>
+      <div id="cal-view-nav-buttons">
+        <button id="month" (click)="setView(CalendarView.Month)" [class.active]="view === CalendarView.Month">Month
+        </button>
+        <button id="week" (click)="setView(CalendarView.Week)" [class.active]="view === CalendarView.Week">Week</button>
+        <button id="day" (click)="setView(CalendarView.Day)" [class.active]="view === CalendarView.Day">Day</button>
+      </div>
     </div>
-  </div>
-  @switch (view) {
-    @case (CalendarView.Month) {
-      <mwl-calendar-month-view
-        [viewDate]="viewDate"
-        [events]="events"
-        [activeDayIsOpen]="activeDayIsOpen"
-        (dayClicked)="dayClicked($event.day)"
-        [weekStartsOn]="weekStartsOn"
-        [weekendDays]="weekendDays"
-        [locale]="locale"
-        (eventClicked)="handleEvent('Clicked', $event.event)">
+    @switch (view) {
+      @case (CalendarView.Month) {
+        <mwl-calendar-month-view
+          [viewDate]="viewDate"
+          [events]="events"
+          [activeDayIsOpen]="activeDayIsOpen"
+          (dayClicked)="dayClicked($event.day)"
+          [weekStartsOn]="weekStartsOn"
+          [weekendDays]="weekendDays"
+          [locale]="locale"
+          (eventClicked)="handleEvent('Clicked', $event.event)">
 
-      </mwl-calendar-month-view>
+        </mwl-calendar-month-view>
+      }
+      @case (CalendarView.Week) {
+        <mwl-calendar-week-view
+          [viewDate]="viewDate"
+          [events]="events"
+          [hourSegments]="weekHourSegments"
+          [weekStartsOn]="weekStartsOn"
+          [weekendDays]="weekendDays"
+          [hourDuration]="weekHourDuration"
+          [dayStartHour]="dayStartHour"
+          [locale]="locale"
+          (eventClicked)="handleEvent('Clicked', $event.event)"
+          (beforeViewRender)="beforeViewRender($event)">
+        </mwl-calendar-week-view>
+      }
+      @case (CalendarView.Day) {
+        <mwl-calendar-day-view
+          [viewDate]="viewDate"
+          [hourDuration]="dayHourDuration"
+          [hourSegments]="dayHourSegments"
+          [dayStartHour]="dayStartHour"
+          [events]="events"
+          [locale]="locale"
+          (eventClicked)="handleEvent('Clicked', $event.event)"
+          (beforeViewRender)="beforeViewRender($event)">
+        </mwl-calendar-day-view>
+      }
     }
-    @case (CalendarView.Week) {
-      <mwl-calendar-week-view
-        [viewDate]="viewDate"
-        [events]="events"
-        [hourSegments]="weekHourSegments"
-        [weekStartsOn]="weekStartsOn"
-        [weekendDays]="weekendDays"
-        [hourDuration]="weekHourDuration"
-        [dayStartHour]="dayStartHour"
-        [locale]="locale"
-        (eventClicked)="handleEvent('Clicked', $event.event)"
-        (beforeViewRender)="beforeViewRender($event)">
-      </mwl-calendar-week-view>
-    }
-    @case (CalendarView.Day) {
-      <mwl-calendar-day-view
-        [viewDate]="viewDate"
-        [hourDuration]="dayHourDuration"
-        [hourSegments]="dayHourSegments"
-        [dayStartHour]="dayStartHour"
-        [events]="events"
-        [locale]="locale"
-        (eventClicked)="handleEvent('Clicked', $event.event)"
-        (beforeViewRender)="beforeViewRender($event)">
-      </mwl-calendar-day-view>
-    }
-  }
-</div>
+  </div>
 </div>

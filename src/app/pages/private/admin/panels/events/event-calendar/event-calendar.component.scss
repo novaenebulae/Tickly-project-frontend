@@ -220,7 +220,19 @@ $border-radius: 6px; // Coins arrondis pour un look moderne
     }
   }
 
-  // Ajustements spécifiques pour la vue semaine/jour si nécessaire
+  .cal-event .ng-star-inserted {
+    white-space: break-spaces;
+    z-index: 0;
+  }
+
+  .cal-event-actions .ng-star-inserted {
+    display: none;
+  }
+
+  .cal-day-headers {
+    position: relative;
+    z-index: 100;
+  }
 }
 
 // --- Responsive Design Adjustments ---
