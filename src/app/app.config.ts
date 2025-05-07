@@ -8,6 +8,7 @@ import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import {CalendarModule, DateAdapter} from 'angular-calendar';
 import {registerLocaleData} from '@angular/common';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 registerLocaleData('fr');
 
@@ -22,6 +23,6 @@ export const appConfig: ApplicationConfig = {
         provide: DateAdapter,
         useFactory: adapterFactory,
       })
-    ),
+    ), provideCharts(withDefaultRegisterables()),
   ],
 };

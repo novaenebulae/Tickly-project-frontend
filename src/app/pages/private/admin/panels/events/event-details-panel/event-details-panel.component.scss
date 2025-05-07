@@ -1,0 +1,372 @@
+// --- Variables de Couleurs et Thème (conservation de vos variables) ---
+$primary-color: #005f9e;
+$primary-color-light: lighten($primary-color, 15%);
+$primary-color-dark: darken($primary-color, 10%);
+
+$accent-color: #00a8e8;
+$accent-color-light: lighten($accent-color, 15%);
+$accent-color-dark: darken($accent-color, 10%);
+
+$warn-color: #e94f37;
+
+// $background-color: #f4f7f6; // Supprimé, le fond du panneau sera transparent
+$card-background-color: #ffffff;
+$text-color-primary: #212529;
+$text-color-secondary: #6c757d;
+$border-color: #dee2e6;
+$border-radius-base: 0.5rem;
+
+// --- Styles Globaux du Composant ---
+:host {
+  display: block;
+  // background-color: $background-color; // Supprimé pour un fond transparent par défaut
+  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+}
+
+.event-details-panel {
+  padding-bottom: 2rem;
+}
+
+// --- En-tête de Page (Titre, Sous-titre, Boutons) ---
+.page-title-card {
+  background-color: $card-background-color;
+  border-radius: $border-radius-base;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  .event-title {
+    color: $primary-color;
+    font-weight: 500;
+  }
+
+  .event-subtitle {
+    color: $text-color-secondary;
+    font-weight: 300;
+  }
+
+  .action-buttons-header button {
+    min-width: 120px;
+    border-radius: $border-radius-base * 0.75;
+  }
+}
+
+// --- Titres de Section H2 ---
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: $primary-color-dark;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid $primary-color-light;
+  display: inline-block;
+}
+
+// --- Cartes d'Information (Panoramique) ---
+.event-banner-card {
+  overflow: hidden;
+  border-radius: $border-radius-base;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 0; // Assure qu'il n'y a pas de padding interne qui empêcherait l'image de couvrir
+
+  .event-banner-image {
+    width: 100%;
+    height: 100%; // L'image prendra toute la hauteur de la carte disponible
+    object-fit: cover; // L'image couvre l'espace en conservant son ratio, peut être rognée
+    display: block; // Enlève l'espace en bas de l'image si elle est inline
+  }
+}
+
+.info-card {
+  border-radius: $border-radius-base;
+  background-color: $card-background-color;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+
+  // Suppression du padding global ici, les padding sont dans le HTML
+  // ou peuvent être ajoutés spécifiquement aux mat-card-header/content si besoin
+
+  .card-section-title {
+    color: $primary-color-dark;
+    // padding-bottom: 0.5rem; // Géré par le padding de .p-3 sur le h2 dans le HTML
+    margin-bottom: 1rem; // Espacement après le titre dans la carte
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+
+  .info-card-content {
+    flex-grow: 1;
+  }
+
+  mat-list-item {
+    color: $text-color-primary;
+    .mat-icon {
+      color: $primary-color;
+    }
+  }
+
+  .event-description {
+    color: $text-color-secondary;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    strong {
+      color: $text-color-primary;
+    }
+  }
+
+  mat-card-actions button {
+    border-radius: $border-radius-base * 0.75;
+  }
+}
+
+// --- Cartes KPI ---
+.kpi-card {
+  border-left: 5px solid $primary-color; // Couleur de bordure par défaut
+  border-radius: $border-radius-base;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  // Fond avec une légère transparence pour le bleu primaire
+  background: linear-gradient(135deg, rgba($primary-color-light, 0.15), rgba($card-background-color, 0.7));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  // Alternance de couleur pour la bordure et la valeur/fond
+  &:nth-child(2n) { // Cible les 2ème et 4ème KPI cards
+    border-left-color: $accent-color;
+    // Fond avec une légère transparence pour la couleur d'accentuation
+    background: linear-gradient(135deg, rgba($accent-color-light, 0.15), rgba($card-background-color, 0.7));
+    .kpi-value {
+      color: $accent-color-dark;
+    }
+    .kpi-icon {
+      color: $accent-color !important;
+    }
+  }
+
+  .kpi-card-header {
+    padding-bottom: 0.5rem;
+  }
+
+  .kpi-icon {
+    font-size: 2.5rem;
+    height: 2.5rem;
+    width: 2.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .kpi-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: $text-color-secondary;
+    margin-bottom: 0.5rem;
+  }
+
+  .kpi-value {
+    font-size: 2.25rem;
+    font-weight: bold;
+    color: $primary-color-dark; // Couleur par défaut pour les valeurs
+    margin-bottom: 0.75rem;
+    line-height: 1.1;
+  }
+
+  mat-progress-bar {
+    height: 6px;
+    border-radius: 3px;
+    margin-bottom: 0.5rem;
+  }
+}
+
+// --- Cartes de Graphique ---
+.chart-card {
+  border-radius: $border-radius-base;
+  padding: 1rem; // Padding interne pour la carte graphique
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background-color: $card-background-color;
+
+  mat-card-title {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: $primary-color-dark;
+  }
+  mat-card-subtitle {
+    color: $text-color-secondary;
+  }
+
+  .chart-placeholder {
+    height: 300px;
+    border-radius: $border-radius-base * 0.5;
+    background-color: #f9f9f9; // Fond légèrement différent pour le placeholder
+    p {
+      font-style: italic;
+      color: darken($text-color-secondary, 10%);
+    }
+  }
+  .large-chart-placeholder {
+    height: 350px;
+  }
+}
+
+
+// --- Section Liste des Participants ---
+.participants-card {
+  border-radius: $border-radius-base;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background-color: $card-background-color;
+}
+
+.filter-container {
+  min-width: 250px;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.participants-table {
+  // table-layout: fixed; // Important pour contrôler les largeurs de colonnes plus précisément
+
+  .participants-table-th, .participants-table-td {
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid $border-color;
+    text-align: center;
+    margin: 0 auto;
+  }
+
+  .participants-table-th {
+    font-weight: 500;
+    color: $primary-color-dark;
+    background-color: #f8f9fa; // Léger fond pour l'en-tête
+    white-space: nowrap;
+  }
+
+  .participants-table-row:hover {
+    background-color: lighten($primary-color-light, 30%);
+  }
+
+  // Ciblage spécifique des colonnes pour la largeur
+  .mat-column-orderId { width: fit-content}
+  .mat-column-name { width: fit-content } // Permet au nom de s'étendre
+  .mat-column-email { width: fit-content } // Permet à l'email de s'étendre
+  .mat-column-reservationDate { width: fit-content }
+  .mat-column-ticketCount { width: fit-content }
+
+  // Colonnes avec largeur basée sur le contenu (badge)
+  .mat-column-reservationStatus,
+  .mat-column-scanStatus {
+    width: auto; // Tente de s'adapter au contenu
+    white-space: nowrap; // Empêche le badge de se casser sur deux lignes
+    text-align: center; // Centre le badge
+    // Si 'auto' ne suffit pas, une petite largeur fixe peut être nécessaire
+    // width: 150px; // À ajuster en fonction de la largeur max des badges
+  }
+
+  .mat-column-ticketDetails {
+    min-width: 250px; // Espace pour le bouton "Voir billets"
+    // La largeur réelle sera déterminée par le contenu ou d'autres colonnes
+    .ticket-details-button {
+      text-transform: none;
+      font-weight: normal;
+      padding: 0.25rem 0.5rem;
+      border-radius: $border-radius-base * 0.5;
+      line-height: 1.2; // Ajuster pour un meilleur alignement vertical de l'icône
+      width: 100%;
+      mat-icon {
+        vertical-align: middle;
+      }
+    }
+  }
+
+  .mat-sort-header-arrow {
+    opacity: 0.3;
+  }
+
+  .mat-column-actions {
+    width: 130px; // Espace pour 3 boutons icônes
+    text-align: center; // Aligne les boutons au centre
+    white-space: nowrap;
+  }
+
+  .no-data-row td {
+    font-style: italic;
+    color: $text-color-secondary;
+  }
+}
+
+// Dropdown du menu pour les détails des billets
+.ticket-details-dropdown.mat-mdc-menu-panel { // Ciblage plus spécifique pour Material 15+
+  min-width: fit-content;
+  padding: 0.5rem 0 !important;
+
+  .ticket-detail-item {
+    padding: 0.6rem 1.2rem; // Plus d'espacement interne
+    font-size: 0.9rem;
+    white-space: nowrap; // Permet au texte de passer à la ligne (wrap)
+    line-height: 1.5;    // Meilleure lisibilité pour le texte multiligne
+    display: block;
+    border-bottom: 1px solid lighten($border-color, 5%); // Séparateur léger entre les items
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background-color: lighten($primary-color-light, 30%);
+    }
+  }
+}
+
+
+// --- Badges de Statut ---
+.badge {
+  padding: 0.35em 0.65em; // Légèrement plus grand
+  font-size: 0.8rem;    // Texte un peu plus petit pour compenser le padding
+  font-weight: 500;
+  border-radius: $border-radius-base * 0.6;
+  text-transform: capitalize;
+  line-height: 1; // Assure que le badge ne prend pas trop de hauteur
+  display: inline-block; // Important pour que le padding s'applique correctement
+  white-space: nowrap; // Évite que le texte du badge ne se casse
+}
+
+// Couleurs spécifiques pour les badges (valeurs directes, pas de fonctions de palette Material)
+// Statut de l'événement
+.bg-info.text-dark { background-color: #a0d2eb; color: #1d3c45 !important; } // Bleu clair avec texte foncé
+.bg-success.text-white { background-color: #4caf50; color: white !important; } // Vert
+.bg-warning.text-dark { background-color: #ffc107; color: #383000 !important; } // Jaune avec texte foncé
+.custom-blue-bg.text-white { background-color: $primary-color; color: white !important; } // Bleu primaire
+.bg-dark.text-white { background-color: #343a40; color: white !important; } // Gris foncé
+.bg-danger.text-white { background-color: $warn-color; color: white !important; } // Rouge
+.bg-light.text-dark.border { background-color: #f8f9fa; color: #212529 !important; border: 1px solid #dee2e6;} // Gris très clair
+
+// Statut de Réservation/Scan
+.badge-light-grey { background-color: #e9ecef; color: #495057; }
+.badge-success-light { background-color: rgba(40, 167, 69, 0.2); color: #14532d; } // Vert plus transparent
+.badge-warning-light { background-color: rgba(255, 193, 7, 0.2); color: #7a5c00; } // Jaune plus transparent
+.badge-info-light { background-color: rgba(0, 123, 255, 0.15); color: #004085; }   // Bleu info plus transparent
+.badge-danger-light { background-color: rgba(220, 53, 69, 0.15); color: #721c24; } // Rouge plus transparent
+
+
+// --- Section Outils de Communication ---
+.communication-card {
+  border-radius: $border-radius-base;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background-color: $card-background-color;
+  h4 {
+    font-weight: 500;
+    color: $primary-color-dark;
+  }
+  button {
+    border-radius: $border-radius-base * 0.75;
+  }
+}
+
+// --- Spinner de chargement ---
+.mat-spinner {
+  margin: 0 auto;
+}

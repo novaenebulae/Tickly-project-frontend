@@ -106,7 +106,7 @@
   @if (!isLoading && !error) {
     <!-- Boucle sur les groupes de dates (variable groupedEvents, track dateString) -->
     @for (group of groupedEvents; track group.dateString) {
-      <h3 class="mat-subheader mt-4 mb-2 event-group-header">{{ group.date | date:'EEEE d MMMM yyyy' | titlecase}}</h3>
+      <h3 class="mat-subheader mt-4 mb-2 event-group-header">{{ group.date | date:'EEEE d MMMM yyyy' | titlecase }}</h3>
 
       <!-- Conteneur pour la VUE LISTE (condition isListView) -->
       @if (isListView) {
@@ -143,6 +143,10 @@
                   </div>
                   <!-- Colonne Actions -->
                   <div class="event-actions d-flex align-items-center p-3 border-start-md">
+                    <button mat-icon-button color="primary" matTooltip="Afficher les détails"
+                            (click)="showEvent(event)" aria-label="Afficher les détails">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
                     <!-- Appels showParticipants, showStats, openEventPage -->
                     <button mat-icon-button color="primary" matTooltip="Afficher les participants"
                             (click)="showParticipants(event)" aria-label="Afficher les participants">
@@ -189,7 +193,7 @@
         <div class="grid-view row g-3">
           @for (event of group.events; track $index) {
             <div class="col-12 col-md-6 col-lg-4 col-xl-3 d-flex">
-              <mat-card class="event-card grid-card mat-elevation-z1 hover-shadow w-100">
+              <mat-card class="event-card grid-card mat-elevation-z1 hover-shadow w-100 pb-2">
                 <img mat-card-image [src]="event.imageUrl ? event.imageUrl : defaultImage" alt="Image {{ event.title }}"
                      class="grid-event-image">
                 <mat-card-header>
@@ -206,15 +210,22 @@
                     <span><mat-icon class="icon-sm">category</mat-icon>
                       {{ event.type }}</span>
                   </div>
-                  <!-- Statut (appelle getStatusColor, getStatusText) -->
-                  <mat-chip-listbox class="event-status mt-2">
-                    <mat-chip [color]="getStatusColor(event.status)" density="-2" selected disabled>
-                      {{ getStatusText(event.status) }}
-                    </mat-chip>
-                  </mat-chip-listbox>
                 </mat-card-content>
-                <!-- Actions carte grille (appelle showParticipants, etc.) -->
+
                 <mat-card-actions class="grid-actions justify-content-end">
+
+                    <!-- Statut (appelle getStatusColor, getStatusText) -->
+                    <mat-chip-listbox class="event-status mt-2 w-50 align-self-start">
+                      <mat-chip [color]="getStatusColor(event.status)" density="-2" selected disabled>
+                        {{ getStatusText(event.status) }}
+                      </mat-chip>
+                    </mat-chip-listbox>
+
+                <!-- Actions carte grille (appelle showParticipants, etc.) -->
+                  <button mat-icon-button color="primary" matTooltip="Afficher les détails"
+                          (click)="showEvent(event)" aria-label="Afficher les détails">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
                   <button mat-icon-button color="primary" matTooltip="Afficher les participants"
                           (click)="showParticipants(event)" aria-label="Afficher les participants">
                     <mat-icon>people</mat-icon>
@@ -248,7 +259,8 @@
                     }
                   </mat-menu>
                 </mat-card-actions>
-              </mat-card>
+
+            </mat-card>
             </div>
           }
         </div>

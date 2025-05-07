@@ -9,6 +9,7 @@ import {StructurePanelComponent} from './panels/structure/structure-panel/struct
 import {TeamManagementComponent} from './panels/structure/team-management/team-management.component';
 import {StructureEditComponent} from './panels/structure/structure-edit/structure-edit.component';
 import {EventCalendarComponent} from './panels/events/event-calendar/event-calendar.component';
+import {EventDetailsPanelComponent} from './panels/events/event-details-panel/event-details-panel.component';
 
 export const adminRoutes: Routes = [
   {
@@ -31,6 +32,10 @@ export const adminRoutes: Routes = [
       {
         path: 'events/calendar',
         component: EventCalendarComponent
+      },
+      {
+        path: 'event/details',
+        component: EventDetailsPanelComponent,
       },
       {
         path: 'structure',

@@ -236,8 +236,19 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
 
   // --- Méthodes pour les Actions des Événements (Placeholders) ---
   onAddEvent(): void { this.router.navigate(['/admin/events/create']); }
-  showParticipants(event: Event): void { this.snackBar.open(`Participants: ${event.title} (Non implémenté)`, 'OK', { duration: 2000 }); }
-  showStats(event: Event): void { this.snackBar.open(`Stats: ${event.title} (Non implémenté)`, 'OK', { duration: 2000 }); }
+
+  showParticipants(event: Event): void {
+    this.router.navigate(['/admin/event/details'], { fragment: 'participants' });
+  }
+
+  showEvent(event: Event): void {
+    this.router.navigate(['/admin/event/details']);
+  }
+
+  showStats(event: Event): void {
+    this.router.navigate(['/admin/event/details#stats']);
+  }
+
   openEventPage(event: Event): void {
     if (event.webPageUrl) { window.open(event.webPageUrl, '_blank'); }
     else { this.snackBar.open(`Aucune page web pour ${event.title}`, 'OK', { duration: 3000 }); }
