@@ -31,7 +31,12 @@
     <h2 class="section-title">À ne pas Manquer</h2>
     <p class="section-subtitle">Découvrez les derniers événements ajoutés sur Tickly</p>
     @if (latestEvents.length > 0) {
+      <span class="d-none d-lg-block">
       <app-events-carousel [events]="latestEvents" [cardsPerPage]="3" [autoSlide]="true" [slideInterval]="6000"></app-events-carousel>
+      </span>
+      <span class="d-block d-lg-none">
+      <app-events-carousel [events]="latestEvents" [cardsPerPage]="1" [autoSlide]="true" [slideInterval]="6000"></app-events-carousel>
+      </span>
     } @else {
       <p class="text-center">Aucun événement récent à afficher pour le moment.</p>
     }
