@@ -59,7 +59,6 @@ const mockZoneService = {
   ],
   templateUrl: './structure-panel.component.html', // Fichier HTML associé
   styleUrls: ['./structure-panel.component.scss'],   // Fichier SCSS associé
-  changeDetection: ChangeDetectionStrategy.OnPush // Stratégie OnPush pour optimiser la détection de changement
 })
 export class StructurePanelComponent implements OnInit, OnDestroy {
 

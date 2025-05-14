@@ -98,7 +98,6 @@ const mockFileUploadService = {
   ],
   templateUrl: './structure-edit.component.html',
   styleUrls: ['./structure-edit.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StructureEditComponent implements OnInit, OnDestroy {
 
@@ -125,7 +124,7 @@ export class StructureEditComponent implements OnInit, OnDestroy {
   coverPreviewUrl: string | null = null;
   selectedLogoFile: File | null = null;
   selectedCoverFile: File | null = null;
-  defaultImage: string = 'images/no-image.svg';
+  defaultImage: string = 'icons/no-image.svg';
 
   // Pour cleanup
   private subscriptions = new Subscription();

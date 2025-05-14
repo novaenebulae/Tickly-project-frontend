@@ -8,6 +8,7 @@ import { RouterModule } from '@angular/router';
 import { MatMenuModule } from '@angular/material/menu';
 import { AuthComponent } from '../../../public/auth/auth.component';
 import { AuthService } from '../../../../core/services/auth.service';
+import {NavbarComponent} from '../../../../shared/ui/navbar/navbar.component';
 
 @Component({
   selector: 'app-admin-layout',
@@ -19,6 +20,7 @@ import { AuthService } from '../../../../core/services/auth.service';
     AdminSidenavComponent,
     RouterModule,
     MatMenuModule,
+    NavbarComponent,
   ],
 
   templateUrl: './admin-layout.component.html',
@@ -26,6 +28,6 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class AdminLayoutComponent {
   authService = inject(AuthService);
-  collapsed = signal(false);
-  sidenavWidth = computed(() => (this.collapsed() ? '65px' : '250px'));
+  collapsed = signal(true);
+  sidenavWidth = computed(() => (this.collapsed() ? '70px' : '250px'));
 }

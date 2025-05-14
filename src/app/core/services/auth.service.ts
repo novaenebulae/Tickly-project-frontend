@@ -30,21 +30,21 @@ export class AuthService {
   private apiUrl = 'http://localhost:8080';
 
   private keepLoggedIn: boolean = false;
-  
+
   constructor() {
     this.checkInitialAuthState();
   }
-  
+
   /** Récupère l'utilisateur actuel (payload décodé). */
   public get currentUserValue(): JwtPayload | null {
     return this.currentUserSubject.getValue();
   }
-  
+
   /** Indique si l'utilisateur est actuellement connecté. */
   public get isLoggedIn(): boolean {
     return this.isLoggedInSubject.getValue();
   }
-  
+
   /** Vérifie l'état d'authentification initial basé sur le token stocké. */
   private checkInitialAuthState(): void {
     const token = this.getToken();
@@ -112,7 +112,7 @@ export class AuthService {
       );
     }
   }
-  
+
   /**
    * Navigue vers la page appropriée basé sur le payload du token.
    * Priorise needsStructureSetup si présent et true.
@@ -120,7 +120,7 @@ export class AuthService {
   */
  public navigateBasedOnAuthState(decodedToken: JwtPayload): void {
    let targetUrl: string; // Pour logger l'URL cible
-   
+
    if (decodedToken.needsStructureSetup === true) {
      targetUrl = '/create-structure';
      console.log(
@@ -174,7 +174,7 @@ export class AuthService {
         )
       );
     }
-    
+
     /**
      * Enregistre un nouvel utilisateur.
      * Attend AuthResponseDto du backend car l'inscription connecte aussi.
@@ -203,7 +203,7 @@ export class AuthService {
       catchError((err) => throwError(() => err))
     );
   }
-  
+
   /** Déconnecte l'utilisateur. */
   logout(): void {
     this.clearAuthData();
@@ -212,9 +212,9 @@ export class AuthService {
       'valid',
       'Fermer'
     );
-    this.router.navigateByUrl('/login');
+    this.router.navigateByUrl('/home');
   }
-  
+
   /** Nettoie les données d'authentification (token, état). */
   private clearAuthData(): void {
     // localStorage.removeItem(this.JWT_STORAGE_KEY);
@@ -225,13 +225,13 @@ export class AuthService {
     this.currentUserSubject.next(null);
     this.isLoggedInSubject.next(false);
   }
-  
+
   /** Récupère le token actuel. */
   getToken(): string | null {
     this.keepLoggedIn = localStorage.getItem('keepLoggedIn') === 'true';
     return this.keepLoggedIn ? localStorage.getItem(this.JWT_STORAGE_KEY) : sessionStorage.getItem(this.JWT_STORAGE_KEY);
   }
-  
+
   /**
    * Met à jour le token JWT stocké et l'état interne de l'utilisateur.
    * Appelé après une opération qui modifie l'état pertinent de l'utilisateur (ex: création structure).

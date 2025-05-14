@@ -1,0 +1,118 @@
+<div class="manage-friends-dialog">
+  <h1 mat-dialog-title class="dialog-header">
+    Gérer mes Amis
+    <button mat-icon-button class="close-button" (click)="closeDialog()" aria-label="Fermer la fenêtre de dialogue">
+      <mat-icon>close</mat-icon>
+    </button>
+  </h1>
+
+  <mat-dialog-content class="dialog-content">
+    <mat-tab-group animationDuration="0ms">
+
+      <!-- Onglet pour la Liste d'Amis -->
+      <mat-tab label="Mes Amis">
+        <div class="tab-content-padding">
+          @if (currentFriends.length > 0) {
+            <mat-list role="list">
+              @for (friendship of currentFriends; track friendship.id) {
+                <mat-list-item role="listitem" class="friend-item mb-3">
+                  <div matListItemAvatar class="avatar-circle letter-avatar">
+                    {{ friendship.friend.avatarLetter }}
+                  </div>
+                  <div matListItemTitle
+                       class="item-title">{{ friendship.friend.firstName }} {{ friendship.friend.lastName }}
+                  </div>
+                  <div matListItemLine class="item-subtitle">{{ friendship.friend.email }}</div>
+                  <div matListItemLine class="item-date">Ami depuis: {{ friendship.friendsSince | date:'dd/MM/yyyy' }}
+                  </div>
+                  <div class="item-actions d-flex align-center" matListItemMeta>
+                    <button mat-icon-button color="warn" (click)="onRemoveFriend(friendship.id)"
+                            matTooltip="Supprimer cet ami">
+                      <mat-icon>person_remove</mat-icon>
+                    </button>
+                  </div>
+                </mat-list-item>
+                <mat-divider></mat-divider>
+              }
+            </mat-list>
+          } @else {
+            <p class="text-center text-muted py-4">Vous n'avez pas encore d'amis. Commencez par en ajouter !</p>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Onglet pour les Demandes Entrantes -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          Demandes Reçues
+          @if (incomingRequests.length > 0) {
+            <span matBadge="{{incomingRequests.length}}" matBadgeColor="warn" matBadgeOverlap="false"
+                  class="ms-2"></span>
+          }
+        </ng-template>
+
+        <div class="tab-content-padding">
+          @if (incomingRequests.length > 0) {
+            <mat-list role="list">
+              @for (request of incomingRequests; track request.id) {
+                <mat-list-item role="listitem" class="friend-item mb-3">
+                  <div matListItemAvatar class="avatar-circle letter-avatar">
+                    {{ request.requestingUser.avatarLetter }}
+                  </div>
+                  <div matListItemTitle
+                       class="item-title">{{ request.requestingUser.firstName }} {{ request.requestingUser.lastName }}
+                  </div>
+                  <div matListItemLine class="item-subtitle">{{ request.requestingUser.email }}</div>
+                  <div matListItemLine class="item-date">Reçue le: {{ request.requestedAt | date:'dd/MM/yyyy' }}</div>
+                  <div class="item-actions" matListItemMeta>
+                    <button mat-icon-button color="primary" (click)="onAcceptRequest(request.id)"
+                            matTooltip="Accepter la demande">
+                      <mat-icon>check_circle_outline</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="onRefuseRequest(request.id)"
+                            matTooltip="Refuser la demande">
+                      <mat-icon>highlight_off</mat-icon>
+                    </button>
+                  </div>
+                </mat-list-item>
+                <mat-divider></mat-divider>
+              }
+            </mat-list>
+          } @else {
+            <p class="text-center text-muted py-4">Aucune demande d'ami en attente.</p>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Onglet pour Ajouter un ami -->
+      <mat-tab label="Ajouter un Ami">
+        <div class="tab-content-padding">
+          <h3 class="section-title mt-3">Envoyer une demande d'amitié</h3>
+          <p class="text-muted mb-4">Entrez l'adresse e-mail de la personne que vous souhaitez ajouter.</p>
+          <form [formGroup]="addFriendForm" (ngSubmit)="onSendFriendRequest()" class="add-friend-form">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Adresse e-mail de l'ami</mat-label>
+              <input matInput type="email" formControlName="email" required>
+              <mat-icon matSuffix color="primary">person_add</mat-icon>
+              @if (addFriendForm.get('email')?.hasError('required') && addFriendForm.get('email')?.touched) {
+                <mat-error>L'adresse e-mail est requise.</mat-error>
+              }
+              @if (addFriendForm.get('email')?.hasError('email') && addFriendForm.get('email')?.touched) {
+                <mat-error>Format d'e-mail invalide.</mat-error>
+              }
+            </mat-form-field>
+            <button mat-raised-button color="primary" type="submit" [disabled]="!addFriendForm.valid" class="w-100">
+              <mat-icon>send</mat-icon>
+              Envoyer la demande
+            </button>
+          </form>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="custom-dialog-actions">
+    <button mat-stroked-button (click)="closeDialog()">Fermer</button>
+  </mat-dialog-actions>
+</div>

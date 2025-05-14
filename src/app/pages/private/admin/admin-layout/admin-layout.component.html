@@ -1,21 +1,21 @@
-<mat-toolbar class="mat-elevation-z3">
-  <button mat-icon-button (click)="authService.logout()">
-    <mat-icon>logout</mat-icon>
-  </button>
-</mat-toolbar>
+<div class="admin-layout">
+  <app-navbar></app-navbar>
 
-<mat-sidenav-container>
-  <mat-sidenav opened mode="side" [style.width]="sidenavWidth()">
-    <button
-      mat-icon-button
-      class="burger-button"
-      (click)="collapsed.set(!collapsed())"
-    >
-      <mat-icon>menu</mat-icon>
-    </button>
-    <app-admin-sidenav [collapsed]="collapsed()"></app-admin-sidenav>
-  </mat-sidenav>
-  <mat-sidenav-content class="content" [style.margin-left]="sidenavWidth()">
-    <router-outlet></router-outlet>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  <mat-sidenav-container>
+    <mat-sidenav opened mode="side" [style.width]="sidenavWidth()">
+      <span id="burger-button">
+      <button
+        mat-icon-button
+        class="burger-button"
+        (click)="collapsed.set(!collapsed())"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+      </span>
+      <app-admin-sidenav [collapsed]="collapsed()"></app-admin-sidenav>
+    </mat-sidenav>
+    <mat-sidenav-content class="content" [style.margin-left]="sidenavWidth()">
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>
