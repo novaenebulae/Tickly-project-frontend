@@ -1,12 +1,13 @@
 import { Routes } from '@angular/router';
 import { LoginGuard } from './core/guards/login.guard';
-import { AuthComponent } from './pages/public/auth/auth.component';
+import { AuthComponent } from './pages/auth/auth/auth.component';
 import { adminRoutes } from './pages/private/admin/admin.routes';
 import { userRoutes } from './pages/private/user/user.routes';
-import { RegisterPageComponent } from './pages/public/register/register-page/register-page.component';
+import { RegisterPageComponent } from './pages/auth/register/register-page.component';
 import { PublicGuard } from './core/guards/public.guard';
-import { HomePageComponent } from './pages/public/home/home-page/home-page.component';
 import { StructureCreationComponent } from './pages/private/admin/structure-creation/structure-creation.component';
+import {PublicLayoutComponent} from './pages/public/public-layout/public-layout.component';
+import {publicRoutes} from './pages/public/public.routes';
 
 export const routes: Routes = [
   {
@@ -36,7 +37,6 @@ export const routes: Routes = [
   },
   {
     path: '',
-    component: HomePageComponent,
-    pathMatch: 'full',
+    children: publicRoutes,
   },
 ];

@@ -1,0 +1,31 @@
+<div class="events-carousel">
+  <div class="events-carousel__viewport"> <!-- Renommé pour plus de clarté -->
+    <div class="events-carousel__slides" #carouselSlides>
+      @for (event of events; track event.id || $index) {
+        <div class="events-carousel__slide-item"> <!-- Wrapper pour chaque carte -->
+          <app-event-card [event]="event"></app-event-card>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (showControls && totalPages > 1) {
+    <button mat-icon-button class="events-carousel__control events-carousel__control--prev" (click)="prevPage()">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <button mat-icon-button class="events-carousel__control events-carousel__control--next" (click)="nextPage()">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  }
+
+  @if (totalPages > 1) {
+    <div class="events-carousel__indicators">
+      @for (page of [].constructor(totalPages); track $index) { <!-- Crée un tableau vide de la bonne taille pour la boucle -->
+        <button class="events-carousel__indicator"
+                [class.events-carousel__indicator--active]="isCurrentPage($index)"
+                (click)="goToPage($index)">
+        </button>
+      }
+    </div>
+  }
+</div>

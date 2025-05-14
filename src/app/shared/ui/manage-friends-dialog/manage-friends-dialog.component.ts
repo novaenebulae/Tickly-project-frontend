@@ -43,7 +43,6 @@ export interface Friendship {
     MatDialogTitle,
     MatDialogContent,
     MatDialogActions,
-    MatDialogClose,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,

@@ -1,0 +1,155 @@
+// Variables de couleurs (en hexadécimal, comme convenu)
+$primary-color: #0A2A4E;
+$accent-color: #FF8C42;
+$control-bg-color: rgba(255, 255, 255, 0.85); // Légèrement plus opaque
+$control-hover-bg-color: white;
+$indicator-active-color: $accent-color;
+$indicator-inactive-color: rgba(0, 0, 0, 0.3);
+$carousel-bg-color: #f0f4f8; // Un fond un peu plus doux que #f9f9f9
+$gap-between-cards: 16px; // Espace entre les cartes
+
+:host {
+  // Utilise la variable CSS liée depuis le TS
+  --cards-per-page-dynamic: var(--cards-per-page, 3); // Valeur par défaut si non fournie
+}
+
+.events-carousel {
+  position: relative;
+  padding: 20px 0; // Padding vertical, horizontal géré par les contrôles
+  border-radius: 12px;
+  background-color: $carousel-bg-color;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+
+  &__viewport {
+    overflow: hidden; // Masque les cartes qui ne sont pas dans la "page" actuelle
+    margin: 0 40px; // Laisse de la place pour les flèches sur les côtés
+  }
+
+  &__slides {
+    display: flex;
+    // La largeur totale est la somme des largeurs de toutes les cartes.
+    // Elle sera plus grande que 100% si cardsPerPage < events.length.
+    // Chaque "page" (groupe de cardsPerPage) occupera 100% de la largeur du viewport.
+    // La transition se fait sur ce conteneur global.
+    transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); // Transition plus douce
+  }
+
+  &__slide-item {
+    // Chaque carte (ou son wrapper) prend une fraction de la largeur du viewport.
+    // Le HostBinding dans le TS rend --cards-per-page-dynamic disponible.
+    flex: 0 0 calc(100% / var(--cards-per-page-dynamic));
+    box-sizing: border-box;
+    padding: 0 calc($gap-between-cards / 2); // Applique le gap de chaque côté de la carte
+
+    // Pour s'assurer que la première et la dernière carte n'ont pas de padding vers l'extérieur du groupe visible
+    &:first-child {
+      padding-left: 0;
+    }
+    &:last-child {
+      padding-right: 0;
+    }
+  }
+
+  &__control {
+    position: absolute;
+    top: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 50%;
+    z-index: 10;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.4);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
+      transform: translateY(-50%) scale(1.05);
+    }
+
+    &--prev {
+      left: 5px;
+      transform: translate(-50%, -50%);
+    }
+
+    &--next {
+      right: 5px;
+      transform: translate(50%, -50%);
+    }
+
+    mat-icon {
+      font-size: 28px;
+      height: 28px;
+      width: 28px;
+      color: $primary-color;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+  }
+
+  &__indicators {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  &__indicator {
+    display: inline-block;
+    width: 12px; // Indicateurs un peu plus grands
+    height: 12px;
+    border-radius: 50%;
+    background-color: $indicator-inactive-color;
+    border: none;
+    margin: 0 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+    &--active {
+      background-color: $indicator-active-color;
+      transform: scale(1.1);
+    }
+    &:hover:not(&--active) {
+      background-color: lighten($indicator-inactive-color, 10%);
+    }
+  }
+}
+
+// Styles responsives pour ajuster le nombre de cartes
+@media (max-width: 1200px) {
+  :host {
+    --cards-per-page-dynamic: var(--cards-per-page, 2); // 2 cartes sur écrans moyens
+  }
+}
+
+@media (max-width: 768px) {
+  :host {
+    --cards-per-page-dynamic: var(--cards-per-page, 1); // 1 carte sur petits écrans
+  }
+  .events-carousel {
+    padding: 15px 0;
+
+    &__viewport {
+      margin: 0 10px; // Moins de marge pour les flèches
+    }
+
+    &__slide-item {
+      padding: 0 calc($gap-between-cards / 3);
+    }
+
+    &__control {
+      // Les styles de mat-icon-button peuvent suffire, sinon ajuster
+      mat-icon {
+        font-size: 28px;
+        height: 28px;
+        width: 28px;
+      }
+    }
+  }
+}

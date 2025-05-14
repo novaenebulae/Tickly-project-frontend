@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core'; 
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl,
@@ -16,14 +16,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../../../core/services/auth.service'; 
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; 
-import { UserRegistrationInterface } from '../../../../core/models/userRegistration.interface';
+import { AuthService } from '../../../core/services/auth.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { UserRegistrationInterface } from '../../../core/models/userRegistration.interface';
 
 
 @Component({
   selector: 'app-register-page',
-  standalone: true, 
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -35,10 +35,10 @@ import { UserRegistrationInterface } from '../../../../core/models/userRegistrat
     MatIconModule,
     MatSlideToggleModule,
     MatTooltipModule,
-    MatProgressSpinnerModule, 
+    MatProgressSpinnerModule,
   ],
-  templateUrl: './register-page.component.html', 
-  styleUrls: ['./register-page.component.scss'], 
+  templateUrl: './register-page.component.html',
+  styleUrls: ['./register-page.component.scss'],
 })
 export class RegisterPageComponent implements OnInit {
   registerForm!: FormGroup;
@@ -47,7 +47,7 @@ export class RegisterPageComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private router = inject(Router); 
+  private router = inject(Router);
 
   ngOnInit(): void {
     this.initForm();
@@ -62,7 +62,7 @@ export class RegisterPageComponent implements OnInit {
         email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required, Validators.minLength(8)]],
         confirmPassword: ['', [Validators.required]], // Validation passwordMatch s'en occupe
-        createStructure: [false], 
+        createStructure: [false],
       },
       { validators: this.passwordMatchValidator } // Validateur pour le groupe
     );
@@ -75,7 +75,7 @@ export class RegisterPageComponent implements OnInit {
     // Ne retourner une erreur que si les deux champs sont remplis ET différents
     if (password && confirmPassword && password !== confirmPassword) {
       control.get('confirmPassword')?.setErrors({ passwordMismatch: true });
-      return { passwordMismatch: true }; 
+      return { passwordMismatch: true };
     } else {
       // Si les mots de passe correspondent ou qu'un champ est vide, retirer l'erreur potentielle
       const confirmPasswordControl = control.get('confirmPassword');
@@ -97,17 +97,17 @@ export class RegisterPageComponent implements OnInit {
 
     if (this.registerForm.invalid) {
       console.warn('Registration form is invalid.');
-      return; 
+      return;
     }
 
-    this.isLoading = true; 
+    this.isLoading = true;
 
     const newUserRegistration: UserRegistrationInterface = {
       firstName: this.registerForm.get('firstName')?.value,
       lastName: this.registerForm.get('lastName')?.value,
       email: this.registerForm.get('email')?.value,
-      password: this.registerForm.get('password')?.value, 
-      createStructure: this.registerForm.get('createStructure')?.value ?? false, 
+      password: this.registerForm.get('password')?.value,
+      createStructure: this.registerForm.get('createStructure')?.value ?? false,
     };
 
     console.log('Submitting registration:', newUserRegistration);
@@ -117,20 +117,21 @@ export class RegisterPageComponent implements OnInit {
         // Exécuté si l'observable de register se complète SANS erreur
         console.log(
           'RegisterPageComponent: Registration call successful (navigation handled by AuthService).'
-        ); 
+        );
         // Si la navigation réussit, ce composant sera détruit.
         // Si elle échoue, on arrête le spinner.
-        this.isLoading = false; 
+        this.isLoading = false;
       },
       error: (err) => {
         console.error('Component received registration error:', err);
-        this.isLoading = false; 
+        this.isLoading = false;
       },
     });
   }
 
   // Méthode pour annuler et retourner à l'accueil
   onCancel(): void {
-    this.router.navigate(['/home']); 
+    console.log('Cancel button clicked');
+    this.router.navigate(['/home']);
   }
 }

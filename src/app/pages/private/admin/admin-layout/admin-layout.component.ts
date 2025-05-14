@@ -6,7 +6,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { AdminSidenavComponent } from '../components/admin-sidenav/admin-sidenav.component';
 import { RouterModule } from '@angular/router';
 import { MatMenuModule } from '@angular/material/menu';
-import { AuthComponent } from '../../../public/auth/auth.component';
+import { AuthComponent } from '../../../auth/auth/auth.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import {NavbarComponent} from '../../../../shared/ui/navbar/navbar.component';
 

@@ -1,0 +1,32 @@
+<footer class="app-footer">
+  <div class="footer-texture-bg"></div> <!-- Pour la texture SVG -->
+  <div class="footer-content container">
+    <div class="footer-section footer-section--logo-nav">
+      <div class="footer-logo">
+        <a routerLink="/">
+          <img [src]="logoUrl" alt="Logo Tickly" class="logo-img">
+        </a>
+      </div>
+      <nav class="footer-nav">
+        <ul>
+          @for (link of footerNavLinks; track link.path) {
+            <li><a [routerLink]="link.path"><a class="mx-2 h5">{{ link.label }}</a></a></li>
+          }
+        </ul>
+      </nav>
+    </div>
+
+    <div class="footer-section footer-section--legal">
+      <nav class="footer-legal-links">
+        <ul>
+          @for (link of legalLinks; track link.path) {
+            <li><a [routerLink]="link.path">{{ link.label }}</a></li>
+          }
+        </ul>
+      </nav>
+      <p class="footer-copyright">
+        &copy; {{ currentYear }} Tickly. Tous droits réservés.
+      </p>
+    </div>
+  </div>
+</footer>

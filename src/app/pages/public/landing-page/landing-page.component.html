@@ -1,0 +1,84 @@
+<!-- Section Héros Dynamique -->
+<section class="hero-section">
+  @for (slide of heroSlides; track slide.imageUrl; let i = $index) {
+    <div class="hero-slide"
+         [style.background-image]="'url(' + slide.imageUrl + ')'"
+         [class.active]="i === currentHeroSlideIndex">
+      <div class="hero-slide__overlay"></div>
+      <div class="hero-slide__content container">
+        <h1 class="hero-slide__title">{{ slide.title }}</h1>
+        <p class="hero-slide__subtitle">{{ slide.subtitle }}</p>
+        <button mat-raised-button color="accent" class="hero-slide__cta" (click)="router.navigate([slide.ctaLink])">
+          {{ slide.ctaText }}
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </div>
+  }
+
+  <div class="hero-indicators">
+    @for (slide of heroSlides; track slide.imageUrl; let i = $index) {
+      <button class="hero-indicator"
+              [class.active]="i === currentHeroSlideIndex">
+      </button>
+    }
+  </div>
+</section>
+
+<!-- Section "Nos Derniers Événements" -->
+<section class="latest-events-section section-padding">
+  <div class="container">
+    <h2 class="section-title">À ne pas Manquer</h2>
+    <p class="section-subtitle">Découvrez les derniers événements ajoutés sur Tickly</p>
+    @if (latestEvents.length > 0) {
+      <app-events-carousel [events]="latestEvents" [cardsPerPage]="3" [autoSlide]="true" [slideInterval]="6000"></app-events-carousel>
+    } @else {
+      <p class="text-center">Aucun événement récent à afficher pour le moment.</p>
+    }
+  </div>
+</section>
+
+<!-- Section "Découverte" -->
+<section class="discovery-section section-padding">
+  <div class="discovery-texture-bg"></div> <!-- Pour texture SVG -->
+  <div class="container">
+    <h2 class="section-title">Explorez l'Univers Tickly</h2>
+    <p class="section-subtitle">Plongez au cœur de la culture et du divertissement.</p>
+    <div class="discovery-grid">
+      <div class="discovery-card" (click)="navigateToAllEvents()">
+        <div class="discovery-card__icon-wrapper">
+          <mat-icon>event_available</mat-icon>
+        </div>
+        <h3 class="discovery-card__title">Tous les Événements</h3>
+        <p class="discovery-card__description">Parcourez une sélection variée de spectacles, concerts, festivals et bien plus encore.</p>
+        <button mat-stroked-button color="primary" class="discovery-card__cta">
+          Voir les événements <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+      <div class="discovery-card" (click)="navigateToAllStructures()">
+        <div class="discovery-card__icon-wrapper">
+          <mat-icon>storefront</mat-icon> <!-- Ou location_city -->
+        </div>
+        <h3 class="discovery-card__title">Toutes les Structures</h3>
+        <p class="discovery-card__description">Trouvez les organisateurs, les salles et les lieux qui font vibrer votre ville.</p>
+        <button mat-stroked-button color="primary" class="discovery-card__cta">
+          Explorer les structures <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section "Appel à l'Action Création de Compte" -->
+<section class="cta-section section-padding">
+  <div class="cta-texture-bg"></div> <!-- Pour texture SVG -->
+  <div class="container text-center">
+    <h2 class="section-title">Prêt à faire partie de l'aventure ?</h2>
+    <p class="section-subtitle">Rejoignez la communauté Tickly et ne manquez plus aucun événement !</p>
+    <div class="cta-buttons">
+      <button mat-raised-button color="accent" class="cta-button cta-button--large" (click)="navigateToRegistration()">
+        <mat-icon>person_add</mat-icon> Créer mon compte
+      </button>
+    </div>
+  </div>
+</section>

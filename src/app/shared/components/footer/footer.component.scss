@@ -1,0 +1,142 @@
+// Variables de couleurs (en hexadécimal, comme convenu)
+$footer-background-color: #1A202C; // Un bleu très sombre / gris anthracite
+$footer-text-color: #A0AEC0;       // Gris clair pour le texte général
+$footer-link-color: #CBD5E0;       // Gris un peu plus clair pour les liens
+$footer-link-hover-color: #EDF2F7; // Blanc cassé / gris très clair pour le survol des liens
+$footer-border-color: #2D3748;    // Couleur de bordure subtile si nécessaire
+
+// Chemin vers votre texture SVG. Assurez-vous que ce fichier existe.
+// Vous pouvez utiliser une texture simple pour commencer.
+// Exemple de texture SVG (à mettre dans le fichier svg et adapter le chemin):
+// <svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+//   <path d="M25 0 L50 25 L25 50 L0 25 Z" fill="rgba(255,255,255,0.03)"/>
+// </svg>
+$footer-texture-svg-path: "url('/assets/svg/textures/footer-texture.svg')"; // Mettez le chemin correct
+
+// Garder vos variables existantes...
+
+.app-footer {
+  display: flex;
+  align-items: center;
+  background-color: $footer-background-color;
+  color: $footer-text-color;
+  padding: 40px 0;
+  position: relative;
+  width: 100%;
+  margin-top: auto; // Pousse le footer vers le bas
+
+  // Le reste de votre code footer reste inchangé...
+
+  .footer-texture-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: $footer-texture-svg-path;
+    background-repeat: repeat; // Ou autre selon votre texture
+    background-size: 50px 50px; // Ajustez la taille de répétition de votre texture
+    opacity: 0.05; // Opacité de la texture pour qu'elle soit subtile
+    z-index: 0;
+  }
+
+  .footer-content {
+    position: relative; // Pour être au-dessus de la texture
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px; // Espace entre les sections principales sur mobile
+    text-align: center;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+      text-align: left;
+    }
+  }
+
+  .footer-section {
+    &--logo-nav {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-evenly;
+      width: 100%;
+      gap: 20px;
+
+      @media (min-width: 768px) {
+        align-items: flex-start;
+      }
+    }
+  }
+
+  .footer-logo {
+    .logo-img {
+      height: 60px; // Ajustez la taille de votre logo
+      width: auto;
+    }
+  }
+
+  .footer-nav,
+  .footer-legal-links {
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column; // Liens en colonne sur mobile
+      gap: 10px;
+
+      @media (min-width: 768px) {
+        flex-direction: row; // Liens en ligne sur desktop
+        gap: 20px;
+      }
+    }
+
+    li {
+      a {
+        color: $footer-link-color;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s ease-in-out;
+        text-wrap-mode: nowrap;
+
+        &:hover {
+          color: $footer-link-hover-color;
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  .footer-legal-links {
+    @media (min-width: 768px) {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end; // Aligner à droite sur desktop
+      gap: 10px;
+    }
+  }
+
+  .footer-copyright {
+    font-size: 0.85rem;
+    margin-top: 15px; // Espace au-dessus du copyright
+    color: darken($footer-text-color, 10%);
+
+    @media (min-width: 768px) {
+      margin-top: 0; // Le gap de la flexbox parente gère l'espacement
+    }
+  }
+
+  // Style pour la classe .container si vous l'utilisez globalement
+  // Sinon, vous pouvez utiliser max-width et margin auto directement sur .footer-content
+  //.container {
+  //  width: 100%;
+  //  max-width: 1200px; // Ou votre largeur de conteneur standard
+  //  margin: 0 auto;
+  //  padding: 0 15px; // Padding horizontal pour le conteneur
+  //  box-sizing: border-box;
+  //}
+}

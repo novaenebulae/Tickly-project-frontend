@@ -1,0 +1,403 @@
+// Variables de couleurs (en hexadécimal, comme convenu)
+$primary-color: #0A2A4E; // Bleu marine foncé (utilisé aussi dans event-card et carousel)
+$accent-color: #FF8C42; // Orange corail vif (utilisé aussi dans event-card et carousel)
+$secondary-color: #3A7CA5; // Bleu moyen
+$light-text-color: #F8F9FA;
+$dark-text-color: #212529;
+$section-bg-light: #FFFFFF;
+$section-bg-darker: #f0f4f8; // Fond pour la section "Découverte" par exemple
+$card-hover-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+
+// Chemins vers vos textures SVG. Assurez-vous que ces fichiers existent.
+$discovery-texture-path: "url('/assets/svg/textures/discovery-texture.svg')";
+$cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
+// $hero-texture-path: "url('/assets/svg/textures/hero-texture.svg')"; // Si besoin pour le hero
+
+// Mixin pour les titres de section
+@mixin section-title-style {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: $primary-color;
+  margin-bottom: 0.5em;
+  text-align: center;
+  position: relative; // Pour d'éventuels effets de soulignement animés
+}
+
+@mixin section-subtitle-style {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 2.5em;
+  text-align: center;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+// Styles globaux pour la page d'accueil
+:host {
+  display: block; // Permet d'appliquer des styles au composant hôte
+}
+
+.container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 15px;
+  box-sizing: border-box;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.section-padding {
+  padding: 60px 0;
+  position: relative; // Pour les textures en arrière-plan
+
+  @media (max-width: 768px) {
+    padding: 40px 0;
+  }
+}
+
+.section-title {
+  @include section-title-style;
+}
+
+.section-subtitle {
+  @include section-subtitle-style;
+}
+
+
+// --- Section Héros ---
+.hero-section {
+  position: relative;
+  width: 100%;
+  height: 85vh; // Hauteur du viewport
+  min-height: 500px;
+  max-height: 700px;
+  overflow: hidden;
+  // background-image: $hero-texture-path; // Si une texture de fond est souhaitée en plus des images
+  // background-repeat: repeat;
+  // background-size: 60px;
+  // background-blend-mode: overlay; // Pour mélanger la texture avec l'image
+
+  .hero-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center center;
+    opacity: 0;
+    transition: opacity 1s ease-in-out, transform 1s ease-in-out; // Transition en fondu + léger zoom/dézoom
+    transform: scale(1.05); // Zoom initial léger
+
+    &.active {
+      opacity: 1;
+      transform: scale(1); // Retour à l'échelle normale
+      z-index: 1;
+    }
+
+    &__overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%); // Overlay pour lisibilité
+      z-index: 1;
+    }
+
+    &__content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      text-align: center;
+      color: $light-text-color;
+      padding: 20px;
+      animation: fadeInContent 1.5s ease-out forwards; // Animation d'entrée du contenu
+    }
+
+    &__title {
+      font-size: 3rem; // Ajuster selon la taille de l'écran
+      font-weight: 700;
+      margin-bottom: 0.5em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      animation: slideInFromBottom 1s 0.2s ease-out forwards;
+      opacity: 0;
+
+      @media (max-width: 768px) {
+        font-size: 2.2rem;
+      }
+    }
+
+    &__subtitle {
+      font-size: 1.3rem;
+      margin-bottom: 1.5em;
+      max-width: 700px;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+      animation: slideInFromBottom 1s 0.4s ease-out forwards;
+      opacity: 0;
+
+      @media (max-width: 768px) {
+        font-size: 1rem;
+      }
+    }
+
+    &__cta {
+      padding: 12px 30px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 25px;
+      animation: popIn 0.8s 0.6s ease-out forwards;
+      opacity: 0;
+      transform: scale(0.8);
+
+      mat-icon {
+        margin-left: 8px;
+      }
+
+      &:hover {
+        transform: scale(1.05) !important; // Pour surcharger le scale de l'animation
+      }
+    }
+  }
+
+  .hero-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3; // Au-dessus des slides et de l'overlay
+    background-color: rgba(255, 255, 255, 0.2);
+    color: $light-text-color;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    &--prev {
+      left: 20px;
+    }
+    &--next {
+      right: 20px;
+    }
+    mat-icon {
+      font-size: 36px;
+      height: 36px;
+      width: 36px;
+    }
+  }
+
+  .hero-indicators {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    gap: 10px;
+
+    .hero-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.4);
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &.active {
+        background-color: $light-text-color;
+      }
+      &:hover:not(.active) {
+        background-color: rgba(255, 255, 255, 0.7);
+      }
+    }
+  }
+}
+
+// --- Section "Nos Derniers Événements" ---
+.latest-events-section {
+  background-color: $section-bg-light; // Fond blanc ou très clair
+  width: 100%;
+}
+
+
+// --- Section "Découverte" ---
+.discovery-section {
+  background-color: $section-bg-darker; // Fond légèrement différent
+  .discovery-texture-bg {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: $discovery-texture-path;
+    background-repeat: repeat;
+    background-size: 80px; // Ajustez
+    opacity: 0.03; // Très subtil
+    z-index: 0;
+  }
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1200px;
+  }
+
+  .discovery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr; // Une colonne sur mobile
+    }
+  }
+
+  .discovery-card {
+    background-color: $section-bg-light;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: $card-hover-shadow;
+    }
+
+    &__icon-wrapper {
+      background-color: rgba($accent-color, 0.1);
+      color: $accent-color;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+
+      mat-icon {
+        font-size: 36px;
+        height: 36px;
+        width: 36px;
+      }
+    }
+    &:hover &__icon-wrapper {
+      background-color: $accent-color;
+      color: $light-text-color;
+    }
+
+
+    &__title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: $primary-color;
+      margin-bottom: 10px;
+    }
+
+    &__description {
+      font-size: 0.95rem;
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 25px;
+      flex-grow: 1; // Pour que le bouton soit aligné en bas si les descriptions varient
+    }
+
+    &__cta {
+      margin-top: auto; // Pousse le bouton vers le bas
+      width: 100%;
+      font-weight: 500;
+      mat-icon { margin-left: 8px; }
+    }
+  }
+}
+
+// --- Section "Appel à l'Action Création de Compte" ---
+.cta-section {
+  background-color: $primary-color; // Fond sombre
+  color: $light-text-color;
+
+  .cta-texture-bg {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: $cta-texture-path;
+    background-repeat: repeat;
+    background-size: 70px; // Ajustez
+    opacity: 0.04; // Subtil
+    z-index: 0;
+  }
+  .container {
+    position: relative; z-index: 1;
+  }
+
+  .section-title {
+    color: $light-text-color; // Titre clair sur fond sombre
+  }
+  .section-subtitle {
+    color: darken($light-text-color, 15%); // Sous-titre un peu moins clair
+    margin-bottom: 40px;
+  }
+
+  .cta-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      justify-content: center;
+      gap: 30px;
+    }
+  }
+
+  .cta-button {
+    padding: 15px 35px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 30px;
+    min-width: 280px; // Largeur minimale pour les boutons
+
+    mat-icon {
+      margin-right: 10px;
+    }
+
+    &--secondary {
+      // Pour le bouton mat-stroked-button
+      color: $light-text-color !important; // !important pour surcharger les styles Material par défaut
+      border-color: rgba($light-text-color, 0.7) !important;
+
+      &:hover {
+        background-color: rgba($light-text-color, 0.1) !important;
+        border-color: $light-text-color !important;
+      }
+    }
+  }
+}
+
+// --- Animations complexes (exemples) ---
+@keyframes fadeInContent {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInFromBottom {
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.5); }
+  80% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+// Vous pouvez ajouter d'autres animations pour les sections ou éléments au scroll (avec Intersection Observer par exemple)

@@ -16,7 +16,6 @@ import {AuthService} from '../../../core/services/auth.service'; // Pour les bou
   imports: [
     CommonModule,
     MatIconModule,
-    MatMenu,
     MatMenuModule,
     MatButtonModule // Décommentez si vous utilisez MatButton
   ],
