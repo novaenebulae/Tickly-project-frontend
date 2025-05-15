@@ -6,8 +6,8 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatDialog} from '@angular/material/dialog';
 import {
   EditProfileDialogComponent,
-} from '../edit-profile-dialog/edit-profile-dialog.component';
-import {ManageFriendsDialogComponent} from '../manage-friends-dialog/manage-friends-dialog.component';
+} from '../../ui/edit-profile-dialog/edit-profile-dialog.component';
+import {ManageFriendsDialogComponent} from '../../ui/manage-friends-dialog/manage-friends-dialog.component';
 import {AuthService} from '../../../core/services/auth.service'; // Pour les boutons Material
 
 @Component({

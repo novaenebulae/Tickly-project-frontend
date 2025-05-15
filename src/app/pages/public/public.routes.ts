@@ -2,6 +2,7 @@ import {LandingPageComponent} from './landing-page/landing-page.component';
 import {PublicLayoutComponent} from './public-layout/public-layout.component';
 import {Routes} from '@angular/router';
 import {RegisterPageComponent} from '../auth/register/register-page.component';
+import {TestEventsComponent} from '../../test-events/test-events.component';
 
 export const publicRoutes: Routes = [
   {
@@ -17,9 +18,10 @@ export const publicRoutes: Routes = [
         path: 'register',
         component: RegisterPageComponent,
       },
-      // {
-      //   path: 'structures',
-      // },
+      {
+        path: 'events',
+        component: TestEventsComponent
+      },
       {
         path: '',
         pathMatch: 'full',

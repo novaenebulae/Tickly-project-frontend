@@ -64,7 +64,6 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     }
   ];
   currentHeroSlideIndex = 0;
-  // heroIntervalSubscription: Subscription | undefined; // Semble inutilisé, peut être supprimé si confirmé
   private destroy$ = new Subject<void>(); // Pour se désabonner proprement
   private autoSlideSubscription: Subscription | undefined;
 
@@ -76,8 +75,6 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   eventService = inject(EventService);
   private cdr = inject(ChangeDetectorRef); // Injection de ChangeDetectorRef
 
-  constructor() {
-  }
 
   ngOnInit(): void {
     this.loadLatestEvents();

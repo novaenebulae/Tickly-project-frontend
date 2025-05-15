@@ -8,7 +8,7 @@ import { RouterModule } from '@angular/router';
 import { MatMenuModule } from '@angular/material/menu';
 import { AuthComponent } from '../../../auth/auth/auth.component';
 import { AuthService } from '../../../../core/services/auth.service';
-import {NavbarComponent} from '../../../../shared/ui/navbar/navbar.component';
+import {NavbarComponent} from '../../../../shared/components/navbar/navbar.component';
 
 @Component({
   selector: 'app-admin-layout',

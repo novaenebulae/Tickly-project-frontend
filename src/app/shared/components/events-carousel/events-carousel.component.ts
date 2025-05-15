@@ -3,7 +3,7 @@ import { Event } from '../../../core/models/event.model';
 import { Subscription, interval } from 'rxjs';
 import {CommonModule} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
-import {EventCardComponent} from '../event-card/event-card.component';
+import {EventCardComponent} from '../event-card-item/event-card.component';
 import {MatButtonModule} from '@angular/material/button';
 // Les imports pour MatIconModule etc. sont dans le décorateur @Component pour les composants standalone
 
