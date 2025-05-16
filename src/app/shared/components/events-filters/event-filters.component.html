@@ -1,83 +1,159 @@
-<div class="filter-bar" [formGroup]="filterForm">
-  <!-- Champ de Recherche -->
-  <mat-form-field appearance="outline" class="search-field">
-    <mat-label>Rechercher</mat-label>
-    <mat-icon matPrefix>search</mat-icon>
-    <input matInput formControlName="searchTerm" placeholder="Nom, lieu, artiste...">
-  </mat-form-field>
+<div class="filters-container">
+  <form [formGroup]="filtersForm" class="filters-form">
+    <!-- Section principale des filtres (Card design) -->
+    <div class="filters-card">
+        <!-- Section pour les catégories avec design moderne -->
+        <div class="categories-section">
+            <div class="categories-label">
+                <mat-icon>category</mat-icon>
+                <span>Catégories</span>
+            </div>
+            <div class="categories-chips-scroll">
+                <mat-chip-listbox aria-label="Sélection de catégorie" multiple formControlName="selectedCategories" class="categories-chips">
+                    @for (category of categoriesList; track category) {
+                        <mat-chip-option [value]="category" (click)="toggleCategory(category)" [selected]="isCategorySelected(category)" class="category-chip">
+                            {{ category }}
+                        </mat-chip-option>
+                    }
+                </mat-chip-listbox>
+            </div>
+        </div>
+      <div class="filters-row">
+          <!-- Trier par avec design compact -->
+          <div class="sort-wrapper">
+              <mat-form-field appearance="fill" class="sort-select">
+                  <mat-label>Trier par</mat-label>
+                  <mat-select formControlName="sortBy">
+                      @for (option of sortOptions; track option.value) {
+                          <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+                      }
+                  </mat-select>
+                  <mat-icon matPrefix>sort</mat-icon>
+              </mat-form-field>
+          </div>
+        <!-- Barre de recherche réimagine avec effet float label -->
+        <div class="search-wrapper">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Rechercher</mat-label>
+            <input matInput formControlName="searchQuery" placeholder="Nom de l'événement, lieu...">
+            <mat-icon matPrefix class="search-icon">search</mat-icon>
+          </mat-form-field>
+        </div>
 
-  <!-- Bouton Filtres Avancés -->
-  <button mat-stroked-button (click)="toggleAdvancedFilters()" class="advanced-filters-button">
-    <mat-icon>filter_list</mat-icon>
-    Filtres
-  </button>
-
-  <!-- Filtres rapides par Catégorie -->
-  <div class="category-chips-container">
-    <mat-chip-listbox aria-label="Filtrer par catégorie" formControlName="category">
-      <mat-chip-option *ngFor="let category of categories" [value]="category" (click)="selectCategory(category)">
-        {{ category }}
-      </mat-chip-option>
-    </mat-chip-listbox>
-  </div>
+          <!-- Bouton des filtres avancés remanié -->
+          <div class="advanced-filters-toggle">
+              <button mat-flat-button color="primary" (click)="toggleAdvancedFilters()" class="advanced-filters-button" [class.active]="isAdvancedFilterOpen">
+                  <mat-icon>{{ isAdvancedFilterOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
+                  Filtres avancés
+              </button>
+          </div>
 
 
-  <!-- Option de Tri -->
-  <mat-form-field appearance="outline" class="sort-options">
-    <mat-label>Trier par</mat-label>
-    <mat-select formControlName="sortBy">
-      <mat-option *ngFor="let sort of sortOptions" [value]="sort.value">
-        {{ sort.viewValue }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
 
-  <!-- (Optionnel) Bouton pour tout réinitialiser -->
-  <button mat-icon-button (click)="resetAllFilters()" matTooltip="Réinitialiser tous les filtres" class="reset-all-button">
-    <mat-icon>refresh</mat-icon>
-  </button>
-</div>
 
-<!-- Panneau de Filtres Avancés (exemple simple avec ngIf, un MatDrawer serait mieux) -->
-<div *ngIf="showAdvancedFiltersPanel" class="advanced-filters-panel">
-  <h4>Filtres Avancés</h4>
+      </div>
 
-  <div [formGroup]="filterForm.get('dateRange')!" class="filter-section">
-    <mat-form-field appearance="outline" class="date-range-field">
-      <mat-label>Plage de dates</mat-label>
-      <mat-date-range-input [rangePicker]="picker">
-        <input matStartDate formControlName="start" placeholder="Date de début">
-        <input matEndDate formControlName="end" placeholder="Date de fin">
-      </mat-date-range-input>
-      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-date-range-picker #picker></mat-date-range-picker>
-    </mat-form-field>
-    <div class="quick-date-options">
-      <button mat-stroked-button (click)="selectDateQuickOption('today')">Aujourd'hui</button>
-      <button mat-stroked-button (click)="selectDateQuickOption('weekend')">Ce week-end</button>
-      <button mat-stroked-button (click)="selectDateQuickOption('next_week')">Semaine prochaine</button>
-      <button mat-stroked-button (click)="selectDateQuickOption('next_month')">Mois prochain</button>
+
     </div>
-  </div>
 
-  <mat-form-field appearance="outline" class="filter-section">
-    <mat-label>Lieu / Ville</mat-label>
-    <input matInput formControlName="location" placeholder="Entrez une ville">
-  </mat-form-field>
+    <!-- Panel de filtres avancés (Accordéon plutôt que drawer) -->
+    <div class="advanced-filters-panel" [class.open]="isAdvancedFilterOpen">
+      <div class="advanced-filters-content">
+        <div class="advanced-filters-header">
+          <h3>Filtres Avancés</h3>
+          <div class="applied-filters-count" *ngIf="getAppliedFiltersCount() > 0">
+            {{ getAppliedFiltersCount() }} filtres appliqués
+          </div>
+        </div>
 
-  <div *ngIf="availableGenres.length > 0" formArrayName="genres" class="filter-section genres-section">
-    <label class="genres-label">Genres (pour {{ filterForm.get('category')?.value }}):</label>
-    <div class="genres-checkboxes">
-      <mat-checkbox *ngFor="let genre of availableGenres; let i = index"
-                    [formControlName]="i"
-                    (change)="onGenreChange($event, i)">
-        {{ genre }}
-      </mat-checkbox>
+        <div class="advanced-filters-body">
+          <!-- Rangée 1: Date et Lieu -->
+          <div class="filters-grid">
+            <!-- Colonne Date -->
+            <div class="filter-item date-filter">
+              <div class="filter-item-header">
+                <mat-icon>event</mat-icon>
+                <h4>Choisir une période</h4>
+              </div>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Dates de l'événement</mat-label>
+                <div formGroupName="dateRange">
+                  <mat-date-range-input [rangePicker]="picker">
+                    <input matStartDate formControlName="startDate" placeholder="Date de début">
+                    <input matEndDate formControlName="endDate" placeholder="Date de fin">
+                  </mat-date-range-input>
+                </div>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+                @if (filtersForm.get('dateRange.startDate')?.hasError('matStartDateInvalid')) {
+                  <mat-error>Date de début invalide.</mat-error>
+                }
+                @if (filtersForm.get('dateRange.endDate')?.hasError('matEndDateInvalid')) {
+                  <mat-error>Date de fin invalide.</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <!-- Colonne Lieu -->
+            <div class="filter-item location-filter">
+              <div class="filter-item-header">
+                <mat-icon>location_on</mat-icon>
+                <h4>Lieu / Ville</h4>
+              </div>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Rechercher un lieu ou une ville</mat-label>
+                <input matInput formControlName="location" placeholder="Ex: Paris, Zénith...">
+                <mat-icon matSuffix>place</mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Rangée 2: Genres -->
+          <div class="filter-item genres-filter">
+            <div class="filter-item-header">
+              <mat-icon>library_music</mat-icon>
+              <h4>Genres</h4>
+            </div>
+            <div class="genres-grid" formGroupName="genres">
+              @for (genre of availableGenres; track genre.value) {
+                <mat-checkbox [formControlName]="genre.value" class="genre-checkbox">
+                  {{ genre.viewValue }}
+                </mat-checkbox>
+              }
+              @if (availableGenres.length === 0) {
+                <p class="no-genres">Aucun genre disponible pour la sélection.</p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="advanced-filters-actions">
+          <button mat-stroked-button (click)="resetAdvancedFilters()" class="reset-button">
+            <mat-icon>refresh</mat-icon>
+            Réinitialiser
+          </button>
+          <button mat-flat-button color="primary" (click)="applyAdvancedFilters()" class="apply-button">
+            <mat-icon>check</mat-icon>
+            Appliquer les filtres
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
+  </form>
 
-  <div class="advanced-filters-actions">
-    <button mat-stroked-button (click)="resetAdvancedFilters()">Réinitialiser Avancés</button>
-    <button mat-flat-button color="accent" (click)="applyAdvancedFilters()">Appliquer</button>
+  <!-- Chips pour filtres actifs -->
+  <div class="active-filters" *ngIf="hasActiveFilters()">
+    <span class="active-filters-label">Filtres actifs:</span>
+    <div class="active-filters-chips">
+      @for (filter of getActiveFilters(); track filter.name) {
+        <mat-chip (removed)="removeFilter(filter.key)" class="active-filter-chip">
+          {{ filter.name }}: {{ filter.value }}
+          <mat-icon matChipRemove>cancel</mat-icon>
+        </mat-chip>
+      }
+      <button mat-button class="clear-all-button" (click)="clearAllFilters()" *ngIf="getActiveFilters().length > 1">
+        Effacer tout
+      </button>
+    </div>
   </div>
 </div>

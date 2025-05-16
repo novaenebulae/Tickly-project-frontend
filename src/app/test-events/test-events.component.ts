@@ -14,6 +14,7 @@ import {EventFiltersComponent} from '../shared/components/events-filters/event-f
 })
 export class TestEventsComponent implements OnInit {
   event?: Event;
+  events?: Event[]
   private eventService = inject(EventService);
 
   ngOnInit(): void {
@@ -21,8 +22,9 @@ export class TestEventsComponent implements OnInit {
     this.eventService.getEvents().subscribe({
       next: (events) => {
         if (events && events.length > 0) {
-          this.event = events[0]; // Prend le premier événement
-          console.log('Événement chargé:', this.event);
+          this.events = events;
+          // this.event = events[0]; // Prend le premier événement
+          console.log('Événements chargés:', this.event);
         }
       },
       error: (err) => {

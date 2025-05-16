@@ -5,13 +5,15 @@
     </div>
   </div>
   <div class="row d-flex justify-content-center align-content-center">
-    <div class="col-10">
-      @if (event) {
-        <app-event-list-item [event]="event"></app-event-list-item>
-      } @else {
-        <p>Chargement de l'événement...</p>
+    <div class="col-12">
+      @for (event of events; track event.id; let i = $index) {
+        @if (event) {
+          <app-event-list-item [event]="event"></app-event-list-item>
+        } @else {
+          <p>Chargement de l'événement...</p>
+        }
       }
-  </div>
+    </div>
   </div>
 </div>
 

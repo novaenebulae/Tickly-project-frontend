@@ -1,5 +1,5 @@
 @if (event) {
-  <div class="event-list-item" (click)="viewEventDetails($event)" matRipple>
+  <div class="event-list-item" matRipple>
     <!-- Section Image -->
     <div class="event-list-item__image-area">
       <img [src]="event.mainPhotoUrl || 'https://picsum.photos/seed/' + event.id + '/300/200'"
@@ -13,42 +13,46 @@
     </div>
 
     <!-- Section Contenu Principal -->
-    <div class="event-list-item__content-area">
+    <div class="event-list-item__content-area" (click)="viewEventDetails($event)">
       <div class="event-list-item__header">
-        @if (event.category) {
-          <span class="event-list-item__category">{{ event.category }}</span>
-        }
-      </div>
-      <h3 class="event-list-item__title">{{ event.name }}</h3>
-      <div class="event-list-item__meta">
-        <span class="meta-item">
-          <mat-icon>calendar_today</mat-icon>
-          <span>{{ formattedStartDate }}</span>
-        </span>
-        @if (displayLocation) {
+        <div class="event-list-item__header-top">
+          @if (event.category) {
+            <span class="event-list-item__category">{{ event.category }}</span>
+          }
+          <h3 class="event-list-item__title">{{ event.name }}</h3>
+        </div>
+        <div class="event-list-item__meta">
           <span class="meta-item">
-            <mat-icon>location_on</mat-icon>
-            <span>{{ displayLocation }}</span>
+            <mat-icon>calendar_today</mat-icon>
+            <span>{{ formattedStartDate }}</span>
           </span>
-        }
+          @if (displayLocation) {
+            <span class="meta-item">
+              <mat-icon>location_on</mat-icon>
+              <span>{{ displayLocation }}</span>
+            </span>
+          }
+        </div>
       </div>
       @if (event.shortDescription) {
         <p class="event-list-item__description">
-          {{ event.shortDescription | slice:0:130 }}{{ event.shortDescription && event.shortDescription.length > 130 ? '...' : '' }}
+          {{ event.shortDescription | slice:0:80 }}{{ event.shortDescription && event.shortDescription.length > 80 ? '...' : '' }}
         </p>
       }
     </div>
 
     <!-- Section Actions -->
     <div class="event-list-item__action-area">
-      <button mat-flat-button class="event-list-item__cta-button event-list-item__cta-button--white" (click)="onButtonClick($event)">
-        Réserver
-        <mat-icon>event_seat</mat-icon>
-      </button>
-      <button mat-flat-button color="primary" class="event-list-item__cta-button event-list-item__cta-button--blue" (click)="onButtonClick($event)">
-        Découvrir
-        <mat-icon>info</mat-icon>
-      </button>
+      <div class="event-list-item__buttons">
+        <button mat-flat-button class="event-list-item__cta-button event-list-item__cta-button--white" (click)="onButtonClick($event)">
+          <mat-icon>event_seat</mat-icon>
+          <span>Réserver</span>
+        </button>
+        <button mat-flat-button color="primary" class="event-list-item__cta-button event-list-item__cta-button--blue" (click)="onButtonClick($event)">
+          <mat-icon>info</mat-icon>
+          <span>Découvrir</span>
+        </button>
+      </div>
     </div>
   </div>
 } @else {

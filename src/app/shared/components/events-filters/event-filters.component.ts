@@ -1,5 +1,5 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, Input } from '@angular/core';
+import { FormBuilder, FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -7,32 +7,55 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core'; // ou MatLuxonDateModule, MatMomentDateModule
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { Subject, debounceTime, takeUntil } from 'rxjs';
 
-// Interface pour les critères de filtre émis
-export interface EventFilterCriteria {
-  searchTerm?: string | null;
-  category?: string | null; // 'all' ou une catégorie spécifique
-  sortBy?: string | null;
-  dateRange?: { start: Date | null; end: Date | null } | null;
-  location?: string | null;
-  genres?: string[] | null; // Peut être plusieurs genres
+/**
+ * Interface pour les options de tri
+ */
+interface SortOption {
+  value: string;
+  viewValue: string;
 }
 
-// Exemple de catégories (pourrait venir d'un service ou d'un @Input)
-export const EVENT_CATEGORIES = ['Voir tout', 'Concerts', 'Théâtre', 'Festivals', 'Sports', 'Expositions', 'Conférences', 'Autres'];
-export const EVENT_GENRES_EXAMPLE = { // Genres par catégorie (simplifié)
-  'Concerts': ['Rock', 'Pop', 'Jazz', 'Electro', 'Classique'],
-  'Théâtre': ['Comédie', 'Drame', 'Contemporain'],
-  'Festivals': ['Musique', 'Cinéma', 'Art de rue']
-};
+/**
+ * Interface pour les options de genre
+ */
+interface GenreOption {
+  value: string;
+  viewValue: string;
+}
 
+/**
+ * Interface pour l'état des filtres
+ */
+interface FilterState {
+  sortBy: string;
+  searchQuery: string;
+  selectedCategories: string[];
+  dateRange: {
+    startDate: Date | null;
+    endDate: Date | null;
+  };
+  location: string;
+  genres: Record<string, boolean>;
+}
+
+/**
+ * Interface pour les filtres actifs affichés
+ */
+interface ActiveFilter {
+  key: string;
+  name: string;
+  value: string;
+}
 
 @Component({
   selector: 'app-event-filters',
+  templateUrl: './event-filters.component.html',
+  styleUrls: ['./event-filters.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -43,173 +66,365 @@ export const EVENT_GENRES_EXAMPLE = { // Genres par catégorie (simplifié)
     MatChipsModule,
     MatButtonModule,
     MatIconModule,
+    MatCheckboxModule,
     MatDatepickerModule,
-    MatNativeDateModule, // Assurez-vous que le provider est aussi dans app.config.ts si besoin globalement
-    MatCheckboxModule
-  ],
-  templateUrl: './event-filters.component.html',
-  styleUrls: ['./event-filters.component.scss']
+    MatNativeDateModule
+  ]
 })
-export class EventFiltersComponent implements OnInit {
-  private fb = inject(FormBuilder);
+export class EventFiltersComponent implements OnInit, OnDestroy {
+  @Output() filtersChanged = new EventEmitter<FilterState>();
+  @Input() initialFilters: Partial<FilterState> = {};
 
-  @Output() filtersChanged = new EventEmitter<EventFilterCriteria>();
+  filtersForm!: FormGroup;
+  isAdvancedFilterOpen = false;
+  selectedCategories: string[] = [];
 
-  filterForm: FormGroup;
-  categories: string[] = EVENT_CATEGORIES;
-  availableGenres: string[] = []; // Sera mis à jour en fonction de la catégorie
+  private destroy$ = new Subject<void>();
 
-  sortOptions = [
-    { value: 'relevance', viewValue: 'Pertinence' },
-    { value: 'date_asc', viewValue: 'Date (les plus proches)' },
-    { value: 'date_desc', viewValue: 'Date (les plus lointains)' },
-    { value: 'popularity', viewValue: 'Popularité' },
+  // Options pour le tri
+  sortOptions: SortOption[] = [
+    { value: 'date_asc', viewValue: 'Date (plus proche)' },
+    { value: 'date_desc', viewValue: 'Date (plus lointaine)' },
+    { value: 'name_asc', viewValue: 'Nom (A-Z)' },
+    { value: 'name_desc', viewValue: 'Nom (Z-A)' },
     { value: 'price_asc', viewValue: 'Prix (croissant)' },
-    { value: 'price_desc', viewValue: 'Prix (décroissant)' },
+    { value: 'price_desc', viewValue: 'Prix (décroissant)' }
   ];
 
-  // Pour contrôler l'ouverture du panneau des filtres avancés (si non géré par un MatDrawer externe)
-  showAdvancedFiltersPanel = false;
+  // Catégories disponibles
+  categoriesList: string[] = [
+    'Concert', 'Festival', 'Théâtre', 'Danse', 'Exposition',
+    'Cinéma', 'Sport', 'Conférence', 'Atelier'
+  ];
 
-  constructor() {
-    this.filterForm = this.fb.group({
-      searchTerm: [''],
-      category: [this.categories[0]], // 'Voir tout' par défaut
-      sortBy: [this.sortOptions[0].value], // 'Pertinence' par défaut
-      // Filtres avancés
+  // Genres disponibles
+  availableGenres: GenreOption[] = [
+    { value: 'rock', viewValue: 'Rock' },
+    { value: 'pop', viewValue: 'Pop' },
+    { value: 'jazz', viewValue: 'Jazz' },
+    { value: 'classical', viewValue: 'Classique' },
+    { value: 'electronic', viewValue: 'Électronique' },
+    { value: 'rap', viewValue: 'Rap/Hip-Hop' },
+    { value: 'metal', viewValue: 'Metal' },
+    { value: 'reggae', viewValue: 'Reggae' },
+    { value: 'folk', viewValue: 'Folk' },
+    { value: 'blues', viewValue: 'Blues' },
+    { value: 'rnb', viewValue: 'R&B/Soul' },
+    { value: 'country', viewValue: 'Country' }
+  ];
+
+  constructor(private fb: FormBuilder) {}
+
+  /**
+   * Initialise le composant et le formulaire
+   */
+  ngOnInit(): void {
+    this.initForm();
+    this.listenToFormChanges();
+    this.applyInitialFilters();
+  }
+
+  /**
+   * Nettoie les souscriptions lors de la destruction du composant
+   */
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Initialise le formulaire réactif avec tous les contrôles nécessaires
+   */
+  private initForm(): void {
+    // Créer un groupe pour les genres avec tous les genres initialisés à false
+    const genresControls: Record<string, FormControl> = {};
+    this.availableGenres.forEach(genre => {
+      genresControls[genre.value] = this.fb.control(false);
+    });
+
+    // Initialiser le formulaire principal
+    this.filtersForm = this.fb.group({
+      sortBy: ['date_asc'],
+      searchQuery: [''],
+      selectedCategories: [[]],
       dateRange: this.fb.group({
-        start: [null],
-        end: [null]
+        startDate: [null],
+        endDate: [null]
       }),
       location: [''],
-      genres: this.fb.array([]) // Pour les checkboxes de genres
+      genres: this.fb.group(genresControls)
     });
   }
 
-  ngOnInit(): void {
-    // Émettre les filtres lorsque les valeurs des contrôles principaux changent
-    this.filterForm.get('searchTerm')?.valueChanges.pipe(
-      debounceTime(300), // Attendre 300ms après la dernière frappe
-      distinctUntilChanged() // N'émettre que si la valeur a changé
-    ).subscribe(() => this.emitFilters());
-
-    this.filterForm.get('category')?.valueChanges.pipe(
-      distinctUntilChanged()
-    ).subscribe(category => {
-      this.updateAvailableGenres(category);
-      this.emitFilters();
-    });
-
-    this.filterForm.get('sortBy')?.valueChanges.pipe(
-      distinctUntilChanged()
-    ).subscribe(() => this.emitFilters());
-
-    // Initialiser les genres si une catégorie est déjà sélectionnée (ex: par défaut)
-    this.updateAvailableGenres(this.filterForm.get('category')?.value);
+  /**
+   * Écoute les changements de valeur du formulaire et émet les modifications
+   */
+  private listenToFormChanges(): void {
+    this.filtersForm.valueChanges
+      .pipe(
+        debounceTime(300), // Attendre 300ms après le dernier changement
+        takeUntil(this.destroy$)
+      )
+      .subscribe(formValue => {
+        // Émettre les filtres mis à jour
+        this.filtersChanged.emit(formValue);
+      });
   }
 
-  private updateAvailableGenres(category: string | null): void {
-    const genresForCategory = category ? EVENT_GENRES_EXAMPLE[category as keyof typeof EVENT_GENRES_EXAMPLE] : [];
-    this.availableGenres = genresForCategory || [];
+  /**
+   * Applique les filtres initiaux si fournis
+   */
+  private applyInitialFilters(): void {
+    if (this.initialFilters) {
+      // Appliquer les valeurs initiales aux contrôles existants
+      Object.keys(this.initialFilters).forEach(key => {
+        const control = this.filtersForm.get(key);
+        if (control) {
+          control.setValue(this.initialFilters[key as keyof FilterState]);
+        }
+      });
 
-    // Réinitialiser et reconstruire le FormArray pour les genres
-    const genresFormArray = this.fb.array(this.availableGenres.map(() => this.fb.control(false)));
-    this.filterForm.setControl('genres', genresFormArray);
+      // Pour les catégories sélectionnées
+      if (this.initialFilters.selectedCategories) {
+        this.selectedCategories = [...this.initialFilters.selectedCategories];
+      }
+    }
   }
 
-  onGenreChange(event: any, index: number): void {
-    // Pas besoin de faire grand chose ici si on émet sur "Appliquer les filtres"
-    // Le FormArray est déjà mis à jour par la liaison (ngModel ou formControl)
-    // Si on voulait une réaction immédiate, il faudrait appeler emitFilters() ici.
-  }
-
-  // Méthode pour gérer la sélection des chips de catégorie
-  selectCategory(category: string): void {
-    this.filterForm.get('category')?.setValue(category);
-    // valueChanges s'occupera d'appeler updateAvailableGenres et emitFilters
-  }
-
+  /**
+   * Bascule l'état d'ouverture/fermeture du panneau de filtres avancés
+   */
   toggleAdvancedFilters(): void {
-    this.showAdvancedFiltersPanel = !this.showAdvancedFiltersPanel;
-    // Si on utilisait un MatDrawer, on appellerait drawer.toggle()
+    this.isAdvancedFilterOpen = !this.isAdvancedFilterOpen;
   }
 
-  applyAdvancedFilters(): void {
-    this.emitFilters();
-    this.showAdvancedFiltersPanel = false; // Optionnel: fermer le panneau après application
+  /**
+   * Gère la sélection/désélection d'une catégorie
+   */
+  toggleCategory(category: string): void {
+    // Récupérer la valeur actuelle du contrôle
+    const selectedCategoriesControl = this.filtersForm.get('selectedCategories');
+    const currentValues = selectedCategoriesControl?.value || [];
+
+    if (this.isCategorySelected(category)) {
+      // Désélectionner la catégorie
+      const filteredValues = currentValues.filter((cat: string) => cat !== category);
+      selectedCategoriesControl?.setValue(filteredValues);
+      this.selectedCategories = [...filteredValues];
+    } else {
+      // Sélectionner la catégorie sans créer de duplications
+      if (!currentValues.includes(category)) {
+        const newValues = [...currentValues, category];
+        selectedCategoriesControl?.setValue(newValues);
+        this.selectedCategories = [...newValues];
+      }
+    }
   }
 
+  /**
+   * Vérifie si une catégorie est actuellement sélectionnée
+   */
+  isCategorySelected(category: string): boolean {
+    return this.selectedCategories.includes(category);
+  }
+
+  /**
+   * Réinitialise les filtres avancés
+   */
   resetAdvancedFilters(): void {
-    this.filterForm.get('dateRange')?.reset({ start: null, end: null });
-    this.filterForm.get('location')?.reset('');
-    // Réinitialiser les genres cochés
-    const genresFormArray = this.filterForm.get('genres') as any; // FormArray
-    for (let i = 0; i < genresFormArray.length; i++) {
-      genresFormArray.at(i).setValue(false);
-    }
-    this.emitFilters(); // Émettre après réinitialisation des filtres avancés
-  }
-
-  resetAllFilters(): void {
-    this.filterForm.reset({
-      searchTerm: '',
-      category: this.categories[0],
-      sortBy: this.sortOptions[0].value,
-      dateRange: { start: null, end: null },
-      location: '',
-      // genres: Il faut le reconstruire car le reset simple ne marche pas bien avec FormArray de booleans
+    // Réinitialiser les dates
+    const dateRangeGroup = this.filtersForm.get('dateRange') as FormGroup;
+    dateRangeGroup.patchValue({
+      startDate: null,
+      endDate: null
     });
-    this.updateAvailableGenres(this.filterForm.get('category')?.value); // ceci va reconstruire le formArray genres
-    this.emitFilters();
-  }
 
-  private emitFilters(): void {
-    const formValue = this.filterForm.value;
+    // Réinitialiser la localisation
+    this.filtersForm.get('location')?.setValue('');
 
-    // Traiter les genres sélectionnés
-    const selectedGenres = formValue.genres
-      ? formValue.genres
-        .map((checked: boolean, i: number) => checked ? this.availableGenres[i] : null)
-        .filter((value: string | null) => value !== null)
-      : [];
-
-    const criteria: EventFilterCriteria = {
-      searchTerm: formValue.searchTerm || null,
-      category: formValue.category === 'Voir tout' ? null : formValue.category,
-      sortBy: formValue.sortBy || null,
-      dateRange: (formValue.dateRange.start || formValue.dateRange.end) ? formValue.dateRange : null,
-      location: formValue.location || null,
-      genres: selectedGenres.length > 0 ? selectedGenres : null
-    };
-    this.filtersChanged.emit(criteria);
-  }
-
-  // Méthodes pour les options rapides de date (si implémentées)
-  selectDateQuickOption(option: 'today' | 'weekend' | 'next_week' | 'next_month'): void {
-    const today = new Date();
-    let startDate: Date | null = new Date(today); // Initialize with today
-    let endDate: Date | null = new Date(today); // Initialize with today
-
-    switch (option) {
-      case 'today':
-        // startDate et endDate sont déjà initialisés à today
-        break;
-      case 'weekend':
-        const dayOfWeek = today.getDay(); // 0 (Dimanche) - 6 (Samedi)
-        const startOfWeekOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Si dimanche, reculer de 6 jours, sinon aller au Lundi
-        startDate = new Date(today.setDate(today.getDate() + startOfWeekOffset + 5)); // Samedi de cette semaine
-        endDate = new Date(new Date(startDate).setDate(startDate.getDate() + 1)); // Dimanche de cette semaine
-        break;
-      case 'next_week':
-        startDate = new Date(today.setDate(today.getDate() + (7 - today.getDay() + 1) % 7 +1)); // Lundi prochain
-        endDate = new Date(new Date(startDate).setDate(startDate.getDate() + 6)); // Dimanche prochain
-        break;
-      case 'next_month':
-        startDate = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-        endDate = new Date(today.getFullYear(), today.getMonth() + 2, 0); // Dernier jour du mois prochain
-        break;
+    // Réinitialiser les genres à false
+    const genresGroup = this.filtersForm.get('genres') as FormGroup;
+    if (genresGroup) {
+      Object.keys(genresGroup.controls).forEach(genreKey => {
+        genresGroup.get(genreKey)?.setValue(false);
+      });
     }
-    this.filterForm.get('dateRange')?.setValue({ start: startDate, end: endDate });
-    // On pourrait émettre directement les filtres ou attendre "Appliquer"
+
+    // Ne pas réinitialiser les catégories ici car elles sont dans la section principale
+    this.selectedCategories = [];
+    this.filtersForm.get('selectedCategories')?.setValue([]);
+  }
+
+  /**
+   * Applique les filtres avancés et ferme le panneau
+   */
+  applyAdvancedFilters(): void {
+    // Ferme le panneau après application
+    this.toggleAdvancedFilters();
+    // L'émission des filtres se fait automatiquement via l'observable sur valueChanges
+  }
+
+  /**
+   * Retourne le nombre de filtres avancés appliqués
+   */
+  getAppliedFiltersCount(): number {
+    let count = 0;
+
+    // Vérifier si des dates sont sélectionnées
+    const dateRange = this.filtersForm.get('dateRange')?.value;
+    if (dateRange?.startDate || dateRange?.endDate) count++;
+
+    // Vérifier si un lieu est sélectionné
+    if (this.filtersForm.get('location')?.value) count++;
+
+    // Compter les genres sélectionnés
+    const genres = this.filtersForm.get('genres')?.value;
+    if (genres) {
+      const selectedGenresCount = Object.values(genres).filter(value => !!value).length;
+      count += selectedGenresCount > 0 ? 1 : 0;
+    }
+
+    return count;
+  }
+
+  /**
+   * Vérifie s'il y a des filtres actifs à afficher
+   */
+  hasActiveFilters(): boolean {
+    return this.getActiveFilters().length > 0;
+  }
+
+  /**
+   * Retourne la liste des filtres actifs pour affichage
+   */
+  getActiveFilters(): ActiveFilter[] {
+    const activeFilters: ActiveFilter[] = [];
+    const formValues = this.filtersForm.value;
+
+    // Ajouter le filtre de recherche s'il est présent
+    if (formValues.searchQuery) {
+      activeFilters.push({
+        key: 'searchQuery',
+        name: 'Recherche',
+        value: formValues.searchQuery
+      });
+    }
+
+    // Ajouter les catégories sélectionnées
+    if (formValues.selectedCategories?.length > 0) {
+      activeFilters.push({
+        key: 'selectedCategories',
+        name: 'Catégories',
+        value: formValues.selectedCategories
+
+      });
+    }
+
+    // Ajouter la date si définie
+    const dateRange = formValues.dateRange;
+    if (dateRange?.startDate || dateRange?.endDate) {
+      let dateValue = '';
+
+      if (dateRange.startDate && dateRange.endDate) {
+        const formatDate = (date: Date) => new Date(date).toLocaleDateString();
+        dateValue = `${formatDate(dateRange.startDate)} - ${formatDate(dateRange.endDate)}`;
+      } else if (dateRange.startDate) {
+        dateValue = `À partir du ${new Date(dateRange.startDate).toLocaleDateString()}`;
+      } else if (dateRange.endDate) {
+        dateValue = `Jusqu'au ${new Date(dateRange.endDate).toLocaleDateString()}`;
+      }
+
+      activeFilters.push({
+        key: 'dateRange',
+        name: 'Période',
+        value: dateValue
+      });
+    }
+
+    // Ajouter le lieu si défini
+    if (formValues.location) {
+      activeFilters.push({
+        key: 'location',
+        name: 'Lieu',
+        value: formValues.location
+      });
+    }
+
+    // Ajouter les genres sélectionnés
+    if (formValues.genres) {
+      const selectedGenres = Object.entries(formValues.genres)
+        .filter(([_, selected]) => selected)
+        .map(([key]) => this.availableGenres.find(g => g.value === key)?.viewValue || key);
+
+      if (selectedGenres.length > 0) {
+        activeFilters.push({
+          key: 'genres',
+          name: 'Genres',
+          value: selectedGenres.join(', ')
+        });
+      }
+    }
+
+    return activeFilters;
+  }
+
+  /**
+   * Supprime un filtre actif spécifique
+   */
+  removeFilter(key: string): void {
+    if (key === 'searchQuery') {
+      this.filtersForm.get('searchQuery')?.setValue('');
+    } else if (key === 'selectedCategories') {
+      this.filtersForm.get('selectedCategories')?.setValue([]);
+      this.selectedCategories = [];
+    } else if (key === 'dateRange') {
+      const dateRangeGroup = this.filtersForm.get('dateRange') as FormGroup;
+      dateRangeGroup.patchValue({
+        startDate: null,
+        endDate: null
+      });
+    } else if (key === 'location') {
+      this.filtersForm.get('location')?.setValue('');
+    } else if (key === 'genres') {
+      const genresGroup = this.filtersForm.get('genres') as FormGroup;
+      if (genresGroup) {
+        Object.keys(genresGroup.controls).forEach(genreKey => {
+          genresGroup.get(genreKey)?.setValue(false);
+        });
+      }
+    }
+  }
+
+  /**
+   * Efface tous les filtres actifs
+   */
+  clearAllFilters(): void {
+    // Réinitialiser la recherche
+    this.filtersForm.get('searchQuery')?.setValue('');
+
+    // Réinitialiser les catégories
+    this.filtersForm.get('selectedCategories')?.setValue([]);
+    this.selectedCategories = [];
+
+    // Réinitialiser les dates
+    const dateRangeGroup = this.filtersForm.get('dateRange') as FormGroup;
+    dateRangeGroup.patchValue({
+      startDate: null,
+      endDate: null
+    });
+
+    // Réinitialiser la localisation
+    this.filtersForm.get('location')?.setValue('');
+
+    // Réinitialiser les genres
+    const genresGroup = this.filtersForm.get('genres') as FormGroup;
+    if (genresGroup) {
+      Object.keys(genresGroup.controls).forEach(genreKey => {
+        genresGroup.get(genreKey)?.setValue(false);
+      });
+    }
+
+    // Conserver le tri par défaut
+    // this.filtersForm.get('sortBy')?.setValue('date_asc');
   }
 }
