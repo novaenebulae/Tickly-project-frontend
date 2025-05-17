@@ -86,7 +86,7 @@ export class EventCalendarComponent implements OnInit {
   dayHourDuration = 60;
   weekHourDuration = 60;
 
-  locale: string = 'fr';
+  locale: string = 'en';
 
   weekStartsOn: number = DAYS_OF_WEEK.MONDAY;
 

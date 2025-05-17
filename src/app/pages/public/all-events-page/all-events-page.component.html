@@ -1,0 +1,17 @@
+<div class="all-events-page-container">
+  <!-- Contenu principal -->
+  <main class="all-events-content">
+    <!-- Composant d'affichage des événements -->
+    <app-events-display
+      [events]="displayedEvents"
+      [displayMode]="displayMode"
+      [isLoading]="isLoading"
+      [totalItems]="totalItems"
+      [pageSize]="pageSize"
+      [currentPage]="currentPage"
+      (filtersChanged)="onFiltersChanged($event.filters)"
+      (pageChanged)="onPageChanged($event.pageIndex, $event.pageSize)"
+      (displayModeChanged)="onDisplayModeChanged($event)">
+    </app-events-display>
+  </main>
+</div>

@@ -1,14 +1,13 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EventListItemComponent } from '../shared/components/event-list-item/event-list-item.component';
 import { EventService } from '../core/services/event.service';
 import { Event } from '../core/models/event.model';
-import {EventFiltersComponent} from '../shared/components/events-filters/event-filters.component';
+import {AllEventsPageComponent} from '../pages/public/all-events-page/all-events-page.component';
 
 @Component({
   selector: 'app-test-events',
   standalone: true,
-  imports: [CommonModule, EventListItemComponent, EventFiltersComponent],
+  imports: [CommonModule, AllEventsPageComponent],
   templateUrl: './test-events.component.html',
   styleUrls: ['./test-events.component.scss']
 })
@@ -19,7 +18,7 @@ export class TestEventsComponent implements OnInit {
 
   ngOnInit(): void {
     // Récupérer le premier événement pour le test
-    this.eventService.getEvents().subscribe({
+    this.eventService.getAllEvents().subscribe({
       next: (events) => {
         if (events && events.length > 0) {
           this.events = events;

@@ -1,0 +1,33 @@
+// Variables
+$primary-color: #0A2A4E;
+$accent-color: #FF8C42;
+$secondary-color: #3A7CA5;
+$light-text-color: #F8F9FA;
+$dark-text-color: #212529;
+$section-bg-light: #FFFFFF;
+$section-bg-darker: #f0f4f8;
+
+// Layout principal
+.all-events-page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  background-color: $section-bg-darker;
+  overflow-x: hidden;
+}
+
+// Contenu principal
+.all-events-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .all-events-page-container {
+    padding-bottom: 1rem;
+  }
+}

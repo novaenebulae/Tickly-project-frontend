@@ -327,7 +327,7 @@ export class EventService {
   /**
    * Retourne la liste complète des événements mockés.
    */
-  getEvents(): Observable<Event[]> {
+  getAllEvents(): Observable<Event[]> {
     return of(this.mockEvents);
   }
 

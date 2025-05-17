@@ -1,0 +1,85 @@
+<div class="events-display">
+  <!-- En-tête de la page -->
+  <div class="header-section">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="main-title">Explorez Nos Événements</h1>
+        <p class="subtitle">Découvrez une multitude d'expériences : concerts, théâtre, festivals, et bien plus encore.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Composant de filtres -->
+  <app-event-filters (filtersChanged)="onFiltersChanged($event)"></app-event-filters>
+
+  <!-- Affichage du nombre de résultats et sélecteur de mode d'affichage -->
+  <div class="display-options-bar">
+    <div class="results-count">
+      <span>{{ totalItems }} résultats trouvés</span>
+    </div>
+    <div class="view-mode-selector">
+      <button
+        mat-icon-button
+        [class.active-mode]="displayMode === 'grid'"
+        (click)="onDisplayModeChange('grid')"
+        matTooltip="Vue en grille">
+        <mat-icon>grid_view</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        [class.active-mode]="displayMode === 'list'"
+        (click)="onDisplayModeChange('list')"
+        matTooltip="Vue en liste">
+        <mat-icon>view_list</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Affichage des événements -->
+  <div class="events-container" [@staggerInEvents]="events.length">
+    <!-- Mode de chargement -->
+    <div *ngIf="isLoading" class="loading-container" [class.grid-layout]="displayMode === 'grid'" [class.list-layout]="displayMode === 'list'">
+      <div *ngFor="let item of skeletonArray | slice:0:pageSize" class="skeleton-card" [class.list-skeleton]="displayMode === 'list'">
+        <div class="skeleton-image"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-title"></div>
+          <div class="skeleton-details"></div>
+          <div class="skeleton-button"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aucun résultat -->
+    <div *ngIf="!isLoading && events.length === 0" class="no-results">
+      <mat-icon class="no-results-icon">search_off</mat-icon>
+      <h2>Aucun événement trouvé</h2>
+      <p>Essayez de modifier vos filtres ou d'effectuer une nouvelle recherche.</p>
+    </div>
+
+    <!-- Affichage des événements en grille -->
+    <div *ngIf="!isLoading && events.length > 0 && displayMode === 'grid'" class="events-grid">
+      <div *ngFor="let event of events" class="event-card-container">
+        <app-event-card [event]="event"></app-event-card>
+      </div>
+    </div>
+
+    <!-- Affichage des événements en liste -->
+    <div *ngIf="!isLoading && events.length > 0 && displayMode === 'list'" class="events-list">
+      <div *ngFor="let event of events" class="event-list-item-container">
+        <app-event-list-item [event]="event"></app-event-list-item>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-container" *ngIf="!isLoading && events.length > 0">
+    <mat-paginator
+      [length]="totalItems"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      [pageIndex]="currentPage - 1"
+      (page)="onPageChange($event)"
+      aria-label="Sélectionner une page">
+    </mat-paginator>
+  </div>
+</div>
