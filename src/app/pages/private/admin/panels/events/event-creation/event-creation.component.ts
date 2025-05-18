@@ -31,7 +31,7 @@ import {
   StepperOrientation,
 } from '@angular/material/stepper';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { LayoutService } from '../../../../../../core/services/layout.service';
+import { LayoutService } from '../../../../../../core/services/domain/layout.service';
 import { MatCardMdImage, MatCardModule } from '@angular/material/card';
 
 interface Location {

@@ -60,10 +60,16 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 16px;
+  width: 100%;
 
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: stretch;
+
+    .advanced-filters-toggle {
+      width: 100%;
+      margin-top: 8px;
+    }
   }
 }
 
@@ -115,7 +121,6 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     ::ng-deep .mdc-line-ripple {
       display: none;
     }
-
   }
 }
 
@@ -139,66 +144,7 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     &.active {
       background-color: darken($primary-color, 5%);
     }
-/* Styles pour le composant de filtres d'événements */
 
-/* Variables */
-$primary-color: #3f51b5;
-$border-radius-md: 8px;
-$transition-fast: 0.2s ease-in-out;
-$shadow-soft: 0 2px 4px rgba(0, 0, 0, 0.1);
-$shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15);
-
-/* Styles pour le bouton des filtres avancés */
-.advanced-filters-toggle {
-  height: 100%;
-  display: flex;
-  align-items: stretch;
-
-  .advanced-filters-button {
-    border-radius: $border-radius-md;
-    padding: 0 16px;
-    height: 100%;
-    min-height: 40px;
-    transition: $transition-fast;
-    box-shadow: $shadow-soft;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-
-    &.active {
-      background-color: darken($primary-color, 5%);
-    }
-
-    mat-icon {
-      transition: transform $transition-fast;
-    }
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: $shadow-medium;
-    }
-  }
-}
-
-/* Styles pour la rangée de filtres */
-.filters-row {
-  display: flex;
-  align-items: stretch;
-  gap: 16px;
-  width: 100%;
-}
-
-/* Adaptations responsive */
-@media (max-width: 768px) {
-  .filters-row {
-    flex-direction: column;
-
-    .advanced-filters-toggle {
-      width: 100%;
-      margin-top: 8px;
-    }
-  }
-}
     mat-icon {
       transition: transform $transition-fast;
     }
@@ -418,7 +364,6 @@ $shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15);
       margin: 2px;
       width: fit-content;
 
-
       ::ng-deep .mdc-form-field {
         color: $dark-text-color;
       }
@@ -430,7 +375,7 @@ $shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
 
     .no-genres {
-      color: $light-text-color;
+      color: $dark-text-color;
       font-style: italic;
       grid-column: 1 / -1;
       text-align: center;

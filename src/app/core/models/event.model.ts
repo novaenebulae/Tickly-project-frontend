@@ -1,5 +1,3 @@
-// src/app/core/models/event.model.ts
-
 /**
  * Catégories possibles pour un événement.
  */
