@@ -9,14 +9,15 @@ import { Subject, takeUntil } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 
 interface EventFilters {
-  category?: string;
-  searchTerm?: string;
+  selectedCategories?: string[];
+  searchQuery?: string;
   dateRange?: {
-    start?: Date;
-    end?: Date;
+    startDate?: Date;
+    endDate?: Date;
   };
   location?: string;
-  sort?: 'dateAsc' | 'dateDesc' | 'relevance';
+  sortBy?: string;
+  genres?: Record<string, boolean>;
 }
 
 @Component({
@@ -96,19 +97,21 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
    * Applique les filtres et le tri aux événements
    */
   applyFiltersAndSort(): void {
+    console.log('Application des filtres:', this.currentFilters);
+
     // Copie la liste complète pour appliquer les filtres
     let filteredEvents = [...this.fullEventsList];
 
     // Appliquer le filtre par catégorie
-    if (this.currentFilters.category && this.currentFilters.category !== 'Voir tout') {
+    if (this.currentFilters.selectedCategories && this.currentFilters.selectedCategories.length > 0) {
       filteredEvents = filteredEvents.filter(event =>
-        event.category === this.currentFilters.category
+        this.currentFilters.selectedCategories.includes(event.category)
       );
     }
 
     // Appliquer le filtre par recherche textuelle
-    if (this.currentFilters.searchTerm && this.currentFilters.searchTerm.trim() !== '') {
-      const searchTerm = this.currentFilters.searchTerm.toLowerCase().trim();
+    if (this.currentFilters.searchQuery && this.currentFilters.searchQuery.trim() !== '') {
+      const searchTerm = this.currentFilters.searchQuery.toLowerCase().trim();
       filteredEvents = filteredEvents.filter(event =>
         event.name.toLowerCase().includes(searchTerm) ||
         (event.shortDescription && event.shortDescription.toLowerCase().includes(searchTerm)) ||
@@ -118,24 +121,25 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
       );
     }
 
-    // Appliquer les filtres avancés si présents
+    // Appliquer les filtres de date
     if (this.currentFilters.dateRange) {
-      if (this.currentFilters.dateRange.start) {
-        const startDate = new Date(this.currentFilters.dateRange.start);
+      if (this.currentFilters.dateRange.startDate) {
+        const startDate = new Date(this.currentFilters.dateRange.startDate);
         filteredEvents = filteredEvents.filter(event =>
           new Date(event.startDate) >= startDate
         );
       }
 
-      if (this.currentFilters.dateRange.end) {
-        const endDate = new Date(this.currentFilters.dateRange.end);
+      if (this.currentFilters.dateRange.endDate) {
+        const endDate = new Date(this.currentFilters.dateRange.endDate);
         filteredEvents = filteredEvents.filter(event =>
           new Date(event.startDate) <= endDate
         );
       }
     }
 
-    if (this.currentFilters.location) {
+    // Appliquer le filtre de lieu
+    if (this.currentFilters.location && this.currentFilters.location.trim() !== '') {
       const location = this.currentFilters.location.toLowerCase().trim();
       filteredEvents = filteredEvents.filter(event =>
         event.locations && event.locations.some(loc =>
@@ -144,20 +148,55 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
       );
     }
 
+    // Appliquer les filtres de genre si présents
+    if (this.currentFilters.genres) {
+      const selectedGenres = Object.entries(this.currentFilters.genres)
+        .filter(([_, selected]) => selected)
+        .map(([key]) => key);
+
+      if (selectedGenres.length > 0) {
+        filteredEvents = filteredEvents.filter(event =>
+          event.genre && event.genre.some(g =>
+            selectedGenres.includes(g.toLowerCase())
+          )
+        );
+      }
+    }
+
     // Appliquer le tri
-    if (this.currentFilters.sort) {
-      switch (this.currentFilters.sort) {
-        case 'dateAsc':
+    if (this.currentFilters.sortBy) {
+      switch (this.currentFilters.sortBy) {
+        case 'date_asc':
           filteredEvents.sort((a, b) =>
             new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
           );
           break;
-        case 'dateDesc':
+        case 'date_desc':
           filteredEvents.sort((a, b) =>
             new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
           );
           break;
-        // Pour 'relevance', on garde l'ordre par défaut
+        case 'name_asc':
+          filteredEvents.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case 'name_desc':
+          filteredEvents.sort((a, b) => b.name.localeCompare(a.name));
+          break;
+        case 'price_asc':
+          filteredEvents.sort((a, b) => {
+            const priceA = a.locations[0]?.ticketPrice || 0;
+            const priceB = b.locations[0]?.ticketPrice || 0;
+            return priceA - priceB;
+          });
+          break;
+        case 'price_desc':
+          filteredEvents.sort((a, b) => {
+            const priceA = a.locations[0]?.ticketPrice || 0;
+            const priceB = b.locations[0]?.ticketPrice || 0;
+            return priceB - priceA;
+          });
+          break;
+        // Pour les autres options, on garde l'ordre par défaut
       }
     }
 
@@ -183,6 +222,7 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
    * Gère le changement des filtres
    */
   onFiltersChanged(filters: EventFilters): void {
+    console.log('Filtres reçus:', filters);
     this.currentFilters = filters;
     this.currentPage = 1; // Réinitialiser à la première page
     this.applyFiltersAndSort();

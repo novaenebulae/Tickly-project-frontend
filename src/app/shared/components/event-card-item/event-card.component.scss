@@ -179,12 +179,14 @@ $icon-color: #424242; // Un gris foncé pour une bonne visibilité sur fond clai
   }
 
   &__price {
-    font-size: 1rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: $primary-color;
+    text-align: right;
 
     &--free {
       color: green;
+      font-size: 1rem;
     }
   }
 }

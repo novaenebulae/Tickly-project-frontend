@@ -14,7 +14,7 @@ import { EventFiltersComponent } from '../../components/events-filters/event-fil
 @Component({
   selector: 'app-events-display',
   templateUrl: './events-display.component.html',
-  styleUrls: ['./events-display.component.scss'],
+  styleUrl: './events-display.component.scss',
   standalone: true,
   imports: [
     CommonModule,
@@ -74,6 +74,7 @@ export class EventsDisplayComponent implements OnInit {
   }
 
   onFiltersChanged(filters: any): void {
+    console.log('Filtres reçus dans events-display:', filters);
     this.filtersChanged.emit(filters);
   }
 

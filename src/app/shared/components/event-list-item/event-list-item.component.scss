@@ -1,57 +1,80 @@
-// Couleurs (en hexadécimal, comme convenu)
-$primary-color: #0A2A4E;
-$accent-color: #FF8C42;
-$secondary-color: #3A7CA5; // Utilisé pour les icônes et textes secondaires
+// Variables de la palette
+$primary-color: #0A2A4E; // Bleu marine foncé
+$accent-color: #FF8C42; // Orange corail vif
+$secondary-color: #3A7CA5; // Bleu moyen
 $light-text-color: #F8F9FA;
 $dark-text-color: #212529;
 $section-bg-light: #FFFFFF;
-$section-bg-darker: #f0f4f8; // Pour le placeholder de l'image
-$text-muted-color: #6c757d;
-$border-color: #e9edf2; // Bordure plus douce
-$card-shadow-color: rgba($primary-color, 0.08);
-$card-hover-shadow-color: rgba($accent-color, 0.15);
+$section-bg-darker: #f0f4f8;
 
+// Mixins pour faciliter la réutilisation
+@mixin card-shadow($intensity: 1) {
+  box-shadow: 0 #{4px * $intensity} #{8px * $intensity} rgba(0, 0, 0, 0.05 * $intensity);
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin transition-ease {
+  transition: all 0.25s ease;
+}
+
+// Styles de base pour l'élément de liste d'événements
 .event-list-item {
   display: flex;
+  position: relative;
   background-color: $section-bg-light;
-  border-radius: 8px; // Bords légèrement moins arrondis pour un look plus compact
-  margin-bottom: 12px; // Espace entre les items réduit
-  box-shadow: 0 2px 8px $card-shadow-color;
-  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
-  overflow: hidden; // Important pour le border-radius sur l'image
-  border: 1px solid $border-color;
-  height: 120px; // Hauteur fixe plus compacte
+  border-radius: 12px;
+  overflow: hidden;
+  @include card-shadow(1);
+  @include transition-ease;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  height: 220px; // Hauteur fixe pour toutes les cartes
 
   &:hover {
-    transform: translateY(-2px); // Effet de "lift" plus subtil
-    box-shadow: 0 4px 12px $card-hover-shadow-color;
-
-    .event-list-item__image {
-      transform: scale(1.05); // Léger zoom sur l'image au survol de l'item
-    }
+    @include card-shadow(1.5);
+    transform: translateY(-2px);
   }
 
+  // Mode placeholder (chargement)
   &--placeholder {
-    align-items: center;
-    justify-content: center;
-    padding: 15px;
-    color: $text-muted-color;
-    border-style: dashed;
-    border-color: $border-color;
+    padding: 2rem;
+    text-align: center;
+    color: rgba($dark-text-color, 0.6);
+    font-style: italic;
+    height: 220px; // Même hauteur que les cartes normales
+    @include flex-center;
+    flex-direction: column;
+    background: linear-gradient(to right, $section-bg-darker 8%, $section-bg-light 18%, $section-bg-darker 33%);
+    background-size: 800px 104px;
+    animation: shimmer 1.5s infinite linear;
   }
 
-  // --- Section Image ---
+  // Zone de l'image
   &__image-area {
-    flex: 0 0 160px; // Largeur d'image réduite
     position: relative;
-    background-color: $section-bg-darker;
-    overflow: hidden; // Pour que l'image ne dépasse pas si elle zoome
+    flex: 0 0 300px; // Largeur fixe pour toutes les images
+    width: 300px;
+    height: 220px; // Hauteur fixe égale à celle de la carte
+    overflow: hidden;
+
+    @media (max-width: 992px) {
+      flex: 0 0 250px;
+      width: 250px;
+    }
 
     @media (max-width: 768px) {
-      flex-basis: 120px; // Encore plus petit sur mobile
+      flex: 0 0 200px;
+      width: 200px;
     }
+
     @media (max-width: 576px) {
-      flex-basis: 100px; // Minimum sur très petits écrans
+      flex: 0 0 150px;
+      width: 150px;
     }
   }
 
@@ -59,194 +82,267 @@ $card-hover-shadow-color: rgba($accent-color, 0.15);
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
-    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); // Transition douce pour le zoom
+    @include transition-ease;
+
+    .event-list-item:hover & {
+      transform: scale(1.05);
+    }
   }
 
+  // Banner "À la une"
   &__featured-banner {
     position: absolute;
-    top: 0;
+    top: 12px;
     left: 0;
-    background-color: rgba($accent-color, 0.9);
+    background-color: $accent-color;
     color: $light-text-color;
-    padding: 4px 8px; // Padding réduit
-    font-size: 0.7rem; // Taille de police réduite
+    padding: 0.25rem 0.75rem 0.25rem 0.5rem;
+    border-radius: 0 20px 20px 0;
+    font-size: 0.8rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom-right-radius: 8px;
     display: flex;
     align-items: center;
-    gap: 4px;
-    z-index: 1; // Au-dessus de l'image
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+
     mat-icon {
-      font-size: 0.9rem;
-      height: 0.9rem;
-      width: 0.9rem;
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+      margin-right: 0.25rem;
     }
   }
 
-  // --- Section Contenu ---
+  // Zone de contenu principal
   &__content-area {
-    flex: 1 1 auto; // Prend l'espace restant
-    padding: 12px 15px; // Padding réduit
+    flex: 1;
+    padding: 1.25rem;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; // Distribue le contenu verticalement
     cursor: pointer;
+    overflow: hidden; // Empêche le débordement du contenu
 
-    @media (max-width: 768px) {
-      padding: 10px;
+    @media (max-width: 576px) {
+      padding: 0.75rem;
     }
   }
 
+  // En-tête
   &__header {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+    margin-bottom: 0.75rem;
   }
 
   &__header-top {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    margin-bottom: 0.5rem;
   }
 
   &__category {
-    display: inline-block; // Pour qu'il ne prenne pas toute la largeur
-    background-color: lighten($secondary-color, 35%); // Couleur pastel du bleu secondaire
-    color: $secondary-color; // Texte en bleu secondaire
-    padding: 2px 8px; // Padding réduit
-    border-radius: 12px; // Forme de "pill"
-    font-size: 0.65rem; // Taille de police réduite
-    font-weight: 600;
-    margin-bottom: 2px; // Espace avant le titre réduit
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
     text-transform: uppercase;
-    align-self: flex-start; // Aligne à gauche
+    letter-spacing: 0.5px;
+    color: $secondary-color;
+    margin-bottom: 0.25rem;
+    background-color: rgba($secondary-color, 0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    align-self: flex-start;
   }
 
   &__title {
-    font-size: 1.05rem; // Taille de titre réduite
+    font-size: 1.4rem;
     font-weight: 700;
     color: $primary-color;
-    margin: 0;
+    margin: 0 0 0.5rem;
     line-height: 1.2;
-    // Limiter à 1 ligne avec ellipsis
+    // Limiter à 2 lignes avec ellipsis
     display: -webkit-box;
-    -webkit-line-clamp: 1;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
 
-    @media (max-width: 768px) {
-      font-size: 0.95rem;
+    @media (max-width: 576px) {
+      font-size: 1.1rem;
+      -webkit-line-clamp: 2; // Réduire à 1 ligne sur petit écran
     }
   }
 
+  // Métadonnées de l'événement
   &__meta {
     display: flex;
-    flex-direction: row; // Meta items côte à côte pour gagner de la place
-    flex-wrap: wrap; // Permet le retour à la ligne si besoin
-    gap: 12px; // Espace entre les items
-    font-size: 0.8rem; // Taille de texte réduite
-    color: $text-muted-color;
-    margin-top: 4px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    color: rgba($dark-text-color, 0.7);
 
     .meta-item {
       display: flex;
       align-items: center;
+
       mat-icon {
-        font-size: 0.9rem;
-        height: 0.9rem;
-        width: 0.9rem;
-        margin-right: 4px;
-        color: $secondary-color; // Couleur des icônes meta
+        font-size: 16px;
+        height: 16px;
+        width: 16px;
+        margin-right: 0.25rem;
+        color: $secondary-color;
       }
     }
   }
 
-  &__description {
-    font-size: 0.8rem; // Taille de texte réduite
-    color: $dark-text-color;
-    line-height: 1.3; // Interligne réduit
-    opacity: 0.9;
-    margin: 4px 0 0; // Marge réduite
-    // Limiter à 1 ligne
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+  // Affichage des prix
+  &__price {
+    margin-left: auto;
 
-  // --- Section Actions ---
-  &__action-area {
-    flex: 0 0 auto; // Ne grandit pas, ne rétrécit pas, base sur son contenu
-    align-items: center; // Centre les boutons verticalement
-    justify-content: center; // Centre les boutons horizontalement
-    padding: 0 30px; // Padding réduit, surtout à gauche pour être proche du contenu
-    border-left: 1px solid $border-color; // Ligne de séparation subtile
-
-    @media (max-width: 992px) {
-      padding: 0 10px 0 0; // Encore moins de padding sur petits écrans
+    .free-event {
+      background-color: #10b981; // Vert pour les événements gratuits
+      color: white;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
+    .price {
+      background-color: $accent-color;
+      color: white;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .price-na {
+      color: rgba($dark-text-color, 0.5);
+      font-size: 0.8rem;
+      font-style: italic;
+    }
+  }
+
+  // Description de l'événement
+  &__description {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: rgba($dark-text-color, 0.75);
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+    // Limiter à 2 lignes avec ellipsis
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
     @media (max-width: 576px) {
-      display: none; // Option: cacher les boutons sur très petits écrans
+      display: none; // Masquer sur les très petits écrans
+    }
+  }
+
+  // Zone des actions
+  &__action-area {
+    flex: 0 0 auto;
+    width: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: $section-bg-darker;
+    padding: 1rem;
+
+    @media (max-width: 992px) {
+      width: 140px;
+    }
+
+    @media (max-width: 768px) {
+      display: none; // Masquer sur mobile
     }
   }
 
   &__buttons {
-    margin: 0;
-    height: 100%;
     display: flex;
-    flex-direction: row;
-    gap: 15px;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
   }
 
   &__cta-button {
-    border-radius: 16px; // Bouton légèrement moins arrondi
-    font-weight: 600;
-    padding: 6px 12px; // Padding réduit
-    box-shadow: 0 1px 3px rgba($primary-color, 0.2); // Ombre plus subtile
-    transition: background-color 0.2s ease, transform 0.2s ease;
-    font-size: 0.8rem; // Taille de texte réduite
-    white-space: nowrap;
-    min-width: 105px; // Largeur minimum pour les boutons
+    width: 100%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.25px;
+    @include transition-ease;
 
     mat-icon {
-      margin-right: 4px; // Espace entre l'icône et le texte
-      font-size: 16px;
-      height: 16px;
-      width: 16px;
+      margin-right: 0.5rem;
     }
 
-    &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 2px 5px rgba($primary-color, 0.3);
-    }
-
-    // Bouton bleu (Découvrir)
-    &--blue {
-      background-color: $primary-color;
-      color: $light-text-color;
-
-      &:hover {
-        background-color: darken($primary-color, 5%);
-      }
-    }
-
-    // Bouton blanc (Réserver)
     &--white {
-      background-color: white;
-      color: $primary-color;
-      border: 1px solid $primary-color;
+      background-color: white !important;
+      color: $primary-color !important;
+      border: 1px solid rgba($primary-color, 0.2) !important;
 
       &:hover {
-        background-color: rgba($primary-color, 0.05);
+        background-color: rgba($primary-color, 0.05) !important;
+        transform: translateY(-2px);
       }
+    }
+
+    &--blue {
+      background-color: $primary-color !important;
+      color: white !important;
+
+      &:hover {
+        background-color: darken($primary-color, 5%) !important;
+        transform: translateY(-2px);
+      }
+    }
+  }
+}
+
+// Animation de shimmer pour l'effet de chargement
+@keyframes shimmer {
+  0% { background-position: -468px 0; }
+  100% { background-position: 468px 0; }
+}
+
+// Ajustement pour la vue en liste dans le conteneur parent
+:host {
+  display: block;
+  width: 100%;
+}
+
+// Media queries supplémentaires pour la responsivité
+@media (max-width: 576px) {
+  .event-list-item {
+    &__content-area {
+      min-height: unset;
+    }
+  }
+}
+
+// Adaptations pour les appareils très petits
+@media (max-width: 360px) {
+  .event-list-item {
+    height: 180px; // Réduire la hauteur sur très petits écrans
+
+    &__image-area {
+      flex: 0 0 120px;
+      width: 120px;
+      height: 180px;
+    }
+
+    &__meta {
+      gap: 0.5rem;
+      font-size: 0.75rem;
     }
   }
 }

@@ -32,11 +32,24 @@
               <span>{{ displayLocation }}</span>
             </span>
           }
+
+          <!-- Affichage du prix -->
+          <div class="event-list-item__price">
+            @if (event.isFreeEvent) {
+              <span class="free-event">GRATUIT</span>
+            } @else if (getMinTicketPrice() > 0) {
+              <span class="price">{{ getMinTicketPrice() | currency:'EUR':'symbol':'1.2-2':'fr' }}</span>
+            } @else {
+              <span class="price-na">Prix non disponible</span>
+            }
+          </div>
         </div>
       </div>
+
+      <!-- Description courte de l'événement -->
       @if (event.shortDescription) {
         <p class="event-list-item__description">
-          {{ event.shortDescription | slice:0:80 }}{{ event.shortDescription && event.shortDescription.length > 80 ? '...' : '' }}
+          {{ event.shortDescription | slice:0:150 }}{{ event.shortDescription.length > 150 ? '...' : '' }}
         </p>
       }
     </div>

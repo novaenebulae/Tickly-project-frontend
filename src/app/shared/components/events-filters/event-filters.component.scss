@@ -110,6 +110,12 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     ::ng-deep .mat-mdc-form-field-infix {
       width: auto;
     }
+
+    // Suppression de la ligne de soulignement
+    ::ng-deep .mdc-line-ripple {
+      display: none;
+    }
+
   }
 }
 

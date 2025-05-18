@@ -66,6 +66,28 @@ export class EventListItemComponent implements OnInit {
     return ''; // Retourne une chaîne vide si pas de lieu pertinent pour ne pas afficher l'icône
   }
 
+  /**
+   * Récupère le prix minimum des billets pour l'événement
+   * @returns Le prix minimum des billets actifs ou 0 si aucun billet n'est disponible
+   */
+  getMinTicketPrice(): number {
+    if (!this.event || !this.event.locations || this.event.locations.length === 0) {
+      return 0;
+    }
+
+    // Filtrer les emplacements actifs avec des prix de billets valides
+    const activeLocationsWithPrices = this.event.locations
+      .filter(location => location.active && location.ticketPrice !== null && location.ticketPrice !== undefined);
+
+    // S'il n'y a pas d'emplacements actifs avec des prix, retourner 0
+    if (activeLocationsWithPrices.length === 0) {
+      return 0;
+    }
+
+    // Trouver le prix minimum parmi les emplacements actifs
+    return Math.min(...activeLocationsWithPrices.map(location => location.ticketPrice as number));
+  }
+
   // On arrête la propagation du clic si l'utilisateur clique spécifiquement sur le bouton,
   // car l'item entier est déjà cliquable.
   onButtonClick(event: MouseEvent): void {

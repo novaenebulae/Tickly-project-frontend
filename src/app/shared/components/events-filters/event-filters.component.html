@@ -85,10 +85,10 @@
                 </div>
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-date-range-picker #picker></mat-date-range-picker>
-                @if (filtersForm.get('dateRange.startDate')?.hasError('matStartDateInvalid')) {
+                @if (filtersForm.get('dateRange')?.get('startDate')?.hasError('matStartDateInvalid')) {
                   <mat-error>Date de début invalide.</mat-error>
                 }
-                @if (filtersForm.get('dateRange.endDate')?.hasError('matEndDateInvalid')) {
+                @if (filtersForm.get('dateRange')?.get('endDate')?.hasError('matEndDateInvalid')) {
                   <mat-error>Date de fin invalide.</mat-error>
                 }
               </mat-form-field>

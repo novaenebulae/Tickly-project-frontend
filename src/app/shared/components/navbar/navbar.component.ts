@@ -8,7 +8,8 @@ import {
   EditProfileDialogComponent,
 } from '../../ui/edit-profile-dialog/edit-profile-dialog.component';
 import {ManageFriendsDialogComponent} from '../../ui/manage-friends-dialog/manage-friends-dialog.component';
-import {AuthService} from '../../../core/services/auth.service'; // Pour les boutons Material
+import {AuthService} from '../../../core/services/auth.service';
+import {Router, RouterLink, RouterLinkActive} from '@angular/router'; // Pour les boutons Material
 
 @Component({
   selector: 'app-navbar',
@@ -17,7 +18,10 @@ import {AuthService} from '../../../core/services/auth.service'; // Pour les bou
     CommonModule,
     MatIconModule,
     MatMenuModule,
-    MatButtonModule // Décommentez si vous utilisez MatButton
+    MatButtonModule,
+    RouterLink,
+    RouterLinkActive,
+    // Décommentez si vous utilisez MatButton
   ],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
@@ -30,6 +34,7 @@ export class NavbarComponent implements OnInit {
   userAvatarUrl: string = 'images/example_structure_logo.jpg'; // Exemple
 
   auth = inject(AuthService);
+  router = inject(Router)
 
   // readonly menuTrigger = viewChild.required(MatMenuTrigger);
 

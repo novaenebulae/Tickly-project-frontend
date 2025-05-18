@@ -2,7 +2,7 @@ import {LandingPageComponent} from './landing-page/landing-page.component';
 import {PublicLayoutComponent} from './public-layout/public-layout.component';
 import {Routes} from '@angular/router';
 import {RegisterPageComponent} from '../auth/register/register-page.component';
-import {TestEventsComponent} from '../../test-events/test-events.component';
+import {AllEventsPageComponent} from './all-events-page/all-events-page.component';
 
 export const publicRoutes: Routes = [
   {
@@ -20,7 +20,7 @@ export const publicRoutes: Routes = [
       },
       {
         path: 'events',
-        component: TestEventsComponent
+        component: AllEventsPageComponent
       },
       {
         path: '',
