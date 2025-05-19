@@ -86,5 +86,3 @@ export const APP_CONFIG = {
   }
 };
 
-// Types pour la configuration
-export type AppConfig = typeof APP_CONFIG;

@@ -5,7 +5,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { APP_CONFIG } from '../../config/app-config';
-import { environment } from '../../config/environment';
+import { environment} from '../../../../environments/environment';
 
 /**
  * Service de configuration et d'utilitaires pour les appels API
