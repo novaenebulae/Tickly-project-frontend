@@ -194,11 +194,19 @@ export class FriendshipMockService {
     }
 
     const lowercaseQuery = query.toLowerCase();
-    return allUsers.filter(user =>
-      user.firstName.toLowerCase().includes(lowercaseQuery) ||
-      user.lastName.toLowerCase().includes(lowercaseQuery) ||
-      user.email.toLowerCase().includes(lowercaseQuery)
-    );
+    
+    // Vérifier si c'est une recherche par email exact (contient @ et .)
+    if (query.includes('@') && query.includes('.')) {
+      // Recherche exacte par email
+      return allUsers.filter(user => user.email.toLowerCase() === lowercaseQuery);
+    } else {
+      // Recherche partielle sur tous les champs
+      return allUsers.filter(user =>
+        user.firstName.toLowerCase().includes(lowercaseQuery) ||
+        user.lastName.toLowerCase().includes(lowercaseQuery) ||
+        user.email.toLowerCase().includes(lowercaseQuery)
+      );
+    }
   }
 
   /**

@@ -7,11 +7,11 @@ import { catchError, tap } from 'rxjs/operators';
 
 import { ApiConfigService } from './api-config.service';
 import { APP_CONFIG } from '../../config/app-config';
-import { AuthResponseDto} from '../../models';
+import { AuthResponseDto} from '../../models/auth/auth.model';
 // Import des mocks si nécessaire
 import { mockUsers} from '../../mocks/auth/users.mock';
 
-import { LoginCredentials} from '../../models';
+import { LoginCredentials } from '../../models/auth/auth.model';
 
 /**
  * Service API pour l'authentification

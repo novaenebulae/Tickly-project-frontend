@@ -1,11 +1,11 @@
-import { AuthService } from './../services/auth.service';
+import { AuthService} from '../services/domain/auth.service';
 import {
   HttpInterceptorFn,
   HttpRequest,
   HttpHandlerFn,
   HttpEvent,
 } from '@angular/common/http';
-import { inject } from '@angular/core'; 
+import { inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 export const jwtInterceptor: HttpInterceptorFn = (
@@ -13,18 +13,18 @@ export const jwtInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
 
-  const authService = inject(AuthService); 
+  const authService = inject(AuthService);
   const token = authService.getToken();
 
   // Cloner la requête et ajouter l'en-tête SEULEMENT si un token existe
   if (token) {
     const clonedReq = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`, 
+        Authorization: `Bearer ${token}`,
       },
     });
-    return next(clonedReq); 
+    return next(clonedReq);
   }
 
-  return next(req); 
+  return next(req);
 };

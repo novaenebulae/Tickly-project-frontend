@@ -1,4 +1,5 @@
-interface Zone {
+// src/app/core/models/structure/zone.model.ts
+export interface Zone {
   id: number;
   name: string;
   maxCapacity: number;
@@ -6,5 +7,5 @@ interface Zone {
 }
 
 export interface ZoneDialogData {
-  zone: Zone | null; // La zone à modifier, ou null si c'est un ajout
+  zone: Zone | null;
 }

@@ -75,8 +75,8 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header scope="col">
               Nom
             </th>
-            <td mat-cell *matCellDef="let zone" data-label="Nom:">
-              <span class="fw-medium">{{ zone.name }}</span>
+            <td mat-cell *matCellDef="let zoneItem" data-label="Nom:">
+              <span class="fw-medium">{{ zoneItem.name }}</span>
             </td>
           </ng-container>
 
@@ -93,11 +93,11 @@
             </th>
             <td
               mat-cell
-              *matCellDef="let zone"
+              *matCellDef="let zoneItem"
               class="text-right"
               data-label="Capacité:"
             >
-              {{ zone.maxCapacity | number }}
+              {{ zoneItem.maxCapacity | number }}
             </td>
           </ng-container>
 
@@ -113,23 +113,23 @@
             </th>
             <td
               mat-cell
-              *matCellDef="let zone"
+              *matCellDef="let zoneItem"
               class="text-center w-0"
               data-label="Statut:"
             >
               <mat-slide-toggle
                 color="primary"
-                [checked]="zone.isActive"
-                (change)="toggleZoneStatus(zone, $event)"
+                [checked]="zoneItem.isActive"
+                (change)="toggleZoneStatus(zoneItem, $event)"
                 aria-label="Activer ou désactiver la zone"
                 matTooltip="{{
-                  zone.isActive ? 'Désactiver la zone' : 'Activer la zone'
+                  zoneItem.isActive ? 'Désactiver la zone' : 'Activer la zone'
                 }}"
               >
               </mat-slide-toggle>
               <!-- Texte optionnel masqué sur petit écran -->
               <span class="ms-2 d-none d-sm-inline-block align-middle">{{
-                zone.isActive ? "Activée" : "Désactivée"
+                zoneItem.isActive ? "Activée" : "Désactivée"
               }}</span>
             </td>
           </ng-container>
@@ -141,14 +141,14 @@
             </th>
             <td
               mat-cell
-              *matCellDef="let zone"
+              *matCellDef="let zoneItem"
               class="text-end"
               data-label="Actions:"
             >
               <button
                 mat-icon-button
                 color="primary"
-                (click)="openZoneDialog(zone)"
+                (click)="openZoneDialog(zoneItem)"
                 matTooltip="Modifier la zone"
                 aria-label="Modifier la zone"
               >
@@ -157,7 +157,7 @@
               <button
                 mat-icon-button
                 color="warn"
-                (click)="deleteZone(zone)"
+                (click)="deleteZone(zoneItem)"
                 matTooltip="Supprimer la zone"
                 aria-label="Supprimer la zone"
               >

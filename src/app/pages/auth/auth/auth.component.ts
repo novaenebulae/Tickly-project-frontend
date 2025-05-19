@@ -6,11 +6,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { FormsModule, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../../core/services';
+import { AuthService} from '../../../core/services/domain/auth.service';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { LoginCredentials } from '../../../core/models';
+import { LoginCredentials} from '../../../core/models/auth/auth.model';
 
 @Component({
   selector: 'app-auth',

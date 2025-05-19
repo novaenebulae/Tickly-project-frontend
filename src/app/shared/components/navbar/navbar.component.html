@@ -1,13 +1,14 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
-  <div class="container-fluid px-3">
+  <div class="container-fluid">
     <!-- Logo -->
-    <a class="navbar-brand me-2" routerLink="/">
+    <a class="navbar-brand" routerLink="/">
       <img src="logos/tickly-logo.svg" alt="Tickly" height="38">
     </a>
 
     <!-- Bouton burger pour mobile avec badge si notifications -->
-    <button #navbarToggler class="navbar-toggler position-relative" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
-            aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button #navbarToggler class="navbar-toggler position-relative" type="button" (click)="toggleNavbarAndCloseDialogs()" data-bs-toggle="collapse"
+            data-bs-target="#navbarContent" aria-controls="navbarContent"
+            aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
       @if (pendingFriendRequests() > 0 && isLoggedIn()) {
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -18,9 +19,9 @@
     </button>
 
     <!-- Contenu de la navbar -->
-    <div class="collapse navbar-collapse bg-white" id="navbarContent">
-      <!-- Liens de navigation -->
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <!-- Liens de navigation (collés à gauche) -->
+      <ul class="navbar-nav me-auto">
         <li class="nav-item">
           <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Accueil</a>
         </li>
@@ -32,15 +33,15 @@
         </li>
         @if (isLoggedIn()) {
           <li class="nav-item">
-            <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">Tableau de bord</a>
+            <a class="nav-link" routerLink="/admin" routerLinkActive="active">Tableau de bord</a>
           </li>
         }
       </ul>
 
-      <!-- Menu utilisateur sur mobile uniquement -->
+      <!-- Menu utilisateur sur mobile uniquement (drawer) -->
       @if (isLoggedIn()) {
-        <div class="d-lg-none mobile-user-menu mb-3">
-          <div class="user-info-mobile p-3 border-top mt-2">
+        <div class="d-lg-none mobile-user-menu">
+          <div class="user-info-mobile p-3 border-top mt-2 mb-3">
             <div class="d-flex align-items-center mb-3">
               <div class="user-avatar-wrapper me-3">
                 <div class="btn btn-primary rounded-circle user-avatar">
@@ -75,17 +76,23 @@
           </div>
         </div>
       } @else {
-        <!-- Bouton connexion sur mobile uniquement -->
+        <!-- Boutons connexion et inscription sur mobile -->
         <div class="d-lg-none mb-3">
-          <a routerLink="/login" class="btn btn-primary d-flex align-items-center w-100 justify-content-center">
-            <mat-icon class="me-1">login</mat-icon>
-            <span>Connexion</span>
-          </a>
+          <div class="d-flex flex-column gap-2">
+            <a routerLink="/login" class="btn btn-primary d-flex align-items-center justify-content-center">
+              <mat-icon class="me-1">login</mat-icon>
+              <span>Connexion</span>
+            </a>
+            <a routerLink="/register" class="btn btn-outline-primary d-flex align-items-center justify-content-center">
+              <mat-icon class="me-1">person_add</mat-icon>
+              <span>Inscription</span>
+            </a>
+          </div>
         </div>
       }
 
       <!-- Partie droite (desktop uniquement) -->
-      <div class="d-none d-lg-flex align-items-center ms-auto">
+      <div class="d-none d-lg-flex align-items-center">
         @if (isLoggedIn()) {
           <!-- Avatar utilisateur avec badge de notification si nécessaire -->
           <button
@@ -130,11 +137,17 @@
             </ng-template>
           </mat-menu>
         } @else {
-          <!-- Bouton connexion desktop -->
-          <a routerLink="/login" class="btn btn-primary d-flex align-items-center">
-            <mat-icon class="me-1">login</mat-icon>
-            <span>Connexion</span>
-          </a>
+          <!-- Boutons connexion et inscription desktop -->
+          <div class="d-flex gap-2">
+            <a routerLink="/login" class="btn btn-primary d-flex align-items-center">
+              <mat-icon class="me-1">login</mat-icon>
+              <span>Connexion</span>
+            </a>
+            <a routerLink="/register" class="btn btn-outline-primary d-flex align-items-center">
+              <mat-icon class="me-1">person_add</mat-icon>
+              <span>Inscription</span>
+            </a>
+          </div>
         }
       </div>
     </div>

@@ -1,36 +1,22 @@
-import {
-  Component,
-  OnInit,
-  AfterViewInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms'; // Ajouté
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule } from '@angular/material/sort';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
+import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import {
-  MatSlideToggleChange,
-  MatSlideToggleModule,
-} from '@angular/material/slide-toggle';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog'; // Module principal MatDialog
+import { MatSlideToggleModule, MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
-import { ZoneDialogData } from '../../../../../../core/models/ZoneDialogData.interface';
-import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../../../../shared/ui/confirmation-dialog/confirmation-dialog.component';
-import { ZoneEditDialogComponent } from './zone-edit-dialog/zone-edit-dialog.component';
 
-// Interface Zone (répétée ou importée d'un fichier partagé)
-interface Zone {
-  id: number;
-  name: string;
-  maxCapacity: number;
-  isActive: boolean;
-}
+// Import des modèles
+import { Zone, ZoneDialogData } from '../../../../../../core/models/structure/zone.model';
+import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../../../../shared/components/dialogs/confirmation-dialog/confirmation-dialog.component';
+import { ZoneEditDialogComponent } from './zone-edit-dialog/zone-edit-dialog.component';
 
 @Component({
   selector: 'app-zone-management',

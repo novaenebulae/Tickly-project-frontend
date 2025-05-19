@@ -1,6 +1,6 @@
 // src/app/core/services/domain/friendship.service.ts
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { Observable, catchError, map, of, tap } from 'rxjs';
+import { Observable, of, catchError, map, tap, switchMap } from 'rxjs';
 import { FriendshipApiService } from '../api/friendship-api.service';
 import { NotificationService } from './notification.service';
 import { FriendshipModel, FriendRequestModel, FriendModel } from '../../models/friendship/friendship.model';
@@ -76,9 +76,26 @@ export class FriendshipService {
     );
   }
 
-  // Envoyer une demande d'amitié
-  sendFriendRequest(userId: number): Observable<boolean> {
-    return this.friendshipApi.sendFriendRequest(userId).pipe(
+  // Envoyer une demande d'amitié par email
+  sendFriendRequestByEmail(userMail: string): Observable<boolean> {
+    // Recherche d'abord l'utilisateur par email
+    return this.friendshipApi.searchUsers(userMail).pipe(
+      // Vérifie si des utilisateurs ont été trouvés
+      switchMap(users => {
+        if (!users || users.length === 0) {
+          throw new Error('Aucun utilisateur trouvé avec cet email');
+        }
+
+        // Vérifie que l'ID existe avant d'envoyer la demande
+        const userId = users[0].id;
+        if (userId === undefined) {
+          throw new Error('ID utilisateur invalide');
+        }
+
+        // Envoie la demande d'amitié à l'ID trouvé
+        return this.friendshipApi.sendFriendRequest(userId);
+      }),
+      // Traite la réponse
       map(() => true),
       tap(() => {
         this.notification.displayNotification(

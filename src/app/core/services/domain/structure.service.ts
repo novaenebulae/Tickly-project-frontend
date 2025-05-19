@@ -7,16 +7,13 @@ import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
 import { NotificationService } from './notification.service';
 import { StructureApiService, StructureSearchParams } from '../api/structure-api.service';
 import { AuthService } from './auth.service';
+import {StructureCreationDto, StructureCreationResponse, StructureModel} from '../../models/structure/structure.model';
+import {StructureTypeModel} from '../../models/structure/structure-type.model';
+import {AreaModel} from '../../models/structure/area.model';
+import {AddressModel} from '../../models/structure/address.model';
 
 // Models
-import {
-  StructureModel,
-  StructureCreationDto,
-  StructureCreationResponse,
-  StructureTypeModel,
-  AreaModel,
-  AddressModel
-} from '../../models';
+
 
 /**
  * Service de gestion des structures

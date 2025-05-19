@@ -8,6 +8,7 @@ export interface UserModel {
   structureId?: number;  // ID de la structure associée (si administrateur)
   createdAt?: Date;
   updatedAt?: Date;
+  needsStructureSetup?: boolean; // Indique si l'utilisateur doit configurer sa structure
 }
 
 export interface UserRegistrationDto {

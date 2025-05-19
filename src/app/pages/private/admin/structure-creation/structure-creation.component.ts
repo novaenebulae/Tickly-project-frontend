@@ -10,16 +10,17 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {Router} from '@angular/router';
-import {StructureService} from '../../../../core/services/structure.service';
-import {NotificationService} from '../../../../core/services/notification.service';
+import {StructureService} from '../../../../core/services/domain/structure.service';
+import {NotificationService} from '../../../../core/services/domain/notification.service';
 import {CommonModule} from '@angular/common';
 import {MatButtonModule} from '@angular/material/button';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {AuthService} from '../../../../core/services/auth.service';
-import {StructureCreationResponse} from '../../../../core/models/StructureCreationResponse.interface';
+import {AuthService} from '../../../../core/services/domain/auth.service';
+import {StructureCreationDto, StructureCreationResponse} from '../../../../core/models/structure/structure.model';
 import {MatCard, MatCardModule} from '@angular/material/card';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatIconModule} from '@angular/material/icon';
+import {StructureTypeModel} from '../../../../core/models/structure/structure-type.model';
 
 
 @Component({
@@ -45,7 +46,7 @@ export class StructureCreationComponent implements OnInit {
 
   structureCreationForm!: FormGroup;
   isLoading = false;
-  structureTypesOptions: StructureType[] = [];
+  structureTypesOptions: StructureTypeModel[] = [];
 
   private fb = inject(FormBuilder);
   private router = inject(Router);
@@ -103,7 +104,7 @@ export class StructureCreationComponent implements OnInit {
     this.isLoading = true;
 
     // Préparer le DTO de la structure
-    const newStructureValues: StructureDto = {
+    const newStructureValues: StructureCreationDto = {
       name: this.structureCreationForm.get('structureName')?.value,
       // Check si typeIds est un Array, si non transforme le typeId (unique) en Array.
       typeIds: Array.isArray(
@@ -113,7 +114,7 @@ export class StructureCreationComponent implements OnInit {
         : [this.structureCreationForm.get('structureTypes')?.value].filter(
           (id) => !!id
         ),
-      adress: {
+      address: {
         city: this.structureCreationForm.get('structureCity')?.value,
         street: this.structureCreationForm.get('structureStreet')?.value,
         number:

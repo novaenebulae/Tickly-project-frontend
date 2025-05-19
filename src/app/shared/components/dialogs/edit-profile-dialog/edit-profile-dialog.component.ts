@@ -1,5 +1,5 @@
 // src/app/shared/components/dialogs/edit-profile-dialog/edit-profile-dialog.component.ts
-import { Component, Inject, OnInit, inject, signal } from '@angular/core';
+import { Component, Inject, OnInit, inject, signal, effect } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { NotificationService } from '../../../../core/services/domain/notification.service';
 
 // Services
 import { UserService } from '../../../../core/services/domain/user.service';
@@ -44,6 +45,7 @@ export interface EditProfileDialogData {
 })
 export class EditProfileDialogComponent implements OnInit {
   private userService = inject(UserService);
+  private notification = inject(NotificationService);
   private fb = inject(FormBuilder);
 
   // Formulaires
@@ -58,10 +60,25 @@ export class EditProfileDialogComponent implements OnInit {
   showNewPassword = signal(false);
   showConfirmPassword = signal(false);
 
+  // Accès aux signaux exposés par UserService si disponibles
+  readonly currentUser = this.userService.currentUserProfile;
+
   constructor(
     public dialogRef: MatDialogRef<EditProfileDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: EditProfileDialogData
-  ) {}
+  ) {
+    // Effet pour surveiller les changements dans le profil utilisateur
+    effect(() => {
+      const profile = this.currentUser();
+      if (profile && (!this.data.user || profile.id === this.data.user.id)) {
+        this.data = { user: profile };
+        if (this.profileForm) {
+          this.initProfileForm();
+          this.updateAvatarPreview();
+        }
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.initProfileForm();
@@ -145,9 +162,20 @@ export class EditProfileDialogComponent implements OnInit {
         this.userService.updateUserProfile(userId, formValue).subscribe({
           next: (updatedUser) => {
             this.isUpdatingProfile.set(false);
+            this.notification.displayNotification(
+              'Profil mis à jour avec succès',
+              'valid',
+              'Fermer'
+            );
             this.dialogRef.close(updatedUser);
           },
-          error: () => {
+          error: (error) => {
+            console.error('Erreur lors de la mise à jour du profil', error);
+            this.notification.displayNotification(
+              'Erreur lors de la mise à jour du profil',
+              'error',
+              'Fermer'
+            );
             this.isUpdatingProfile.set(false);
           }
         });
@@ -175,13 +203,24 @@ export class EditProfileDialogComponent implements OnInit {
         next: (success) => {
           this.isChangingPassword.set(false);
           if (success) {
+            this.notification.displayNotification(
+              'Mot de passe modifié avec succès',
+              'valid',
+              'Fermer'
+            );
             // Réinitialiser le formulaire après succès
             this.passwordForm.reset();
             // Fermer la fenêtre de dialogue
             this.dialogRef.close();
           }
         },
-        error: () => {
+        error: (error) => {
+          console.error('Erreur lors du changement de mot de passe', error);
+          this.notification.displayNotification(
+            'Erreur lors du changement de mot de passe. Vérifiez votre mot de passe actuel.',
+            'error',
+            'Fermer'
+          );
           this.isChangingPassword.set(false);
         }
       });

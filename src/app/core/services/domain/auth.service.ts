@@ -7,12 +7,12 @@ import { tap, map, catchError } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
 
 // Services
-import { NotificationService } from '../notification.service';
+import { NotificationService} from './notification.service';
 import { AuthApiService } from '../api/auth-api.service';
 
 // Models
-import { JwtPayload, AuthResponseDto, LoginCredentials } from '../../models';
-import { UserRegistrationDto} from '../../models';
+import { JwtPayload, AuthResponseDto, LoginCredentials } from '../../models/auth/auth.model';
+import { UserRegistrationDto} from '../../models/auth/user.model';
 import { APP_CONFIG } from '../../config/app-config';
 
 /**

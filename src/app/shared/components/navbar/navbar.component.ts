@@ -10,8 +10,8 @@ import { effect, signal, computed } from '@angular/core';
 
 // Services
 import { AuthService } from '../../../core/services/domain/auth.service';
-import { NotificationService } from '../../../core/services/notification.service';
-import { FriendshipApiService } from '../../../core/services/api/friendship-api.service';
+import { NotificationService } from '../../../core/services/domain/notification.service';
+import { FriendshipService } from '../../../core/services/domain/friendship.service';
 import { UserService } from '../../../core/services/domain/user.service';
 
 // Modèles
@@ -39,7 +39,7 @@ export class NavbarComponent implements OnInit {
   private userService = inject(UserService);
   private dialog = inject(MatDialog);
   private notification = inject(NotificationService);
-  private friendshipApi = inject(FriendshipApiService);
+  private friendshipService = inject(FriendshipService);
 
   // Références aux éléments du DOM
   @ViewChild('navbarToggler') navbarToggler?: ElementRef;
@@ -91,7 +91,7 @@ export class NavbarComponent implements OnInit {
 
   // Ferme le menu burger si ouvert
   private closeNavbarCollapse(): void {
-    // Vérifie si le menu est ouvert (a la classe show)
+    // Vérifier si le menu est ouvert (a la classe show)
     const navbarCollapse = document.getElementById('navbarContent');
     if (navbarCollapse?.classList.contains('show')) {
       // Cliquer sur le bouton togglera (fermera) le menu
@@ -121,7 +121,7 @@ export class NavbarComponent implements OnInit {
 
   // Charge les demandes d'amitié en attente
   private loadPendingFriendRequests(): void {
-    this.friendshipApi.getPendingRequests().subscribe({
+    this.friendshipService.getPendingFriendRequests(true).subscribe({
       next: (requests: FriendRequestModel[]) => {
         this.pendingFriendRequests.set(requests.length);
       },
@@ -134,32 +134,34 @@ export class NavbarComponent implements OnInit {
 
   // Ouvre le dialogue de modification de profil
   openProfileDialog(): void {
-    // Fermer les menus
+    // Fermer les menus et dialogues existants
     this.closeMenus();
-
+    
     // Importation dynamique pour éviter les dépendances circulaires
     import('../dialogs/edit-profile-dialog/edit-profile-dialog.component').then(({ EditProfileDialogComponent }) => {
       this.dialog.open(EditProfileDialogComponent, {
         width: '500px',
         data: { user: this.userProfileSig() },
-        restoreFocus: false
+        restoreFocus: false,
+        disableClose: false  // Permettre la fermeture en cliquant à l'extérieur
       }).afterClosed().subscribe(() => {
         // Recharger le profil après fermeture
         this.loadUserProfile();
       });
     });
   }
-
+  
   // Ouvre le dialogue de gestion des amis
   openFriendsDialog(): void {
-    // Fermer les menus
+    // Fermer les menus et dialogues existants
     this.closeMenus();
-
+    
     // Importation dynamique pour éviter les dépendances circulaires
     import('../dialogs/manage-friends-dialog/manage-friends-dialog.component').then(({ ManageFriendsDialogComponent }) => {
       this.dialog.open(ManageFriendsDialogComponent, {
         width: '600px',
-        restoreFocus: false
+        restoreFocus: false,
+        disableClose: false  // Permettre la fermeture en cliquant à l'extérieur
       }).afterClosed().subscribe(() => {
         // Recharger les demandes d'amitié après fermeture
         this.loadPendingFriendRequests();
@@ -185,5 +187,45 @@ export class NavbarComponent implements OnInit {
     if (this.userMenuTrigger?.menuOpen) {
       this.userMenuTrigger.closeMenu();
     }
+    
+    // Fermer tous les dialogues ouverts
+    this.closeDialogs();
+  }
+  
+  /**
+   * Ferme tous les dialogues ouverts
+   * Cette méthode est publique pour être utilisée depuis le template
+   */
+  closeDialogs(): void {
+    try {
+      // Utiliser closeAll pour fermer tous les dialogues ouverts
+      if (this.dialog) {
+        const openDialogs = this.dialog.openDialogs;
+        console.log(`Tentative de fermer ${openDialogs.length} dialogues ouverts`);
+        
+        // Utiliser directement closeAll qui est plus fiable
+        this.dialog.closeAll();
+        
+        // Si besoin, on peut aussi les fermer un par un
+        /*
+        openDialogs.forEach(dialogRef => {
+          dialogRef.close();
+        });
+        */
+      }
+    } catch (error) {
+      console.error('Erreur lors de la fermeture des dialogues', error);
+    }
+  }
+  
+  /**
+   * Gère le clic sur le menu burger en fermant les dialogues
+   * Implémentée pour s'assurer que les dialogues sont fermés avant bascule du menu
+   */
+  toggleNavbarAndCloseDialogs(): void {
+    // S'assurer de fermer tous les dialogues avant la bascule du menu
+    setTimeout(() => {
+      this.closeDialogs();
+    }, 0);
   }
 }

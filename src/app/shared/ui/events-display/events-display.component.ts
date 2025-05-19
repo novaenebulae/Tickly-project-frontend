@@ -9,7 +9,7 @@ import { trigger, transition, style, animate, stagger, query } from '@angular/an
 import { EventCardComponent } from '../../components/event-card-item/event-card.component';
 import { EventListItemComponent } from '../../components/event-list-item/event-list-item.component';
 import { EventFiltersComponent } from '../../components/events-filters/event-filters.component';
-import {EventModel} from '../../../core/models';
+import { EventModel } from '../../../core/models/event/event.model';
 
 @Component({
   selector: 'app-events-display',

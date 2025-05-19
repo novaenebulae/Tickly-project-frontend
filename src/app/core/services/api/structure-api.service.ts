@@ -9,9 +9,9 @@ import { ApiConfigService } from './api-config.service';
 import { APP_CONFIG } from '../../config/app-config';
 
 // Import des modèles
-import { StructureModel, StructureCreationDto, StructureCreationResponse } from '../../models';
-import { StructureTypeModel } from '../../models';
-import { AreaModel } from '../../models';
+import { StructureModel, StructureCreationDto, StructureCreationResponse } from '../../models/structure/structure.model';
+import { StructureTypeModel } from '../../models/structure/structure-type.model';
+import { AreaModel } from '../../models/structure/area.model';
 
 import { mockStructures} from '../../mocks/structures/structures.mock';
 import { mockStructureTypes} from '../../mocks/structures/structure-types.mock';

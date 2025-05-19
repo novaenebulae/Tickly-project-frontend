@@ -1,9 +1,14 @@
 // src/app/core/services/mock/mock-friendship.service.ts
 
+// import { Injectable, inject } from '@angular/core';
+// import { Observable, of } from 'rxjs';
+// import { FriendshipModel, FriendRequestModel, FriendModel } from '../../models/friendship/friendship.model';
+// import { FriendshipMockService } from '../../mocks/friendship/friendships.mock';
+
 import { Injectable, inject } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { FriendshipModel, FriendRequestModel, FriendModel } from '../../models/friendship/friendship.model';
+import { Observable, of, switchMap } from 'rxjs';
 import { FriendshipMockService } from '../../mocks/friendship/friendships.mock';
+import { FriendModel, FriendRequestModel } from '../../models/friendship/friendship.model';
 
 /**
  * Version mockée du service d'amitié pour le développement et les tests
@@ -32,10 +37,26 @@ export class MockFriendshipService {
     return this.mockMethods.getSentRequests();
   }
 
-  // Envoyer une demande d'amitié
+  // Envoyer une demande d'amitié par ID
   sendFriendRequest(userId: number): Observable<boolean> {
     // Simuler un succès
     return of(true);
+  }
+
+  // Envoyer une demande d'amitié par email
+  sendFriendRequestByEmail(email: string): Observable<boolean> {
+    // Recherche d'abord l'utilisateur dans les données mockées
+    return this.mockMethods.searchUsers(email).pipe(
+      switchMap(users => {
+        if (users && users.length > 0 && users[0].id !== undefined) {
+          // Simuler un succès si un utilisateur avec ID valide a été trouvé
+          return of(true);
+        } else {
+          // Simuler un échec si aucun utilisateur n'a été trouvé ou si ID invalide
+          return of(false);
+        }
+      })
+    );
   }
 
   // Accepter une demande d'amitié

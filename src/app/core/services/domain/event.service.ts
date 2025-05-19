@@ -4,15 +4,15 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
 
 // Services
-import { NotificationService } from '../notification.service';
+import { NotificationService} from './notification.service';
 import { EventApiService } from '../api/event-api.service';
 
 // Models
-import { EventModel, EventCreationDto, EventStatus } from '../../models';
-import { EventCategoryModel } from '../../models';
+import { EventModel, EventCreationDto, EventStatus } from '../../models/event/event.model';
+import { EventCategoryModel } from '../../models/event/event-category.model';
 import { APP_CONFIG } from '../../config/app-config';
-import {EventSeatingZone, SeatingType} from '../../models';
-import { EventSearchParams } from '../../models/';
+import {EventSeatingZone, SeatingType} from '../../models/event/seating.model';
+import { EventSearchParams } from '../../models/event/event-search-params.model';
 
 /**
  * Service de gestion des événements

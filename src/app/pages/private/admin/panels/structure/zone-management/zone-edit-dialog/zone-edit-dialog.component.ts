@@ -15,7 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { ZoneDialogData } from '../../../../../../../core/models/ZoneDialogData.interface';
+import { ZoneDialogData} from '../../../../../../../core/models/ui/dialog-data.model';
 
 @Component({
   selector: 'app-zone-edit-dialog', // Sélecteur CSS

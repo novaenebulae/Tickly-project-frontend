@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiConfigService } from './api-config.service';
 import { FriendshipModel, FriendRequestModel, FriendModel } from '../../models/friendship/friendship.model';
+import { UserModel } from '../../models/auth/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,9 @@ export class FriendshipApiService {
 
   // Envoyer une demande d'amitié
   sendFriendRequest(userId: number): Observable<FriendshipModel> {
-    return this.http.post<FriendshipModel>(`${this.baseUrl}/request`, { receiverId: userId });
+    // Assurons-nous que userId est bien un nombre
+    const receiverId: number = userId;
+    return this.http.post<FriendshipModel>(`${this.baseUrl}/request`, { receiverId });
   }
 
   // Obtenir les demandes d'amitié en attente
@@ -53,8 +56,13 @@ export class FriendshipApiService {
     return this.http.delete<void>(`${this.baseUrl}/${friendshipId}`);
   }
 
-  // Rechercher des utilisateurs pour ajouter en ami
-  searchUsers(query: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiConfig.apiUrl}/users/search?q=${encodeURIComponent(query)}`);
+  // Rechercher des utilisateurs pour ajouter en ami (par nom ou email)
+  searchUsers(query: string): Observable<UserModel[]> {
+    return this.http.get<UserModel[]>(`${this.apiConfig.apiUrl}/users/search?q=${encodeURIComponent(query)}`);
+  }
+
+  // Rechercher un utilisateur spécifiquement par email
+  searchUserByEmail(email: string): Observable<UserModel[]> {
+    return this.http.get<UserModel[]>(`${this.apiConfig.apiUrl}/users/search?email=${encodeURIComponent(email)}`);
   }
 }
