@@ -1,16 +1,19 @@
-import {Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, ChangeDetectorRef} from '@angular/core';
+import {Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, signal} from '@angular/core';
 import {Router, RouterModule} from '@angular/router';
 import {CommonModule} from '@angular/common';
-import {Subscription, interval, Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {Subject, takeUntil} from 'rxjs';
 
-import {Event} from '../../../core/models/event.model';
-import {EventService} from '../../../core/services/event.service';
+// Models
+import {EventModel} from '../../../core/models/event/event.model';
 
-// Importation des composants standalone nécessaires
+// Services
+import {EventService} from '../../../core/services/domain/event.service';
+
+// Composants partagés
 import {EventsCarouselComponent} from '../../../shared/components/events-carousel/events-carousel.component';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 interface HeroSlide {
   imageUrl: string;
@@ -29,14 +32,27 @@ interface HeroSlide {
   imports: [
     CommonModule,
     RouterModule,
-    EventsCarouselComponent, // Composant standalone pour le carrousel d'événements
+    EventsCarouselComponent,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatProgressSpinnerModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LandingPageComponent implements OnInit, OnDestroy {
-  // --- Section Héros ---
+  // Services injectés
+  protected router = inject(Router);
+  private eventService = inject(EventService);
+
+  // Signaux (nouvelle API Angular 19)
+  currentHeroSlideIndex = signal(0);
+  latestEvents = signal<EventModel[]>([]);
+  isLoading = signal(false);
+
+  // Sujet de désabonnement
+  private destroy$ = new Subject<void>();
+
+  // Slides du carousel héros
   heroSlides: HeroSlide[] = [
     {
       imageUrl: 'https://picsum.photos/seed/hero1/1920/1080',
@@ -63,18 +79,6 @@ export class LandingPageComponent implements OnInit, OnDestroy {
       ctaLink: '/register'
     }
   ];
-  currentHeroSlideIndex = 0;
-  private destroy$ = new Subject<void>(); // Pour se désabonner proprement
-  private autoSlideSubscription: Subscription | undefined;
-
-
-  // --- Section Nos Derniers Événements ---
-  latestEvents: Event[] = [];
-
-  router = inject(Router);
-  eventService = inject(EventService);
-  private cdr = inject(ChangeDetectorRef); // Injection de ChangeDetectorRef
-
 
   ngOnInit(): void {
     this.loadLatestEvents();
@@ -82,42 +86,53 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.stopHeroSlides(); // Appelle stopHeroSlides pour nettoyer autoSlideSubscription
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  // --- Logique Section Héros ---
-  startHeroSlides(): void {
-    this.stopHeroSlides(); // S'assurer qu'il n'y a pas de souscription existante
-    this.autoSlideSubscription = interval(5000).subscribe(() => {
-      this.nextHeroSlide();
-    });
-  }
-
-  stopHeroSlides(): void {
-    if (this.autoSlideSubscription) {
-      this.autoSlideSubscription.unsubscribe();
-      this.autoSlideSubscription = undefined;
-    }
-  }
-
-  nextHeroSlide(): void {
-    this.currentHeroSlideIndex = (this.currentHeroSlideIndex + 1) % this.heroSlides.length;
-    this.cdr.markForCheck(); // Notifier Angular du changement pour mettre à jour la vue
-  }
-
-  // --- Logique Section Nos Derniers Événements ---
+  // Chargement des derniers événements depuis le service
   loadLatestEvents(): void {
-    this.eventService.getLatestEvents(8)
+    this.isLoading.set(true);
+
+    // Utilisation du EventService pour récupérer les événements récents
+    this.eventService.getEvents({
+      sortBy: 'createdAt',
+      sortDirection: 'desc',
+      pageSize: 8,
+      page: 0
+    })
       .pipe(takeUntil(this.destroy$))
-      .subscribe(events => {
-        this.latestEvents = events;
-        this.cdr.markForCheck(); // Potentiellement utile ici aussi si latestEvents affecte la vue immédiatement
+      .subscribe({
+        next: (events) => {
+          this.latestEvents.set(events);
+          this.isLoading.set(false);
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement des événements:', error);
+          this.isLoading.set(false);
+        }
       });
   }
 
-  // --- Méthodes de redirection pour les CTA ---
+  // Animation automatique du slider héros
+  startHeroSlides(): void {
+    const intervalId = setInterval(() => {
+      if (this.destroy$.closed) {
+        clearInterval(intervalId);
+        return;
+      }
+      this.nextHeroSlide();
+    }, 5000);
+  }
+
+  // Passage au slide suivant
+  nextHeroSlide(): void {
+    this.currentHeroSlideIndex.update(current =>
+      (current + 1) % this.heroSlides.length
+    );
+  }
+
+  // Navigation vers les pages
   navigateToAllEvents(): void {
     this.router.navigate(['/events']);
   }
@@ -129,5 +144,4 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   navigateToRegistration(): void {
     this.router.navigate(['/register']);
   }
-
 }

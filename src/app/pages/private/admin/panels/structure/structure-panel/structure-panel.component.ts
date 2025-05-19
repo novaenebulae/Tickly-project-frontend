@@ -8,7 +8,8 @@ import { catchError, finalize, tap } from 'rxjs/operators';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; // Pour l'indicateur de chargement
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {MatTooltipModule} from '@angular/material/tooltip'; // Pour l'indicateur de chargement
 
 // --- Interfaces (à définir ou importer de fichiers partagés) ---
 interface StructureInfo {
@@ -55,7 +56,8 @@ const mockZoneService = {
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: './structure-panel.component.html', // Fichier HTML associé
   styleUrls: ['./structure-panel.component.scss'],   // Fichier SCSS associé

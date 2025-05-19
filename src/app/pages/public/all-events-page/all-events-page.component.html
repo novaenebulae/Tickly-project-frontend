@@ -1,25 +1,24 @@
 <div class="all-events-page-container">
-    <!-- En-tête de la page -->
-    <div class="header-section">
-      <div class="header-content">
-        <div class="title-section">
-          <h1 class="main-title">Explorez Nos Événements</h1>
-          <p class="subtitle">Découvrez une multitude d'expériences : concerts, théâtre, festivals, et bien plus encore.</p>
-        </div>
+  <!-- En-tête de la page -->
+  <div class="header-section">
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="main-title">Explorez Nos Événements</h1>
+        <p class="subtitle">Découvrez une multitude d'expériences : concerts, théâtre, festivals, et bien plus encore.</p>
       </div>
     </div>
+  </div>
 
-
-    <!-- Contenu principal -->
+  <!-- Contenu principal -->
   <main class="all-events-content">
     <!-- Composant d'affichage des événements -->
     <app-events-display
-      [events]="displayedEvents"
-      [displayMode]="displayMode"
-      [isLoading]="isLoading"
-      [totalItems]="totalItems"
-      [pageSize]="pageSize"
-      [currentPage]="currentPage"
+      [events]="displayedEvents()"
+      [displayMode]="displayMode()"
+      [isLoading]="isLoading()"
+      [totalItems]="totalItems()"
+      [pageSize]="pageSize()"
+      [currentPage]="currentPage()"
       (filtersChanged)="onFiltersChanged($event)"
       (pageChanged)="onPageChanged($event.pageIndex, $event.pageSize)"
       (displayModeChanged)="onDisplayModeChanged($event)">

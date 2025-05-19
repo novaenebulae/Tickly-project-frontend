@@ -17,7 +17,7 @@
       <div class="event-list-item__header">
         <div class="event-list-item__header-top">
           @if (event.category) {
-            <span class="event-list-item__category">{{ event.category }}</span>
+            <span class="event-list-item__category">{{ event.category.name }}</span>
           }
           <h3 class="event-list-item__title">{{ event.name }}</h3>
         </div>

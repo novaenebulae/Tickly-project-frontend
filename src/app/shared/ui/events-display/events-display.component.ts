@@ -6,10 +6,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { trigger, transition, style, animate, stagger, query } from '@angular/animations';
-import { Event } from '../../../core/models/event.model';
 import { EventCardComponent } from '../../components/event-card-item/event-card.component';
 import { EventListItemComponent } from '../../components/event-list-item/event-list-item.component';
 import { EventFiltersComponent } from '../../components/events-filters/event-filters.component';
+import {EventModel} from '../../../core/models';
 
 @Component({
   selector: 'app-events-display',
@@ -42,7 +42,7 @@ import { EventFiltersComponent } from '../../components/events-filters/event-fil
 })
 export class EventsDisplayComponent implements OnInit {
   // Inputs
-  @Input() events: Event[] = [];
+  @Input() events: EventModel[] = [];
   @Input() displayMode: 'grid' | 'list' = 'grid';
   @Input() isLoading: boolean = false;
   @Input() totalItems: number = 0;

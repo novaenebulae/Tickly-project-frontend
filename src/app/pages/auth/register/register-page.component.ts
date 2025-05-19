@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   AbstractControl,
@@ -16,10 +16,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { UserRegistrationInterface } from '../../../core/models/userRegistration.interface';
 
+// Services
+import { AuthService } from '../../../core/services/domain/auth.service';
+import { StructureService } from '../../../core/services/domain/structure.service';
+
+// Models
+import { UserRegistrationDto } from '../../../core/models/auth/user.model';
 
 @Component({
   selector: 'app-register-page',
@@ -39,14 +43,16 @@ import { UserRegistrationInterface } from '../../../core/models/userRegistration
   ],
   templateUrl: './register-page.component.html',
   styleUrls: ['./register-page.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterPageComponent implements OnInit {
   registerForm!: FormGroup;
-  hidePassword = true;
-  isLoading = false; // Pour gérer l'état de chargement
+  hidePassword = signal(true);
+  isLoading = signal(false);
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private structureService = inject(StructureService);
   private router = inject(Router);
 
   ngOnInit(): void {
@@ -92,6 +98,10 @@ export class RegisterPageComponent implements OnInit {
     }
   }
 
+  togglePasswordVisibility(): void {
+    this.hidePassword.update(current => !current);
+  }
+
   onSubmit(): void {
     this.registerForm.markAllAsTouched(); // Marquer pour afficher les erreurs si soumission invalide
 
@@ -100,9 +110,9 @@ export class RegisterPageComponent implements OnInit {
       return;
     }
 
-    this.isLoading = true;
+    this.isLoading.set(true);
 
-    const newUserRegistration: UserRegistrationInterface = {
+    const newUserRegistration: UserRegistrationDto = {
       firstName: this.registerForm.get('firstName')?.value,
       lastName: this.registerForm.get('lastName')?.value,
       email: this.registerForm.get('email')?.value,
@@ -112,19 +122,19 @@ export class RegisterPageComponent implements OnInit {
 
     console.log('Submitting registration:', newUserRegistration);
 
-    this.authService.registerAndHandleAuth(newUserRegistration).subscribe({
+    this.authService.register(newUserRegistration).subscribe({
       next: () => {
         // Exécuté si l'observable de register se complète SANS erreur
         console.log(
-          'RegisterPageComponent: Registration call successful (navigation handled by AuthService).'
+          'RegisterPageComponent: Registration successful (navigation handled by AuthService).'
         );
         // Si la navigation réussit, ce composant sera détruit.
         // Si elle échoue, on arrête le spinner.
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Component received registration error:', err);
-        this.isLoading = false;
+        this.isLoading.set(false);
       },
     });
   }

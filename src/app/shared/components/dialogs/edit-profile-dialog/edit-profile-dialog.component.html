@@ -1,0 +1,183 @@
+<!-- src/app/shared/components/dialogs/edit-profile-dialog/edit-profile-dialog.component.html -->
+<div class="edit-profile-dialog">
+  <h2 mat-dialog-title>Modifier mon profil</h2>
+
+  <mat-dialog-content>
+    <mat-tab-group animationDuration="300ms">
+      <!-- Onglet Informations de Profil -->
+      <mat-tab label="Profil">
+        <div class="tab-content">
+          <div class="profile-header">
+            <div class="avatar-container">
+              <div class="avatar" [style.background-image]="'url(' + profileAvatarUrl() + ')'"></div>
+            </div>
+            <div class="user-info">
+              <h3>{{ data.user.firstName }} {{ data.user.lastName }}</h3>
+              <p>{{ data.user.email }}</p>
+              <p class="role-badge">{{ data.user.role | titlecase }}</p>
+            </div>
+          </div>
+
+          <form [formGroup]="profileForm" (ngSubmit)="submitProfileChanges()">
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Prénom</mat-label>
+                <input
+                  matInput
+                  formControlName="firstName"
+                  placeholder="Votre prénom"
+                  (input)="updateAvatarPreview()">
+                @if (profileForm.get('firstName')?.hasError('required')) {
+                  <mat-error>Le prénom est requis</mat-error>
+                }
+                @if (profileForm.get('firstName')?.hasError('minlength')) {
+                  <mat-error>Le prénom doit contenir au moins 2 caractères</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Nom</mat-label>
+                <input
+                  matInput
+                  formControlName="lastName"
+                  placeholder="Votre nom"
+                  (input)="updateAvatarPreview()">
+                @if (profileForm.get('lastName')?.hasError('required')) {
+                  <mat-error>Le nom est requis</mat-error>
+                }
+                @if (profileForm.get('lastName')?.hasError('minlength')) {
+                  <mat-error>Le nom doit contenir au moins 2 caractères</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input
+                matInput
+                formControlName="email"
+                placeholder="Votre email"
+                type="email">
+              @if (profileForm.get('email')?.hasError('required')) {
+                <mat-error>L'email est requis</mat-error>
+              }
+              @if (profileForm.get('email')?.hasError('email')) {
+                <mat-error>Veuillez saisir un email valide</mat-error>
+              }
+            </mat-form-field>
+
+            <div class="actions-container">
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="!isProfileFormChanged || profileForm.invalid || isUpdatingProfile()">
+                @if (!isUpdatingProfile()) {
+                  <span>Enregistrer les modifications</span>
+                } @else {
+                  <mat-spinner diameter="20"></mat-spinner>
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+
+      <!-- Onglet Changement de Mot de Passe -->
+      <mat-tab label="Mot de passe">
+        <div class="tab-content">
+          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Mot de passe actuel</mat-label>
+              <input
+                matInput
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="currentPassword"
+                placeholder="Votre mot de passe actuel">
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                (click)="togglePasswordVisibility('password')"
+                [attr.aria-label]="'Afficher le mot de passe'">
+                <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              @if (passwordForm.get('currentPassword')?.hasError('required')) {
+                <mat-error>Le mot de passe actuel est requis</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nouveau mot de passe</mat-label>
+              <input
+                matInput
+                [type]="showNewPassword() ? 'text' : 'password'"
+                formControlName="newPassword"
+                placeholder="Votre nouveau mot de passe">
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                (click)="togglePasswordVisibility('newPassword')"
+                [attr.aria-label]="'Afficher le nouveau mot de passe'">
+                <mat-icon>{{ showNewPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              @if (passwordForm.get('newPassword')?.hasError('required')) {
+                <mat-error>Le nouveau mot de passe est requis</mat-error>
+              }
+              @if (passwordForm.get('newPassword')?.hasError('minlength')) {
+                <mat-error>Le mot de passe doit contenir au moins 8 caractères</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Confirmer le mot de passe</mat-label>
+              <input
+                matInput
+                [type]="showConfirmPassword() ? 'text' : 'password'"
+                formControlName="confirmPassword"
+                placeholder="Confirmez votre nouveau mot de passe">
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                (click)="togglePasswordVisibility('confirmPassword')"
+                [attr.aria-label]="'Afficher la confirmation du mot de passe'">
+                <mat-icon>{{ showConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              @if (passwordForm.get('confirmPassword')?.hasError('required')) {
+                <mat-error>La confirmation du mot de passe est requise</mat-error>
+              }
+              @if (passwordForm.hasError('passwordMismatch') && !passwordForm.get('confirmPassword')?.hasError('required')) {
+                <mat-error>Les mots de passe ne correspondent pas</mat-error>
+              }
+            </mat-form-field>
+
+            <div class="password-info">
+              <mat-icon>info</mat-icon>
+              <span>Le mot de passe doit contenir au moins 8 caractères.</span>
+            </div>
+
+            <div class="actions-container">
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="passwordForm.invalid || isChangingPassword()">
+                @if (!isChangingPassword()) {
+                  <span>Changer le mot de passe</span>
+                } @else {
+                  <mat-spinner diameter="20"></mat-spinner>
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">Annuler</button>
+  </mat-dialog-actions>
+</div>

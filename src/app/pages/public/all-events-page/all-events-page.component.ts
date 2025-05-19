@@ -1,24 +1,14 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { EventsDisplayComponent } from '../../../shared/ui/events-display/events-display.component';
-import { Event } from '../../../core/models/event.model';
-import { EventService } from '../../../core/services/event.service';
-import { PageEvent } from '@angular/material/paginator';
+import { EventModel} from '../../../core/models';
+import { EventService } from '../../../core/services/domain/event.service';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { Subject, takeUntil } from 'rxjs';
 import { Title } from '@angular/platform-browser';
-
-interface EventFilters {
-  selectedCategories?: string[];
-  searchQuery?: string;
-  dateRange?: {
-    startDate?: Date;
-    endDate?: Date;
-  };
-  location?: string;
-  sortBy?: string;
-  genres?: Record<string, boolean>;
-}
+import { EventSearchParams } from '../../../core/models/event/event-search-params.model';
+import { NotificationService } from '../../../core/services/domain/notification.service';
 
 @Component({
   selector: 'app-all-events-page',
@@ -29,33 +19,36 @@ interface EventFilters {
     CommonModule,
     RouterModule,
     EventsDisplayComponent,
+    MatPaginatorModule
   ]
 })
 export class AllEventsPageComponent implements OnInit, OnDestroy {
-  // État de la page
-  isLoading = true;
+  // Injection des services
+  private eventService = inject(EventService);
+  private titleService = inject(Title);
+  private notificationService = inject(NotificationService);
 
-  // Données des événements
-  fullEventsList: Event[] = [];
-  processedEvents: Event[] = [];
-  displayedEvents: Event[] = [];
+  // Signaux pour les données et l'état du composant
+  isLoading = signal(true);
+  displayMode = signal<'grid' | 'list'>('grid');
+  currentPage = signal(1);
+  pageSize = signal(12);
+  totalItems = signal(0);
 
-  // État des filtres et de l'affichage
-  currentFilters: any = {};
-  displayMode: 'grid' | 'list' = 'grid';
+  // Listes d'événements
+  private allEvents = signal<EventModel[]>([]);
+  private filteredEvents = signal<EventModel[]>([]);
+  displayedEvents = computed(() => {
+    const startIndex = (this.currentPage() - 1) * this.pageSize();
+    const endIndex = startIndex + this.pageSize();
+    return this.filteredEvents().slice(startIndex, endIndex);
+  });
 
-  // Paramètres de pagination
-  totalItems = 0;
-  pageSize = 12;
-  currentPage = 1;
+  // Filtres
+  currentFilters = signal<EventSearchParams>({});
 
   // Subject pour gérer la désinscription aux observables
   private destroy$ = new Subject<void>();
-
-  constructor(
-    private eventService: EventService,
-    private titleService: Title
-  ) {}
 
   ngOnInit(): void {
     // Définir le titre de la page
@@ -75,20 +68,24 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
    * Charge tous les événements depuis le service
    */
   loadEvents(): void {
-    this.isLoading = true;
+    this.isLoading.set(true);
 
-    this.eventService.getAllEvents()
+    this.eventService.getEvents()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (events) => {
-          this.fullEventsList = events;
-          console.log(this.fullEventsList)
+          this.allEvents.set(events);
           this.applyFiltersAndSort();
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
         error: (error) => {
           console.error('Erreur lors du chargement des événements:', error);
-          this.isLoading = false;
+          this.notificationService.displayNotification(
+            'Erreur lors du chargement des événements',
+            'error',
+            'Fermer'
+          );
+          this.isLoading.set(false);
         }
       });
   }
@@ -97,134 +94,143 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
    * Applique les filtres et le tri aux événements
    */
   applyFiltersAndSort(): void {
-    console.log('Application des filtres:', this.currentFilters);
-
-    // Copie la liste complète pour appliquer les filtres
-    let filteredEvents = [...this.fullEventsList];
+    const filters = this.currentFilters();
+    let result = [...this.allEvents()];
 
     // Appliquer le filtre par catégorie
-    if (this.currentFilters.selectedCategories && this.currentFilters.selectedCategories.length > 0) {
-      filteredEvents = filteredEvents.filter(event =>
-        this.currentFilters.selectedCategories.includes(event.category)
-      );
+    if (filters.category) {
+      if (typeof filters.category === 'number') {
+        // Si c'est un ID de catégorie
+        result = result.filter(event => event.category.id === filters.category);
+      } else if (typeof filters.category === 'object' && filters.categoryId) {
+        // Si c'est un objet EventCategoryModel
+        result = result.filter(event => event.category.id === filters.categoryId);
+      }
     }
 
     // Appliquer le filtre par recherche textuelle
-    if (this.currentFilters.searchQuery && this.currentFilters.searchQuery.trim() !== '') {
-      const searchTerm = this.currentFilters.searchQuery.toLowerCase().trim();
-      filteredEvents = filteredEvents.filter(event =>
+    if (filters.query && filters.query.trim() !== '') {
+      const searchTerm = filters.query.toLowerCase().trim();
+      result = result.filter(event =>
         event.name.toLowerCase().includes(searchTerm) ||
         (event.shortDescription && event.shortDescription.toLowerCase().includes(searchTerm)) ||
-        (event.locations && event.locations.some(location =>
-          location.name && location.name.toLowerCase().includes(searchTerm)
-        ))
+        (event.address && `${event.address.city} ${event.address.country}`.toLowerCase().includes(searchTerm))
       );
     }
 
     // Appliquer les filtres de date
-    if (this.currentFilters.dateRange) {
-      if (this.currentFilters.dateRange.startDate) {
-        const startDate = new Date(this.currentFilters.dateRange.startDate);
-        filteredEvents = filteredEvents.filter(event =>
-          new Date(event.startDate) >= startDate
-        );
-      }
-
-      if (this.currentFilters.dateRange.endDate) {
-        const endDate = new Date(this.currentFilters.dateRange.endDate);
-        filteredEvents = filteredEvents.filter(event =>
-          new Date(event.startDate) <= endDate
-        );
-      }
-    }
-
-    // Appliquer le filtre de lieu
-    if (this.currentFilters.location && this.currentFilters.location.trim() !== '') {
-      const location = this.currentFilters.location.toLowerCase().trim();
-      filteredEvents = filteredEvents.filter(event =>
-        event.locations && event.locations.some(loc =>
-          loc.name && loc.name.toLowerCase().includes(location)
-        )
+    if (filters.startDate) {
+      const startDate = new Date(filters.startDate);
+      result = result.filter(event =>
+        new Date(event.startDate) >= startDate
       );
     }
 
-    // Appliquer les filtres de genre si présents
-    if (this.currentFilters.genres) {
-      const selectedGenres = Object.entries(this.currentFilters.genres)
+    if (filters.endDate) {
+      const endDate = new Date(filters.endDate);
+      result = result.filter(event =>
+        new Date(event.endDate) <= endDate
+      );
+    }
+
+    // Filtrer par événements gratuits
+    if (filters.free === true) {
+      result = result.filter(event => event.isFreeEvent);
+    }
+
+    // Filtrer par événements mis en avant
+    if (filters.featured === true) {
+      result = result.filter(event => event.isFeaturedEvent);
+    }
+
+    // Filtrer par statut
+    if (filters.status) {
+      result = result.filter(event => event.status === filters.status);
+    }
+
+    // Appliquer les filtres de genre
+    if (filters.genres && Object.keys(filters.genres).length > 0) {
+      const selectedGenres = Object.entries(filters.genres)
         .filter(([_, selected]) => selected)
         .map(([key]) => key);
 
       if (selectedGenres.length > 0) {
-        filteredEvents = filteredEvents.filter(event =>
-          event.genre && event.genre.some(g =>
-            selectedGenres.includes(g.toLowerCase())
-          )
+        result = result.filter(event =>
+            event.genre && event.genre.some(g =>
+              selectedGenres.includes(g.toLowerCase())
+            )
         );
       }
     }
 
-    // Appliquer le tri
-    if (this.currentFilters.sortBy) {
-      switch (this.currentFilters.sortBy) {
-        case 'date_asc':
-          filteredEvents.sort((a, b) =>
-            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-          );
-          break;
-        case 'date_desc':
-          filteredEvents.sort((a, b) =>
-            new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
-          );
-          break;
-        case 'name_asc':
-          filteredEvents.sort((a, b) => a.name.localeCompare(b.name));
-          break;
-        case 'name_desc':
-          filteredEvents.sort((a, b) => b.name.localeCompare(a.name));
-          break;
-        case 'price_asc':
-          filteredEvents.sort((a, b) => {
-            const priceA = a.locations[0]?.ticketPrice || 0;
-            const priceB = b.locations[0]?.ticketPrice || 0;
-            return priceA - priceB;
-          });
-          break;
-        case 'price_desc':
-          filteredEvents.sort((a, b) => {
-            const priceA = a.locations[0]?.ticketPrice || 0;
-            const priceB = b.locations[0]?.ticketPrice || 0;
-            return priceB - priceA;
-          });
-          break;
-        // Pour les autres options, on garde l'ordre par défaut
-      }
+    // Appliquer les filtres de tags
+    if (filters.tags && filters.tags.length > 0) {
+      result = result.filter(event =>
+          event.tags && event.tags.some(tag =>
+            filters.tags && filters.tags.includes(tag)
+          )
+      );
     }
 
-    // Mettre à jour la liste des événements traités
-    this.processedEvents = filteredEvents;
-    this.totalItems = this.processedEvents.length;
+    // Appliquer le tri
+    if (filters.sortBy) {
+      const direction = filters.sortDirection || 'asc';
+      const multiplier = direction === 'asc' ? 1 : -1;
 
-    // Mettre à jour les événements affichés sur la page actuelle
-    this.updateDisplayedEvents();
+      switch (filters.sortBy) {
+        case 'startDate':
+          result.sort((a, b) =>
+            multiplier * (new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+          );
+          break;
+        case 'name':
+          result.sort((a, b) =>
+            multiplier * a.name.localeCompare(b.name)
+          );
+          break;
+        case 'price':
+          result.sort((a, b) => {
+            const priceA = this.getMinPrice(a);
+            const priceB = this.getMinPrice(b);
+            return multiplier * (priceA - priceB);
+          });
+          break;
+      }
+    } else {
+      // Tri par défaut par date de début
+      result.sort((a, b) =>
+        new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+      );
+    }
+
+    // Mettre à jour la liste des événements filtrés
+    this.filteredEvents.set(result);
+    this.totalItems.set(result.length);
+
+    // Revenir à la première page si on change les filtres
+    this.currentPage.set(1);
   }
 
   /**
-   * Met à jour la liste des événements affichés en fonction de la pagination
+   * Obtient le prix minimum d'un événement
    */
-  updateDisplayedEvents(): void {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
+  private getMinPrice(event: EventModel): number {
+    if (event.isFreeEvent) return 0;
 
-    this.displayedEvents = this.processedEvents.slice(startIndex, endIndex);
+    if (!event.seatingZones || event.seatingZones.length === 0) return 0;
+
+    const activeZones = event.seatingZones.filter(zone => zone.isActive && zone.ticketPrice > 0);
+
+    if (activeZones.length === 0) return 0;
+
+    return Math.min(...activeZones.map(zone => zone.ticketPrice));
   }
 
   /**
    * Gère le changement des filtres
    */
-  onFiltersChanged(filters: EventFilters): void {
-    console.log('Filtres reçus:', filters);
-    this.currentFilters = filters;
-    this.currentPage = 1; // Réinitialiser à la première page
+  onFiltersChanged(filters: EventSearchParams): void {
+    this.currentFilters.set(filters);
     this.applyFiltersAndSort();
   }
 
@@ -232,15 +238,14 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
    * Gère le changement de page dans la pagination
    */
   onPageChanged(pageIndex: number, pageSize: number): void {
-    this.pageSize = pageSize;
-    this.currentPage = pageIndex + 1;
-    this.updateDisplayedEvents();
+    this.pageSize.set(pageSize);
+    this.currentPage.set(pageIndex + 1);
   }
 
   /**
    * Gère le changement de mode d'affichage (grille ou liste)
    */
   onDisplayModeChanged(mode: 'grid' | 'list'): void {
-    this.displayMode = mode;
+    this.displayMode.set(mode);
   }
 }

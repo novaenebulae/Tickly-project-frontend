@@ -1,10 +1,10 @@
 import { Component, Input, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef, HostBinding } from '@angular/core';
-import { Event } from '../../../core/models/event.model';
 import { Subscription, interval } from 'rxjs';
 import {CommonModule} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
 import {EventCardComponent} from '../event-card-item/event-card.component';
 import {MatButtonModule} from '@angular/material/button';
+import {EventModel} from '../../../core/models';
 // Les imports pour MatIconModule etc. sont dans le décorateur @Component pour les composants standalone
 
 @Component({
@@ -15,7 +15,7 @@ import {MatButtonModule} from '@angular/material/button';
   imports: [ CommonModule, MatIconModule, EventCardComponent, MatButtonModule ], // CommonModule pour @for
 })
 export class EventsCarouselComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Input() events: Event[] = [];
+  @Input() events: EventModel[] = [];
   @Input() showControls = true;
   @Input() autoSlide = true;
   @Input() slideInterval = 5000;

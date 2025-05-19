@@ -1,15 +1,16 @@
-import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '../../../core/services';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { LoginCredentials } from '../../../core/models';
 
 @Component({
   selector: 'app-auth',
@@ -31,11 +32,16 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuthComponent {
-  formBuilder = inject(FormBuilder);
-  router: Router = inject(Router);
-  authService = inject(AuthService);
-  isLoading = false;
-  hidePassword = true;
+  private formBuilder = inject(FormBuilder);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+
+  // Signaux pour l'état du composant
+  isLoading = signal(false);
+  hidePassword = signal(true);
+
+  // Accès aux signaux exposés par AuthService
+  readonly isLoggedIn = this.authService.isLoggedIn;
 
   formulaire = this.formBuilder.group({
     email: ['admin@example.com', [Validators.required, Validators.email]],
@@ -45,24 +51,26 @@ export class AuthComponent {
 
   onLogin(): void {
     this.formulaire.markAllAsTouched();
-    localStorage.setItem('keepLoggedIn', this.formulaire.value.keepLoggedIn?.toString() || 'false');
+
+    // Définir la préférence "Se souvenir de moi" dans le service
+    this.authService.setKeepLoggedIn(Boolean(this.formulaire.value.keepLoggedIn));
+
     if (this.formulaire.valid) {
-      this.isLoading = true;
-      const credentials = {
+      this.isLoading.set(true);
+
+      const credentials: LoginCredentials = {
         email: this.formulaire.value.email || null,
         password: this.formulaire.value.password || null,
       };
 
       this.authService.login(credentials).subscribe({
         next: () => {
-          console.log(
-            'AuthComponent: Login call successful (navigation handled by AuthService).'
-          );
-          this.isLoading = false;
+          console.log('AuthComponent: Login call successful (navigation handled by AuthService).');
+          this.isLoading.set(false);
         },
         error: (err) => {
           console.error('Login Component Error:', err);
-          this.isLoading = false;
+          this.isLoading.set(false);
         },
       });
     } else {
@@ -72,5 +80,21 @@ export class AuthComponent {
 
   onLogout(): void {
     this.authService.logout();
+  }
+
+  // Helper pour accéder aux erreurs du formulaire dans le template
+  getErrorMessage(controlName: string): string {
+    const control = this.formulaire.get(controlName);
+    if (!control) return '';
+
+    if (control.errors?.['required']) {
+      return 'Ce champ est obligatoire';
+    }
+
+    if (control.errors?.['email']) {
+      return 'Veuillez saisir une adresse email valide';
+    }
+
+    return '';
   }
 }

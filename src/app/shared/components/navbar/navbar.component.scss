@@ -1,218 +1,124 @@
-// Importer les variables Bootstrap si vous les personnalisez
-// @import 'bootstrap/scss/functions';
-// @import 'bootstrap/scss/variables';
-// @import 'bootstrap/scss/mixins';
+// Variables
+$primary-color: #007bff;
+$navbar-height: 60px;
+$text-color: #333;
+$badge-color: #dc3545;
+$white: #ffffff;
 
-// Variables personnalisées (optionnel, à adapter à votre charte)
-$primary-color: #007bff; // Un bleu standard et vif
-$secondary-color: #0056b3; // Un bleu plus foncé pour contraster ou pour des éléments secondaires
-$navbar-bg: #ffffff; // Fond de la navbar (blanc)
-$navbar-link-color: #333; // Couleur des liens de navigation
-$navbar-link-hover-color: $primary-color; // Couleur des liens au survol
-$navbar-link-active-color: $primary-color; // Couleur du lien actif
+// Spacer pour compenser la navbar fixed-top
+.navbar-spacer {
+  height: $navbar-height;
+}
 
-.tickly-navbar {
-  background-color: $navbar-bg;
-  padding: 0;
-  transition: background-color 0.3s ease-in-out;
-  position: sticky;
-  top: 0;
-  left: 0;
-  z-index: 5;
-  height: 60px;
-  //width: 100vw;
+// Style de base de la navbar
+.navbar {
+  height: $navbar-height;
+  padding-top: 0;
+  padding-bottom: 0;
 
-
-  .tickly-logo {
-    transition: color 0.3s ease;
-    height: auto;
-    width: 10%;
-
-    &:hover {
-      color: darken($primary-color, 10%);
-    }
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0;
   }
 
-  ul {
-    flex: 1 1;
-    margin-right: auto;
-  }
-
+  // Style des liens de navigation
   .nav-link {
-    color: $navbar-link-color;
+    position: relative;
+    color: $text-color;
     font-weight: 500;
-    margin-left: 0.5rem;
-    padding: 0.5rem 0.8rem;
-    border-radius: 4px;
-    transition: color 0.3s ease, background-color 0.3s ease;
+    padding: 0 1rem;
+    height: $navbar-height;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s ease;
 
     &:hover {
-      color: $navbar-link-hover-color;
-      background-color: rgba($primary-color, 0.1);
+      color: $primary-color;
     }
 
     &.active {
-      color: $navbar-link-active-color;
-      font-weight: 700;
-      // border-bottom: 2px solid $primary-color; // Option de style pour l'onglet actif
-    }
-  }
+      color: $primary-color;
+      font-weight: 600;
 
-  .navbar-toggler {
-    border: none;
-
-    .navbar-toggler-icon {
-      // Vous pouvez personnaliser l'icône du burger ici si besoin
-      // background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(103, 58, 183, 0.8)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
-    }
-  }
-
-  .tickly-search-form {
-    margin-left: auto;
-    flex: 1 1;
-    justify-content: end;
-
-    .form-control {
-      border-radius: 20px 0 0 20px; // Forme arrondie pour la barre de recherche
-      border-right: none;
-      width: min-content;
-      flex: 1 1;
-
-      &:focus {
-        border-color: $primary-color;
-        box-shadow: none;
-      }
-    }
-
-    .btn {
-      border-radius: 0 20px 20px 0; // Forme arrondie pour le bouton de recherche
-      background-color: $primary-color;
-      color: white;
-      border-color: $primary-color;
-
-      &:hover {
-        background-color: darken($primary-color, 10%);
-        border-color: darken($primary-color, 10%);
-      }
-
-      mat-icon {
-        vertical-align: middle;
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0.5rem;
+        right: 0.5rem;
+        height: 3px;
+        background-color: $primary-color;
+        border-radius: 3px 3px 0 0;
       }
     }
   }
 
-  .user-avatar {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
-    border: 2px solid $primary-color; // Optionnel : bordure pour l'avatar
+  // Assurer que le contenu mobile a un fond blanc
+  .navbar-collapse {
+    background-color: $white;
   }
+}
 
-  .dropdown-menu {
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+// Avatar utilisateur
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 0;
+  line-height: 1;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
 
-    .dropdown-item {
-      font-weight: 500;
-      transition: background-color 0.2s ease, color 0.2s ease;
+// Style du menu utilisateur mobile
+.mobile-user-menu {
+  .user-menu-button {
+    border-radius: 4px;
+    padding: 8px 16px;
+    margin-bottom: 8px;
 
-      &:hover {
-        background-color: rgba($primary-color, 0.1);
-        color: $primary-color;
-      }
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
 
-      mat-icon {
-        color: $primary-color;
-        opacity: 0.8;
-        margin-right: 10px; // Espace entre l'icône et le texte
-      }
+    mat-icon {
+      vertical-align: middle;
     }
   }
 }
 
-// Styles pour le menu burger lorsqu'il est ouvert (collapse)
-.navbar-collapse {
-  &.show, &.collapsing {
-    padding: 1rem;
-    background-color: lighten($navbar-bg, 5%); // Léger fond différent pour le menu ouvert
-    border-radius: 0 0 8px 8px; // Bords arrondis en bas
-    margin-top: 0.5rem; // Petit espace par rapport à la barre principale
+// Style du menu utilisateur desktop
+::ng-deep .user-menu {
+  .mat-mdc-menu-content {
+    padding: 0 !important;
+  }
+
+  .mat-mdc-menu-panel {
+    background-color: $white !important;
+  }
+
+  .user-menu-header {
+    background-color: $white !important;
   }
 }
 
-// Responsive adjustments
-@media (max-width: 991.98px) { // lg breakpoint de Bootstrap
-
-  ::ng-deep
-  app-navbar {
-    position: absolute;
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-    background: none;
+// Adaptations mobiles
+@media (max-width: 991.98px) {
+  .nav-link {
+    height: auto !important;
+    padding: 0.75rem 1rem !important;
   }
 
-  .tickly-navbar {
-    width: 100%;
-    background: none;
+  .navbar-collapse {
+    padding: 0.5rem 0;
+  }
 
-    .tickly-logo {
-      display: none;
-    }
-
-    .navbar-nav {
-      align-items: flex-start; // Aligner les items à gauche dans le menu burger
-    }
-
-    .navbar-nav:has(.dropdown) {
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-
-    .nav-link {
-      margin: 0.5rem 0;
-      padding: 0.8rem 1rem;
-      width: 100%; // Liens pleine largeur
-    }
-
-    .tickly-search-form {
-      width: 100%;
-      margin-top: 1rem;
-
-      .form-control, .btn {
-        border-radius: 4px; // Rayon standard pour le mobile
-      }
-
-      .form-control {
-        border-right: 1px solid #ced4da; // Rétablir la bordure
-      }
-    }
-
-    .dropdown-menu {
-      border: none;
-      background-color: white;
-      align-self: end;
-
-      .dropdown-item {
-        padding-left: 1rem;
-      }
-    }
-
-    #navbarUserMenu {
-      // Si vous voulez que l'avatar et le nom soient toujours visibles
-      // ou juste l'avatar/icône.
-
-
-      .user-avatar {
-        margin-right: 0.5rem;
-      }
-
-      span {
-        display: inline !important;
-      }
-
-      // Afficher le nom dans le menu burger
-    }
+  .user-info-mobile {
+    border-radius: 4px;
   }
 }

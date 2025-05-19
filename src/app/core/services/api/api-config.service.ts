@@ -15,7 +15,7 @@ import { environment } from '../../config/environment';
   providedIn: 'root'
 })
 export class ApiConfigService {
-  private readonly apiUrl: string;
+  readonly apiUrl: string;
 
   constructor(public http: HttpClient) {
     // Utilise l'URL de l'API depuis l'environnement ou la config par défaut

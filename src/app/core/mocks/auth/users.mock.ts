@@ -19,6 +19,37 @@ export interface MockUser {
 }
 
 /**
+ * Fonction utilitaire pour créer un token JWT valide à partir des données utilisateur
+ */
+function createMockJwt(userData: {
+  sub: string;
+  userId: number;
+  role: string;
+  needsStructureSetup?: boolean;
+}): string {
+  // Création du header JWT (alg + typ)
+  const header = {
+    alg: 'HS256',
+    typ: 'JWT'
+  };
+
+  // Création du payload avec les données utilisateur et timestamps
+  const payload = {
+    ...userData,
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + 3600 * 24 // Expire dans 24h
+  };
+
+  // Encodage en base64 des parties (normalement il y aurait une signature)
+  const headerEncoded = btoa(JSON.stringify(header)).replace(/=/g, '');
+  const payloadEncoded = btoa(JSON.stringify(payload)).replace(/=/g, '');
+  const signatureEncoded = 'mockSignature123'; // Signature fictive
+
+  // Construction du token JWT
+  return `${headerEncoded}.${payloadEncoded}.${signatureEncoded}`;
+}
+
+/**
  * Liste des utilisateurs mockés pour les tests et le développement
  */
 export const mockUsers: MockUser[] = [
@@ -31,7 +62,12 @@ export const mockUsers: MockUser[] = [
     password: 'rootroot',
     role: 'STRUCTURE_ADMINISTRATOR',
     structureId: 1,
-    mockToken: 'mock_token_admin_1_structure_1',
+    mockToken: createMockJwt({
+      sub: 'admin@example.com',
+      userId: 1,
+      role: 'STRUCTURE_ADMINISTRATOR',
+      needsStructureSetup: false
+    }),
     needsStructureSetup: false,
     createdAt: new Date('2025-01-01T10:00:00'),
     updatedAt: new Date('2025-01-01T10:00:00')
@@ -44,7 +80,12 @@ export const mockUsers: MockUser[] = [
     password: 'password123',
     role: 'STRUCTURE_ADMINISTRATOR',
     structureId: 2,
-    mockToken: 'mock_token_admin_2_structure_2',
+    mockToken: createMockJwt({
+      sub: 'marie.dupont@example.com',
+      userId: 2,
+      role: 'STRUCTURE_ADMINISTRATOR',
+      needsStructureSetup: false
+    }),
     needsStructureSetup: false,
     createdAt: new Date('2025-01-05T11:30:00'),
     updatedAt: new Date('2025-01-05T11:30:00')
@@ -57,7 +98,12 @@ export const mockUsers: MockUser[] = [
     password: 'password123',
     role: 'STRUCTURE_ADMINISTRATOR',
     structureId: 3,
-    mockToken: 'mock_token_admin_3_structure_3',
+    mockToken: createMockJwt({
+      sub: 'jean.martin@example.com',
+      userId: 3,
+      role: 'STRUCTURE_ADMINISTRATOR',
+      needsStructureSetup: false
+    }),
     needsStructureSetup: false,
     createdAt: new Date('2025-01-10T09:45:00'),
     updatedAt: new Date('2025-01-10T09:45:00')
@@ -69,7 +115,12 @@ export const mockUsers: MockUser[] = [
     email: 'sophie.petit@example.com',
     password: 'password123',
     role: 'STRUCTURE_ADMINISTRATOR',
-    mockToken: 'mock_token_admin_4_no_structure',
+    mockToken: createMockJwt({
+      sub: 'sophie.petit@example.com',
+      userId: 4,
+      role: 'STRUCTURE_ADMINISTRATOR',
+      needsStructureSetup: true
+    }),
     needsStructureSetup: true, // N'a pas encore configuré sa structure
     createdAt: new Date('2025-01-15T14:20:00'),
     updatedAt: new Date('2025-01-15T14:20:00')
@@ -82,7 +133,12 @@ export const mockUsers: MockUser[] = [
     password: 'password123',
     role: 'STRUCTURE_ADMINISTRATOR',
     structureId: 5,
-    mockToken: 'mock_token_admin_5_structure_5',
+    mockToken: createMockJwt({
+      sub: 'pierre.leroy@example.com',
+      userId: 5,
+      role: 'STRUCTURE_ADMINISTRATOR',
+      needsStructureSetup: false
+    }),
     needsStructureSetup: false,
     createdAt: new Date('2025-01-20T16:10:00'),
     updatedAt: new Date('2025-01-20T16:10:00')
@@ -96,7 +152,11 @@ export const mockUsers: MockUser[] = [
     email: 'lucie.moreau@example.com',
     password: 'password123',
     role: 'SPECTATOR',
-    mockToken: 'mock_token_spectator_1',
+    mockToken: createMockJwt({
+      sub: 'lucie.moreau@example.com',
+      userId: 6,
+      role: 'SPECTATOR'
+    }),
     createdAt: new Date('2025-02-01T09:00:00'),
     updatedAt: new Date('2025-02-01T09:00:00')
   },
@@ -107,7 +167,11 @@ export const mockUsers: MockUser[] = [
     email: 'thomas.bernard@example.com',
     password: 'password123',
     role: 'SPECTATOR',
-    mockToken: 'mock_token_spectator_2',
+    mockToken: createMockJwt({
+      sub: 'thomas.bernard@example.com',
+      userId: 7,
+      role: 'SPECTATOR'
+    }),
     createdAt: new Date('2025-02-05T10:30:00'),
     updatedAt: new Date('2025-02-05T10:30:00')
   },
@@ -118,7 +182,11 @@ export const mockUsers: MockUser[] = [
     email: 'emma.robert@example.com',
     password: 'password123',
     role: 'SPECTATOR',
-    mockToken: 'mock_token_spectator_3',
+    mockToken: createMockJwt({
+      sub: 'emma.robert@example.com',
+      userId: 8,
+      role: 'SPECTATOR'
+    }),
     createdAt: new Date('2025-02-10T14:15:00'),
     updatedAt: new Date('2025-02-10T14:15:00')
   },
@@ -129,7 +197,11 @@ export const mockUsers: MockUser[] = [
     email: 'lucas.dubois@example.com',
     password: 'password123',
     role: 'SPECTATOR',
-    mockToken: 'mock_token_spectator_4',
+    mockToken: createMockJwt({
+      sub: 'lucas.dubois@example.com',
+      userId: 9,
+      role: 'SPECTATOR'
+    }),
     createdAt: new Date('2025-02-15T11:45:00'),
     updatedAt: new Date('2025-02-15T11:45:00')
   },
@@ -140,7 +212,11 @@ export const mockUsers: MockUser[] = [
     email: 'chloe.girard@example.com',
     password: 'password123',
     role: 'SPECTATOR',
-    mockToken: 'mock_token_spectator_5',
+    mockToken: createMockJwt({
+      sub: 'chloe.girard@example.com',
+      userId: 10,
+      role: 'SPECTATOR'
+    }),
     createdAt: new Date('2025-02-20T15:30:00'),
     updatedAt: new Date('2025-02-20T15:30:00')
   },
@@ -153,7 +229,11 @@ export const mockUsers: MockUser[] = [
     email: 'nicolas.roux@example.com',
     password: 'admin_secure',
     role: 'PLATFORM_ADMINISTRATOR',
-    mockToken: 'mock_token_platform_admin_1',
+    mockToken: createMockJwt({
+      sub: 'nicolas.roux@example.com',
+      userId: 11,
+      role: 'PLATFORM_ADMINISTRATOR'
+    }),
     createdAt: new Date('2025-01-01T08:00:00'),
     updatedAt: new Date('2025-01-01T08:00:00')
   },
@@ -164,7 +244,11 @@ export const mockUsers: MockUser[] = [
     email: 'celine.fournier@example.com',
     password: 'admin_secure',
     role: 'PLATFORM_ADMINISTRATOR',
-    mockToken: 'mock_token_platform_admin_2',
+    mockToken: createMockJwt({
+      sub: 'celine.fournier@example.com',
+      userId: 12,
+      role: 'PLATFORM_ADMINISTRATOR'
+    }),
     createdAt: new Date('2025-01-02T08:30:00'),
     updatedAt: new Date('2025-01-02T08:30:00')
   },
@@ -178,7 +262,11 @@ export const mockUsers: MockUser[] = [
     password: 'password123',
     role: 'EVENT_MANAGER',
     structureId: 1,
-    mockToken: 'mock_token_event_manager_1',
+    mockToken: createMockJwt({
+      sub: 'alexandre.vincent@example.com',
+      userId: 13,
+      role: 'EVENT_MANAGER'
+    }),
     createdAt: new Date('2025-03-01T09:15:00'),
     updatedAt: new Date('2025-03-01T09:15:00')
   },
@@ -190,7 +278,11 @@ export const mockUsers: MockUser[] = [
     password: 'password123',
     role: 'EVENT_MANAGER',
     structureId: 2,
-    mockToken: 'mock_token_event_manager_2',
+    mockToken: createMockJwt({
+      sub: 'julie.simon@example.com',
+      userId: 14,
+      role: 'EVENT_MANAGER'
+    }),
     createdAt: new Date('2025-03-05T10:45:00'),
     updatedAt: new Date('2025-03-05T10:45:00')
   },
@@ -204,7 +296,11 @@ export const mockUsers: MockUser[] = [
     password: 'password123',
     role: 'TICKETING',
     structureId: 1,
-    mockToken: 'mock_token_ticketing_1',
+    mockToken: createMockJwt({
+      sub: 'mathieu.lambert@example.com',
+      userId: 15,
+      role: 'TICKETING'
+    }),
     createdAt: new Date('2025-03-10T11:00:00'),
     updatedAt: new Date('2025-03-10T11:00:00')
   },
@@ -216,7 +312,11 @@ export const mockUsers: MockUser[] = [
     password: 'password123',
     role: 'TICKETING',
     structureId: 3,
-    mockToken: 'mock_token_ticketing_2',
+    mockToken: createMockJwt({
+      sub: 'audrey.laurent@example.com',
+      userId: 16,
+      role: 'TICKETING'
+    }),
     createdAt: new Date('2025-03-15T13:30:00'),
     updatedAt: new Date('2025-03-15T13:30:00')
   },
@@ -229,7 +329,11 @@ export const mockUsers: MockUser[] = [
     email: 'hugo.marchand@example.com',
     password: 'password123',
     role: 'SPECTATOR',
-    mockToken: 'mock_token_spectator_6',
+    mockToken: createMockJwt({
+      sub: 'hugo.marchand@example.com',
+      userId: 17,
+      role: 'SPECTATOR'
+    }),
     createdAt: new Date('2025-04-01T10:00:00'),
     updatedAt: new Date('2025-04-01T10:00:00')
   },
@@ -240,7 +344,11 @@ export const mockUsers: MockUser[] = [
     email: 'ines.lefebvre@example.com',
     password: 'password123',
     role: 'SPECTATOR',
-    mockToken: 'mock_token_spectator_7',
+    mockToken: createMockJwt({
+      sub: 'ines.lefebvre@example.com',
+      userId: 18,
+      role: 'SPECTATOR'
+    }),
     createdAt: new Date('2025-04-05T11:15:00'),
     updatedAt: new Date('2025-04-05T11:15:00')
   },
@@ -252,7 +360,12 @@ export const mockUsers: MockUser[] = [
     password: 'password123',
     role: 'STRUCTURE_ADMINISTRATOR',
     structureId: 6,
-    mockToken: 'mock_token_admin_6_structure_6',
+    mockToken: createMockJwt({
+      sub: 'leo.mercier@example.com',
+      userId: 19,
+      role: 'STRUCTURE_ADMINISTRATOR',
+      needsStructureSetup: false
+    }),
     needsStructureSetup: false,
     createdAt: new Date('2025-04-10T14:00:00'),
     updatedAt: new Date('2025-04-10T14:00:00')
@@ -264,7 +377,12 @@ export const mockUsers: MockUser[] = [
     email: 'camille.blanchard@example.com',
     password: 'password123',
     role: 'STRUCTURE_ADMINISTRATOR',
-    mockToken: 'mock_token_admin_7_no_structure',
+    mockToken: createMockJwt({
+      sub: 'camille.blanchard@example.com',
+      userId: 20,
+      role: 'STRUCTURE_ADMINISTRATOR',
+      needsStructureSetup: true
+    }),
     needsStructureSetup: true, // N'a pas encore configuré sa structure
     createdAt: new Date('2025-04-15T16:30:00'),
     updatedAt: new Date('2025-04-15T16:30:00')

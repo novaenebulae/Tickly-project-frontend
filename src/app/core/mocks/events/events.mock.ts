@@ -1,29 +1,41 @@
 // src/app/core/mocks/events/events.mock.ts
 
-import { Event, EventStatus } from '../../models/event.model';
+import { EventModel, EventStatus } from '../../models/event/event.model';
+import { EventCategoryModel } from '../../models/event/event-category.model';
+import { SeatingType } from '../../models/event/seating.model';
+import { AddressModel } from '../../models/structure/address.model';
 
 /**
  * Liste des événements mockés pour le développement et les tests
  */
-export const mockEvents: Event[] = [
+export const mockEvents: EventModel[] = [
   {
     id: 1,
     name: 'Festival de Musique d\'été',
-    category: 'Festival',
+    category: { id: 6, name: 'Festival' },
     shortDescription: 'Un festival vibrant avec des artistes internationaux.',
     genre: ['Pop', 'Rock'],
     tags: ['été', 'musique', 'plein air'],
     startDate: new Date('2025-07-10T18:00:00'),
     endDate: new Date('2025-07-12T23:00:00'),
+    address: {
+      street: 'Avenue du Parc',
+      city: 'Paris',
+      zipCode: '75001',
+      country: 'France'
+    },
+    structureId: 1,
     isFreeEvent: false,
-    locations: [
+    defaultSeatingType: SeatingType.MIXED,
+    seatingZones: [
       {
-        locationId: 101,
+        id: 101,
         name: 'Parc Central',
+        areaId: 101,
         maxCapacity: 5000,
-        ticketCount: 4500,
         ticketPrice: 45.00,
-        active: true
+        isActive: true,
+        seatingType: SeatingType.STANDING
       }
     ],
     displayOnHomepage: true,
@@ -33,28 +45,38 @@ export const mockEvents: Event[] = [
     mainPhotoUrl: 'https://picsum.photos/seed/1011/600/400',
     eventPhotoUrls: ['https://picsum.photos/seed/1012/600/400', 'https://picsum.photos/seed/1013/600/400'],
     status: 'published',
-    createdByStructureId: 1,
     createdAt: new Date('2025-01-15T10:00:00'),
     updatedAt: new Date('2025-04-20T15:30:00')
   },
   {
     id: 2,
     name: 'Théâtre Classique: Roméo et Juliette',
-    category: 'Theater',
+    category: { id: 2, name: 'Theater' },
     shortDescription: 'Une représentation émouvante de la tragédie de Shakespeare.',
     genre: ['Drame'],
     tags: ['théâtre', 'classique', 'roméo'],
     startDate: new Date('2025-06-05T20:00:00'),
     endDate: new Date('2025-06-05T22:30:00'),
+    address: {
+      street: 'Rue du Théâtre',
+      city: 'Lyon',
+      zipCode: '69002',
+      country: 'France'
+    },
+    structureId: 2,
     isFreeEvent: false,
-    locations: [
+    defaultSeatingType: SeatingType.SEATED,
+    seatingZones: [
       {
-        locationId: 102,
+        id: 102,
         name: 'Théâtre Royal',
+        areaId: 102,
         maxCapacity: 800,
-        ticketCount: 800,
         ticketPrice: 30.00,
-        active: true
+        isActive: true,
+        seatingType: SeatingType.SEATED,
+        rowCount: 20,
+        seatsPerRow: 40
       }
     ],
     displayOnHomepage: true,
@@ -64,28 +86,45 @@ export const mockEvents: Event[] = [
     mainPhotoUrl: 'https://picsum.photos/seed/1021/600/400',
     eventPhotoUrls: ['https://picsum.photos/seed/1022/600/400'],
     status: 'published',
-    createdByStructureId: 2,
     createdAt: new Date('2025-02-10T09:00:00'),
     updatedAt: new Date('2025-04-18T11:00:00')
   },
   {
     id: 3,
     name: 'Match de Football: Équipe A vs Équipe B',
-    category: 'Sport',
+    category: { id: 3, name: 'Sport' },
     shortDescription: 'Un match passionnant entre deux équipes rivales.',
     genre: ['Football'],
     tags: ['sport', 'football', 'match'],
     startDate: new Date('2025-05-20T15:00:00'),
     endDate: new Date('2025-05-20T17:00:00'),
+    address: {
+      street: 'Boulevard du Stade',
+      city: 'Marseille',
+      zipCode: '13008',
+      country: 'France'
+    },
+    structureId: 3,
     isFreeEvent: false,
-    locations: [
+    defaultSeatingType: SeatingType.SEATED,
+    seatingZones: [
       {
-        locationId: 103,
-        name: 'Stade Municipal',
-        maxCapacity: 20000,
-        ticketCount: 18000,
+        id: 103,
+        name: 'Tribunes Nord',
+        areaId: 103,
+        maxCapacity: 10000,
         ticketPrice: 25.00,
-        active: true
+        isActive: true,
+        seatingType: SeatingType.SEATED
+      },
+      {
+        id: 104,
+        name: 'Tribunes Sud',
+        areaId: 104,
+        maxCapacity: 10000,
+        ticketPrice: 25.00,
+        isActive: true,
+        seatingType: SeatingType.SEATED
       }
     ],
     displayOnHomepage: true,
@@ -95,28 +134,36 @@ export const mockEvents: Event[] = [
     mainPhotoUrl: 'https://picsum.photos/seed/1031/600/400',
     eventPhotoUrls: ['https://picsum.photos/seed/1032/600/400'],
     status: 'published',
-    createdByStructureId: 3,
     createdAt: new Date('2025-03-01T12:00:00'),
     updatedAt: new Date('2025-04-22T14:00:00')
   },
   {
     id: 4,
     name: 'Conférence Tech: L\'avenir de l\'IA',
-    category: 'Conference',
+    category: { id: 4, name: 'Conference' },
     shortDescription: 'Découvrez les dernières avancées en intelligence artificielle.',
     genre: ['Technologie'],
     tags: ['conférence', 'IA', 'tech'],
     startDate: new Date('2025-08-15T09:00:00'),
     endDate: new Date('2025-08-15T17:00:00'),
+    address: {
+      street: 'Avenue des Congrès',
+      city: 'Paris',
+      zipCode: '75015',
+      country: 'France'
+    },
+    structureId: 4,
     isFreeEvent: false,
-    locations: [
+    defaultSeatingType: SeatingType.SEATED,
+    seatingZones: [
       {
-        locationId: 104,
-        name: 'Centre des Congrès',
+        id: 105,
+        name: 'Amphithéâtre Principal',
+        areaId: 105,
         maxCapacity: 1500,
-        ticketCount: 1500,
         ticketPrice: 100.00,
-        active: true
+        isActive: true,
+        seatingType: SeatingType.SEATED
       }
     ],
     displayOnHomepage: false,
@@ -126,28 +173,36 @@ export const mockEvents: Event[] = [
     mainPhotoUrl: 'https://picsum.photos/seed/1041/600/400',
     eventPhotoUrls: ['https://picsum.photos/seed/1042/600/400'],
     status: 'published',
-    createdByStructureId: 4,
     createdAt: new Date('2025-01-20T08:00:00'),
     updatedAt: new Date('2025-04-19T10:00:00')
   },
   {
     id: 5,
     name: 'Exposition d\'Art Moderne',
-    category: 'Exhibition',
+    category: { id: 5, name: 'Exhibition' },
     shortDescription: 'Une collection d\'œuvres d\'art contemporain.',
     genre: ['Art'],
     tags: ['exposition', 'art', 'moderne'],
     startDate: new Date('2025-09-01T10:00:00'),
     endDate: new Date('2025-09-30T18:00:00'),
+    address: {
+      street: 'Rue des Beaux Arts',
+      city: 'Nice',
+      zipCode: '06000',
+      country: 'France'
+    },
+    structureId: 5,
     isFreeEvent: true,
-    locations: [
+    defaultSeatingType: SeatingType.STANDING,
+    seatingZones: [
       {
-        locationId: 105,
-        name: 'Galerie d\'Art',
+        id: 106,
+        name: 'Galerie Principale',
+        areaId: 106,
         maxCapacity: 300,
-        ticketCount: null,
-        ticketPrice: null,
-        active: true
+        ticketPrice: 0,
+        isActive: true,
+        seatingType: SeatingType.STANDING
       }
     ],
     displayOnHomepage: true,
@@ -157,28 +212,36 @@ export const mockEvents: Event[] = [
     mainPhotoUrl: 'https://picsum.photos/seed/1051/600/400',
     eventPhotoUrls: ['https://picsum.photos/seed/1052/600/400'],
     status: 'published',
-    createdByStructureId: 5,
     createdAt: new Date('2025-02-25T11:00:00'),
     updatedAt: new Date('2025-04-21T13:00:00')
   },
   {
     id: 6,
     name: 'Concert Jazz en Plein Air',
-    category: 'Music',
+    category: { id: 1, name: 'Music' },
     shortDescription: 'Une soirée jazz sous les étoiles.',
     genre: ['Jazz'],
     tags: ['concert', 'jazz', 'plein air'],
     startDate: new Date('2025-07-20T19:00:00'),
     endDate: new Date('2025-07-20T22:00:00'),
+    address: {
+      street: 'Place du Marché',
+      city: 'Bordeaux',
+      zipCode: '33000',
+      country: 'France'
+    },
+    structureId: 1,
     isFreeEvent: false,
-    locations: [
+    defaultSeatingType: SeatingType.STANDING,
+    seatingZones: [
       {
-        locationId: 106,
-        name: 'Place du Marché',
+        id: 107,
+        name: 'Espace Central',
+        areaId: 107,
         maxCapacity: 1000,
-        ticketCount: 950,
         ticketPrice: 35.00,
-        active: true
+        isActive: true,
+        seatingType: SeatingType.STANDING
       }
     ],
     displayOnHomepage: true,
@@ -188,28 +251,38 @@ export const mockEvents: Event[] = [
     mainPhotoUrl: 'https://picsum.photos/seed/1061/600/400',
     eventPhotoUrls: ['https://picsum.photos/seed/1062/600/400'],
     status: 'published',
-    createdByStructureId: 1,
     createdAt: new Date('2025-03-10T14:00:00'),
     updatedAt: new Date('2025-04-23T16:00:00')
   },
   {
     id: 7,
     name: 'Festival de Théâtre Contemporain',
-    category: 'Theater',
+    category: { id: 2, name: 'Theater' },
     shortDescription: 'Des pièces innovantes et audacieuses.',
     genre: ['Contemporain'],
     tags: ['festival', 'théâtre', 'contemporain'],
     startDate: new Date('2025-10-05T18:00:00'),
     endDate: new Date('2025-10-10T22:00:00'),
+    address: {
+      street: 'Avenue du Théâtre',
+      city: 'Toulouse',
+      zipCode: '31000',
+      country: 'France'
+    },
+    structureId: 2,
     isFreeEvent: false,
-    locations: [
+    defaultSeatingType: SeatingType.SEATED,
+    seatingZones: [
       {
-        locationId: 107,
-        name: 'Théâtre Moderne',
+        id: 108,
+        name: 'Salle Principale',
+        areaId: 108,
         maxCapacity: 600,
-        ticketCount: 600,
         ticketPrice: 40.00,
-        active: true
+        isActive: true,
+        seatingType: SeatingType.SEATED,
+        rowCount: 15,
+        seatsPerRow: 40
       }
     ],
     displayOnHomepage: false,
@@ -219,28 +292,36 @@ export const mockEvents: Event[] = [
     mainPhotoUrl: 'https://picsum.photos/seed/1071/600/400',
     eventPhotoUrls: ['https://picsum.photos/seed/1072/600/400'],
     status: 'published',
-    createdByStructureId: 2,
     createdAt: new Date('2025-04-01T10:00:00'),
     updatedAt: new Date('2025-04-25T12:00:00')
   },
   {
     id: 8,
     name: 'Compétition de Skateboard',
-    category: 'Sport',
+    category: { id: 3, name: 'Sport' },
     shortDescription: 'Des skateurs de haut niveau s\'affrontent.',
     genre: ['Skateboard'],
     tags: ['sport', 'skateboard', 'compétition'],
     startDate: new Date('2025-06-25T14:00:00'),
     endDate: new Date('2025-06-25T18:00:00'),
+    address: {
+      street: 'Parc des Sports',
+      city: 'Montpellier',
+      zipCode: '34000',
+      country: 'France'
+    },
+    structureId: 3,
     isFreeEvent: true,
-    locations: [
+    defaultSeatingType: SeatingType.STANDING,
+    seatingZones: [
       {
-        locationId: 108,
-        name: 'Parc des Sports',
+        id: 109,
+        name: 'Espace Skatepark',
+        areaId: 109,
         maxCapacity: 1500,
-        ticketCount: null,
-        ticketPrice: null,
-        active: true
+        ticketPrice: 0,
+        isActive: true,
+        seatingType: SeatingType.STANDING
       }
     ],
     displayOnHomepage: true,
@@ -250,535 +331,811 @@ export const mockEvents: Event[] = [
     mainPhotoUrl: 'https://picsum.photos/seed/1081/600/400',
     eventPhotoUrls: ['https://picsum.photos/seed/1082/600/400'],
     status: 'published',
-    createdByStructureId: 3,
     createdAt: new Date('2025-03-15T09:00:00'),
     updatedAt: new Date('2025-04-20T11:00:00')
   },
   {
     id: 9,
     name: 'Salon du Livre',
-    category: 'Exhibition',
+    category: { id: 5, name: 'Exhibition' },
     shortDescription: 'Rencontrez vos auteurs préférés.',
     genre: ['Littérature'],
     tags: ['salon', 'livre', 'auteurs'],
     startDate: new Date('2025-11-10T10:00:00'),
     endDate: new Date('2025-11-15T18:00:00'),
+    address: {
+      street: 'Place de la Culture',
+      city: 'Lille',
+      zipCode: '59000',
+      country: 'France'
+    },
+    structureId: 5,
     isFreeEvent: false,
-    locations: [
+    defaultSeatingType: SeatingType.MIXED,
+    seatingZones: [
       {
-        locationId: 109,
-        name: 'Centre Culturel',
+        id: 110,
+        name: 'Espace Principal',
+        areaId: 110,
         maxCapacity: 1000,
-        ticketCount: 1000,
         ticketPrice: 15.00,
-        active: true
+        isActive: true,
+        seatingType: SeatingType.STANDING
+      },
+      {
+        id: 111,
+        name: 'Espace Conférences',
+        areaId: 111,
+        maxCapacity: 300,
+        ticketPrice: 15.00,
+        isActive: true,
+        seatingType: SeatingType.SEATED,
+        rowCount: 10,
+        seatsPerRow: 30
       }
     ],
     displayOnHomepage: true,
-    isFeaturedEvent: false,
-    fullDescription: 'Un salon dédié aux passionnés de lecture et d\'écriture. Plus de 200 auteurs seront présents pour des séances de dédicaces, et de nombreuses conférences et ateliers d\'écriture seront organisés tout au long de l\'événement.',
+    isFeaturedEvent: true,
+    fullDescription: 'Le plus grand salon du livre de la région avec plus de 200 auteurs présents. Des séances de dédicaces, des tables rondes et des ateliers d\'écriture sont au programme de cet événement incontournable pour tous les amoureux de la littérature.',
     links: ['https://salondulivre.com'],
     mainPhotoUrl: 'https://picsum.photos/seed/1091/600/400',
     eventPhotoUrls: ['https://picsum.photos/seed/1092/600/400'],
     status: 'published',
-    createdByStructureId: 5,
-    createdAt: new Date('2025-04-01T08:00:00'),
-    updatedAt: new Date('2025-04-26T10:00:00')
+    createdAt: new Date('2025-03-20T08:00:00'),
+    updatedAt: new Date('2025-04-22T10:00:00')
   },
   {
     id: 10,
-    name: 'Festival de Cinéma Indépendant',
-    category: 'Festival',
-    shortDescription: 'Projection de films indépendants et rencontres avec les réalisateurs.',
-    genre: ['Cinéma'],
-    tags: ['festival', 'cinéma', 'indépendant'],
-    startDate: new Date('2025-12-01T18:00:00'),
-    endDate: new Date('2025-12-07T23:00:00'),
+    name: 'Atelier de Peinture pour Débutants',
+    category: { id: 7, name: 'Other' },
+    shortDescription: 'Apprenez les bases de la peinture à l\'huile.',
+    genre: ['Art', 'Éducation'],
+    tags: ['atelier', 'peinture', 'débutant'],
+    startDate: new Date('2025-05-15T14:00:00'),
+    endDate: new Date('2025-05-15T17:00:00'),
+    address: {
+      street: 'Rue des Arts',
+      city: 'Nantes',
+      zipCode: '44000',
+      country: 'France'
+    },
+    structureId: 6,
     isFreeEvent: false,
-    locations: [
+    defaultSeatingType: SeatingType.SEATED,
+    seatingZones: [
       {
-        locationId: 110,
-        name: 'Cinéma Central',
-        maxCapacity: 400,
-        ticketCount: 400,
-        ticketPrice: 20.00,
-        active: true
+        id: 112,
+        name: 'Atelier',
+        areaId: 112,
+        maxCapacity: 20,
+        ticketPrice: 50.00,
+        isActive: true,
+        seatingType: SeatingType.SEATED
       }
     ],
     displayOnHomepage: false,
-    isFeaturedEvent: true,
-    fullDescription: 'Une semaine dédiée au cinéma indépendant avec des projections et débats. Le festival présente plus de 50 films de tous genres, des courts aux longs métrages, ainsi que des masterclass avec des réalisateurs reconnus.',
-    links: ['https://festivalcinemaindependant.com'],
+    isFeaturedEvent: false,
+    fullDescription: 'Cet atelier de 3 heures vous initiera aux techniques de base de la peinture à l\'huile. Matériel fourni, aucune expérience préalable nécessaire. À la fin de la séance, vous repartirez avec votre propre création.',
+    links: ['https://atelierartistique.com'],
     mainPhotoUrl: 'https://picsum.photos/seed/1101/600/400',
-    eventPhotoUrls: ['https://picsum.photos/seed/1102/600/400'],
+    eventPhotoUrls: [],
     status: 'published',
-    createdByStructureId: 4,
-    createdAt: new Date('2025-05-01T10:00:00'),
-    updatedAt: new Date('2025-05-10T12:00:00')
+    createdAt: new Date('2025-04-05T09:00:00'),
+    updatedAt: new Date('2025-04-24T11:00:00')
+  }
+];
+
+/**
+ * Événement en brouillon pour les tests
+ */
+export const draftEvent: EventModel = {
+  id: 11,
+  name: 'Festival de Jazz 2026 (Brouillon)',
+  category: { id: 1, name: 'Music' },
+  shortDescription: 'Préparez-vous pour la 10ème édition de notre festival de jazz.',
+  fullDescription: 'La programmation est en cours de finalisation. Une dizaine d\'artistes internationaux sont attendus pour célébrer cet événement anniversaire.',
+  genre: ['Jazz', 'Blues'],
+  tags: ['jazz', 'festival', 'musique'],
+  startDate: new Date('2026-06-01T18:00:00'),
+  endDate: new Date('2026-06-03T23:00:00'),
+  address: {
+    street: 'Avenue du Jazz',
+    city: 'Paris',
+    zipCode: '75001',
+    country: 'France'
   },
-  // Événements supplémentaires
-  {
-    id: 11,
-    name: 'Rock The Night 2025',
-    category: 'Music',
-    shortDescription: 'Le concert rock de l\'année !',
-    genre: ['Rock', 'Metal'],
-    tags: ['concert', 'rock', 'soirée'],
-    startDate: new Date('2025-11-15T20:00:00'),
-    endDate: new Date('2025-11-15T23:59:00'),
-    isFreeEvent: false,
-    locations: [
-      {
-        locationId: 111,
-        name: 'Arène Centrale',
-        maxCapacity: 2500,
-        ticketCount: 2500,
-        ticketPrice: 50.00,
-        active: true
-      }
-    ],
-    displayOnHomepage: true,
-    isFeaturedEvent: true,
-    fullDescription: 'Préparez-vous pour Rock The Night 2025, une soirée explosive avec les meilleurs groupes de rock du moment ! Line-up incluant "The Electric Waves", "Crimson Haze", et "Nova Pulse". Son et lumières spectaculaires pour une immersion totale. Stands de merchandising et rafraîchissements sur place.',
-    links: ['https://rockthenight.com'],
-    mainPhotoUrl: 'https://picsum.photos/seed/1111/600/400',
-    eventPhotoUrls: ['https://picsum.photos/seed/1112/600/400', 'https://picsum.photos/seed/1113/600/400'],
-    status: 'published',
-    createdByStructureId: 1,
-    createdAt: new Date('2025-05-15T09:00:00'),
-    updatedAt: new Date('2025-05-20T11:00:00')
-  },
+  structureId: 1,
+  isFreeEvent: false,
+  defaultSeatingType: SeatingType.MIXED,
+  seatingZones: [
+    {
+      id: 113,
+      name: 'Zone VIP',
+      areaId: 113,
+      maxCapacity: 500,
+      ticketPrice: 100.00,
+      isActive: true,
+      seatingType: SeatingType.SEATED
+    },
+    {
+      id: 114,
+      name: 'Zone Standard',
+      areaId: 114,
+      maxCapacity: 2000,
+      ticketPrice: 50.00,
+      isActive: true,
+      seatingType: SeatingType.STANDING
+    }
+  ],
+  displayOnHomepage: false,
+  isFeaturedEvent: false,
+  links: [],
+  mainPhotoUrl: 'https://picsum.photos/seed/1201/600/400',
+  status: 'draft',
+  createdAt: new Date('2025-04-10T10:00:00'),
+  updatedAt: new Date('2025-04-10T10:00:00')
+};
+
+/**
+ * Événements supplémentaires pour les tests
+ */
+export const additionalMockEvents: EventModel[] = [
+  draftEvent,
   {
     id: 12,
-    name: 'Marathon International',
-    category: 'Sport',
-    shortDescription: 'Course urbaine à travers les sites emblématiques de la ville.',
-    genre: ['Course à pied'],
-    tags: ['marathon', 'course', 'compétition'],
-    startDate: new Date('2025-04-10T08:00:00'),
-    endDate: new Date('2025-04-10T14:00:00'),
-    isFreeEvent: false,
-    locations: [
+    name: 'Exposition Photo "Nature Sauvage"',
+    category: { id: 5, name: 'Exhibition' },
+    shortDescription: 'Des clichés exceptionnels de la nature sauvage.',
+    fullDescription: 'Découvrez le travail de 5 photographes animaliers renommés qui ont parcouru le monde pendant des années pour capturer ces instants uniques de la vie sauvage.',
+    genre: ['Photographie', 'Nature'],
+    tags: ['photo', 'nature', 'animaux'],
+    startDate: new Date('2025-12-01T10:00:00'),
+    endDate: new Date('2025-12-20T18:00:00'),
+    address: {
+      street: 'Galerie de la Nature',
+      city: 'Strasbourg',
+      zipCode: '67000',
+      country: 'France'
+    },
+    structureId: 5,
+    isFreeEvent: true,
+    defaultSeatingType: SeatingType.STANDING,
+    seatingZones: [
       {
-        locationId: 112,
-        name: 'Parcours Urbain',
-        maxCapacity: 10000,
-        ticketCount: 8000,
-        ticketPrice: 60.00,
-        active: true
-      }
-    ],
-    displayOnHomepage: true,
-    isFeaturedEvent: true,
-    fullDescription: 'Le Marathon International traverse les plus beaux quartiers de la ville sur un parcours de 42,195 km. Ouvert aux coureurs professionnels et amateurs, l\'événement comprend également un semi-marathon et une course de 10 km.',
-    links: ['https://marathoninternational.com'],
-    mainPhotoUrl: 'https://picsum.photos/seed/1121/600/400',
-    eventPhotoUrls: ['https://picsum.photos/seed/1122/600/400'],
-    status: 'draft',
-    createdByStructureId: 3,
-    createdAt: new Date('2025-01-05T11:00:00'),
-    updatedAt: new Date('2025-01-20T14:00:00')
-  },
-  {
-    id: 13,
-    name: 'Symphonie sous les Étoiles',
-    category: 'Music',
-    shortDescription: 'Concert de musique classique en plein air.',
-    genre: ['Classique'],
-    tags: ['symphonie', 'orchestre', 'plein air'],
-    startDate: new Date('2025-08-05T21:00:00'),
-    endDate: new Date('2025-08-05T23:30:00'),
-    isFreeEvent: false,
-    locations: [
-      {
-        locationId: 113,
-        name: 'Jardins Botaniques',
-        maxCapacity: 2000,
-        ticketCount: 1800,
-        ticketPrice: 40.00,
-        active: true
+        id: 115,
+        name: 'Salle d\'exposition',
+        areaId: 115,
+        maxCapacity: 200,
+        ticketPrice: 0,
+        isActive: true,
+        seatingType: SeatingType.STANDING
       }
     ],
     displayOnHomepage: true,
     isFeaturedEvent: false,
-    fullDescription: 'Un concert exceptionnel où l\'Orchestre Philharmonique interprète les plus grands chefs-d\'œuvre de la musique classique sous un ciel étoilé. Le programme comprend des œuvres de Mozart, Beethoven et Tchaïkovski.',
-    links: ['https://symphonietoiles.com'],
-    mainPhotoUrl: 'https://picsum.photos/seed/1131/600/400',
-    eventPhotoUrls: ['https://picsum.photos/seed/1132/600/400'],
+    links: ['https://expo-photo-nature.com'],
+    mainPhotoUrl: 'https://picsum.photos/seed/1301/600/400',
+    eventPhotoUrls: ['https://picsum.photos/seed/1302/600/400', 'https://picsum.photos/seed/1303/600/400'],
     status: 'published',
-    createdByStructureId: 2,
-    createdAt: new Date('2025-03-20T13:00:00'),
-    updatedAt: new Date('2025-03-25T15:00:00')
+    createdAt: new Date('2025-04-15T11:00:00'),
+    updatedAt: new Date('2025-04-15T11:00:00')
+  }
+]
+
+// Ajout d'événements supplémentaires pour compléter allMockEvent
+// Événements avec différents statuts
+export const eventsWithDifferentStatuses: EventModel[] = [
+  {
+    id: 13,
+    name: 'Conférence Annuelle Tech (Annulée)',
+    category: { id: 4, name: 'Conference' },
+    shortDescription: 'La conférence a été annulée en raison de problèmes logistiques.',
+    fullDescription: 'Nous sommes désolés de vous informer que la conférence tech prévue a dû être annulée pour des raisons indépendantes de notre volonté. Les billets achetés seront intégralement remboursés.',
+    genre: ['Technologie', 'Innovation'],
+    tags: ['technologie', 'conférence', 'annulée'],
+    startDate: new Date('2025-09-05T09:00:00'),
+    endDate: new Date('2025-09-05T18:00:00'),
+    address: {
+      street: 'Centre de Conférences',
+      city: 'Paris',
+      zipCode: '75016',
+      country: 'France'
+    },
+    structureId: 4,
+    isFreeEvent: false,
+    defaultSeatingType: SeatingType.SEATED,
+    seatingZones: [
+      {
+        id: 116,
+        name: 'Auditorium Principal',
+        areaId: 116,
+        maxCapacity: 800,
+        ticketPrice: 120.00,
+        isActive: false,
+        seatingType: SeatingType.SEATED
+      }
+    ],
+    displayOnHomepage: false,
+    isFeaturedEvent: false,
+    links: ['https://techconference.com'],
+    mainPhotoUrl: 'https://picsum.photos/seed/1401/600/400',
+    eventPhotoUrls: [],
+    status: 'cancelled',
+    createdAt: new Date('2025-03-01T09:00:00'),
+    updatedAt: new Date('2025-04-20T14:00:00')
   },
   {
     id: 14,
-    name: 'Festival Gastronomique',
-    category: 'Festival',
-    shortDescription: 'Découvrez les saveurs locales et internationales.',
-    genre: ['Gastronomie'],
-    tags: ['nourriture', 'cuisine', 'dégustation'],
-    startDate: new Date('2025-09-20T11:00:00'),
-    endDate: new Date('2025-09-22T22:00:00'),
-    isFreeEvent: true,
-    locations: [
+    name: 'Marathon de Paris',
+    category: { id: 3, name: 'Sport' },
+    shortDescription: 'Le marathon annuel de Paris.',
+    fullDescription: 'Participez au marathon de Paris, l\'un des plus grands marathons internationaux. Parcours de 42,195 km à travers les plus beaux monuments de la capitale.',
+    genre: ['Course à pied', 'Endurance'],
+    tags: ['marathon', 'course', 'paris'],
+    startDate: new Date('2025-04-12T08:00:00'),
+    endDate: new Date('2025-04-12T16:00:00'),
+    address: {
+      street: 'Avenue des Champs-Élysées',
+      city: 'Paris',
+      zipCode: '75008',
+      country: 'France'
+    },
+    structureId: 3,
+    isFreeEvent: false,
+    defaultSeatingType: SeatingType.STANDING,
+    seatingZones: [
       {
-        locationId: 114,
-        name: 'Place Centrale',
-        maxCapacity: 5000,
-        ticketCount: null,
-        ticketPrice: null,
-        active: true
+        id: 117,
+        name: 'Participant Coureur',
+        areaId: 117,
+        maxCapacity: 50000,
+        ticketPrice: 80.00,
+        isActive: true,
+        seatingType: SeatingType.STANDING
       }
     ],
     displayOnHomepage: true,
     isFeaturedEvent: true,
-    fullDescription: 'Le Festival Gastronomique réunit les meilleurs chefs et artisans de la région et d\'ailleurs. Au programme : dégustations, démonstrations culinaires, ateliers et concours gastronomiques.',
-    links: ['https://festivalgastronomique.com'],
-    mainPhotoUrl: 'https://picsum.photos/seed/1141/600/400',
-    eventPhotoUrls: ['https://picsum.photos/seed/1142/600/400', 'https://picsum.photos/seed/1143/600/400'],
-    status: 'published',
-    createdByStructureId: 5,
-    createdAt: new Date('2025-05-05T09:30:00'),
-    updatedAt: new Date('2025-05-15T10:45:00')
+    links: ['https://marathondeparis.com'],
+    mainPhotoUrl: 'https://picsum.photos/seed/1501/600/400',
+    eventPhotoUrls: ['https://picsum.photos/seed/1502/600/400'],
+    status: 'completed',
+    createdAt: new Date('2024-10-10T10:00:00'),
+    updatedAt: new Date('2025-04-15T09:00:00')
   },
   {
     id: 15,
-    name: 'Conférence sur le Changement Climatique',
-    category: 'Conference',
-    shortDescription: 'Experts et scientifiques débattent des solutions durables.',
-    genre: ['Environnement'],
-    tags: ['climat', 'écologie', 'conférence'],
-    startDate: new Date('2025-10-22T09:00:00'),
-    endDate: new Date('2025-10-24T18:00:00'),
+    name: 'Festival de Cannes 2025',
+    category: { id: 6, name: 'Festival' },
+    shortDescription: 'Le célèbre festival international du film.',
+    fullDescription: 'La 78ème édition du Festival de Cannes réunira les plus grands noms du cinéma mondial. Projections de films, tapis rouge et compétition officielle pour la Palme d\'or.',
+    genre: ['Cinéma', 'Arts'],
+    tags: ['festival', 'cinéma', 'cannes'],
+    startDate: new Date('2025-05-14T09:00:00'),
+    endDate: new Date('2025-05-25T23:59:00'),
+    address: {
+      street: 'Palais des Festivals',
+      city: 'Cannes',
+      zipCode: '06400',
+      country: 'France'
+    },
+    structureId: 7,
     isFreeEvent: false,
-    locations: [
+    defaultSeatingType: SeatingType.SEATED,
+    seatingZones: [
       {
-        locationId: 115,
-        name: 'Centre de Conventions',
-        maxCapacity: 1200,
-        ticketCount: 1000,
-        ticketPrice: 85.00,
-        active: true
+        id: 118,
+        name: 'Grand Théâtre Lumière',
+        areaId: 118,
+        maxCapacity: 2300,
+        ticketPrice: 200.00,
+        isActive: true,
+        seatingType: SeatingType.SEATED
+      },
+      {
+        id: 119,
+        name: 'Salle Debussy',
+        areaId: 119,
+        maxCapacity: 1000,
+        ticketPrice: 150.00,
+        isActive: true,
+        seatingType: SeatingType.SEATED
       }
     ],
-    displayOnHomepage: false,
-    isFeaturedEvent: false,
-    fullDescription: 'Cette conférence internationale rassemble experts, chercheurs et décideurs autour des défis du changement climatique. Trois jours de présentations, tables rondes et ateliers pour explorer les solutions innovantes et les politiques environnementales.',
-    links: ['https://climatechangeconference.org'],
-    mainPhotoUrl: 'https://picsum.photos/seed/1151/600/400',
-    eventPhotoUrls: ['https://picsum.photos/seed/1152/600/400'],
+    displayOnHomepage: true,
+    isFeaturedEvent: true,
+    links: ['https://festival-cannes.com'],
+    mainPhotoUrl: 'https://picsum.photos/seed/1601/600/400',
+    eventPhotoUrls: ['https://picsum.photos/seed/1602/600/400', 'https://picsum.photos/seed/1603/600/400'],
     status: 'pending_approval',
-    createdByStructureId: 4,
-    createdAt: new Date('2025-04-15T14:00:00'),
-    updatedAt: new Date('2025-04-30T16:30:00')
+    createdAt: new Date('2025-01-10T11:00:00'),
+    updatedAt: new Date('2025-04-01T15:00:00')
   }
 ];
 
-/**
- * Événements supplémentaires en brouillon (à utiliser pour tester les fonctionnalités de publication)
- */
-export const mockDraftEvents: Event[] = [
+// Événements à venir
+export const upcomingEvents: EventModel[] = [
   {
     id: 16,
-    name: 'Gala de Danse Contemporaine',
-    category: 'Theater',
-    shortDescription: 'Une soirée de mouvements fluides et d\'émotions intenses.',
-    genre: ['Danse'],
-    tags: ['danse', 'contemporain', 'gala'],
-    startDate: new Date('2025-11-30T19:30:00'),
-    endDate: new Date('2025-11-30T22:00:00'),
+    name: 'Spectacle de Ballet "Le Lac des Cygnes"',
+    category: { id: 2, name: 'Theater' },
+    shortDescription: 'Une représentation classique du célèbre ballet.',
+    fullDescription: 'Le Ballet National présente "Le Lac des Cygnes" de Tchaïkovski dans une mise en scène respectueuse de la tradition mais avec une touche moderne dans les décors.',
+    genre: ['Ballet', 'Danse'],
+    tags: ['ballet', 'danse', 'classique'],
+    startDate: new Date('2025-08-03T20:00:00'),
+    endDate: new Date('2025-08-03T22:30:00'),
+    address: {
+      street: 'Opéra Municipal',
+      city: 'Lyon',
+      zipCode: '69001',
+      country: 'France'
+    },
+    structureId: 8,
     isFreeEvent: false,
-    locations: [
+    defaultSeatingType: SeatingType.SEATED,
+    seatingZones: [
       {
-        locationId: 116,
-        name: 'Opéra Municipal',
-        maxCapacity: 900,
-        ticketCount: 900,
-        ticketPrice: 55.00,
-        active: true
+        id: 120,
+        name: 'Orchestre',
+        areaId: 120,
+        maxCapacity: 400,
+        ticketPrice: 80.00,
+        isActive: true,
+        seatingType: SeatingType.SEATED
+      },
+      {
+        id: 121,
+        name: 'Balcon',
+        areaId: 121,
+        maxCapacity: 200,
+        ticketPrice: 50.00,
+        isActive: true,
+        seatingType: SeatingType.SEATED
       }
     ],
-    displayOnHomepage: false,
-    isFeaturedEvent: false,
-    fullDescription: 'Le Gala de Danse Contemporaine présente les créations de chorégraphes innovants interprétées par des danseurs de talent. Une exploration des limites du corps humain et des émotions à travers le mouvement.',
-    links: ['https://galadanse.com'],
-    mainPhotoUrl: 'https://picsum.photos/seed/1161/600/400',
-    eventPhotoUrls: ['https://picsum.photos/seed/1162/600/400'],
-    status: 'draft' as EventStatus,
-    createdByStructureId: 2,
-    createdAt: new Date('2025-06-01T10:00:00'),
-    updatedAt: new Date('2025-06-01T10:00:00')
+    displayOnHomepage: true,
+    isFeaturedEvent: true,
+    links: ['https://operalyon.com/cygnes'],
+    mainPhotoUrl: 'https://picsum.photos/seed/1701/600/400',
+    eventPhotoUrls: ['https://picsum.photos/seed/1702/600/400'],
+    status: 'published',
+    createdAt: new Date('2025-03-20T14:00:00'),
+    updatedAt: new Date('2025-04-05T09:00:00')
   },
   {
     id: 17,
-    name: 'Hackathon Innovation Tech',
-    category: 'Conference',
-    shortDescription: 'Développeurs et créateurs s\'unissent pour coder le futur.',
-    genre: ['Technologie'],
-    tags: ['hackathon', 'programmation', 'innovation'],
-    startDate: new Date('2025-08-28T09:00:00'),
-    endDate: new Date('2025-08-30T18:00:00'),
+    name: 'Salon de l\'Agriculture 2026',
+    category: { id: 5, name: 'Exhibition' },
+    shortDescription: 'Le rendez-vous annuel du monde agricole.',
+    fullDescription: 'Découvrez le monde agricole, ses animaux, ses produits et ses innovations. Dégustations, démonstrations et présentations d\'animaux sont au programme de cette édition.',
+    genre: ['Agriculture', 'Gastronomie'],
+    tags: ['agriculture', 'salon', 'animaux'],
+    startDate: new Date('2026-02-20T09:00:00'),
+    endDate: new Date('2026-03-01T19:00:00'),
+    address: {
+      street: 'Parc des Expositions',
+      city: 'Paris',
+      zipCode: '75015',
+      country: 'France'
+    },
+    structureId: 9,
     isFreeEvent: false,
-    locations: [
+    defaultSeatingType: SeatingType.STANDING,
+    seatingZones: [
       {
-        locationId: 117,
-        name: 'Hub Technologique',
-        maxCapacity: 300,
-        ticketCount: 300,
-        ticketPrice: 20.00,
-        active: true
+        id: 122,
+        name: 'Pass Général',
+        areaId: 122,
+        maxCapacity: 100000,
+        ticketPrice: 15.00,
+        isActive: true,
+        seatingType: SeatingType.STANDING
       }
     ],
     displayOnHomepage: false,
     isFeaturedEvent: false,
-    fullDescription: '48 heures non-stop de créativité et de code. Relevez les défis proposés par nos sponsors, formez votre équipe et développez des solutions innovantes. Prix à gagner et opportunités de networking.',
-    links: ['https://techhackathon.dev'],
-    mainPhotoUrl: 'https://picsum.photos/seed/1171/600/400',
-    eventPhotoUrls: ['https://picsum.photos/seed/1172/600/400'],
-    status: 'draft' as EventStatus,
-    createdByStructureId: 4,
-    createdAt: new Date('2025-06-05T11:30:00'),
-    updatedAt: new Date('2025-06-05T11:30:00')
+    links: ['https://salon-agriculture.com'],
+    mainPhotoUrl: 'https://picsum.photos/seed/1801/600/400',
+    eventPhotoUrls: ['https://picsum.photos/seed/1802/600/400'],
+    status: 'published',
+    createdAt: new Date('2025-04-10T10:00:00'),
+    updatedAt: new Date('2025-04-10T10:00:00')
   }
 ];
 
-/**
- * Événements annulés (pour tester les filtres et affichages spécifiques)
- */
-export const mockCancelledEvents: Event[] = [
+// Événements gratuits
+export const freeEvents: EventModel[] = [
   {
     id: 18,
-    name: 'Festival de Musique Électronique',
-    category: 'Festival',
-    shortDescription: 'Une expérience sonore et visuelle incomparable.',
-    genre: ['Électronique'],
-    tags: ['festival', 'électronique', 'DJ'],
-    startDate: new Date('2025-07-25T20:00:00'),
-    endDate: new Date('2025-07-27T06:00:00'),
-    isFreeEvent: false,
-    locations: [
-      {
-        locationId: 118,
-        name: 'Zone Industrielle',
-        maxCapacity: 8000,
-        ticketCount: 8000,
-        ticketPrice: 75.00,
-        active: true
-      }
-    ],
-    displayOnHomepage: false,
-    isFeaturedEvent: false,
-    fullDescription: 'Le plus grand festival de musique électronique de la région avec des DJs internationaux, une scénographie impressionnante et des performances visuelles.',
-    links: ['https://electrofestival.com'],
-    mainPhotoUrl: 'https://picsum.photos/seed/1181/600/400',
-    eventPhotoUrls: ['https://picsum.photos/seed/1182/600/400'],
-    status: 'cancelled' as EventStatus,
-    createdByStructureId: 1,
-    createdAt: new Date('2025-02-15T09:00:00'),
-    updatedAt: new Date('2025-06-10T14:00:00')
-  },
-  {
-    id: 19,
-    name: 'Tournoi International d\'Échecs',
-    category: 'Other',
-    shortDescription: 'Compétition d\'échecs de haut niveau.',
-    genre: ['Jeux de stratégie'],
-    tags: ['échecs', 'tournoi', 'compétition'],
-    startDate: new Date('2025-05-15T09:00:00'),
-    endDate: new Date('2025-05-17T18:00:00'),
-    isFreeEvent: false,
-    locations: [
-      {
-        locationId: 119,
-        name: 'Grand Hôtel',
-        maxCapacity: 300,
-        ticketCount: 300,
-        ticketPrice: 30.00,
-        active: true
-      }
-    ],
-    displayOnHomepage: false,
-    isFeaturedEvent: false,
-    fullDescription: 'Un tournoi d\'échecs prestigieux avec des joueurs internationaux et des maîtres du jeu. Les matchs seront commentés en direct par des experts.',
-    links: ['https://tournoiechecs.org'],
-    mainPhotoUrl: 'https://picsum.photos/seed/1191/600/400',
-    eventPhotoUrls: ['https://picsum.photos/seed/1192/600/400'],
-    status: 'cancelled' as EventStatus,
-    createdByStructureId: 4,
-    createdAt: new Date('2025-01-05T10:30:00'),
-    updatedAt: new Date('2025-04-05T11:45:00')
-  }
-];
-
-/**
- * Événements en attente d'approbation (pour tester le workflow d'approbation)
- */
-export const mockPendingEvents: Event[] = [
-  {
-    id: 20,
-    name: 'Spectacle de Cirque Contemporain',
-    category: 'Theater',
-    shortDescription: 'Une fusion de cirque, danse et théâtre.',
-    genre: ['Cirque'],
-    tags: ['cirque', 'acrobaties', 'spectacle'],
-    startDate: new Date('2025-08-10T19:30:00'),
-    endDate: new Date('2025-08-10T21:30:00'),
-    isFreeEvent: false,
-    locations: [
-      {
-        locationId: 120,
-        name: 'Chapiteau Central',
-        maxCapacity: 700,
-        ticketCount: 700,
-        ticketPrice: 35.00,
-        active: true
-      }
-    ],
-    displayOnHomepage: false,
-    isFeaturedEvent: false,
-    fullDescription: 'Un spectacle innovant qui combine les arts du cirque, la danse contemporaine et les techniques théâtrales pour créer une expérience immersive unique.',
-    links: ['https://cirquecontemporain.com'],
-    mainPhotoUrl: 'https://picsum.photos/seed/2001/600/400',
-    eventPhotoUrls: ['https://picsum.photos/seed/2002/600/400'],
-    status: 'pending_approval' as EventStatus,
-    createdByStructureId: 2,
-    createdAt: new Date('2025-06-15T11:00:00'),
-    updatedAt: new Date('2025-06-15T11:00:00')
-  },
-  {
-    id: 21,
-    name: 'Festival de Poésie',
-    category: 'Festival',
-    shortDescription: 'Lectures, performances et ateliers poétiques.',
-    genre: ['Littérature'],
-    tags: ['poésie', 'littérature', 'festival'],
-    startDate: new Date('2025-09-25T14:00:00'),
-    endDate: new Date('2025-09-27T22:00:00'),
+    name: 'Festival de Street Art',
+    category: { id: 6, name: 'Festival' },
+    shortDescription: 'Découvrez l\'art urbain en direct.',
+    fullDescription: 'Des artistes de street art nationaux et internationaux se réuniront pour créer des œuvres en direct. Ateliers d\'initiation au graffiti et à d\'autres techniques d\'art urbain pour tous les âges.',
+    genre: ['Art urbain', 'Street art'],
+    tags: ['street art', 'gratuit', 'urbain'],
+    startDate: new Date('2025-07-05T11:00:00'),
+    endDate: new Date('2025-07-06T19:00:00'),
+    address: {
+      street: 'Friche Industrielle',
+      city: 'Marseille',
+      zipCode: '13003',
+      country: 'France'
+    },
+    structureId: 10,
     isFreeEvent: true,
-    locations: [
+    defaultSeatingType: SeatingType.STANDING,
+    seatingZones: [
       {
-        locationId: 121,
-        name: 'Maison de la Poésie',
-        maxCapacity: 200,
-        ticketCount: null,
-        ticketPrice: null,
-        active: true
+        id: 123,
+        name: 'Espace principal',
+        areaId: 123,
+        maxCapacity: 2000,
+        ticketPrice: 0,
+        isActive: true,
+        seatingType: SeatingType.STANDING
       }
     ],
     displayOnHomepage: true,
     isFeaturedEvent: false,
-    fullDescription: 'Trois jours dédiés à la poésie sous toutes ses formes : classique, moderne, slam, performances, ateliers d\'écriture et rencontres avec des poètes renommés.',
-    links: ['https://festivalpoesie.com'],
-    mainPhotoUrl: 'https://picsum.photos/seed/2011/600/400',
-    eventPhotoUrls: ['https://picsum.photos/seed/2012/600/400'],
-    status: 'pending_approval' as EventStatus,
-    createdByStructureId: 5,
-    createdAt: new Date('2025-06-20T09:15:00'),
-    updatedAt: new Date('2025-06-20T09:15:00')
+    links: ['https://streetartfest.fr'],
+    mainPhotoUrl: 'https://picsum.photos/seed/1901/600/400',
+    eventPhotoUrls: ['https://picsum.photos/seed/1902/600/400'],
+    status: 'published',
+    createdAt: new Date('2025-03-15T11:00:00'),
+    updatedAt: new Date('2025-04-12T14:00:00')
+  },
+  {
+    id: 19,
+    name: 'Concert en Plein Air',
+    category: { id: 1, name: 'Music' },
+    shortDescription: 'Un concert gratuit au cœur de la ville.',
+    fullDescription: 'Concert gratuit organisé par la mairie avec des artistes locaux. Musique variée allant du jazz à la pop. Restauration sur place.',
+    genre: ['Variété', 'Pop', 'Jazz'],
+    tags: ['concert', 'gratuit', 'plein air'],
+    startDate: new Date('2025-06-21T18:00:00'),
+    endDate: new Date('2025-06-21T23:00:00'),
+    address: {
+      street: 'Place de la République',
+      city: 'Bordeaux',
+      zipCode: '33000',
+      country: 'France'
+    },
+    structureId: 1,
+    isFreeEvent: true,
+    defaultSeatingType: SeatingType.STANDING,
+    seatingZones: [
+      {
+        id: 124,
+        name: 'Place publique',
+        areaId: 124,
+        maxCapacity: 5000,
+        ticketPrice: 0,
+        isActive: true,
+        seatingType: SeatingType.STANDING
+      }
+    ],
+    displayOnHomepage: true,
+    isFeaturedEvent: true,
+    links: ['https://mairie-bordeaux.fr/concerts-ete'],
+    mainPhotoUrl: 'https://picsum.photos/seed/2001/600/400',
+    eventPhotoUrls: [],
+    status: 'published',
+    createdAt: new Date('2025-04-01T09:00:00'),
+    updatedAt: new Date('2025-04-15T10:00:00')
   }
 ];
 
-/**
- * Helper function pour combiner tous les événements
- */
-export function getAllEvents(): Event[] {
-  return [
-    ...mockEvents,
-    ...mockDraftEvents,
-    ...mockCancelledEvents,
-    ...mockPendingEvents
-  ];
-}
+// Mise à jour du tableau complet avec tous les événements
+export const allMockEvents: EventModel[] = [
+  ...mockEvents,
+  ...additionalMockEvents,
+  ...eventsWithDifferentStatuses,
+  ...upcomingEvents,
+  ...freeEvents
+];
 
 /**
- * Helper function pour filtrer les événements par statut
+ * Fonctions utilitaires pour les mocks d'événements
  */
-export function getEventsByStatus(status: EventStatus): Event[] {
-  return getAllEvents().filter(event => event.status === status);
+
+// Récupérer les événements à venir
+export function getUpcomingMockEvents(): EventModel[] {
+  const today = new Date();
+  return allMockEvents.filter(event =>
+    new Date(event.startDate) > today &&
+    event.status === 'published'
+  ).sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
 }
 
-/**
- * Helper function pour obtenir les événements populaires (basé sur le nombre de billets vendus)
- */
-export function getPopularEvents(count: number = 5): Event[] {
-  return [...mockEvents]
-    .filter(event => event.status === 'published')
-    .sort((a, b) => {
-      const soldA = a.locations.reduce((sum, loc) => sum + (loc.ticketCount || 0), 0);
-      const soldB = b.locations.reduce((sum, loc) => sum + (loc.ticketCount || 0), 0);
-      return soldB - soldA;
-    })
-    .slice(0, count);
-}
-
-/**
- * Helper function pour obtenir les événements à venir (après la date actuelle)
- */
-export function getUpcomingEvents(count: number = 5): Event[] {
-  const now = new Date();
-  return [...mockEvents]
-    .filter(event => event.status === 'published' && new Date(event.startDate) > now)
+// Récupérer les événements pour la page d'accueil
+export function getHomepageEvents(count: number = 4): EventModel[] {
+  return allMockEvents
+    .filter(event => event.displayOnHomepage && event.status === 'published')
     .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
     .slice(0, count);
 }
 
+// Récupérer les événements mis en avant
+export function getFeaturedEvents(count: number = 3): EventModel[] {
+  return allMockEvents
+    .filter(event => event.isFeaturedEvent && event.status === 'published')
+    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+    .slice(0, count);
+}
+
+// Récupérer les événements par statut
+export function getEventsByStatus(status: EventStatus): EventModel[] {
+  return allMockEvents.filter(event => event.status === status);
+}
+
+// Récupérer les événements par structure
+export function getEventsByStructure(structureId: number): EventModel[] {
+  return allMockEvents.filter(event => event.structureId === structureId);
+}
+
+// Récupérer les événements par catégorie
+export function getEventsByCategory(categoryId: number): EventModel[] {
+  return allMockEvents.filter(event => event.category.id === categoryId);
+}
+
+// Recherche d'événements par terme
+export function searchEvents(term: string): EventModel[] {
+  const lowercaseTerm = term.toLowerCase();
+  return allMockEvents.filter(event =>
+    event.name.toLowerCase().includes(lowercaseTerm) ||
+    (event.shortDescription && event.shortDescription.toLowerCase().includes(lowercaseTerm)) ||
+    event.fullDescription.toLowerCase().includes(lowercaseTerm) ||
+    (event.tags && event.tags.some(tag => tag.toLowerCase().includes(lowercaseTerm)))
+  );
+}
+
+// Fonctions d'aide supplémentaires pour les mocks d'événements
+
 /**
- * Helper function pour obtenir les événements par structure
+ * Récupère un événement par son identifiant
+ * @param id Identifiant de l'événement à récupérer
  */
-export function getEventsByStructure(structureId: number): Event[] {
-  return getAllEvents().filter(event => event.createdByStructureId === structureId);
+export function getMockEventById(id: number): EventModel | undefined {
+  return allMockEvents.find(event => event.id === id);
 }
 
 /**
- * Helper function pour rechercher des événements par terme
+ * Récupère les événements par statut pour une structure donnée
+ * @param structureId Identifiant de la structure
+ * @param status Statut des événements à récupérer
  */
+export function getStructureEventsByStatus(structureId: number, status: EventStatus): EventModel[] {
+  return allMockEvents.filter(
+    event => event.structureId === structureId && event.status === status
+  );
+}
 
 /**
- * Recherche des événements selon des critères
+ * Filtre les événements selon plusieurs critères (utilisé pour la pagination et les filtres)
+ * @param filters Critères de filtrage
+ * @param page Numéro de la page (commence à 0)
+ * @param pageSize Nombre d'éléments par page
  */
-export function searchEvents(
-  events: Event[],
-  searchQuery?: string,
-  sortBy: keyof Event = 'startDate',
-  sortDirection: 'asc' | 'desc' = 'desc'
-): Event[] {
-  let filteredEvents = [...events];
+export function getFilteredEvents(
+  filters: {
+    category?: number | string;
+    startDateFrom?: Date;
+    startDateTo?: Date;
+    endDateFrom?: Date;
+    endDateTo?: Date;
+    free?: boolean;
+    status?: EventStatus;
+    structureId?: number;
+    featured?: boolean;
+    query?: string;
+    sortBy?: string;
+    sortDirection?: 'asc' | 'desc';
+  },
+  page: number = 0,
+  pageSize: number = 10
+): { events: EventModel[]; totalCount: number } {
+  let filteredEvents = [...allMockEvents];
 
-  // Filtre par recherche textuelle
-  if (searchQuery) {
-    const query = searchQuery.toLowerCase();
-    filteredEvents = filteredEvents.filter(event =>
-      event.name.toLowerCase().includes(query) ||
-      (event.shortDescription && event.shortDescription.toLowerCase().includes(query)) ||
-      (event.fullDescription && event.fullDescription.toLowerCase().includes(query))
+  // Appliquer les filtres
+  if (filters.category !== undefined) {
+    if (typeof filters.category === 'number') {
+      filteredEvents = filteredEvents.filter(e => e.category.id === filters.category);
+    } else if (typeof filters.category === 'string') {
+      filteredEvents = filteredEvents.filter(e => e.category.name === filters.category);
+    }
+  }
+
+  if (filters.startDateFrom) {
+    filteredEvents = filteredEvents.filter(e =>
+      new Date(e.startDate) >= new Date(filters.startDateFrom!)
     );
   }
 
-  // Tri des résultats
-  return [...filteredEvents].sort((a, b) => {
-    let valA: any = a[sortBy];
-    let valB: any = b[sortBy];
+  if (filters.startDateTo) {
+    filteredEvents = filteredEvents.filter(e =>
+      new Date(e.startDate) <= new Date(filters.startDateTo!)
+    );
+  }
 
-    // Gestion des valeurs undefined ou null
-    if (valA === undefined || valA === null) return sortDirection === 'asc' ? -1 : 1;
-    if (valB === undefined || valB === null) return sortDirection === 'asc' ? 1 : -1;
+  if (filters.endDateFrom) {
+    filteredEvents = filteredEvents.filter(e =>
+      new Date(e.endDate) >= new Date(filters.endDateFrom!)
+    );
+  }
 
-    // Comparaison pour les dates
-    if (valA instanceof Date && valB instanceof Date) {
-      return sortDirection === 'asc'
-        ? valA.getTime() - valB.getTime()
-        : valB.getTime() - valA.getTime();
-    }
+  if (filters.endDateTo) {
+    filteredEvents = filteredEvents.filter(e =>
+      new Date(e.endDate) <= new Date(filters.endDateTo!)
+    );
+  }
 
-    // Comparaison pour les chaînes de caractères (ignorer la casse)
-    if (typeof valA === 'string' && typeof valB === 'string') {
-      valA = valA.toLowerCase();
-      valB = valB.toLowerCase();
-    }
+  if (filters.free !== undefined) {
+    filteredEvents = filteredEvents.filter(e => e.isFreeEvent === filters.free);
+  }
 
-    // Comparaison standard
-    if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
-    if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
-  });
+  if (filters.status) {
+    filteredEvents = filteredEvents.filter(e => e.status === filters.status);
+  }
+
+  if (filters.structureId) {
+    filteredEvents = filteredEvents.filter(e => e.structureId === filters.structureId);
+  }
+
+  if (filters.featured !== undefined) {
+    filteredEvents = filteredEvents.filter(e => e.isFeaturedEvent === filters.featured);
+  }
+
+  if (filters.query) {
+    const query = filters.query.toLowerCase();
+    filteredEvents = filteredEvents.filter(e =>
+      e.name.toLowerCase().includes(query) ||
+      (e.shortDescription && e.shortDescription.toLowerCase().includes(query)) ||
+      e.fullDescription.toLowerCase().includes(query) ||
+      (e.tags && e.tags.some(tag => tag.toLowerCase().includes(query)))
+    );
+  }
+
+  // Calculer le nombre total avant pagination
+  const totalCount = filteredEvents.length;
+
+  // Tri
+  if (filters.sortBy) {
+    const direction = filters.sortDirection === 'desc' ? -1 : 1;
+    filteredEvents.sort((a, b) => {
+      const aValue = (a as any)[filters.sortBy!];
+      const bValue = (b as any)[filters.sortBy!];
+
+      // Gestion des valeurs null/undefined
+      if (aValue === undefined || aValue === null) return 1 * direction;
+      if (bValue === undefined || bValue === null) return -1 * direction;
+
+      // Comparaison de dates
+      if (aValue instanceof Date && bValue instanceof Date) {
+        return (aValue.getTime() - bValue.getTime()) * direction;
+      }
+
+      // Comparaison de chaînes
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return aValue.localeCompare(bValue) * direction;
+      }
+
+      // Comparaison de nombres ou autres
+      if (aValue < bValue) return -1 * direction;
+      if (aValue > bValue) return 1 * direction;
+      return 0;
+    });
+  } else {
+    // Tri par défaut par date de début
+    filteredEvents.sort((a, b) =>
+      new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+    );
+  }
+
+  // Pagination
+  const start = page * pageSize;
+  const paginatedEvents = filteredEvents.slice(start, start + pageSize);
+
+  return { events: paginatedEvents, totalCount };
 }
+
+/**
+ * Construit un mock d'événement avec des valeurs par défaut
+ * @param overrides Valeurs pour surcharger les valeurs par défaut
+ */
+export function buildMockEvent(overrides: Partial<EventModel> = {}): EventModel {
+  // Valeurs par défaut pour un événement
+  const defaultEvent: EventModel = {
+    name: 'Événement par défaut',
+    category: { id: 7, name: 'Other' },
+    fullDescription: 'Description détaillée par défaut pour l\'événement',
+    startDate: new Date(new Date().setDate(new Date().getDate() + 30)),  // Dans 30 jours
+    endDate: new Date(new Date().setDate(new Date().getDate() + 30 + 2)), // Dans 32 jours (durée 2 jours)
+    address: {
+      street: 'Rue par défaut',
+      city: 'Ville par défaut',
+      zipCode: '00000',
+      country: 'France'
+    },
+    structureId: 1,
+    isFreeEvent: false,
+    defaultSeatingType: SeatingType.MIXED,
+    seatingZones: [
+      {
+        id: 999,
+        name: 'Zone par défaut',
+        areaId: 999,
+        maxCapacity: 100,
+        ticketPrice: 10.00,
+        isActive: true,
+        seatingType: SeatingType.MIXED
+      }
+    ],
+    displayOnHomepage: false,
+    isFeaturedEvent: false,
+    status: 'draft',
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+
+  // Fusionner les valeurs par défaut avec les overrides
+  return { ...defaultEvent, ...overrides };
+}
+
+/**
+ * Génère un ID unique pour un nouvel événement
+ */
+export function getNextEventId(): number {
+  return Math.max(...allMockEvents.map(e => e.id || 0)) + 1;
+}
+
+// Export d'objets utilitaires
+
+/**
+ * Aide pour le mapping entre les statuts frontend et backend
+ */
+export const eventStatusMapping = {
+  draft: { label: 'Brouillon', color: 'gray' },
+  published: { label: 'Publié', color: 'green' },
+  pending_approval: { label: 'En attente d\'approbation', color: 'orange' },
+  cancelled: { label: 'Annulé', color: 'red' },
+  completed: { label: 'Terminé', color: 'blue' }
+};
+
+/**
+ * Formattage des catégories pour l'affichage
+ */
+export const eventCategoryMapping: Record<string, { icon: string, color: string }> = {
+  'Music': { icon: 'music_note', color: '#3F51B5' }, // Indigo
+  'Theater': { icon: 'theater_comedy', color: '#9C27B0' }, // Purple
+  'Sport': { icon: 'sports', color: '#00BCD4' }, // Cyan
+  'Conference': { icon: 'mic', color: '#FF5722' }, // Deep Orange
+  'Exhibition': { icon: 'palette', color: '#FF9800' }, // Orange
+  'Festival': { icon: 'festival', color: '#E91E63' }, // Pink
+  'Other': { icon: 'event', color: '#607D8B' } // Blue Gray
+};
+
+// Version finale pour export
+export default {
+  allMockEvents,
+  mockEvents,
+  additionalMockEvents,
+  eventsWithDifferentStatuses,
+  upcomingEvents,
+  freeEvents,
+  draftEvent,
+  getUpcomingMockEvents,
+  getHomepageEvents,
+  getFeaturedEvents,
+  getEventsByStatus,
+  getEventsByStructure,
+  getEventsByCategory,
+  searchEvents,
+  getMockEventById,
+  getStructureEventsByStatus,
+  getFilteredEvents,
+  buildMockEvent,
+  getNextEventId,
+  eventStatusMapping,
+  eventCategoryMapping
+};

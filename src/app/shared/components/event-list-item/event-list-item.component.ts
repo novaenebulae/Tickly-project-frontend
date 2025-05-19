@@ -4,7 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRippleModule } from '@angular/material/core';
-import { Event } from '../../../core/models/event.model'; // Ajustez le chemin si nécessaire
+import { EventModel } from '../../../core/models/event/event.model';
 
 @Component({
   selector: 'app-event-list-item',
@@ -22,7 +22,7 @@ import { Event } from '../../../core/models/event.model'; // Ajustez le chemin s
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EventListItemComponent implements OnInit {
-  @Input() event!: Event;
+  @Input() event!: EventModel;
 
   constructor(
     private router: Router,
@@ -36,11 +36,6 @@ export class EventListItemComponent implements OnInit {
   }
 
   viewEventDetails(event: MouseEvent): void {
-    // Empêche la propagation si l'événement vient du bouton lui-même,
-    // pour éviter une double navigation si le conteneur principal a aussi un (click).
-    // Cependant, ici, nous mettons le (click) uniquement sur le conteneur principal
-    // et le bouton. Si le bouton est cliqué, sa propre action (si définie) prendra le dessus.
-    // Pour ce design, le bouton et l'item entier naviguent au même endroit.
     if (this.event && this.event.id) {
       this.router.navigate(['/events', this.event.id]);
     } else {
@@ -57,13 +52,10 @@ export class EventListItemComponent implements OnInit {
   }
 
   get displayLocation(): string {
-    if (this.event && this.event.locations && this.event.locations.length > 0) {
-      const activeLocations = this.event.locations.filter(loc => loc.active && loc.name);
-      if (activeLocations.length > 0) {
-        return activeLocations[0].name;
-      }
+    if (this.event && this.event.address) {
+      return `${this.event.address.city}, ${this.event.address.country}`;
     }
-    return ''; // Retourne une chaîne vide si pas de lieu pertinent pour ne pas afficher l'icône
+    return ''; // Retourne une chaîne vide si pas d'adresse
   }
 
   /**
@@ -71,21 +63,21 @@ export class EventListItemComponent implements OnInit {
    * @returns Le prix minimum des billets actifs ou 0 si aucun billet n'est disponible
    */
   getMinTicketPrice(): number {
-    if (!this.event || !this.event.locations || this.event.locations.length === 0) {
+    if (!this.event || !this.event.seatingZones || this.event.seatingZones.length === 0) {
       return 0;
     }
 
-    // Filtrer les emplacements actifs avec des prix de billets valides
-    const activeLocationsWithPrices = this.event.locations
-      .filter(location => location.active && location.ticketPrice !== null && location.ticketPrice !== undefined);
+    // Filtrer les zones de placement actives avec des prix valides
+    const activeZonesWithPrices = this.event.seatingZones
+      .filter(zone => zone.isActive && zone.ticketPrice !== null && zone.ticketPrice !== undefined);
 
-    // S'il n'y a pas d'emplacements actifs avec des prix, retourner 0
-    if (activeLocationsWithPrices.length === 0) {
+    // S'il n'y a pas de zones actives avec des prix, retourner 0
+    if (activeZonesWithPrices.length === 0) {
       return 0;
     }
 
-    // Trouver le prix minimum parmi les emplacements actifs
-    return Math.min(...activeLocationsWithPrices.map(location => location.ticketPrice as number));
+    // Trouver le prix minimum parmi les zones actives
+    return Math.min(...activeZonesWithPrices.map(zone => zone.ticketPrice));
   }
 
   // On arrête la propagation du clic si l'utilisateur clique spécifiquement sur le bouton,

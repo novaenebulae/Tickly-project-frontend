@@ -1,64 +1,145 @@
-<nav class="navbar navbar-expand-lg navbar-light tickly-navbar">
-  <div class="container-fluid">
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+  <div class="container-fluid px-3">
     <!-- Logo -->
-    <img src="logos/tickly-logo.svg" class="navbar-brand tickly-logo" alt="Logo de la plateforme">
+    <a class="navbar-brand me-2" routerLink="/">
+      <img src="logos/tickly-logo.svg" alt="Tickly" height="38">
+    </a>
 
-    <!-- Bouton Burger pour mobile -->
-    <button class="navbar-toggler order-lg-2 ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <!-- Bouton burger pour mobile avec badge si notifications -->
+    <button #navbarToggler class="navbar-toggler position-relative" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+            aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
+      @if (pendingFriendRequests() > 0 && isLoggedIn()) {
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+          {{ pendingFriendRequests() }}
+          <span class="visually-hidden">demandes d'amitié</span>
+        </span>
+      }
     </button>
 
-    <!-- Liens de navigation et recherche -->
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <!-- Contenu de la navbar -->
+    <div class="collapse navbar-collapse bg-white" id="navbarContent">
+      <!-- Liens de navigation -->
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" routerLink="/home" routerLinkActive="active" ariaCurrentWhenActive="page">Accueil</a>
+          <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Accueil</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/events" routerLinkActive="active" ariaCurrentWhenActive="page">Événements</a>
+          <a class="nav-link" routerLink="/events" routerLinkActive="active">Événements</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/structures" routerLinkActive="active" ariaCurrentWhenActive="page">Structures</a>
+          <a class="nav-link" routerLink="/structures" routerLinkActive="active">Structures</a>
         </li>
+        @if (isLoggedIn()) {
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">Tableau de bord</a>
+          </li>
+        }
       </ul>
 
-      <!-- Barre de recherche -->
-      <form class="d-flex tickly-search-form me-lg-3 mb-3 mb-lg-0">
-        <input class="form-control me-2 search-input" type="search" placeholder="Rechercher un événement..." aria-label="Search">
-        <button class="btn btn-outline-primary" type="submit">
-          <mat-icon>search</mat-icon>
-        </button>
-      </form>
+      <!-- Menu utilisateur sur mobile uniquement -->
+      @if (isLoggedIn()) {
+        <div class="d-lg-none mobile-user-menu mb-3">
+          <div class="user-info-mobile p-3 border-top mt-2">
+            <div class="d-flex align-items-center mb-3">
+              <div class="user-avatar-wrapper me-3">
+                <div class="btn btn-primary rounded-circle user-avatar">
+                  {{ userInitial() }}
+                </div>
+              </div>
+              <div>
+                <div class="fw-bold">{{ fullName() }}</div>
+                <div class="text-muted small">{{ userEmail() }}</div>
+              </div>
+            </div>
 
-      <!-- Menu Utilisateur -->
-      <div class="navbar-nav">
-        <div class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarUserMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img [src]="userAvatarUrl" alt="User Avatar" class="rounded-circle me-2 user-avatar">
-            <span class="d-none d-lg-inline">{{userName}}</span>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="navbarUserMenu">
-            <li>
+            <button mat-button class="user-menu-button w-100 text-start mb-2" (click)="openProfileDialog()">
+              <mat-icon>account_circle</mat-icon>
+              <span class="ms-2">Modifier mon profil</span>
+            </button>
 
-                <button mat-menu-item class="dropdown-item d-flex align-items-center" (click)="openProfileDialog()">
-                <mat-icon class="me-2">person_outline</mat-icon> Modifier Profil
-                </button>
+            <button mat-button class="user-menu-button w-100 text-start mb-2" (click)="openFriendsDialog()">
+              <div class="d-flex align-items-center w-100">
+                <mat-icon>people</mat-icon>
+                <span class="ms-2">Gérer mes amis</span>
+                @if (pendingFriendRequests() > 0) {
+                  <span class="ms-auto badge rounded-pill bg-danger">{{ pendingFriendRequests() }}</span>
+                }
+              </div>
+            </button>
 
-            </li>
-            <li>
-              <button mat-menu-item class="dropdown-item d-flex align-items-center" (click)="openFriendsDialog()">
-                <mat-icon class="me-2">person_add_alt</mat-icon> Gérer les amis
-              </button>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-                <button mat-menu-item class="dropdown-item d-flex align-items-center" (click)="logout()">
-                  <mat-icon class="me-2">logout</mat-icon> Déconnexion
-                </button>
-            </li>
-          </ul>
+            <button mat-button class="user-menu-button w-100 text-start" (click)="logout()">
+              <mat-icon>exit_to_app</mat-icon>
+              <span class="ms-2">Déconnexion</span>
+            </button>
+          </div>
         </div>
+      } @else {
+        <!-- Bouton connexion sur mobile uniquement -->
+        <div class="d-lg-none mb-3">
+          <a routerLink="/login" class="btn btn-primary d-flex align-items-center w-100 justify-content-center">
+            <mat-icon class="me-1">login</mat-icon>
+            <span>Connexion</span>
+          </a>
+        </div>
+      }
+
+      <!-- Partie droite (desktop uniquement) -->
+      <div class="d-none d-lg-flex align-items-center ms-auto">
+        @if (isLoggedIn()) {
+          <!-- Avatar utilisateur avec badge de notification si nécessaire -->
+          <button
+            type="button"
+            class="btn btn-primary rounded-circle user-avatar position-relative"
+            [matMenuTriggerFor]="userMenu">
+            {{ userInitial() }}
+            @if (pendingFriendRequests() > 0) {
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ pendingFriendRequests() }}
+                <span class="visually-hidden">demandes d'amitié</span>
+              </span>
+            }
+          </button>
+
+          <!-- Menu utilisateur desktop -->
+          <mat-menu #userMenu="matMenu" class="user-menu" xPosition="before">
+            <ng-template matMenuContent>
+              <div class="user-menu-header p-3 bg-white">
+                <div class="fw-bold">{{ fullName() }}</div>
+                <div class="text-muted small">{{ userEmail() }}</div>
+              </div>
+              <mat-divider></mat-divider>
+              <button mat-menu-item (click)="openProfileDialog()">
+                <mat-icon>account_circle</mat-icon>
+                <span>Modifier mon profil</span>
+              </button>
+              <button mat-menu-item (click)="openFriendsDialog()">
+                <div class="d-flex align-items-center">
+                  <mat-icon>people</mat-icon>
+                  <span>Gérer mes amis</span>
+                  @if (pendingFriendRequests() > 0) {
+                    <span class="ms-2 badge rounded-pill bg-danger">{{ pendingFriendRequests() }}</span>
+                  }
+                </div>
+              </button>
+              <mat-divider></mat-divider>
+              <button mat-menu-item (click)="logout()">
+                <mat-icon>exit_to_app</mat-icon>
+                <span>Déconnexion</span>
+              </button>
+            </ng-template>
+          </mat-menu>
+        } @else {
+          <!-- Bouton connexion desktop -->
+          <a routerLink="/login" class="btn btn-primary d-flex align-items-center">
+            <mat-icon class="me-1">login</mat-icon>
+            <span>Connexion</span>
+          </a>
+        }
       </div>
     </div>
   </div>
 </nav>
+
+<!-- Spacer pour compenser la navbar fixed-top -->
+<div class="navbar-spacer"></div>
