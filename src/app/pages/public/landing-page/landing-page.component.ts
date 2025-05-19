@@ -95,12 +95,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
 
     // Utilisation du EventService pour récupérer les événements récents
-    this.eventService.getEvents({
-      sortBy: 'createdAt',
-      sortDirection: 'desc',
-      pageSize: 8,
-      page: 0
-    })
+    this.eventService.getHomePageEvents(true, 9)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (events) => {

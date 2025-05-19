@@ -97,20 +97,35 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
     'Cinéma', 'Sport', 'Conférence', 'Atelier'
   ];
 
-  // Genres disponibles
+  // Genres disponibles - valeurs exactes correspondant aux données du backend
   availableGenres: GenreOption[] = [
-    { value: 'rock', viewValue: 'Rock' },
     { value: 'pop', viewValue: 'Pop' },
+    { value: 'rock', viewValue: 'Rock' },
     { value: 'jazz', viewValue: 'Jazz' },
+    { value: 'blues', viewValue: 'Blues' },
     { value: 'classical', viewValue: 'Classique' },
     { value: 'electronic', viewValue: 'Électronique' },
     { value: 'rap', viewValue: 'Rap/Hip-Hop' },
     { value: 'metal', viewValue: 'Metal' },
     { value: 'reggae', viewValue: 'Reggae' },
     { value: 'folk', viewValue: 'Folk' },
-    { value: 'blues', viewValue: 'Blues' },
     { value: 'rnb', viewValue: 'R&B/Soul' },
-    { value: 'country', viewValue: 'Country' }
+    { value: 'country', viewValue: 'Country' },
+    { value: 'drame', viewValue: 'Drame' },
+    { value: 'football', viewValue: 'Football' },
+    { value: 'technologie', viewValue: 'Technologie' },
+    { value: 'art', viewValue: 'Art' },
+    { value: 'contemporain', viewValue: 'Contemporain' },
+    { value: 'skateboard', viewValue: 'Skateboard' },
+    { value: 'littérature', viewValue: 'Littérature' },
+    { value: 'éducation', viewValue: 'Éducation' },
+    { value: 'ballet', viewValue: 'Ballet' },
+    { value: 'danse', viewValue: 'Danse' },
+    { value: 'agriculture', viewValue: 'Agriculture' },
+    { value: 'gastronomie', viewValue: 'Gastronomie' },
+    { value: 'art urbain', viewValue: 'Art urbain' },
+    { value: 'street art', viewValue: 'Street art' },
+    { value: 'variété', viewValue: 'Variété' }
   ];
 
   constructor(private fb: FormBuilder) {}
@@ -166,10 +181,73 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(formValue => {
+        // Formater les filtres avant de les émettre
+        const formattedFilters = this.formatFiltersForApi(formValue);
         // Émettre les filtres mis à jour
-        this.filtersChanged.emit(formValue);
+        this.filtersChanged.emit(formattedFilters);
       });
   }
+
+  /**
+   * Formate les filtres pour qu'ils soient compatibles avec l'API
+   */
+  private formatFiltersForApi(formValue: any): FilterState {
+    const formattedFilters: any = { ...formValue };
+
+    console.log('Formatage des filtres:', formValue);
+
+    // Gérer le tri
+    if (formValue.sortBy) {
+      const [field, direction] = formValue.sortBy.split('_');
+      formattedFilters.sortBy = field;
+      formattedFilters.sortDirection = direction;
+    }
+
+    // Gérer les catégories (transformer en IDs si nécessaire)
+    if (formValue.selectedCategories && formValue.selectedCategories.length > 0) {
+      formattedFilters.category = formValue.selectedCategories;
+    }
+
+    // Gérer les dates
+    if (formValue.dateRange) {
+      if (formValue.dateRange.startDate) {
+        formattedFilters.startDate = new Date(formValue.dateRange.startDate);
+      }
+      if (formValue.dateRange.endDate) {
+        formattedFilters.endDate = new Date(formValue.dateRange.endDate);
+      }
+      // Supprimer l'objet dateRange pour ne pas le passer en double
+      delete formattedFilters.dateRange;
+    }
+
+    // Gérer la localisation
+    if (formValue.location) {
+      formattedFilters.location = formValue.location;
+    }
+
+    // Gérer les genres - envoyés sous forme de tableau de chaînes uniquement
+    if (formValue.genres) {
+      const selectedGenres = Object.entries(formValue.genres)
+        .filter(([_, selected]) => !!selected)
+        .map(([key]) => {
+          // Récupérer le nom d'affichage pour la valeur sélectionnée
+          const genre = this.availableGenres.find(g => g.value === key);
+          // Envoyer la viewValue car c'est le terme exact attendu par le backend
+          return genre ? genre.viewValue : key;
+        });
+
+      if (selectedGenres.length > 0) {
+        formattedFilters.genres = selectedGenres;
+        console.log('Genres sélectionnés:', selectedGenres);
+      }
+      // Supprimer l'objet genres brut
+      delete formattedFilters.genres;
+    }
+
+    console.log('Filtres formatés à envoyer:', formattedFilters);
+    return formattedFilters;
+  }
+
 
   /**
    * Applique les filtres initiaux si fournis

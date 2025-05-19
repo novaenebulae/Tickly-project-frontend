@@ -22,6 +22,7 @@ export interface EventSearchParams {
 
   // Filtre par structure
   structureId?: number;                   // Filtrer par structure organisatrice
+  location?: string;
 
   // Pagination
   page?: number;                          // Numéro de page
@@ -33,6 +34,6 @@ export interface EventSearchParams {
 
   // Filtres supplémentaires
   tags?: string[];                        // Filtrer par tags
-  genres?: string[];                      // Filtrer par genres
+  genres?: string[];                      // Filtrer par genres (valeurs exactes fournies par le backend)
   withPhotos?: boolean;                   // Événements avec photos uniquement
 }

@@ -1,6 +1,6 @@
 // Variables
 $primary-color: #007bff;
-$navbar-height: 64px;
+$navbar-height: 70px;
 $text-color: #333;
 $badge-color: #dc3545;
 $white: #ffffff;
@@ -22,6 +22,11 @@ $white: #ffffff;
     height: 100%;
     padding: 0;
     margin-right: 0.5rem;
+
+    img {
+      width: 150px;
+      height: auto;
+    }
   }
 
   // Style des liens de navigation
@@ -66,7 +71,7 @@ $white: #ffffff;
   justify-content: center;
   font-weight: 600;
   font-size: 16px;
-  padding: 0;
+  margin: 1rem;
   line-height: 1;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   border: none;

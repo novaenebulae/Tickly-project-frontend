@@ -1,18 +1,24 @@
 // src/app/core/services/api/event-api.service.ts
 
-import { Injectable, inject } from '@angular/core';
-import { HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import {Injectable, inject} from '@angular/core';
+import {HttpErrorResponse, HttpParams} from '@angular/common/http';
+import {Observable, of, throwError} from 'rxjs';
+import {catchError, map, tap} from 'rxjs/operators';
 
-import { ApiConfigService } from './api-config.service';
-import { APP_CONFIG } from '../../config/app-config';
-import { EventModel, EventStatus, EventCreationDto } from '../../models/event/event.model';
-import { EventCategoryModel } from '../../models/event/event-category.model';
-import { EventSearchParams } from '../../models/event/event-search-params.model';
+import {ApiConfigService} from './api-config.service';
+import {APP_CONFIG} from '../../config/app-config';
+import {EventModel, EventStatus, EventCreationDto} from '../../models/event/event.model';
+import {EventCategoryModel} from '../../models/event/event-category.model';
+import {EventSearchParams} from '../../models/event/event-search-params.model';
 
-import { allMockEvents, getMockEventById, getFilteredEvents, buildMockEvent, getNextEventId } from '../../mocks/events/events.mock';
-import { mockCategories } from '../../mocks/events/categories.mock';
+import {
+  allMockEvents,
+  getMockEventById,
+  getFilteredEvents,
+  buildMockEvent,
+  getNextEventId
+} from '../../mocks/events/events.mock';
+import {mockCategories} from '../../mocks/events/categories.mock';
 
 /**
  * Service API pour les événements
@@ -41,7 +47,7 @@ export class EventApiService {
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base);
     const headers = this.apiConfig.createHeaders();
 
-    return this.apiConfig.http.get<EventModel[]>(url, { headers, params: httpParams }).pipe(
+    return this.apiConfig.http.get<EventModel[]>(url, {headers, params: httpParams}).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', 'events', response)),
       catchError(error => this.handleEventError(error, 'getEvents'))
     );
@@ -64,7 +70,7 @@ export class EventApiService {
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.search);
     const headers = this.apiConfig.createHeaders();
 
-    return this.apiConfig.http.get<EventModel[]>(url, { headers, params: httpParams }).pipe(
+    return this.apiConfig.http.get<EventModel[]>(url, {headers, params: httpParams}).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', 'search-events', response)),
       catchError(error => this.handleEventError(error, 'searchEvents'))
     );
@@ -85,7 +91,7 @@ export class EventApiService {
     const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base)}/${id}`;
     const headers = this.apiConfig.createHeaders();
 
-    return this.apiConfig.http.get<EventModel>(url, { headers }).pipe(
+    return this.apiConfig.http.get<EventModel>(url, {headers}).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', `event/${id}`, response)),
       catchError(error => this.handleEventError(error, 'getEventById'))
     );
@@ -106,7 +112,7 @@ export class EventApiService {
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base);
     const headers = this.apiConfig.createHeaders();
 
-    return this.apiConfig.http.post<EventModel>(url, event, { headers }).pipe(
+    return this.apiConfig.http.post<EventModel>(url, event, {headers}).pipe(
       tap(response => this.apiConfig.logApiResponse('POST', 'create-event', response)),
       catchError(error => this.handleEventError(error, 'createEvent'))
     );
@@ -128,7 +134,7 @@ export class EventApiService {
     const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base)}/${id}`;
     const headers = this.apiConfig.createHeaders();
 
-    return this.apiConfig.http.put<EventModel>(url, event, { headers }).pipe(
+    return this.apiConfig.http.put<EventModel>(url, event, {headers}).pipe(
       tap(response => this.apiConfig.logApiResponse('PUT', `update-event/${id}`, response)),
       catchError(error => this.handleEventError(error, 'updateEvent'))
     );
@@ -149,7 +155,7 @@ export class EventApiService {
     const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base)}/${id}`;
     const headers = this.apiConfig.createHeaders();
 
-    return this.apiConfig.http.delete<void>(url, { headers }).pipe(
+    return this.apiConfig.http.delete<void>(url, {headers}).pipe(
       tap(() => this.apiConfig.logApiResponse('DELETE', `delete-event/${id}`, 'Suppression réussie')),
       catchError(error => this.handleEventError(error, 'deleteEvent'))
     );
@@ -169,7 +175,7 @@ export class EventApiService {
     const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base)}/categories`;
     const headers = this.apiConfig.createHeaders();
 
-    return this.apiConfig.http.get<EventCategoryModel[]>(url, { headers }).pipe(
+    return this.apiConfig.http.get<EventCategoryModel[]>(url, {headers}).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', 'event-categories', response)),
       catchError(error => this.handleEventError(error, 'getEventCategories'))
     );
@@ -181,7 +187,7 @@ export class EventApiService {
    * @param status Nouveau statut
    */
   updateEventStatus(id: number, status: EventStatus): Observable<EventModel> {
-    this.apiConfig.logApiRequest('PATCH', `update-event-status/${id}`, { status });
+    this.apiConfig.logApiRequest('PATCH', `update-event-status/${id}`, {status});
 
     // Vérifier si on utilise les mocks
     if (this.apiConfig.isMockEnabledForDomain('events')) {
@@ -191,7 +197,7 @@ export class EventApiService {
     const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base)}/${id}/status`;
     const headers = this.apiConfig.createHeaders();
 
-    return this.apiConfig.http.patch<EventModel>(url, { status }, { headers }).pipe(
+    return this.apiConfig.http.patch<EventModel>(url, {status}, {headers}).pipe(
       tap(response => this.apiConfig.logApiResponse('PATCH', `update-event-status/${id}`, response)),
       catchError(error => this.handleEventError(error, 'updateEventStatus'))
     );
@@ -250,40 +256,81 @@ export class EventApiService {
    * Version mock de la récupération d'événements
    */
   private mockGetEvents(params: EventSearchParams): Observable<EventModel[]> {
+    console.log('Paramètres reçus dans mockGetEvents:', params);
+
     // Utiliser la fonction getFilteredEvents du mock
     const filters: any = {
       query: params.query,
       status: params.status,
       featured: params.featured,
       free: params.free,
-      structureId: params.structureId,
-      sortBy: params.sortBy,
-      sortDirection: params.sortDirection
+      structureId: params.structureId
     };
+
+    // Gestion du tri
+    if (params.sortBy) {
+      filters.sortBy = params.sortBy;
+      filters.sortDirection = params.sortDirection || 'asc';
+    }
 
     // Gestion de la catégorie
     if (params.category) {
+      // Si c'est un tableau, passer directement le tableau
+      if (Array.isArray(params.category)) {
+        filters.category = params.category;
+      }
       // Si c'est un objet EventCategoryModel
-      if (typeof params.category === 'object' && params.category.id) {
+      else if (typeof params.category === 'object' && 'id' in params.category) {
         filters.category = params.category.id;
-      } else {
+      }
+      // Si c'est une chaîne, c'est un nom de catégorie
+      else if (typeof params.category === 'string') {
+        filters.categoryName = params.category;
+      }
+      // Sinon, c'est un ID
+      else {
         filters.category = params.category;
       }
     }
 
     // Dates
     if (params.startDate) {
-      filters.startDateFrom = params.startDate;
+      filters.startDateFrom = new Date(params.startDate);
     }
     if (params.endDate) {
-      filters.endDateTo = params.endDate;
+      filters.endDateTo = new Date(params.endDate);
     }
+
+    // Localisation
+    if (params.location) {
+      filters.location = params.location;
+    }
+
+    // Genres
+    if (params.genres) {
+      if (Array.isArray(params.genres)) {
+        filters.genres = params.genres;
+      } else {
+        filters.genres = [];
+      }
+      console.log('Filtres pour les genres:', filters.genres);
+    }
+
 
     const page = params.page || 0;
     const pageSize = params.pageSize || 10;
 
-    const { events } = getFilteredEvents(filters, page, pageSize);
-    return this.apiConfig.createMockResponse(events);
+    // Filtrer les événements en fonction des critères
+    return of(getFilteredEvents(allMockEvents, filters))
+      .pipe(
+        map(events => {
+          console.log(`${events.length} événements trouvés après filtrage`);
+          // Pagination
+          const startIndex = page * pageSize;
+          const endIndex = startIndex + pageSize;
+          return events.slice(startIndex, endIndex);
+        })
+      );
   }
 
   /**

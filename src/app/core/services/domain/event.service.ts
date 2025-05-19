@@ -422,7 +422,16 @@ export class EventService {
       // Conversion des emplacements en zones de placement
       isFreeEvent: apiEvent.isFreeEvent,
       defaultSeatingType: apiEvent.defaultSeatingType || SeatingType.MIXED,
-      seatingZones: apiEvent.locations ? this.convertLocationsToSeatingZones(apiEvent.locations) : [],
+
+      // Utiliser directement seatingZones s'il existe, sinon convertir les locations si présents
+      // Si aucun des deux n'existe, créer une zone par défaut pour les événements non gratuits
+      seatingZones: apiEvent.seatingZones
+        ? apiEvent.seatingZones
+        : apiEvent.locations
+          ? this.convertLocationsToSeatingZones(apiEvent.locations)
+          : !apiEvent.isFreeEvent
+            ? [this.createDefaultSeatingZone(apiEvent.id)]
+            : [],
 
       displayOnHomepage: apiEvent.displayOnHomepage,
       isFeaturedEvent: apiEvent.isFeaturedEvent,
@@ -437,6 +446,21 @@ export class EventService {
     };
 
     return eventModel;
+  }
+
+  /**
+   * Crée une zone de placement par défaut pour les événements payants sans zones définies
+   */
+  private createDefaultSeatingZone(eventId: number): EventSeatingZone {
+    return {
+      id: eventId * 1000 + 1, // Générer un ID unique basé sur l'ID de l'événement
+      name: 'Zone standard',
+      areaId: eventId * 100,
+      maxCapacity: 100,
+      ticketPrice: 25.00, // Prix par défaut
+      isActive: true,
+      seatingType: SeatingType.MIXED
+    };
   }
 
   /**
@@ -471,24 +495,74 @@ export class EventService {
    * Convertit les paramètres de recherche du modèle d'application à celui de l'API
    */
   private adaptToApiParams(params: Partial<EventSearchParams>): any {
-    const apiParams: any = { ...params };
+    const apiParams: any = {};
 
-    // Gérer correctement la catégorie
-    if (params.category !== undefined) {
-      // Vérifier d'abord si c'est un objet avec une propriété id
-      if (params.category && typeof params.category === 'object' && 'id' in params.category) {
-        apiParams.category = params.category.id;
-      } else {
-        // Sinon conserver la valeur (si c'est un nombre)
-        apiParams.category = params.category;
-      }
-    } else if (params.categoryId) {
-      apiParams.category = params.categoryId;
-      delete apiParams.categoryId;
+    // Copier les paramètres de base
+    if (params.query) apiParams.query = params.query;
+    if (params.status) apiParams.status = params.status;
+    if (params.featured !== undefined) apiParams.featured = params.featured;
+    if (params.free !== undefined) apiParams.free = params.free;
+    if (params.structureId) apiParams.structureId = params.structureId;
+    if (params.page !== undefined) apiParams.page = params.page;
+    if (params.pageSize) apiParams.pageSize = params.pageSize;
+
+    // Gérer le tri
+    if (params.sortBy) {
+      apiParams.sortBy = params.sortBy;
+      // Si sortDirection est fourni, l'utiliser, sinon par défaut asc
+      apiParams.sortDirection = params.sortDirection || 'asc';
     }
 
-    // Supprimer les clés qui ne sont pas utilisées par l'API
-    delete apiParams.categoryId;
+    // Gérer les catégories
+    if (params.category !== undefined) {
+      // Si c'est un tableau, prendre le premier élément ou convertir en string
+      if (Array.isArray(params.category)) {
+        if (params.category.length > 0) {
+          // Si le premier élément est un objet avec un ID
+          if (typeof params.category[0] === 'object' && 'id' in params.category[0]) {
+            apiParams.category = params.category[0].id;
+          } else {
+            // Sinon, utiliser le premier élément tel quel
+            apiParams.category = params.category[0];
+          }
+        }
+      }
+      // Si c'est un objet avec un ID
+      else if (typeof params.category === 'object' && 'id' in params.category) {
+        apiParams.category = params.category.id;
+      }
+      // Sinon, utiliser tel quel
+      else {
+        apiParams.category = params.category;
+      }
+    }
+    // Utiliser categoryId s'il est fourni
+    else if (params.categoryId) {
+      apiParams.category = params.categoryId;
+    }
+
+    // Gérer les dates
+    if (params.startDate) {
+      apiParams.startDate = params.startDate instanceof Date
+        ? params.startDate.toISOString()
+        : params.startDate;
+    }
+
+    if (params.endDate) {
+      apiParams.endDate = params.endDate instanceof Date
+        ? params.endDate.toISOString()
+        : params.endDate;
+    }
+
+    // Gérer la localisation
+    if (params.location) {
+      apiParams.location = params.location;
+    }
+
+    // Gérer les genres
+    if (params.genres && Array.isArray(params.genres) && params.genres.length > 0) {
+      apiParams.genres = params.genres.join(',');
+    }
 
     return apiParams;
   }

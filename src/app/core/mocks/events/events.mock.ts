@@ -917,128 +917,140 @@ export function getStructureEventsByStatus(structureId: number, status: EventSta
  * @param page Numéro de la page (commence à 0)
  * @param pageSize Nombre d'éléments par page
  */
-export function getFilteredEvents(
-  filters: {
-    category?: number | string;
-    startDateFrom?: Date;
-    startDateTo?: Date;
-    endDateFrom?: Date;
-    endDateTo?: Date;
-    free?: boolean;
-    status?: EventStatus;
-    structureId?: number;
-    featured?: boolean;
-    query?: string;
-    sortBy?: string;
-    sortDirection?: 'asc' | 'desc';
-  },
-  page: number = 0,
-  pageSize: number = 10
-): { events: EventModel[]; totalCount: number } {
-  let filteredEvents = [...allMockEvents];
+export function getFilteredEvents(events: EventModel[], filters: any): EventModel[] {
+  console.log('Filtrage des événements avec les critères :', filters);
 
-  // Appliquer les filtres
-  if (filters.category !== undefined) {
-    if (typeof filters.category === 'number') {
-      filteredEvents = filteredEvents.filter(e => e.category.id === filters.category);
-    } else if (typeof filters.category === 'string') {
-      filteredEvents = filteredEvents.filter(e => e.category.name === filters.category);
+  return events.filter(event => {
+    // Filtre par terme de recherche
+    if (filters.query && !event.name.toLowerCase().includes(filters.query.toLowerCase()) &&
+      !event.shortDescription?.toLowerCase().includes(filters.query.toLowerCase())) {
+      return false;
     }
-  }
 
-  if (filters.startDateFrom) {
-    filteredEvents = filteredEvents.filter(e =>
-      new Date(e.startDate) >= new Date(filters.startDateFrom!)
-    );
-  }
+    // Filtre par statut
+    if (filters.status && event.status !== filters.status) {
+      return false;
+    }
 
-  if (filters.startDateTo) {
-    filteredEvents = filteredEvents.filter(e =>
-      new Date(e.startDate) <= new Date(filters.startDateTo!)
-    );
-  }
+    // Filtre par mise en avant
+    if (filters.featured !== undefined && event.isFeaturedEvent !== filters.featured) {
+      return false;
+    }
 
-  if (filters.endDateFrom) {
-    filteredEvents = filteredEvents.filter(e =>
-      new Date(e.endDate) >= new Date(filters.endDateFrom!)
-    );
-  }
+    // Filtre par gratuité
+    if (filters.free !== undefined && event.isFreeEvent !== filters.free) {
+      return false;
+    }
 
-  if (filters.endDateTo) {
-    filteredEvents = filteredEvents.filter(e =>
-      new Date(e.endDate) <= new Date(filters.endDateTo!)
-    );
-  }
+    // Filtre par structure
+    if (filters.structureId && event.structureId !== filters.structureId) {
+      return false;
+    }
 
-  if (filters.free !== undefined) {
-    filteredEvents = filteredEvents.filter(e => e.isFreeEvent === filters.free);
-  }
+    // Filtre par catégorie (ID)
+    if (filters.category) {
+      // Si category est un tableau
+      if (Array.isArray(filters.category)) {
+        if (!filters.category.some((cat: any) => {
+          if (typeof cat === 'object' && cat.id) {
+            return event.category.id === cat.id;
+          } else if (typeof cat === 'number') {
+            return event.category.id === cat;
+          } else if (typeof cat === 'string') {
+            return event.category.name.toLowerCase() === cat.toLowerCase();
+          }
+          return false;
+        })) {
+          return false;
+        }
+      }
+      // Si category est un nombre (ID)
+      else if (typeof filters.category === 'number') {
+        if (event.category.id !== filters.category) {
+          return false;
+        }
+      }
+      // Si category est un objet (EventCategoryModel)
+      else if (typeof filters.category === 'object' && filters.category.id) {
+        if (event.category.id !== filters.category.id) {
+          return false;
+        }
+      }
+    }
 
-  if (filters.status) {
-    filteredEvents = filteredEvents.filter(e => e.status === filters.status);
-  }
+    // Filtre par catégorie (nom)
+    if (filters.categoryName && event.category.name.toLowerCase() !== filters.categoryName.toLowerCase()) {
+      return false;
+    }
 
-  if (filters.structureId) {
-    filteredEvents = filteredEvents.filter(e => e.structureId === filters.structureId);
-  }
+    // Filtre par date de début
+    if (filters.startDateFrom && new Date(event.startDate) < new Date(filters.startDateFrom)) {
+      return false;
+    }
 
-  if (filters.featured !== undefined) {
-    filteredEvents = filteredEvents.filter(e => e.isFeaturedEvent === filters.featured);
-  }
+    // Filtre par date de fin
+    if (filters.endDateTo && new Date(event.endDate) > new Date(filters.endDateTo)) {
+      return false;
+    }
 
-  if (filters.query) {
-    const query = filters.query.toLowerCase();
-    filteredEvents = filteredEvents.filter(e =>
-      e.name.toLowerCase().includes(query) ||
-      (e.shortDescription && e.shortDescription.toLowerCase().includes(query)) ||
-      e.fullDescription.toLowerCase().includes(query) ||
-      (e.tags && e.tags.some(tag => tag.toLowerCase().includes(query)))
-    );
-  }
+    // Filtre par lieu
+    if (filters.location &&
+      !event.address.city.toLowerCase().includes(filters.location.toLowerCase()) &&
+      !event.address.street.toLowerCase().includes(filters.location.toLowerCase())) {
+      return false;
+    }
 
-  // Calculer le nombre total avant pagination
-  const totalCount = filteredEvents.length;
-
-  // Tri
-  if (filters.sortBy) {
-    const direction = filters.sortDirection === 'desc' ? -1 : 1;
-    filteredEvents.sort((a, b) => {
-      const aValue = (a as any)[filters.sortBy!];
-      const bValue = (b as any)[filters.sortBy!];
-
-      // Gestion des valeurs null/undefined
-      if (aValue === undefined || aValue === null) return 1 * direction;
-      if (bValue === undefined || bValue === null) return -1 * direction;
-
-      // Comparaison de dates
-      if (aValue instanceof Date && bValue instanceof Date) {
-        return (aValue.getTime() - bValue.getTime()) * direction;
+    // Filtre par genres
+    if (filters.genres && filters.genres.length > 0) {
+      // Vérifier si event.genre existe
+      if (!event.genre || !Array.isArray(event.genre) || event.genre.length === 0) {
+        return false;
       }
 
-      // Comparaison de chaînes
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return aValue.localeCompare(bValue) * direction;
+      console.log(`Filtrage par genres: ${JSON.stringify(filters.genres)} pour l'événement ${event.name} avec genres: ${JSON.stringify(event.genre)}`);
+
+      // Vérifier si au moins un des genres de l'événement correspond exactement à un des genres filtrés
+      const hasMatchingGenre = event.genre.some((eventGenre: string) => {
+        if (!eventGenre) return false;
+
+        return filters.genres.some((filterGenre: string) => {
+          if (!filterGenre) return false;
+
+          // Correspondance exacte uniquement (insensible à la casse)
+          return eventGenre.toLowerCase() === filterGenre.toLowerCase();
+        });
+      });
+
+      if (!hasMatchingGenre) {
+        return false;
       }
+    }
 
-      // Comparaison de nombres ou autres
-      if (aValue < bValue) return -1 * direction;
-      if (aValue > bValue) return 1 * direction;
-      return 0;
-    });
-  } else {
-    // Tri par défaut par date de début
-    filteredEvents.sort((a, b) =>
-      new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-    );
-  }
+    return true;
+  }).sort((a, b) => {
+    // Gestion du tri
+    if (filters.sortBy) {
+      const direction = filters.sortDirection === 'desc' ? -1 : 1;
 
-  // Pagination
-  const start = page * pageSize;
-  const paginatedEvents = filteredEvents.slice(start, start + pageSize);
+      switch (filters.sortBy) {
+        case 'date':
+          return direction * (new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+        case 'name':
+          return direction * a.name.localeCompare(b.name);
+        case 'price':
+          // Calculer le prix minimum pour chaque événement
+          const aPrice = a.isFreeEvent ? 0 : Math.min(...a.seatingZones.map(z => z.ticketPrice));
+          const bPrice = b.isFreeEvent ? 0 : Math.min(...b.seatingZones.map(z => z.ticketPrice));
+          return direction * (aPrice - bPrice);
+        default:
+          return 0;
+      }
+    }
 
-  return { events: paginatedEvents, totalCount };
+    // Par défaut, trier par date
+    return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+  });
 }
-
 /**
  * Construit un mock d'événement avec des valeurs par défaut
  * @param overrides Valeurs pour surcharger les valeurs par défaut
