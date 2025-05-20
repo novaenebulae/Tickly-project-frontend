@@ -211,9 +211,26 @@ export class EventApiService {
 
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        if (value instanceof Date) {
+        // Traitement spécial pour les catégories d'événements
+        if (key === 'category') {
+          // Si c'est un tableau de catégories
+          if (Array.isArray(value)) {
+            const categoryIds = value.map(cat => cat.id);
+            categoryIds.forEach((id, index) => {
+              httpParams = httpParams.set(`categoryIds[${index}]`, id.toString());
+            });
+          }
+          // Si c'est une seule catégorie
+          else if (typeof value === 'object' && 'id' in value) {
+            httpParams = httpParams.set('categoryIds[0]', value.id.toString());
+          }
+        }
+        // Pour les dates, convertir en chaîne ISO
+        else if (value instanceof Date) {
           httpParams = httpParams.set(key, value.toISOString());
-        } else {
+        }
+        // Pour tout autre type de données
+        else {
           httpParams = httpParams.set(key, value.toString());
         }
       }
@@ -258,13 +275,17 @@ export class EventApiService {
   private mockGetEvents(params: EventSearchParams): Observable<EventModel[]> {
     console.log('Paramètres reçus dans mockGetEvents:', params);
 
-    // Utiliser la fonction getFilteredEvents du mock
-    const filters: any = {
+    // Utiliser le même type que EventSearchParams pour garantir la compatibilité
+    const filters: EventSearchParams = {
       query: params.query,
       status: params.status,
+      category: params.category,
       featured: params.featured,
       free: params.free,
-      structureId: params.structureId
+      structureId: params.structureId,
+      location: params.location,
+      startDate: params.startDate,
+      endDate: params.endDate
     };
 
     // Gestion du tri
@@ -273,39 +294,10 @@ export class EventApiService {
       filters.sortDirection = params.sortDirection || 'asc';
     }
 
-    // Gestion de la catégorie
+    // Gestion des catégories - toujours utiliser le tableau comme défini dans l'interface
     if (params.category) {
-      // Si c'est un tableau, passer directement le tableau
-      if (Array.isArray(params.category)) {
-        filters.category = params.category;
-      }
-      // Si c'est un objet EventCategoryModel
-      else if (typeof params.category === 'object' && 'id' in params.category) {
-        filters.category = params.category.id;
-      }
-      // Si c'est une chaîne, c'est un nom de catégorie
-      else if (typeof params.category === 'string') {
-        filters.categoryName = params.category;
-      }
-      // Sinon, c'est un ID
-      else {
-        filters.category = params.category;
-      }
+      filters.category = params.category;
     }
-
-    // Dates
-    if (params.startDate) {
-      filters.startDateFrom = new Date(params.startDate);
-    }
-    if (params.endDate) {
-      filters.endDateTo = new Date(params.endDate);
-    }
-
-    // Localisation
-    if (params.location) {
-      filters.location = params.location;
-    }
-
 
     const page = params.page || 0;
     const pageSize = params.pageSize || 10;
@@ -319,10 +311,13 @@ export class EventApiService {
           const startIndex = page * pageSize;
           const endIndex = startIndex + pageSize;
           return events.slice(startIndex, endIndex);
+        }),
+        catchError(error => {
+          console.error('Erreur lors du filtrage des événements:', error);
+          return of([]);
         })
       );
   }
-
   /**
    * Version mock de la recherche d'événements
    */
@@ -358,18 +353,25 @@ export class EventApiService {
     // Création d'un nouvel événement
     const newId = getNextEventId();
 
-    // Trouver la catégorie
-    const category = mockCategories.find(cat => cat.id === eventData.categoryId);
-    if (!category) {
-      return this.apiConfig.createMockError(400, 'Catégorie invalide');
+    // Récupérer la catégorie (sous forme d'EventCategoryModel)
+    let eventCategory: EventCategoryModel;
+
+    // Si une catégorie complète est fournie
+    if (eventData.category) {
+      eventCategory = eventData.category;
+    }
+
+    // Valeur par défaut si aucune catégorie n'est spécifiée
+    else {
+      eventCategory = mockCategories[0];
     }
 
     // Créer un nouvel événement
     const newEvent: EventModel = {
       id: newId,
       name: eventData.name,
-      // Correction ici : utiliser l'objet category complet au lieu de juste son ID
-      category: category,
+      // Toujours utiliser un objet EventCategoryModel complet
+      category: eventCategory,
       shortDescription: eventData.shortDescription,
       fullDescription: eventData.fullDescription,
       tags: eventData.tags,

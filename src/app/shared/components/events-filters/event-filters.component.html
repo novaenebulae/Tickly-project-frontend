@@ -2,35 +2,19 @@
   <form [formGroup]="filtersForm" class="filters-form">
     <!-- Section principale des filtres (Card design) -->
     <div class="filters-card">
-        <!-- Section pour les catégories avec design moderne -->
-        <div class="categories-section">
-            <div class="categories-label">
-                <mat-icon>category</mat-icon>
-                <span>Catégories</span>
-            </div>
-            <div class="categories-chips-scroll">
-                <mat-chip-listbox aria-label="Sélection de catégorie" multiple formControlName="selectedCategories" class="categories-chips">
-                    @for (category of categoriesList; track category) {
-                        <mat-chip-option [value]="category" (click)="toggleCategory(category)" [selected]="isCategorySelected(category)" class="category-chip">
-                            {{ category }}
-                        </mat-chip-option>
-                    }
-                </mat-chip-listbox>
-            </div>
-        </div>
       <div class="filters-row">
-          <!-- Trier par avec design compact -->
-          <div class="sort-wrapper">
-              <mat-form-field appearance="fill" class="sort-select">
-                  <mat-label>Trier par</mat-label>
-                  <mat-select formControlName="sortBy">
-                      @for (option of sortOptions; track option.value) {
-                          <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
-                      }
-                  </mat-select>
-                  <mat-icon matPrefix>sort</mat-icon>
-              </mat-form-field>
-          </div>
+        <!-- Trier par avec design compact -->
+        <div class="sort-wrapper">
+          <mat-form-field appearance="fill" class="sort-select">
+            <mat-label>Trier par</mat-label>
+            <mat-select formControlName="sortBy">
+              @for (option of sortOptions; track option.value) {
+                <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>sort</mat-icon>
+          </mat-form-field>
+        </div>
         <!-- Barre de recherche réimagine avec effet float label -->
         <div class="search-wrapper">
           <mat-form-field appearance="outline" class="search-field">
@@ -40,20 +24,15 @@
           </mat-form-field>
         </div>
 
-          <!-- Bouton des filtres avancés remanié -->
-          <div class="advanced-filters-toggle">
-              <button mat-flat-button color="primary" (click)="toggleAdvancedFilters()" class="advanced-filters-button" [class.active]="isAdvancedFilterOpen">
-                  <mat-icon>{{ isAdvancedFilterOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
-                  Filtres avancés
-              </button>
-          </div>
-
-
-
-
+        <!-- Bouton des filtres avancés remanié -->
+        <div class="advanced-filters-toggle">
+          <button mat-flat-button color="primary" (click)="toggleAdvancedFilters()" class="advanced-filters-button"
+                  [class.active]="isAdvancedFilterOpen">
+            <mat-icon>{{ isAdvancedFilterOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
+            Filtres avancés
+          </button>
+        </div>
       </div>
-
-
     </div>
 
     <!-- Panel de filtres avancés (Accordéon plutôt que drawer) -->
@@ -68,6 +47,24 @@
 
         <div class="advanced-filters-body">
           <!-- Rangée 1: Date et Lieu -->
+            <!-- Section pour les catégories avec design moderne -->
+            <div class="categories-section filter-item">
+              <div class="categories-label">
+                <mat-icon>category</mat-icon>
+                <span>Catégories</span>
+              </div>
+              <div class="categories-chips-scroll">
+                <mat-chip-listbox aria-label="Sélection de catégorie" multiple formControlName="selectedCategories"
+                                  class="categories-chips">
+                  @for (category of categoriesList; track category) {
+                    <mat-chip-option [value]="category" (click)="toggleCategory(category)"
+                                     [selected]="isCategorySelected(category)" class="category-chip">
+                      {{ category.name }}
+                    </mat-chip-option>
+                  }
+                </mat-chip-listbox>
+              </div>
+            </div>
           <div class="filters-grid">
             <!-- Colonne Date -->
             <div class="filter-item date-filter">
@@ -123,7 +120,7 @@
           <mat-icon matChipRemove>cancel</mat-icon>
         </mat-chip>
       }
-      <button mat-button class="clear-all-button" (click)="clearAllFilters()" *ngIf="getActiveFilters().length > 1">
+      <button mat-button class="clear-all-button" (click)="clearAllFilters()" *ngIf="getActiveFilters().length > 0">
         Effacer tout
       </button>
     </div>

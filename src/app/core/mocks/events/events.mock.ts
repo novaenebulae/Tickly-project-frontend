@@ -1,9 +1,10 @@
 // src/app/core/mocks/events/events.mock.ts
 
-import { EventModel, EventStatus } from '../../models/event/event.model';
-import { EventCategoryModel } from '../../models/event/event-category.model';
-import { SeatingType } from '../../models/event/seating.model';
-import { AddressModel } from '../../models/structure/address.model';
+import {EventModel, EventStatus} from '../../models/event/event.model';
+import {EventCategoryModel} from '../../models/event/event-category.model';
+import {SeatingType} from '../../models/event/seating.model';
+import {AddressModel} from '../../models/structure/address.model';
+import {EventSearchParams} from '../../models/event/event-search-params.model';
 
 /**
  * Liste des événements mockés pour le développement et les tests
@@ -12,7 +13,7 @@ export const mockEvents: EventModel[] = [
   {
     id: 1,
     name: 'Festival de Musique d\'été',
-    category: { id: 6, name: 'Festival' },
+    category: {id: 6, name: 'Festival'},
     shortDescription: 'Un festival vibrant avec des artistes internationaux.',
     tags: ['été', 'musique', 'plein air'],
     startDate: new Date('2025-07-10T18:00:00'),
@@ -50,7 +51,7 @@ export const mockEvents: EventModel[] = [
   {
     id: 2,
     name: 'Théâtre Classique: Roméo et Juliette',
-    category: { id: 2, name: 'Theater' },
+    category: {id: 2, name: 'Theater'},
     shortDescription: 'Une représentation émouvante de la tragédie de Shakespeare.',
     tags: ['théâtre', 'classique', 'roméo'],
     startDate: new Date('2025-06-05T20:00:00'),
@@ -90,7 +91,7 @@ export const mockEvents: EventModel[] = [
   {
     id: 3,
     name: 'Match de Football: Équipe A vs Équipe B',
-    category: { id: 3, name: 'Sport' },
+    category: {id: 3, name: 'Sport'},
     shortDescription: 'Un match passionnant entre deux équipes rivales.',
     tags: ['sport', 'football', 'match'],
     startDate: new Date('2025-05-20T15:00:00'),
@@ -137,7 +138,7 @@ export const mockEvents: EventModel[] = [
   {
     id: 4,
     name: 'Conférence Tech: L\'avenir de l\'IA',
-    category: { id: 4, name: 'Conference' },
+    category: {id: 4, name: 'Conference'},
     shortDescription: 'Découvrez les dernières avancées en intelligence artificielle.',
     tags: ['conférence', 'IA', 'tech'],
     startDate: new Date('2025-08-15T09:00:00'),
@@ -175,7 +176,7 @@ export const mockEvents: EventModel[] = [
   {
     id: 5,
     name: 'Exposition d\'Art Moderne',
-    category: { id: 5, name: 'Exhibition' },
+    category: {id: 5, name: 'Exhibition'},
     shortDescription: 'Une collection d\'œuvres d\'art contemporain.',
     tags: ['exposition', 'art', 'moderne'],
     startDate: new Date('2025-09-01T10:00:00'),
@@ -213,7 +214,7 @@ export const mockEvents: EventModel[] = [
   {
     id: 6,
     name: 'Concert Jazz en Plein Air',
-    category: { id: 1, name: 'Music' },
+    category: {id: 1, name: 'Music'},
     shortDescription: 'Une soirée jazz sous les étoiles.',
     tags: ['concert', 'jazz', 'plein air'],
     startDate: new Date('2025-07-20T19:00:00'),
@@ -251,7 +252,7 @@ export const mockEvents: EventModel[] = [
   {
     id: 7,
     name: 'Festival de Théâtre Contemporain',
-    category: { id: 2, name: 'Theater' },
+    category: {id: 2, name: 'Theater'},
     shortDescription: 'Des pièces innovantes et audacieuses.',
     tags: ['festival', 'théâtre', 'contemporain'],
     startDate: new Date('2025-10-05T18:00:00'),
@@ -291,7 +292,7 @@ export const mockEvents: EventModel[] = [
   {
     id: 8,
     name: 'Compétition de Skateboard',
-    category: { id: 3, name: 'Sport' },
+    category: {id: 3, name: 'Sport'},
     shortDescription: 'Des skateurs de haut niveau s\'affrontent.',
     tags: ['sport', 'skateboard', 'compétition'],
     startDate: new Date('2025-06-25T14:00:00'),
@@ -329,7 +330,7 @@ export const mockEvents: EventModel[] = [
   {
     id: 9,
     name: 'Salon du Livre',
-    category: { id: 5, name: 'Exhibition' },
+    category: {id: 5, name: 'Exhibition'},
     shortDescription: 'Rencontrez vos auteurs préférés.',
     tags: ['salon', 'livre', 'auteurs'],
     startDate: new Date('2025-11-10T10:00:00'),
@@ -378,7 +379,7 @@ export const mockEvents: EventModel[] = [
   {
     id: 10,
     name: 'Atelier de Peinture pour Débutants',
-    category: { id: 7, name: 'Other' },
+    category: {id: 7, name: 'Other'},
     shortDescription: 'Apprenez les bases de la peinture à l\'huile.',
     tags: ['atelier', 'peinture', 'débutant'],
     startDate: new Date('2025-05-15T14:00:00'),
@@ -421,7 +422,7 @@ export const mockEvents: EventModel[] = [
 export const draftEvent: EventModel = {
   id: 11,
   name: 'Festival de Jazz 2026 (Brouillon)',
-  category: { id: 1, name: 'Music' },
+  category: {id: 1, name: 'Music'},
   shortDescription: 'Préparez-vous pour la 10ème édition de notre festival de jazz.',
   fullDescription: 'La programmation est en cours de finalisation. Une dizaine d\'artistes internationaux sont attendus pour célébrer cet événement anniversaire.',
   tags: ['jazz', 'festival', 'musique'],
@@ -473,7 +474,7 @@ export const additionalMockEvents: EventModel[] = [
   {
     id: 12,
     name: 'Exposition Photo "Nature Sauvage"',
-    category: { id: 5, name: 'Exhibition' },
+    category: {id: 5, name: 'Exhibition'},
     shortDescription: 'Des clichés exceptionnels de la nature sauvage.',
     fullDescription: 'Découvrez le travail de 5 photographes animaliers renommés qui ont parcouru le monde pendant des années pour capturer ces instants uniques de la vie sauvage.',
     tags: ['photo', 'nature', 'animaux'],
@@ -516,7 +517,7 @@ export const eventsWithDifferentStatuses: EventModel[] = [
   {
     id: 13,
     name: 'Conférence Annuelle Tech (Annulée)',
-    category: { id: 4, name: 'Conference' },
+    category: {id: 4, name: 'Conference'},
     shortDescription: 'La conférence a été annulée en raison de problèmes logistiques.',
     fullDescription: 'Nous sommes désolés de vous informer que la conférence tech prévue a dû être annulée pour des raisons indépendantes de notre volonté. Les billets achetés seront intégralement remboursés.',
     tags: ['technologie', 'conférence', 'annulée'],
@@ -554,7 +555,7 @@ export const eventsWithDifferentStatuses: EventModel[] = [
   {
     id: 14,
     name: 'Marathon de Paris',
-    category: { id: 3, name: 'Sport' },
+    category: {id: 3, name: 'Sport'},
     shortDescription: 'Le marathon annuel de Paris.',
     fullDescription: 'Participez au marathon de Paris, l\'un des plus grands marathons internationaux. Parcours de 42,195 km à travers les plus beaux monuments de la capitale.',
     tags: ['marathon', 'course', 'paris'],
@@ -592,7 +593,7 @@ export const eventsWithDifferentStatuses: EventModel[] = [
   {
     id: 15,
     name: 'Festival de Cannes 2025',
-    category: { id: 6, name: 'Festival' },
+    category: {id: 6, name: 'Festival'},
     shortDescription: 'Le célèbre festival international du film.',
     fullDescription: 'La 78ème édition du Festival de Cannes réunira les plus grands noms du cinéma mondial. Projections de films, tapis rouge et compétition officielle pour la Palme d\'or.',
     tags: ['festival', 'cinéma', 'cannes'],
@@ -643,7 +644,7 @@ export const upcomingEvents: EventModel[] = [
   {
     id: 16,
     name: 'Spectacle de Ballet "Le Lac des Cygnes"',
-    category: { id: 2, name: 'Theater' },
+    category: {id: 2, name: 'Theater'},
     shortDescription: 'Une représentation classique du célèbre ballet.',
     fullDescription: 'Le Ballet National présente "Le Lac des Cygnes" de Tchaïkovski dans une mise en scène respectueuse de la tradition mais avec une touche moderne dans les décors.',
     tags: ['ballet', 'danse', 'classique'],
@@ -690,7 +691,7 @@ export const upcomingEvents: EventModel[] = [
   {
     id: 17,
     name: 'Salon de l\'Agriculture 2026',
-    category: { id: 5, name: 'Exhibition' },
+    category: {id: 5, name: 'Exhibition'},
     shortDescription: 'Le rendez-vous annuel du monde agricole.',
     fullDescription: 'Découvrez le monde agricole, ses animaux, ses produits et ses innovations. Dégustations, démonstrations et présentations d\'animaux sont au programme de cette édition.',
     tags: ['agriculture', 'salon', 'animaux'],
@@ -732,7 +733,7 @@ export const freeEvents: EventModel[] = [
   {
     id: 18,
     name: 'Festival de Street Art',
-    category: { id: 6, name: 'Festival' },
+    category: {id: 6, name: 'Festival'},
     shortDescription: 'Découvrez l\'art urbain en direct.',
     fullDescription: 'Des artistes de street art nationaux et internationaux se réuniront pour créer des œuvres en direct. Ateliers d\'initiation au graffiti et à d\'autres techniques d\'art urbain pour tous les âges.',
     tags: ['street art', 'gratuit', 'urbain'],
@@ -770,7 +771,7 @@ export const freeEvents: EventModel[] = [
   {
     id: 19,
     name: 'Concert en Plein Air',
-    category: { id: 1, name: 'Music' },
+    category: {id: 1, name: 'Music'},
     shortDescription: 'Un concert gratuit au cœur de la ville.',
     fullDescription: 'Concert gratuit organisé par la mairie avec des artistes locaux. Musique variée allant du jazz à la pop. Restauration sur place.',
     tags: ['concert', 'gratuit', 'plein air'],
@@ -898,14 +899,16 @@ export function getStructureEventsByStatus(structureId: number, status: EventSta
  * @param page Numéro de la page (commence à 0)
  * @param pageSize Nombre d'éléments par page
  */
-export function getFilteredEvents(events: EventModel[], filters: any): EventModel[] {
+export function getFilteredEvents(events: EventModel[], filters: EventSearchParams): EventModel[] {
   console.log('Filtrage des événements avec les critères :', filters);
 
   return events.filter(event => {
-    // Filtre par terme de recherche
-    if (filters.query && !event.name.toLowerCase().includes(filters.query.toLowerCase()) &&
-      !event.shortDescription?.toLowerCase().includes(filters.query.toLowerCase())) {
-      return false;
+    // Filtre par terme de recherche avec vérification de null/undefined
+    if (filters.query) {
+      const query = filters.query.toLowerCase();
+      const nameMatch = event.name.toLowerCase().includes(query);
+      const descMatch = event.shortDescription ? event.shortDescription.toLowerCase().includes(query) : false;
+      if (!nameMatch && !descMatch) return false;
     }
 
     // Filtre par statut
@@ -928,61 +931,36 @@ export function getFilteredEvents(events: EventModel[], filters: any): EventMode
       return false;
     }
 
-    // Filtre par catégorie (ID)
+    // Filtre par catégorie (tableau)
     if (filters.category) {
-      // Si category est un tableau
-      if (Array.isArray(filters.category)) {
-        if (!filters.category.some((cat: any) => {
-          if (typeof cat === 'object' && cat.id) {
-            return event.category.id === cat.id;
-          } else if (typeof cat === 'number') {
-            return event.category.id === cat;
-          } else if (typeof cat === 'string') {
-            return event.category.name.toLowerCase() === cat.toLowerCase();
-          }
-          return false;
-        })) {
-          return false;
-        }
-      }
-      // Si category est un nombre (ID)
-      else if (typeof filters.category === 'number') {
-        if (event.category.id !== filters.category) {
-          return false;
-        }
-      }
-      // Si category est un objet (EventCategoryModel)
-      else if (typeof filters.category === 'object' && filters.category.id) {
-        if (event.category.id !== filters.category.id) {
-          return false;
-        }
-      }
+      const categoryMatch = filters.category.some(cat => event.category.id === cat.id);
+      if (!categoryMatch) return false;
     }
 
-    // Filtre par catégorie (nom)
-    if (filters.categoryName && event.category.name.toLowerCase() !== filters.categoryName.toLowerCase()) {
-      return false;
+    // Filtre par date avec création unique d'objets Date
+    if (filters.startDate) {
+      const filterStartDate = new Date(filters.startDate);
+      const eventStartDate = new Date(event.startDate);
+      if (eventStartDate < filterStartDate) return false;
     }
 
-    // Filtre par date de début
-    if (filters.startDateFrom && new Date(event.startDate) < new Date(filters.startDateFrom)) {
-      return false;
+    if (filters.endDate) {
+      const filterEndDate = new Date(filters.endDate);
+      const eventEndDate = new Date(event.endDate);
+      if (eventEndDate > filterEndDate) return false;
     }
 
-    // Filtre par date de fin
-    if (filters.endDateTo && new Date(event.endDate) > new Date(filters.endDateTo)) {
-      return false;
-    }
-
-    // Filtre par lieu
-    if (filters.location &&
-      !event.address.city.toLowerCase().includes(filters.location.toLowerCase()) &&
-      !event.address.street.toLowerCase().includes(filters.location.toLowerCase())) {
-      return false;
+    // Filtre par lieu avec vérification d'existence
+    if (filters.location && event.address) {
+      const location = filters.location.toLowerCase();
+      const cityMatch = event.address.city ? event.address.city.toLowerCase().includes(location) : false;
+      const streetMatch = event.address.street ? event.address.street.toLowerCase().includes(location) : false;
+      if (!cityMatch && !streetMatch) return false;
     }
 
     return true;
   }).sort((a, b) => {
+
     // Gestion du tri
     if (filters.sortBy) {
       const direction = filters.sortDirection === 'desc' ? -1 : 1;
@@ -1006,6 +984,7 @@ export function getFilteredEvents(events: EventModel[], filters: any): EventMode
     return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
   });
 }
+
 /**
  * Construit un mock d'événement avec des valeurs par défaut
  * @param overrides Valeurs pour surcharger les valeurs par défaut
@@ -1014,7 +993,7 @@ export function buildMockEvent(overrides: Partial<EventModel> = {}): EventModel 
   // Valeurs par défaut pour un événement
   const defaultEvent: EventModel = {
     name: 'Événement par défaut',
-    category: { id: 7, name: 'Other' },
+    category: {id: 7, name: 'Other'},
     fullDescription: 'Description détaillée par défaut pour l\'événement',
     startDate: new Date(new Date().setDate(new Date().getDate() + 30)),  // Dans 30 jours
     endDate: new Date(new Date().setDate(new Date().getDate() + 30 + 2)), // Dans 32 jours (durée 2 jours)
@@ -1046,7 +1025,7 @@ export function buildMockEvent(overrides: Partial<EventModel> = {}): EventModel 
   };
 
   // Fusionner les valeurs par défaut avec les overrides
-  return { ...defaultEvent, ...overrides };
+  return {...defaultEvent, ...overrides};
 }
 
 /**
@@ -1062,24 +1041,24 @@ export function getNextEventId(): number {
  * Aide pour le mapping entre les statuts frontend et backend
  */
 export const eventStatusMapping = {
-  draft: { label: 'Brouillon', color: 'gray' },
-  published: { label: 'Publié', color: 'green' },
-  pending_approval: { label: 'En attente d\'approbation', color: 'orange' },
-  cancelled: { label: 'Annulé', color: 'red' },
-  completed: { label: 'Terminé', color: 'blue' }
+  draft: {label: 'Brouillon', color: 'gray'},
+  published: {label: 'Publié', color: 'green'},
+  pending_approval: {label: 'En attente d\'approbation', color: 'orange'},
+  cancelled: {label: 'Annulé', color: 'red'},
+  completed: {label: 'Terminé', color: 'blue'}
 };
 
 /**
  * Formattage des catégories pour l'affichage
  */
 export const eventCategoryMapping: Record<string, { icon: string, color: string }> = {
-  'Music': { icon: 'music_note', color: '#3F51B5' }, // Indigo
-  'Theater': { icon: 'theater_comedy', color: '#9C27B0' }, // Purple
-  'Sport': { icon: 'sports', color: '#00BCD4' }, // Cyan
-  'Conference': { icon: 'mic', color: '#FF5722' }, // Deep Orange
-  'Exhibition': { icon: 'palette', color: '#FF9800' }, // Orange
-  'Festival': { icon: 'festival', color: '#E91E63' }, // Pink
-  'Other': { icon: 'event', color: '#607D8B' } // Blue Gray
+  'Music': {icon: 'music_note', color: '#3F51B5'}, // Indigo
+  'Theater': {icon: 'theater_comedy', color: '#9C27B0'}, // Purple
+  'Sport': {icon: 'sports', color: '#00BCD4'}, // Cyan
+  'Conference': {icon: 'mic', color: '#FF5722'}, // Deep Orange
+  'Exhibition': {icon: 'palette', color: '#FF9800'}, // Orange
+  'Festival': {icon: 'festival', color: '#E91E63'}, // Pink
+  'Other': {icon: 'event', color: '#607D8B'} // Blue Gray
 };
 
 // Version finale pour export

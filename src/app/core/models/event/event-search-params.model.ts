@@ -6,9 +6,10 @@ import { EventStatus } from './event.model';
  * Interface pour les filtres de recherche d'événements
  */
 export interface EventSearchParams {
-  query?: string;                         // Recherche textuelle
-  category?: number | EventCategoryModel; // Catégorie (ID ou objet complet)
-  categoryId?: number;                    // Alternative pour l'ID de catégorie
+  query?: string;                          // Recherche textuelle
+
+  // Utiliser uniquement des EventCategoryModel pour les catégories
+  category?: EventCategoryModel[];
 
   // Dates
   startDate?: Date;                       // Date de début minimum

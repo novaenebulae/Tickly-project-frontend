@@ -56,7 +56,7 @@ export interface EventModel {
 // DTO pour la création d'événement
 export interface EventCreationDto {
   name: string;
-  categoryId: number;
+  category: EventCategoryModel; // Utiliser un objet EventCategoryModel complet au lieu d'un ID
   shortDescription?: string;
   fullDescription: string;
   genre?: string[];

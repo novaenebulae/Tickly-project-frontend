@@ -21,7 +21,8 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 // Styles généraux
 :host {
   display: block;
-  margin-bottom: 24px;
+  margin: 0;
+  margin-bottom: calc(1rem + 35px);
 
   ::ng-deep .mat-mdc-form-field-subscript-wrapper, .mat-mdc-form-field-bottom-align::before {
     display: none !important;
@@ -31,6 +32,7 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 .filters-container {
   width: 100%;
   font-family: 'Roboto', sans-serif;
+  //padding: 16px;
 }
 
 .filters-form {
@@ -46,7 +48,7 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-shadow: $shadow-soft;
   overflow: hidden;
   transition: $transition-smooth;
-  padding: 16px;
+  padding: 24px;
 
   &:hover {
     box-shadow: $shadow-medium;
@@ -59,7 +61,7 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   align-items: center;
   flex-wrap: wrap;
   gap: 16px;
-  margin-bottom: 16px;
+  //margin-bottom: 16px;
   width: 100%;
 
   @media (max-width: 768px) {
@@ -134,7 +136,7 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     border-radius: $border-radius-md;
     padding: 0 16px;
     height: 100%;
-    min-height: 40px;
+    min-height: 56px;
     transition: $transition-fast;
     box-shadow: $shadow-soft;
     display: flex;
@@ -247,11 +249,13 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   background-color: $section-bg-light;
   border-radius: $border-radius-lg;
   box-shadow: $shadow-soft;
-  margin-top: -10px; // Chevauchement avec la carte principale
+  margin-top: -35px; // Chevauchement avec la carte principale
 
   &.open {
     max-height: 1000px; // Grande valeur pour permettre l'expansion
     transition: max-height 0.5s cubic-bezier(0.9, 0, 0.3, 1);
+    margin-bottom: 1rem;
+    padding-top: 16px;
   }
 
   .advanced-filters-content {

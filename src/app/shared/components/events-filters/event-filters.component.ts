@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, Output, EventEmitter, Input } from '@angular/core';
-import { FormBuilder, FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
+import {Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -10,37 +10,35 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { Subject, debounceTime, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
+import { debounceTime, takeUntil } from 'rxjs/operators';
+import { EventCategoryModel} from '../../../core/models/event/event-category.model';
+import {EventApiService} from '../../../core/services/api/event-api.service';
+import {CategoryService} from '../../../core/services/domain/category.service';
 
-/**
- * Interface pour les options de tri
- */
+// Interface pour les options de tri
 interface SortOption {
   value: string;
   viewValue: string;
 }
 
-/**
- * Interface pour l'état des filtres
- */
-interface FilterState {
-  sortBy: string;
-  searchQuery: string;
-  selectedCategories: string[];
-  dateRange: {
-    startDate: Date | null;
-    endDate: Date | null;
-  };
-  location: string;
-}
-
-/**
- * Interface pour les filtres actifs affichés
- */
+// Interface pour les filtres actifs à afficher
 interface ActiveFilter {
   key: string;
   name: string;
-  value: string;
+  value: string | string[];
+}
+
+// État des filtres pour l'API
+interface FilterState {
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+  query?: string;
+  category?: EventCategoryModel[];
+  startDate?: Date;
+  endDate?: Date;
+  location?: string;
+  [key: string]: any;
 }
 
 @Component({
@@ -68,9 +66,14 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
 
   filtersForm!: FormGroup;
   isAdvancedFilterOpen = false;
-  selectedCategories: string[] = [];
+  selectedCategories: EventCategoryModel[] = [];
+
+  categoryService = inject(CategoryService);
 
   private destroy$ = new Subject<void>();
+  categoriesList: EventCategoryModel[] = []; // Initialiser comme un tableau vide
+
+  eventApiService = inject(EventApiService);
 
   // Options pour le tri
   sortOptions: SortOption[] = [
@@ -82,11 +85,18 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
     { value: 'price_desc', viewValue: 'Prix (décroissant)' }
   ];
 
-  // Catégories disponibles
-  categoriesList: string[] = [
-    'Concert', 'Festival', 'Théâtre', 'Danse', 'Exposition',
-    'Cinéma', 'Sport', 'Conférence', 'Atelier'
-  ];
+  // Map pour convertir les noms de catégories en IDs (simulé, à remplacer par vraies données)
+  private categoryMap: {[key: string]: number} = {
+    'Concert': 1,
+    'Festival': 2,
+    'Théâtre': 3,
+    'Danse': 4,
+    'Exposition': 5,
+    'Cinéma': 6,
+    'Sport': 7,
+    'Conférence': 8,
+    'Atelier': 9
+  };
 
   constructor(private fb: FormBuilder) {}
 
@@ -94,9 +104,13 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
    * Initialise le composant et le formulaire
    */
   ngOnInit(): void {
+    // Catégories disponibles - tableau de strings pour le moment, devrait être EventCategoryModel[]
+    this.categoryService.getCategories().subscribe(
+      categories => this.categoriesList = categories);
     this.initForm();
     this.listenToFormChanges();
     this.applyInitialFilters();
+
   }
 
   /**
@@ -111,7 +125,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
    * Initialise le formulaire réactif avec tous les contrôles nécessaires
    */
   private initForm(): void {
-
     // Initialiser le formulaire principal
     this.filtersForm = this.fb.group({
       sortBy: ['date_asc'],
@@ -143,65 +156,45 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Formate les filtres pour qu'ils soient compatibles avec l'API
-   */
-  private formatFiltersForApi(formValue: any): FilterState {
-    const formattedFilters: any = { ...formValue };
-
-    console.log('Formatage des filtres:', formValue);
-
-    // Gérer le tri
-    if (formValue.sortBy) {
-      const [field, direction] = formValue.sortBy.split('_');
-      formattedFilters.sortBy = field;
-      formattedFilters.sortDirection = direction;
-    }
-
-    // Gérer les catégories (transformer en IDs si nécessaire)
-    if (formValue.selectedCategories && formValue.selectedCategories.length > 0) {
-      formattedFilters.category = formValue.selectedCategories;
-    }
-
-    // Gérer les dates
-    if (formValue.dateRange) {
-      if (formValue.dateRange.startDate) {
-        formattedFilters.startDate = new Date(formValue.dateRange.startDate);
-      }
-      if (formValue.dateRange.endDate) {
-        formattedFilters.endDate = new Date(formValue.dateRange.endDate);
-      }
-      // Supprimer l'objet dateRange pour ne pas le passer en double
-      delete formattedFilters.dateRange;
-    }
-
-    // Gérer la localisation
-    if (formValue.location) {
-      formattedFilters.location = formValue.location;
-    }
-
-    console.log('Filtres formatés à envoyer:', formattedFilters);
-    return formattedFilters;
-  }
-
-
-  /**
    * Applique les filtres initiaux si fournis
    */
   private applyInitialFilters(): void {
     if (this.initialFilters) {
-      // Appliquer les valeurs initiales aux contrôles existants
-      Object.keys(this.initialFilters).forEach(key => {
-        const control = this.filtersForm.get(key);
-        if (control) {
-          control.setValue(this.initialFilters[key as keyof FilterState]);
+      // Gérer les catégories spécifiquement
+      if (this.initialFilters.category) {
+            // C'est un tableau d'objets EventCategoryModel
+            this.selectedCategories = this.initialFilters.category;
         }
-      });
-
-      // Pour les catégories sélectionnées
-      if (this.initialFilters.selectedCategories) {
-        this.selectedCategories = [...this.initialFilters.selectedCategories];
+        // Mettre à jour le contrôle du formulaire
+        this.filtersForm.get('selectedCategories')?.setValue(this.selectedCategories);
       }
-    }
+
+      // Appliquer les dates si présentes
+      if (this.initialFilters.startDate || this.initialFilters.endDate) {
+        const dateRangeControl = this.filtersForm.get('dateRange');
+        if (dateRangeControl) {
+          dateRangeControl.patchValue({
+            startDate: this.initialFilters.startDate || null,
+            endDate: this.initialFilters.endDate || null
+          });
+        }
+      }
+
+      // Appliquer la recherche si présente
+      if (this.initialFilters.query) {
+        this.filtersForm.get('searchQuery')?.setValue(this.initialFilters.query);
+      }
+
+      // Appliquer le lieu si présent
+      if (this.initialFilters.location) {
+        this.filtersForm.get('location')?.setValue(this.initialFilters.location);
+      }
+
+      // Appliquer le tri si présent
+      if (this.initialFilters.sortBy && this.initialFilters.sortDirection) {
+        const sortValue = `${this.initialFilters.sortBy}_${this.initialFilters.sortDirection}`;
+        this.filtersForm.get('sortBy')?.setValue(sortValue);
+      }
   }
 
   /**
@@ -214,30 +207,28 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
   /**
    * Gère la sélection/désélection d'une catégorie
    */
-  toggleCategory(category: string): void {
-    // Récupérer la valeur actuelle du contrôle
-    const selectedCategoriesControl = this.filtersForm.get('selectedCategories');
-    const currentValues = selectedCategoriesControl?.value || [];
+  toggleCategory(category: EventCategoryModel): void {
+    // Vérifier si la catégorie est déjà sélectionnée
+    const index = this.selectedCategories.indexOf(category);
 
-    if (this.isCategorySelected(category)) {
-      // Désélectionner la catégorie
-      const filteredValues = currentValues.filter((cat: string) => cat !== category);
-      selectedCategoriesControl?.setValue(filteredValues);
-      this.selectedCategories = [...filteredValues];
+    if (index === -1) {
+      // Si non sélectionnée, l'ajouter
+      this.selectedCategories = [...this.selectedCategories, category];
     } else {
-      // Sélectionner la catégorie sans créer de duplications
-      if (!currentValues.includes(category)) {
-        const newValues = [...currentValues, category];
-        selectedCategoriesControl?.setValue(newValues);
-        this.selectedCategories = [...newValues];
-      }
+      // Si déjà sélectionnée, la retirer
+      const newSelected = [...this.selectedCategories];
+      newSelected.splice(index, 1);
+      this.selectedCategories = newSelected;
     }
+
+    // Mettre à jour le contrôle du formulaire
+    this.filtersForm.get('selectedCategories')?.setValue(this.selectedCategories);
   }
 
   /**
    * Vérifie si une catégorie est actuellement sélectionnée
    */
-  isCategorySelected(category: string): boolean {
+  isCategorySelected(category: EventCategoryModel): boolean {
     return this.selectedCategories.includes(category);
   }
 
@@ -254,10 +245,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
 
     // Réinitialiser la localisation
     this.filtersForm.get('location')?.setValue('');
-
-    // Ne pas réinitialiser les catégories ici car elles sont dans la section principale
-    this.selectedCategories = [];
-    this.filtersForm.get('selectedCategories')?.setValue([]);
   }
 
   /**
@@ -309,11 +296,11 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
     }
 
     // Ajouter les catégories sélectionnées
-    if (formValues.selectedCategories?.length > 0) {
+    if (this.selectedCategories.length > 0) {
       activeFilters.push({
         key: 'selectedCategories',
         name: 'Catégories',
-        value: formValues.selectedCategories
+        value: this.selectedCategories.map(category => category.name).join(', ')
       });
     }
 
@@ -346,7 +333,7 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
         value: formValues.location
       });
     }
-    console.log(activeFilters)
+
     return activeFilters;
   }
 
@@ -354,19 +341,24 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
    * Supprime un filtre actif spécifique
    */
   removeFilter(key: string): void {
-    if (key === 'searchQuery') {
-      this.filtersForm.get('searchQuery')?.setValue('');
-    } else if (key === 'selectedCategories') {
-      this.filtersForm.get('selectedCategories')?.setValue([]);
-      this.selectedCategories = [];
-    } else if (key === 'dateRange') {
-      const dateRangeGroup = this.filtersForm.get('dateRange') as FormGroup;
-      dateRangeGroup.patchValue({
-        startDate: null,
-        endDate: null
-      });
-    } else if (key === 'location') {
-      this.filtersForm.get('location')?.setValue('');
+    switch (key) {
+      case 'searchQuery':
+        this.filtersForm.get('searchQuery')?.setValue('');
+        break;
+      case 'selectedCategories':
+        this.selectedCategories = [];
+        this.filtersForm.get('selectedCategories')?.setValue([]);
+        break;
+      case 'dateRange':
+        const dateRangeGroup = this.filtersForm.get('dateRange') as FormGroup;
+        dateRangeGroup.patchValue({
+          startDate: null,
+          endDate: null
+        });
+        break;
+      case 'location':
+        this.filtersForm.get('location')?.setValue('');
+        break;
     }
   }
 
@@ -378,8 +370,8 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
     this.filtersForm.get('searchQuery')?.setValue('');
 
     // Réinitialiser les catégories
-    this.filtersForm.get('selectedCategories')?.setValue([]);
     this.selectedCategories = [];
+    this.filtersForm.get('selectedCategories')?.setValue([]);
 
     // Réinitialiser les dates
     const dateRangeGroup = this.filtersForm.get('dateRange') as FormGroup;
@@ -390,8 +382,47 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
 
     // Réinitialiser la localisation
     this.filtersForm.get('location')?.setValue('');
+  }
 
-    // Conserver le tri par défaut
-    // this.filtersForm.get('sortBy')?.setValue('date_asc');
+  /**
+   * Formate les filtres pour qu'ils soient compatibles avec l'API
+   */
+  private formatFiltersForApi(formValue: any): FilterState {
+    const formattedFilters: FilterState = {};
+
+    // Gérer le tri
+    if (formValue.sortBy) {
+      const [field, direction] = formValue.sortBy.split('_');
+      formattedFilters.sortBy = field;
+      formattedFilters.sortDirection = direction as 'asc' | 'desc';
+    }
+
+    // Gérer la recherche textuelle
+    if (formValue.searchQuery && formValue.searchQuery.trim() !== '') {
+      formattedFilters.query = formValue.searchQuery.trim();
+    }
+
+    // Gérer les catégories - passer directement les objets EventCategoryModel
+    if (formValue.selectedCategories && formValue.selectedCategories.length > 0) {
+        formattedFilters.category = formValue.selectedCategories;
+    }
+
+
+    // Gérer les dates
+    if (formValue.dateRange) {
+      if (formValue.dateRange.startDate) {
+        formattedFilters.startDate = new Date(formValue.dateRange.startDate);
+      }
+      if (formValue.dateRange.endDate) {
+        formattedFilters.endDate = new Date(formValue.dateRange.endDate);
+      }
+    }
+
+    // Gérer la localisation
+    if (formValue.location && formValue.location.trim() !== '') {
+      formattedFilters.location = formValue.location.trim();
+    }
+
+    return formattedFilters;
   }
 }

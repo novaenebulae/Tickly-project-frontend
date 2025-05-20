@@ -13,6 +13,7 @@ import { EventCategoryModel } from '../../models/event/event-category.model';
 import { APP_CONFIG } from '../../config/app-config';
 import {EventSeatingZone, SeatingType} from '../../models/event/seating.model';
 import { EventSearchParams } from '../../models/event/event-search-params.model';
+import {CategoryService} from './category.service';
 
 /**
  * Service de gestion des événements
@@ -23,6 +24,7 @@ import { EventSearchParams } from '../../models/event/event-search-params.model'
 })
 export class EventService {
   private eventApi = inject(EventApiService);
+  private categoryService = inject(CategoryService);
   private notification = inject(NotificationService);
 
   // Signaux pour stocker les données en cache
@@ -398,53 +400,85 @@ export class EventService {
     const eventModel: EventModel = {
       id: apiEvent.id,
       name: apiEvent.name,
-      category: {
-        id: typeof apiEvent.category === 'object' ? apiEvent.category.id : 0,
-        name: typeof apiEvent.category === 'object' ? apiEvent.category.name : apiEvent.category
-      },
-      shortDescription: apiEvent.shortDescription,
-      fullDescription: apiEvent.fullDescription,
-      tags: apiEvent.tags,
-      startDate: new Date(apiEvent.startDate),
-      endDate: new Date(apiEvent.endDate),
+        category: this.extractEventCategory(apiEvent),
+        shortDescription: apiEvent.shortDescription,
+        fullDescription: apiEvent.fullDescription,
+        tags: apiEvent.tags,
+        startDate: new Date(apiEvent.startDate),
+        endDate: new Date(apiEvent.endDate),
 
-      // Conversion des propriétés spécifiques
-      address: apiEvent.address ?? {
-        country: '',
-        city: '',
-        street: '',
-        zipCode: ''
-      },
+        // Conversion des propriétés spécifiques
+        address: apiEvent.address ?? {
+          country: '',
+          city: '',
+          street: '',
+          zipCode: ''
+        },
 
-      structureId: apiEvent.createdByStructureId || apiEvent.structureId,
+        structureId: apiEvent.createdByStructureId || apiEvent.structureId,
 
-      // Conversion des emplacements en zones de placement
-      isFreeEvent: apiEvent.isFreeEvent,
-      defaultSeatingType: apiEvent.defaultSeatingType || SeatingType.MIXED,
+        // Conversion des emplacements en zones de placement
+        isFreeEvent: apiEvent.isFreeEvent,
+        defaultSeatingType: apiEvent.defaultSeatingType || SeatingType.MIXED,
 
-      // Utiliser directement seatingZones s'il existe, sinon convertir les locations si présents
-      // Si aucun des deux n'existe, créer une zone par défaut pour les événements non gratuits
-      seatingZones: apiEvent.seatingZones
-        ? apiEvent.seatingZones
-        : apiEvent.locations
-          ? this.convertLocationsToSeatingZones(apiEvent.locations)
-          : !apiEvent.isFreeEvent
-            ? [this.createDefaultSeatingZone(apiEvent.id)]
-            : [],
+        // Utiliser directement seatingZones s'il existe, sinon convertir les locations si présents
+        // Si aucun des deux n'existe, créer une zone par défaut pour les événements non gratuits
+        seatingZones: apiEvent.seatingZones
+          ? apiEvent.seatingZones
+          : apiEvent.locations
+            ? this.convertLocationsToSeatingZones(apiEvent.locations)
+            : !apiEvent.isFreeEvent
+              ? [this.createDefaultSeatingZone(apiEvent.id)]
+              : [],
 
-      displayOnHomepage: apiEvent.displayOnHomepage,
-      isFeaturedEvent: apiEvent.isFeaturedEvent,
+        displayOnHomepage: apiEvent.displayOnHomepage,
+        isFeaturedEvent: apiEvent.isFeaturedEvent,
 
-      links: apiEvent.links,
-      mainPhotoUrl: apiEvent.mainPhotoUrl,
-      eventPhotoUrls: apiEvent.eventPhotoUrls,
+        links: apiEvent.links,
+        mainPhotoUrl: apiEvent.mainPhotoUrl,
+        eventPhotoUrls: apiEvent.eventPhotoUrls,
 
-      status: apiEvent.status,
-      createdAt: apiEvent.createdAt ? new Date(apiEvent.createdAt) : undefined,
-      updatedAt: apiEvent.updatedAt ? new Date(apiEvent.updatedAt) : undefined
-    };
+        status: apiEvent.status,
+        createdAt: apiEvent.createdAt ? new Date(apiEvent.createdAt) : undefined,
+        updatedAt: apiEvent.updatedAt ? new Date(apiEvent.updatedAt) : undefined
+      };
 
-    return eventModel;
+      return eventModel;
+    }
+
+    /**
+     * Extrait une catégorie d'événement à partir de la réponse API
+     * et retourne un objet EventCategoryModel complet
+     */
+    private extractEventCategory(apiEvent: any): EventCategoryModel {
+      // Si la catégorie est déjà un objet complet
+      if (typeof apiEvent.category === 'object' && apiEvent.category !== null) {
+        return {
+          id: apiEvent.category.id,
+          name: apiEvent.category.name
+        };
+      }
+
+      // Si nous avons un categoryId dans la réponse
+      if (apiEvent.categoryId) {
+        // Rechercher la catégorie correspondante dans le cache ou les mocks
+        const category = this.categoryService.getCategoryById(apiEvent.categoryId);
+        if (category) {
+          return category;
+        }
+
+        // Si nous n'avons pas trouvé la catégorie mais que nous avons l'ID
+        return {
+          id: apiEvent.categoryId,
+          name: 'Catégorie inconnue' // Valeur par défaut
+        };
+      }
+
+      // Cas où nous n'avons ni objet catégorie ni ID valide
+      return {
+        id: 0,
+        name: 'Non catégorisé'
+      };
   }
 
   /**
@@ -504,6 +538,7 @@ export class EventService {
     if (params.structureId) apiParams.structureId = params.structureId;
     if (params.page !== undefined) apiParams.page = params.page;
     if (params.pageSize) apiParams.pageSize = params.pageSize;
+    if (params.category) apiParams.category = params.category;
 
     // Gérer le tri
     if (params.sortBy) {
@@ -512,33 +547,8 @@ export class EventService {
       apiParams.sortDirection = params.sortDirection || 'asc';
     }
 
-    // Gérer les catégories
-    if (params.category !== undefined) {
-      // Si c'est un tableau, prendre le premier élément ou convertir en string
-      if (Array.isArray(params.category)) {
-        if (params.category.length > 0) {
-          // Si le premier élément est un objet avec un ID
-          if (typeof params.category[0] === 'object' && 'id' in params.category[0]) {
-            apiParams.category = params.category[0].id;
-          } else {
-            // Sinon, utiliser le premier élément tel quel
-            apiParams.category = params.category[0];
-          }
-        }
-      }
-      // Si c'est un objet avec un ID
-      else if (typeof params.category === 'object' && 'id' in params.category) {
-        apiParams.category = params.category.id;
-      }
-      // Sinon, utiliser tel quel
-      else {
-        apiParams.category = params.category;
-      }
-    }
-    // Utiliser categoryId s'il est fourni
-    else if (params.categoryId) {
-      apiParams.category = params.categoryId;
-    }
+
+    // Note: Ne plus utiliser categoryId, seulement des objets EventCategoryModel
 
     // Gérer les dates
     if (params.startDate) {
@@ -588,9 +598,14 @@ export class EventService {
       delete apiEventData.seatingZones;
     }
 
-    // Conversions pour la création d'événement
-    if ('categoryId' in eventData) {
-      apiEventData.category = eventData.categoryId;
+    // Conversions pour la création d'événement - utiliser la catégorie correctement
+    if ('category' in eventData && eventData.category) {
+      // S'assurer que la catégorie est envoyée comme ID pour l'API
+      apiEventData.category = typeof eventData.category === 'object' ? eventData.category.id : eventData.category;
+    }
+
+    // Supprimer les anciennes références à categoryId
+    if ('categoryId' in apiEventData) {
       delete apiEventData.categoryId;
     }
 
