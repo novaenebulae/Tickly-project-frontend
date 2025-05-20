@@ -14,7 +14,6 @@ export const mockEvents: EventModel[] = [
     name: 'Festival de Musique d\'été',
     category: { id: 6, name: 'Festival' },
     shortDescription: 'Un festival vibrant avec des artistes internationaux.',
-    genre: ['Pop', 'Rock'],
     tags: ['été', 'musique', 'plein air'],
     startDate: new Date('2025-07-10T18:00:00'),
     endDate: new Date('2025-07-12T23:00:00'),
@@ -53,7 +52,6 @@ export const mockEvents: EventModel[] = [
     name: 'Théâtre Classique: Roméo et Juliette',
     category: { id: 2, name: 'Theater' },
     shortDescription: 'Une représentation émouvante de la tragédie de Shakespeare.',
-    genre: ['Drame'],
     tags: ['théâtre', 'classique', 'roméo'],
     startDate: new Date('2025-06-05T20:00:00'),
     endDate: new Date('2025-06-05T22:30:00'),
@@ -94,7 +92,6 @@ export const mockEvents: EventModel[] = [
     name: 'Match de Football: Équipe A vs Équipe B',
     category: { id: 3, name: 'Sport' },
     shortDescription: 'Un match passionnant entre deux équipes rivales.',
-    genre: ['Football'],
     tags: ['sport', 'football', 'match'],
     startDate: new Date('2025-05-20T15:00:00'),
     endDate: new Date('2025-05-20T17:00:00'),
@@ -142,7 +139,6 @@ export const mockEvents: EventModel[] = [
     name: 'Conférence Tech: L\'avenir de l\'IA',
     category: { id: 4, name: 'Conference' },
     shortDescription: 'Découvrez les dernières avancées en intelligence artificielle.',
-    genre: ['Technologie'],
     tags: ['conférence', 'IA', 'tech'],
     startDate: new Date('2025-08-15T09:00:00'),
     endDate: new Date('2025-08-15T17:00:00'),
@@ -181,7 +177,6 @@ export const mockEvents: EventModel[] = [
     name: 'Exposition d\'Art Moderne',
     category: { id: 5, name: 'Exhibition' },
     shortDescription: 'Une collection d\'œuvres d\'art contemporain.',
-    genre: ['Art'],
     tags: ['exposition', 'art', 'moderne'],
     startDate: new Date('2025-09-01T10:00:00'),
     endDate: new Date('2025-09-30T18:00:00'),
@@ -220,7 +215,6 @@ export const mockEvents: EventModel[] = [
     name: 'Concert Jazz en Plein Air',
     category: { id: 1, name: 'Music' },
     shortDescription: 'Une soirée jazz sous les étoiles.',
-    genre: ['Jazz'],
     tags: ['concert', 'jazz', 'plein air'],
     startDate: new Date('2025-07-20T19:00:00'),
     endDate: new Date('2025-07-20T22:00:00'),
@@ -259,7 +253,6 @@ export const mockEvents: EventModel[] = [
     name: 'Festival de Théâtre Contemporain',
     category: { id: 2, name: 'Theater' },
     shortDescription: 'Des pièces innovantes et audacieuses.',
-    genre: ['Contemporain'],
     tags: ['festival', 'théâtre', 'contemporain'],
     startDate: new Date('2025-10-05T18:00:00'),
     endDate: new Date('2025-10-10T22:00:00'),
@@ -300,7 +293,6 @@ export const mockEvents: EventModel[] = [
     name: 'Compétition de Skateboard',
     category: { id: 3, name: 'Sport' },
     shortDescription: 'Des skateurs de haut niveau s\'affrontent.',
-    genre: ['Skateboard'],
     tags: ['sport', 'skateboard', 'compétition'],
     startDate: new Date('2025-06-25T14:00:00'),
     endDate: new Date('2025-06-25T18:00:00'),
@@ -339,7 +331,6 @@ export const mockEvents: EventModel[] = [
     name: 'Salon du Livre',
     category: { id: 5, name: 'Exhibition' },
     shortDescription: 'Rencontrez vos auteurs préférés.',
-    genre: ['Littérature'],
     tags: ['salon', 'livre', 'auteurs'],
     startDate: new Date('2025-11-10T10:00:00'),
     endDate: new Date('2025-11-15T18:00:00'),
@@ -389,7 +380,6 @@ export const mockEvents: EventModel[] = [
     name: 'Atelier de Peinture pour Débutants',
     category: { id: 7, name: 'Other' },
     shortDescription: 'Apprenez les bases de la peinture à l\'huile.',
-    genre: ['Art', 'Éducation'],
     tags: ['atelier', 'peinture', 'débutant'],
     startDate: new Date('2025-05-15T14:00:00'),
     endDate: new Date('2025-05-15T17:00:00'),
@@ -434,7 +424,6 @@ export const draftEvent: EventModel = {
   category: { id: 1, name: 'Music' },
   shortDescription: 'Préparez-vous pour la 10ème édition de notre festival de jazz.',
   fullDescription: 'La programmation est en cours de finalisation. Une dizaine d\'artistes internationaux sont attendus pour célébrer cet événement anniversaire.',
-  genre: ['Jazz', 'Blues'],
   tags: ['jazz', 'festival', 'musique'],
   startDate: new Date('2026-06-01T18:00:00'),
   endDate: new Date('2026-06-03T23:00:00'),
@@ -487,7 +476,6 @@ export const additionalMockEvents: EventModel[] = [
     category: { id: 5, name: 'Exhibition' },
     shortDescription: 'Des clichés exceptionnels de la nature sauvage.',
     fullDescription: 'Découvrez le travail de 5 photographes animaliers renommés qui ont parcouru le monde pendant des années pour capturer ces instants uniques de la vie sauvage.',
-    genre: ['Photographie', 'Nature'],
     tags: ['photo', 'nature', 'animaux'],
     startDate: new Date('2025-12-01T10:00:00'),
     endDate: new Date('2025-12-20T18:00:00'),
@@ -531,7 +519,6 @@ export const eventsWithDifferentStatuses: EventModel[] = [
     category: { id: 4, name: 'Conference' },
     shortDescription: 'La conférence a été annulée en raison de problèmes logistiques.',
     fullDescription: 'Nous sommes désolés de vous informer que la conférence tech prévue a dû être annulée pour des raisons indépendantes de notre volonté. Les billets achetés seront intégralement remboursés.',
-    genre: ['Technologie', 'Innovation'],
     tags: ['technologie', 'conférence', 'annulée'],
     startDate: new Date('2025-09-05T09:00:00'),
     endDate: new Date('2025-09-05T18:00:00'),
@@ -570,7 +557,6 @@ export const eventsWithDifferentStatuses: EventModel[] = [
     category: { id: 3, name: 'Sport' },
     shortDescription: 'Le marathon annuel de Paris.',
     fullDescription: 'Participez au marathon de Paris, l\'un des plus grands marathons internationaux. Parcours de 42,195 km à travers les plus beaux monuments de la capitale.',
-    genre: ['Course à pied', 'Endurance'],
     tags: ['marathon', 'course', 'paris'],
     startDate: new Date('2025-04-12T08:00:00'),
     endDate: new Date('2025-04-12T16:00:00'),
@@ -609,7 +595,6 @@ export const eventsWithDifferentStatuses: EventModel[] = [
     category: { id: 6, name: 'Festival' },
     shortDescription: 'Le célèbre festival international du film.',
     fullDescription: 'La 78ème édition du Festival de Cannes réunira les plus grands noms du cinéma mondial. Projections de films, tapis rouge et compétition officielle pour la Palme d\'or.',
-    genre: ['Cinéma', 'Arts'],
     tags: ['festival', 'cinéma', 'cannes'],
     startDate: new Date('2025-05-14T09:00:00'),
     endDate: new Date('2025-05-25T23:59:00'),
@@ -661,7 +646,6 @@ export const upcomingEvents: EventModel[] = [
     category: { id: 2, name: 'Theater' },
     shortDescription: 'Une représentation classique du célèbre ballet.',
     fullDescription: 'Le Ballet National présente "Le Lac des Cygnes" de Tchaïkovski dans une mise en scène respectueuse de la tradition mais avec une touche moderne dans les décors.',
-    genre: ['Ballet', 'Danse'],
     tags: ['ballet', 'danse', 'classique'],
     startDate: new Date('2025-08-03T20:00:00'),
     endDate: new Date('2025-08-03T22:30:00'),
@@ -709,7 +693,6 @@ export const upcomingEvents: EventModel[] = [
     category: { id: 5, name: 'Exhibition' },
     shortDescription: 'Le rendez-vous annuel du monde agricole.',
     fullDescription: 'Découvrez le monde agricole, ses animaux, ses produits et ses innovations. Dégustations, démonstrations et présentations d\'animaux sont au programme de cette édition.',
-    genre: ['Agriculture', 'Gastronomie'],
     tags: ['agriculture', 'salon', 'animaux'],
     startDate: new Date('2026-02-20T09:00:00'),
     endDate: new Date('2026-03-01T19:00:00'),
@@ -752,7 +735,6 @@ export const freeEvents: EventModel[] = [
     category: { id: 6, name: 'Festival' },
     shortDescription: 'Découvrez l\'art urbain en direct.',
     fullDescription: 'Des artistes de street art nationaux et internationaux se réuniront pour créer des œuvres en direct. Ateliers d\'initiation au graffiti et à d\'autres techniques d\'art urbain pour tous les âges.',
-    genre: ['Art urbain', 'Street art'],
     tags: ['street art', 'gratuit', 'urbain'],
     startDate: new Date('2025-07-05T11:00:00'),
     endDate: new Date('2025-07-06T19:00:00'),
@@ -791,7 +773,6 @@ export const freeEvents: EventModel[] = [
     category: { id: 1, name: 'Music' },
     shortDescription: 'Un concert gratuit au cœur de la ville.',
     fullDescription: 'Concert gratuit organisé par la mairie avec des artistes locaux. Musique variée allant du jazz à la pop. Restauration sur place.',
-    genre: ['Variété', 'Pop', 'Jazz'],
     tags: ['concert', 'gratuit', 'plein air'],
     startDate: new Date('2025-06-21T18:00:00'),
     endDate: new Date('2025-06-21T23:00:00'),
@@ -998,32 +979,6 @@ export function getFilteredEvents(events: EventModel[], filters: any): EventMode
       !event.address.city.toLowerCase().includes(filters.location.toLowerCase()) &&
       !event.address.street.toLowerCase().includes(filters.location.toLowerCase())) {
       return false;
-    }
-
-    // Filtre par genres
-    if (filters.genres && filters.genres.length > 0) {
-      // Vérifier si event.genre existe
-      if (!event.genre || !Array.isArray(event.genre) || event.genre.length === 0) {
-        return false;
-      }
-
-      console.log(`Filtrage par genres: ${JSON.stringify(filters.genres)} pour l'événement ${event.name} avec genres: ${JSON.stringify(event.genre)}`);
-
-      // Vérifier si au moins un des genres de l'événement correspond exactement à un des genres filtrés
-      const hasMatchingGenre = event.genre.some((eventGenre: string) => {
-        if (!eventGenre) return false;
-
-        return filters.genres.some((filterGenre: string) => {
-          if (!filterGenre) return false;
-
-          // Correspondance exacte uniquement (insensible à la casse)
-          return eventGenre.toLowerCase() === filterGenre.toLowerCase();
-        });
-      });
-
-      if (!hasMatchingGenre) {
-        return false;
-      }
     }
 
     return true;

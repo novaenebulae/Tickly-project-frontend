@@ -404,7 +404,6 @@ export class EventService {
       },
       shortDescription: apiEvent.shortDescription,
       fullDescription: apiEvent.fullDescription,
-      genre: apiEvent.genre,
       tags: apiEvent.tags,
       startDate: new Date(apiEvent.startDate),
       endDate: new Date(apiEvent.endDate),

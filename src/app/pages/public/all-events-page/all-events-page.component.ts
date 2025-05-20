@@ -148,20 +148,6 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
       result = result.filter(event => event.status === filters.status);
     }
 
-    // Appliquer les filtres de genre
-    if (filters.genres && Object.keys(filters.genres).length > 0) {
-      const selectedGenres = Object.entries(filters.genres)
-        .filter(([_, selected]) => selected)
-        .map(([key]) => key);
-
-      if (selectedGenres.length > 0) {
-        result = result.filter(event =>
-            event.genre && event.genre.some(g =>
-              selectedGenres.includes(g.toLowerCase())
-            )
-        );
-      }
-    }
 
     // Appliquer les filtres de tags
     if (filters.tags && filters.tags.length > 0) {

@@ -21,7 +21,6 @@ export interface EventModel {
 
   shortDescription?: string;          // Description courte
   fullDescription: string;            // Description complète
-  genre?: string[];                   // Genre(s) associé(s)
   tags?: string[];                    // Mots-clés
 
   startDate: Date;                    // Date et heure de début

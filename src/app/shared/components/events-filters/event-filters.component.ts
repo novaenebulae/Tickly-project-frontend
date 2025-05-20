@@ -21,14 +21,6 @@ interface SortOption {
 }
 
 /**
- * Interface pour les options de genre
- */
-interface GenreOption {
-  value: string;
-  viewValue: string;
-}
-
-/**
  * Interface pour l'état des filtres
  */
 interface FilterState {
@@ -40,7 +32,6 @@ interface FilterState {
     endDate: Date | null;
   };
   location: string;
-  genres: Record<string, boolean>;
 }
 
 /**
@@ -97,37 +88,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
     'Cinéma', 'Sport', 'Conférence', 'Atelier'
   ];
 
-  // Genres disponibles - valeurs exactes correspondant aux données du backend
-  availableGenres: GenreOption[] = [
-    { value: 'pop', viewValue: 'Pop' },
-    { value: 'rock', viewValue: 'Rock' },
-    { value: 'jazz', viewValue: 'Jazz' },
-    { value: 'blues', viewValue: 'Blues' },
-    { value: 'classical', viewValue: 'Classique' },
-    { value: 'electronic', viewValue: 'Électronique' },
-    { value: 'rap', viewValue: 'Rap/Hip-Hop' },
-    { value: 'metal', viewValue: 'Metal' },
-    { value: 'reggae', viewValue: 'Reggae' },
-    { value: 'folk', viewValue: 'Folk' },
-    { value: 'rnb', viewValue: 'R&B/Soul' },
-    { value: 'country', viewValue: 'Country' },
-    { value: 'drame', viewValue: 'Drame' },
-    { value: 'football', viewValue: 'Football' },
-    { value: 'technologie', viewValue: 'Technologie' },
-    { value: 'art', viewValue: 'Art' },
-    { value: 'contemporain', viewValue: 'Contemporain' },
-    { value: 'skateboard', viewValue: 'Skateboard' },
-    { value: 'littérature', viewValue: 'Littérature' },
-    { value: 'éducation', viewValue: 'Éducation' },
-    { value: 'ballet', viewValue: 'Ballet' },
-    { value: 'danse', viewValue: 'Danse' },
-    { value: 'agriculture', viewValue: 'Agriculture' },
-    { value: 'gastronomie', viewValue: 'Gastronomie' },
-    { value: 'art urbain', viewValue: 'Art urbain' },
-    { value: 'street art', viewValue: 'Street art' },
-    { value: 'variété', viewValue: 'Variété' }
-  ];
-
   constructor(private fb: FormBuilder) {}
 
   /**
@@ -151,11 +111,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
    * Initialise le formulaire réactif avec tous les contrôles nécessaires
    */
   private initForm(): void {
-    // Créer un groupe pour les genres avec tous les genres initialisés à false
-    const genresControls: Record<string, FormControl> = {};
-    this.availableGenres.forEach(genre => {
-      genresControls[genre.value] = this.fb.control(false);
-    });
 
     // Initialiser le formulaire principal
     this.filtersForm = this.fb.group({
@@ -167,7 +122,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
         endDate: [null]
       }),
       location: [''],
-      genres: this.fb.group(genresControls)
     });
   }
 
@@ -223,25 +177,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
     // Gérer la localisation
     if (formValue.location) {
       formattedFilters.location = formValue.location;
-    }
-
-    // Gérer les genres - envoyés sous forme de tableau de chaînes uniquement
-    if (formValue.genres) {
-      const selectedGenres = Object.entries(formValue.genres)
-        .filter(([_, selected]) => !!selected)
-        .map(([key]) => {
-          // Récupérer le nom d'affichage pour la valeur sélectionnée
-          const genre = this.availableGenres.find(g => g.value === key);
-          // Envoyer la viewValue car c'est le terme exact attendu par le backend
-          return genre ? genre.viewValue : key;
-        });
-
-      if (selectedGenres.length > 0) {
-        formattedFilters.genres = selectedGenres;
-        console.log('Genres sélectionnés:', selectedGenres);
-      }
-      // Supprimer l'objet genres brut
-      delete formattedFilters.genres;
     }
 
     console.log('Filtres formatés à envoyer:', formattedFilters);
@@ -320,14 +255,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
     // Réinitialiser la localisation
     this.filtersForm.get('location')?.setValue('');
 
-    // Réinitialiser les genres à false
-    const genresGroup = this.filtersForm.get('genres') as FormGroup;
-    if (genresGroup) {
-      Object.keys(genresGroup.controls).forEach(genreKey => {
-        genresGroup.get(genreKey)?.setValue(false);
-      });
-    }
-
     // Ne pas réinitialiser les catégories ici car elles sont dans la section principale
     this.selectedCategories = [];
     this.filtersForm.get('selectedCategories')?.setValue([]);
@@ -354,13 +281,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
 
     // Vérifier si un lieu est sélectionné
     if (this.filtersForm.get('location')?.value) count++;
-
-    // Compter les genres sélectionnés
-    const genres = this.filtersForm.get('genres')?.value;
-    if (genres) {
-      const selectedGenresCount = Object.values(genres).filter(value => !!value).length;
-      count += selectedGenresCount > 0 ? 1 : 0;
-    }
 
     return count;
   }
@@ -394,7 +314,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
         key: 'selectedCategories',
         name: 'Catégories',
         value: formValues.selectedCategories
-
       });
     }
 
@@ -427,22 +346,7 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
         value: formValues.location
       });
     }
-
-    // Ajouter les genres sélectionnés
-    if (formValues.genres) {
-      const selectedGenres = Object.entries(formValues.genres)
-        .filter(([_, selected]) => selected)
-        .map(([key]) => this.availableGenres.find(g => g.value === key)?.viewValue || key);
-
-      if (selectedGenres.length > 0) {
-        activeFilters.push({
-          key: 'genres',
-          name: 'Genres',
-          value: selectedGenres.join(', ')
-        });
-      }
-    }
-
+    console.log(activeFilters)
     return activeFilters;
   }
 
@@ -463,13 +367,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
       });
     } else if (key === 'location') {
       this.filtersForm.get('location')?.setValue('');
-    } else if (key === 'genres') {
-      const genresGroup = this.filtersForm.get('genres') as FormGroup;
-      if (genresGroup) {
-        Object.keys(genresGroup.controls).forEach(genreKey => {
-          genresGroup.get(genreKey)?.setValue(false);
-        });
-      }
     }
   }
 
@@ -493,14 +390,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
 
     // Réinitialiser la localisation
     this.filtersForm.get('location')?.setValue('');
-
-    // Réinitialiser les genres
-    const genresGroup = this.filtersForm.get('genres') as FormGroup;
-    if (genresGroup) {
-      Object.keys(genresGroup.controls).forEach(genreKey => {
-        genresGroup.get(genreKey)?.setValue(false);
-      });
-    }
 
     // Conserver le tri par défaut
     // this.filtersForm.get('sortBy')?.setValue('date_asc');

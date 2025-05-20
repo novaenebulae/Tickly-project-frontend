@@ -107,36 +107,8 @@
               </mat-form-field>
             </div>
           </div>
-
-          <!-- Rangée 2: Genres -->
-          <div class="filter-item genres-filter">
-            <div class="filter-item-header">
-              <mat-icon>library_music</mat-icon>
-              <h4>Genres</h4>
-            </div>
-            <div class="genres-grid" formGroupName="genres">
-              @for (genre of availableGenres; track genre.value) {
-                <mat-checkbox [formControlName]="genre.value" class="genre-checkbox">
-                  {{ genre.viewValue }}
-                </mat-checkbox>
-              }
-              @if (availableGenres.length === 0) {
-                <p class="no-genres">Aucun genre disponible pour la sélection.</p>
-              }
-            </div>
-          </div>
         </div>
 
-        <div class="advanced-filters-actions">
-          <button mat-stroked-button (click)="resetAdvancedFilters()" class="reset-button">
-            <mat-icon>refresh</mat-icon>
-            Réinitialiser
-          </button>
-          <button mat-flat-button color="primary" (click)="applyAdvancedFilters()" class="apply-button">
-            <mat-icon>check</mat-icon>
-            Appliquer les filtres
-          </button>
-        </div>
       </div>
     </div>
   </form>

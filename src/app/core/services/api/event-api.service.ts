@@ -306,16 +306,6 @@ export class EventApiService {
       filters.location = params.location;
     }
 
-    // Genres
-    if (params.genres) {
-      if (Array.isArray(params.genres)) {
-        filters.genres = params.genres;
-      } else {
-        filters.genres = [];
-      }
-      console.log('Filtres pour les genres:', filters.genres);
-    }
-
 
     const page = params.page || 0;
     const pageSize = params.pageSize || 10;
@@ -382,7 +372,6 @@ export class EventApiService {
       category: category,
       shortDescription: eventData.shortDescription,
       fullDescription: eventData.fullDescription,
-      genre: eventData.genre,
       tags: eventData.tags,
       startDate: new Date(eventData.startDate),
       endDate: new Date(eventData.endDate),
