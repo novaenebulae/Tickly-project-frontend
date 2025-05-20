@@ -11,27 +11,14 @@ import { APP_CONFIG } from '../../config/app-config';
 // Import des modèles
 import { StructureModel, StructureCreationDto, StructureCreationResponse } from '../../models/structure/structure.model';
 import { StructureTypeModel } from '../../models/structure/structure-type.model';
+import { StructureSearchParams } from '../../models/structure/structure-search-params.model';
 import { AreaModel } from '../../models/structure/area.model';
 
 import { mockStructures} from '../../mocks/structures/structures.mock';
 import { mockStructureTypes} from '../../mocks/structures/structure-types.mock';
 import { mockAreas} from '../../mocks/structures/areas.mock';
 
-/**
- * Interface pour les paramètres de recherche de structures
- */
-export interface StructureSearchParams {
-  query?: string;
-  typeIds?: number[];
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortDirection?: 'asc' | 'desc';
-  minImportance?: number;
-  maxImportance?: number;
-  location?: string;
-  types?: number[];
-}
+
 
 /**
  * Service API pour les structures

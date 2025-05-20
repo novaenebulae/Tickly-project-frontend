@@ -3,6 +3,7 @@ import {PublicLayoutComponent} from './public-layout/public-layout.component';
 import {Routes} from '@angular/router';
 import {RegisterPageComponent} from '../auth/register/register-page.component';
 import {AllEventsPageComponent} from './all-events-page/all-events-page.component';
+import { AllStructuresPageComponent} from './all-structures-page/all-structures-page.component';
 
 export const publicRoutes: Routes = [
   {
@@ -10,8 +11,7 @@ export const publicRoutes: Routes = [
     component: PublicLayoutComponent,
     children: [
       {
-        path: 'home',
-        pathMatch: 'full',
+        path: '',
         component: LandingPageComponent,
       },
       {
@@ -21,6 +21,18 @@ export const publicRoutes: Routes = [
       {
         path: 'events',
         component: AllEventsPageComponent
+      },
+      {
+        path: 'structures',
+        component: AllStructuresPageComponent
+      },
+      // {
+      //   path: 'structures/:id',
+      //   loadComponent: () => import('./pages/structures/structure-details-page/structure-details-page.component').then(m => m.StructureDetailsPageComponent)
+      // },
+      {
+        path: '**',
+        redirectTo: ''
       },
       {
         path: '',
