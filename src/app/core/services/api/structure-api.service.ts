@@ -27,6 +27,10 @@ export interface StructureSearchParams {
   pageSize?: number;
   sortBy?: string;
   sortDirection?: 'asc' | 'desc';
+  minImportance?: number;
+  maxImportance?: number;
+  location?: string;
+  types?: number[];
 }
 
 /**
@@ -42,8 +46,9 @@ export class StructureApiService {
   /**
    * Récupère toutes les structures avec possibilité de filtrage
    * @param params Paramètres de recherche
+   * @param includeImportanceStats Indique si les statistiques d'importance doivent être incluses
    */
-  getStructures(params: StructureSearchParams = {}): Observable<StructureModel[]> {
+  getStructures(params: StructureSearchParams = {}, includeImportanceStats: boolean = false): Observable<StructureModel[]> {
     this.apiConfig.logApiRequest('GET', 'structures', params);
 
     // Vérifier si on utilise les mocks
@@ -53,6 +58,12 @@ export class StructureApiService {
 
     // Préparation des paramètres HTTP
     const httpParams = this.apiConfig.createHttpParams(params);
+
+    // Ajouter le paramètre pour inclure les statistiques d'importance
+    if (includeImportanceStats) {
+      httpParams.append('includeImportanceStats', 'true');
+    }
+
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.structures.base);
     const headers = this.apiConfig.createHeaders();
 
@@ -310,21 +321,57 @@ export class StructureApiService {
       );
     }
 
-    // Filtrage par types
-    if (params.typeIds && params.typeIds.length > 0) {
+    // Filtrage par types (support pour les deux paramètres: typeIds et types)
+    const typesToFilter = params.typeIds?.length ? params.typeIds : params.types;
+    if (typesToFilter && typesToFilter.length > 0) {
       filteredStructures = filteredStructures.filter(s =>
-        s.types.some(t => params.typeIds!.includes(t.id))
+        s.types.some(t => typesToFilter.includes(t.id))
+      );
+    }
+
+    // Filtrage par localisation
+    if (params.location) {
+      const location = params.location.toLowerCase();
+      filteredStructures = filteredStructures.filter(s =>
+        s.address.city.toLowerCase().includes(location) ||
+        s.address.country.toLowerCase().includes(location) ||
+        (s.address.zipCode && s.address.zipCode.toLowerCase().includes(location)) ||
+        (s.address.street && s.address.street.toLowerCase().includes(location))
+      );
+    }
+
+    // Filtrage par importance minimale
+    if (params.minImportance !== undefined) {
+      filteredStructures = filteredStructures.filter(s =>
+        (s.importance !== undefined && s.importance >= params.minImportance!)
+      );
+    }
+
+    // Filtrage par importance maximale
+    if (params.maxImportance !== undefined) {
+      filteredStructures = filteredStructures.filter(s =>
+        (s.importance !== undefined && s.importance <= params.maxImportance!)
       );
     }
 
     // Tri
     if (params.sortBy) {
       const direction = params.sortDirection === 'desc' ? -1 : 1;
-      filteredStructures.sort((a: any, b: any) => {
-        if (a[params.sortBy!] < b[params.sortBy!]) return -1 * direction;
-        if (a[params.sortBy!] > b[params.sortBy!]) return 1 * direction;
-        return 0;
-      });
+
+      // Cas spécial pour le tri par importance
+      if (params.sortBy === 'importance') {
+        filteredStructures.sort((a, b) => {
+          const importanceA = a.importance !== undefined ? a.importance : 0;
+          const importanceB = b.importance !== undefined ? b.importance : 0;
+          return (importanceA - importanceB) * direction;
+        });
+      } else {
+        filteredStructures.sort((a: any, b: any) => {
+          if (a[params.sortBy!] < b[params.sortBy!]) return -1 * direction;
+          if (a[params.sortBy!] > b[params.sortBy!]) return 1 * direction;
+          return 0;
+        });
+      }
     }
 
     // Pagination

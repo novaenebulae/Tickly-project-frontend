@@ -95,9 +95,41 @@ export class StructureService {
   /**
    * Récupère toutes les structures avec possibilité de filtrage
    * @param params Paramètres de recherche
+   * @param includeImportanceStats Indique si les statistiques d'importance doivent être incluses
    */
-  getStructures(params: Partial<StructureSearchParams> = {}): Observable<StructureModel[]> {
-    return this.structureApi.getStructures(params).pipe(
+  getStructures(
+    params: Partial<StructureSearchParams> = {},
+    includeImportanceStats: boolean = false
+  ): Observable<StructureModel[]> {
+    return this.structureApi.getStructures(params, includeImportanceStats).pipe(
+      map(structures => {
+        // Si on demande un tri par importance mais que ce n'est pas géré par l'API
+        if (params.sortBy === 'importance' && !structures.every(s => s.importance !== undefined)) {
+          console.warn('Tri par importance demandé mais certaines structures n\'ont pas de score d\'importance');
+          // Trier localement au cas où
+          return [...structures].sort((a, b) => {
+            const importanceA = a.importance !== undefined ? a.importance : 0;
+            const importanceB = b.importance !== undefined ? b.importance : 0;
+            const direction = params.sortDirection === 'desc' ? -1 : 1;
+            return (importanceA - importanceB) * direction;
+          });
+        }
+        return structures;
+      }),
+      map(structures => {
+        // Si on demande un tri par importance mais que ce n'est pas géré par l'API
+        if (params.sortBy === 'importance' && !structures.every(s => s.importance !== undefined)) {
+          console.warn('Tri par importance demandé mais certaines structures n\'ont pas de score d\'importance');
+          // Trier localement au cas où
+          return [...structures].sort((a, b) => {
+            const importanceA = a.importance !== undefined ? a.importance : 0;
+            const importanceB = b.importance !== undefined ? b.importance : 0;
+            const direction = params.sortDirection === 'desc' ? -1 : 1;
+            return (importanceA - importanceB) * direction;
+          });
+        }
+        return structures;
+      }),
       catchError(error => {
         this.handleError('Impossible de récupérer les structures', error);
         return of([]);
@@ -108,14 +140,38 @@ export class StructureService {
   /**
    * Recherche des structures par nom ou autres critères
    * @param query Terme de recherche
+   * @param additionalParams Paramètres supplémentaires
+   * @param includeImportanceStats Indique si les statistiques d'importance doivent être incluses
    */
-  searchStructures(query: string, additionalParams: Partial<StructureSearchParams> = {}): Observable<StructureModel[]> {
+  searchStructures(
+    query: string,
+    additionalParams: Partial<StructureSearchParams> = {},
+    includeImportanceStats: boolean = false
+  ): Observable<StructureModel[]> {
     return this.structureApi.getStructures({
       query,
       ...additionalParams
-    }).pipe(
+    }, includeImportanceStats).pipe(
       catchError(error => {
         this.handleError('Erreur lors de la recherche de structures', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Récupère les structures les plus importantes
+   * @param count Nombre de structures à récupérer
+   */
+  getMostImportantStructures(count: number = 5): Observable<StructureModel[]> {
+    return this.structureApi.getStructures({
+      sortBy: 'importance',
+      sortDirection: 'desc',
+      pageSize: count,
+      page: 0
+    }).pipe(
+      catchError(error => {
+        this.handleError('Erreur lors de la récupération des structures importantes', error);
         return of([]);
       })
     );

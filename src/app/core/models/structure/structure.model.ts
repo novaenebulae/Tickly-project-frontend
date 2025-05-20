@@ -17,6 +17,7 @@ export interface StructureModel {
   logoUrl?: string;       // URL du logo
   createdAt?: Date;
   updatedAt?: Date;
+  importance?: number;
 }
 
 // DTOs pour les opérations CRUD
