@@ -14,10 +14,9 @@ import { StructureTypeModel } from '../../models/structure/structure-type.model'
 import { StructureSearchParams } from '../../models/structure/structure-search-params.model';
 import { AreaModel } from '../../models/structure/area.model';
 
-import { mockStructures} from '../../mocks/structures/structures.mock';
 import { mockStructureTypes} from '../../mocks/structures/structure-types.mock';
 import { mockAreas} from '../../mocks/structures/areas.mock';
-
+import { mockStructures } from '../../mocks/structures/mockStructuresData';
 
 
 /**
@@ -34,8 +33,13 @@ export class StructureApiService {
    * Récupère toutes les structures avec possibilité de filtrage
    * @param params Paramètres de recherche
    * @param includeImportanceStats Indique si les statistiques d'importance doivent être incluses
+   * @param includeEventCount Indique si le compteur d'événements doit être inclus
    */
-  getStructures(params: StructureSearchParams = {}, includeImportanceStats: boolean = false): Observable<StructureModel[]> {
+  getStructures(
+    params: StructureSearchParams = {},
+    includeImportanceStats: boolean = false,
+    includeEventCount: boolean = true
+  ): Observable<StructureModel[]> {
     this.apiConfig.logApiRequest('GET', 'structures', params);
 
     // Vérifier si on utilise les mocks
@@ -51,6 +55,11 @@ export class StructureApiService {
       httpParams.append('includeImportanceStats', 'true');
     }
 
+    // Ajouter le paramètre pour inclure le compteur d'événements
+    if (includeEventCount) {
+      httpParams.append('includeEventCount', 'true');
+    }
+
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.structures.base);
     const headers = this.apiConfig.createHeaders();
 
@@ -63,8 +72,9 @@ export class StructureApiService {
   /**
    * Récupère une structure par son ID
    * @param id ID de la structure
+   * @param includeEventCount Indique si le compteur d'événements doit être inclus
    */
-  getStructureById(id: number): Observable<StructureModel> {
+  getStructureById(id: number, includeEventCount: boolean = true): Observable<StructureModel> {
     this.apiConfig.logApiRequest('GET', `structure/${id}`, null);
 
     // Vérifier si on utilise les mocks
@@ -72,10 +82,18 @@ export class StructureApiService {
       return this.mockGetStructureById(id);
     }
 
+    // Préparation des paramètres HTTP
+    const httpParams = this.apiConfig.createHttpParams({});
+
+    // Ajouter le paramètre pour inclure le compteur d'événements
+    if (includeEventCount) {
+      httpParams.append('includeEventCount', 'true');
+    }
+
     const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.structures.base)}/${id}`;
     const headers = this.apiConfig.createHeaders();
 
-    return this.apiConfig.http.get<StructureModel>(url, { headers }).pipe(
+    return this.apiConfig.http.get<StructureModel>(url, { headers, params: httpParams }).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', `structure/${id}`, response)),
       catchError(error => this.handleStructureError(error, 'getStructureById'))
     );
@@ -407,10 +425,12 @@ export class StructureApiService {
       address: structureDto.address,
       phone: structureDto.phone,
       email: structureDto.email,
+      logoUrl: structureDto.logoUrl,
       websiteUrl: structureDto.websiteUrl,
       socialsUrl: structureDto.socialsUrl,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      eventsCount: 0
     };
 
     // Simuler un nouveau token

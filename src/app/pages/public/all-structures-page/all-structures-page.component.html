@@ -1,159 +1,55 @@
-<div class="all-structures-container">
-  <header class="page-header">
-    <h1 class="main-title">Toutes les structures</h1>
-    <p class="page-description">
-      Découvrez toutes les structures culturelles et salles de spectacle à travers la France
-    </p>
-  </header>
+<!--<div class="container">-->
+  <div class="structures-page">
+    <h1 class="page-title">Toutes les structures</h1>
 
-  <!-- Section de filtres -->
-  <section class="filters-section">
-    <div class="filters-container">
-      <form [formGroup]="filterForm" class="filter-form">
-        <!-- Recherche par nom -->
-        <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Rechercher une structure</mat-label>
-          <input matInput formControlName="query" placeholder="Nom de la structure">
-        </mat-form-field>
+    <!-- Filtres -->
+    <app-structure-filters
+      [structureTypes]="structureTypes"
+      (filtersChanged)="onFiltersChanged($event)"
+      (sortChanged)="onSortChanged($event)"
+    ></app-structure-filters>
 
-        <!-- Recherche par localisation -->
-        <mat-form-field appearance="outline" class="location-field">
-          <mat-label>Localisation</mat-label>
-          <input matInput formControlName="location" placeholder="Ville, code postal...">
-        </mat-form-field>
-
-        <!-- Tri -->
-        <div class="sort-container">
-          <mat-form-field appearance="outline" class="sort-field">
-            <mat-label>Trier par</mat-label>
-            <mat-select formControlName="sortBy">
-              <mat-option value="name">Nom</mat-option>
-              <mat-option value="importance">Importance</mat-option>
-              <mat-option value="city">Ville</mat-option>
-              <mat-option value="createdAt">Date de création</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-button-toggle-group formControlName="sortDirection" class="sort-direction">
-            <mat-button-toggle value="asc">
-              Ascendant
-            </mat-button-toggle>
-            <mat-button-toggle value="desc">
-              Descendant
-            </mat-button-toggle>
-          </mat-button-toggle-group>
+    <!-- Affichage des structures -->
+    <div class="structures-container">
+      <!-- État de chargement -->
+      <div class="loading-state" *ngIf="loading">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
         </div>
+        <p>Chargement des structures...</p>
+      </div>
 
-        <button type="button" class="reset-filters-btn" (click)="resetFilters()">
-          Réinitialiser les filtres
-        </button>
-      </form>
+      <!-- Aucun résultat -->
+      <div class="no-results" *ngIf="!loading && structures.length === 0">
+        <i class="bi bi-search"></i>
+        <h3>Aucune structure ne correspond à votre recherche</h3>
+        <p>Essayez de modifier vos filtres ou effectuez une nouvelle recherche</p>
+      </div>
 
-      <!-- Types de structures -->
-      <div class="structure-types">
-        <h3>Types de structures</h3>
-        <div class="type-chips">
-          <button
-            *ngFor="let type of structureTypes()"
-            class="type-chip"
-            [class.selected]="isTypeSelected(type.id)"
-            (click)="toggleTypeSelection(type.id)">
-            {{ type.type }}
-          </button>
+      <!-- Liste des structures -->
+      <div class="row g-4" *ngIf="!loading && structures.length > 0">
+        <div class="col-md-6 col-lg-4" *ngFor="let structure of structures">
+          <app-structure-card
+            [structure]="structure"
+            [eventCount]="structure.eventsCount || 0"
+            [highlightNewStructure]="structure.createdAt && (structure.createdAt > getThirtyDaysAgo() || false)"
+            [showActions]="true"
+            (viewDetails)="onViewStructureDetails($event)"
+            (bookEvent)="onBookEvent($event)"
+            (favorite)="onAddToFavorites($event)"
+          ></app-structure-card>
         </div>
       </div>
-    </div>
-  </section>
 
-  <!-- Toggle d'affichage grid/list -->
-  <div class="display-toggle">
-    <button
-      [class.active]="displayMode() === 'grid'"
-      (click)="onDisplayModeChanged('grid')">
-      <span class="material-icons">grid_view</span>
-    </button>
-    <button
-      [class.active]="displayMode() === 'list'"
-      (click)="onDisplayModeChanged('list')">
-      <span class="material-icons">view_list</span>
-    </button>
+      <!-- Pagination -->
+      <mat-paginator
+        *ngIf="!loading && structures.length > 0"
+        [length]="totalCount"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="[6, 12, 24, 48]"
+        (page)="onPageChange($event)"
+        aria-label="Sélectionnez une page">
+      </mat-paginator>
+    </div>
   </div>
-
-  <!-- Loading state -->
-  <div *ngIf="isLoading()" class="loading-container">
-    <span class="loading-spinner"></span>
-    <p>Chargement des structures...</p>
-  </div>
-
-  <!-- Résultats de recherche -->
-  <section *ngIf="!isLoading()" class="results-section">
-    <!-- Nombre de résultats -->
-    <div class="results-count">
-      {{ totalItems() }} structures trouvées
-    </div>
-
-    <!-- Liste des structures en mode grille -->
-    <div *ngIf="displayMode() === 'grid'" class="structures-grid">
-      <div *ngFor="let structure of displayedStructures()" class="structure-card">
-        <a [routerLink]="['/structures', structure.id]" class="structure-link">
-          <div class="structure-image">
-            <img [src]="structure.logoUrl || 'assets/images/default-structure.jpg'" alt="{{ structure.name }}">
-          </div>
-          <div class="structure-info">
-            <h3 class="structure-name">{{ structure.name }}</h3>
-            <div class="structure-types-badges">
-              <span *ngFor="let type of structure.types" class="type-badge">{{ type.type }}</span>
-            </div>
-            <div class="structure-address">
-              <span class="material-icons">location_on</span>
-              {{ structure.address.city }}, {{ structure.address.country }}
-            </div>
-            <p *ngIf="structure.description" class="structure-description">
-              {{ structure.description | slice:0:120 }}...
-            </p>
-          </div>
-        </a>
-      </div>
-    </div>
-
-    <!-- Liste des structures en mode liste -->
-    <div *ngIf="displayMode() === 'list'" class="structures-list">
-      <div *ngFor="let structure of displayedStructures()" class="structure-row">
-        <a [routerLink]="['/structures', structure.id]" class="structure-link">
-          <div class="structure-image">
-            <img [src]="structure.logoUrl || 'assets/images/default-structure.jpg'" alt="{{ structure.name }}">
-          </div>
-          <div class="structure-info">
-            <h3 class="structure-name">{{ structure.name }}</h3>
-            <div class="structure-types-badges">
-              <span *ngFor="let type of structure.types" class="type-badge">{{ type.type }}</span>
-            </div>
-            <div class="structure-address">
-              <span class="material-icons">location_on</span>
-              {{ structure.address.city }}, {{ structure.address.country }}
-            </div>
-            <p *ngIf="structure.description" class="structure-description">
-              {{ structure.description | slice:0:200 }}...
-            </p>
-          </div>
-        </a>
-      </div>
-    </div>
-
-    <!-- Pas de résultats -->
-    <div *ngIf="displayedStructures().length === 0" class="no-results">
-      <p>Aucune structure ne correspond à vos critères de recherche.</p>
-      <button (click)="resetFilters()">Réinitialiser les filtres</button>
-    </div>
-
-    <!-- Pagination -->
-    <mat-paginator
-      *ngIf="totalItems() > 0"
-      [length]="totalItems()"
-      [pageSize]="pageSize()"
-      [pageIndex]="currentPage()"
-      [pageSizeOptions]="[6, 12, 24, 48]"
-      (page)="onPageChanged($event)">
-    </mat-paginator>
-  </section>
-</div>
+<!--</div>-->

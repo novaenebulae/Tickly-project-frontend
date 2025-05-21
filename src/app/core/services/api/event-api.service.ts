@@ -12,13 +12,13 @@ import {EventCategoryModel} from '../../models/event/event-category.model';
 import {EventSearchParams} from '../../models/event/event-search-params.model';
 
 import {
-  allMockEvents,
   getMockEventById,
   getFilteredEvents,
   buildMockEvent,
   getNextEventId
 } from '../../mocks/events/events.mock';
 import {mockCategories} from '../../mocks/events/categories.mock';
+import {allMockEvents} from '../../mocks/events/eventsMockData';
 
 /**
  * Service API pour les événements
@@ -269,9 +269,6 @@ export class EventApiService {
 
   // ===== Méthodes de mock pour les tests et le développement =====
 
-  /**
-   * Version mock de la récupération d'événements
-   */
   private mockGetEvents(params: EventSearchParams): Observable<EventModel[]> {
     console.log('Paramètres reçus dans mockGetEvents:', params);
 
@@ -299,18 +296,12 @@ export class EventApiService {
       filters.category = params.category;
     }
 
-    const page = params.page || 0;
-    const pageSize = params.pageSize || 10;
-
     // Filtrer les événements en fonction des critères
     return of(getFilteredEvents(allMockEvents, filters))
       .pipe(
         map(events => {
           console.log(`${events.length} événements trouvés après filtrage`);
-          // Pagination
-          const startIndex = page * pageSize;
-          const endIndex = startIndex + pageSize;
-          return events.slice(startIndex, endIndex);
+          return events; // Retourne tous les événements sans pagination
         }),
         catchError(error => {
           console.error('Erreur lors du filtrage des événements:', error);
@@ -318,6 +309,7 @@ export class EventApiService {
         })
       );
   }
+
   /**
    * Version mock de la recherche d'événements
    */

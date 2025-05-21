@@ -1,1 +1,108 @@
-<p>structure-filters works!</p>
+<div class="filters-container">
+  <div class="filters-header">
+    <h3 class="filters-title">Filtrer les structures</h3>
+    <button class="reset-button" (click)="resetFilters()">
+      <i class="bi bi-arrow-counterclockwise"></i>
+      Réinitialiser les filtres
+    </button>
+  </div>
+
+  <div class="filters-body">
+    <!-- Ligne principale: recherche, ville et tri sur la même ligne -->
+    <div class="main-filter-row">
+      <!-- Recherche -->
+      <div class="search-field">
+        <div class="input-with-icon">
+          <i class="bi bi-search"></i>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Rechercher une structure..."
+            [(ngModel)]="searchQuery"
+            (input)="onFilterChange()"
+          >
+        </div>
+      </div>
+
+      <!-- Ville -->
+<!--      <div class="city-field">-->
+<!--        <div class="input-with-icon">-->
+<!--          <i class="bi bi-geo-alt"></i>-->
+<!--          <input-->
+<!--            type="text"-->
+<!--            class="form-control"-->
+<!--            placeholder="Ville"-->
+<!--            [(ngModel)]="cityQuery"-->
+<!--            (input)="onFilterChange()"-->
+<!--            [matAutocomplete]="auto"-->
+<!--          >-->
+<!--          <mat-autocomplete #auto="matAutocomplete">-->
+<!--            <mat-option *ngFor="let city of filteredCities" [value]="city">-->
+<!--              {{ city }}-->
+<!--            </mat-option>-->
+<!--          </mat-autocomplete>-->
+<!--        </div>-->
+<!--      </div>-->
+
+      <!-- Options de tri avec direction -->
+      <div class="sort-field">
+        <div class="sort-wrapper">
+          <div class="sort-selector">
+            <select [(ngModel)]="sortBy" (change)="onSortChange()" class="form-select">
+              <option value="name">Nom</option>
+              <option value="importance">Popularité</option>
+              <option value="eventCount">Nombre d'événements</option>
+            </select>
+          </div>
+
+          <!-- Bouton de direction de tri -->
+          <button class="sort-direction-button" (click)="toggleSortDirection()">
+            <i class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-arrow-up' : 'bi-arrow-down'"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Catégories (types) -->
+    <div class="category-section">
+      <label class="filter-label">Catégories</label>
+      <div class="type-chips">
+        <div
+          *ngFor="let type of structureTypes"
+          class="type-chip"
+          [class.active]="isTypeSelected(type.id)"
+          (click)="toggleTypeFilter(type.id)"
+        >
+          <i class="bi" [ngClass]="getTypeIcon(type.id)"></i>
+          {{ type.type }}
+        </div>
+
+        <!-- Message si pas de types disponibles -->
+        <div *ngIf="!structureTypes || structureTypes.length === 0" class="no-types-message">
+          Aucune catégorie disponible
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Indicateur des filtres actifs -->
+  <div class="active-filters" *ngIf="hasActiveFilters()">
+    <div class="active-filter-chips">
+      <div class="filter-chip" *ngIf="searchQuery">
+        <span>Recherche: {{ searchQuery }}</span>
+        <i class="bi bi-x-circle" (click)="clearSearch()"></i>
+      </div>
+      <div class="filter-chip" *ngIf="cityQuery">
+        <span>Ville: {{ cityQuery }}</span>
+        <i class="bi bi-x-circle" (click)="clearCity()"></i>
+      </div>
+      <div class="filter-chip" *ngFor="let type of selectedTypes">
+        <span>{{ getTypeName(type) }}</span>
+        <i class="bi bi-x-circle" (click)="toggleTypeFilter(type)"></i>
+      </div>
+      <div class="filter-chip sort-chip">
+        <span>Tri: {{ getSortLabel() }} ({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>
+      </div>
+    </div>
+  </div>
+</div>

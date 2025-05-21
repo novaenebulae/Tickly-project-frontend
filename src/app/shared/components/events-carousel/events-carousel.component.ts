@@ -1,10 +1,21 @@
-import { Component, Input, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef, HostBinding } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  HostBinding,
+  inject
+} from '@angular/core';
 import { Subscription, interval } from 'rxjs';
 import {CommonModule} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
 import {EventCardComponent} from '../event-card-item/event-card.component';
 import {MatButtonModule} from '@angular/material/button';
 import {EventModel} from '../../../core/models/event/event.model';
+import {EventService} from '../../../core/services/domain/event.service';
 // Les imports pour MatIconModule etc. sont dans le décorateur @Component pour les composants standalone
 
 @Component({
@@ -23,8 +34,11 @@ export class EventsCarouselComponent implements OnInit, AfterViewInit, OnDestroy
 
   @ViewChild('carouselSlides') carouselSlidesElement!: ElementRef<HTMLElement>;
 
+  eventsDisplayed: EventModel[] = [];
+
   currentPage = 0;
   totalPages = 0;
+
   private autoSlideSubscription: Subscription | undefined;
 
   // Lie la variable CSS au composant pour l'utiliser dans le SCSS
@@ -34,6 +48,8 @@ export class EventsCarouselComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   ngOnInit(): void {
+    this.eventsDisplayed = this.events.length > 9 ? this.events.slice(0, 9) : this.events;
+    console.log(this.eventsDisplayed);
     this.calculateTotalPages();
     if (this.autoSlide && this.totalPages > 1) {
       this.startAutoSlide();
@@ -49,8 +65,8 @@ export class EventsCarouselComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   private calculateTotalPages(): void {
-    if (this.events.length > 0 && this.cardsPerPage > 0) {
-      this.totalPages = Math.ceil(this.events.length / this.cardsPerPage);
+    if (this.eventsDisplayed.length > 0 && this.cardsPerPage > 0) {
+      this.totalPages = Math.ceil(this.eventsDisplayed.length / this.cardsPerPage);
     } else {
       this.totalPages = 0;
     }

@@ -1,22 +1,29 @@
-import { Component, OnDestroy, OnInit, inject, signal, computed } from '@angular/core';
+// all-structures-page.component.ts
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { Title } from '@angular/platform-browser';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 // Services et modèles
 import { StructureService } from '../../../core/services/domain/structure.service';
 import { NotificationService } from '../../../core/services/domain/notification.service';
 import { StructureModel } from '../../../core/models/structure/structure.model';
 import { StructureTypeModel } from '../../../core/models/structure/structure-type.model';
-
 import { StructureSearchParams } from '../../../core/models/structure/structure-search-params.model';
+import {
+  StructureFiltersComponent,
+  StructureFilters,
+  StructureSortOptions
+} from '../../../shared/components/structures/structure-filters/structure-filters.component';
+import { StructureCardComponent } from '../../../shared/components/structures/structure-card/structure-card.component';
+import {AuthService} from '../../../core/services/domain/auth.service';
 
 @Component({
   selector: 'app-all-structures-page',
@@ -31,66 +38,61 @@ import { StructureSearchParams } from '../../../core/models/structure/structure-
     MatInputModule,
     MatSelectModule,
     MatFormFieldModule,
-    ReactiveFormsModule
+    FormsModule,
+    ReactiveFormsModule,
+    StructureFiltersComponent,
+    StructureCardComponent
   ]
 })
 export class AllStructuresPageComponent implements OnInit, OnDestroy {
-  // Injection des services
+  // Services injectés
+  private authService = inject(AuthService);
   private structureService = inject(StructureService);
-  private titleService = inject(Title);
   private notificationService = inject(NotificationService);
+  private title = inject(Title);
+  private router = inject(Router);
 
-  // Signaux pour les données et l'état du composant
-  isLoading = signal(true);
-  displayMode = signal<'grid' | 'list'>('grid');
-  currentPage = signal(0);
-  pageSize = signal(12);
-  totalItems = signal(0);
+  isUserLoggedIn = false;
 
-  // Structures et types de structures
-  allStructures = signal<StructureModel[]>([]);
-  structureTypes = signal<StructureTypeModel[]>([]);
+  // Types de structures
+  structureTypes: StructureTypeModel[] = [];
 
-  // Structures affichées (avec pagination)
-  displayedStructures = computed(() => {
-    const startIndex = this.currentPage() * this.pageSize();
-    const endIndex = startIndex + this.pageSize();
-    return this.allStructures().slice(startIndex, endIndex);
-  });
+  // Structure list
+  structures: StructureModel[] = [];
 
-  // Formulaire de filtrage
-  filterForm = new FormGroup({
-    query: new FormControl(''),
-    typeIds: new FormControl<number[]>([]),
-    location: new FormControl(''),
-    sortBy: new FormControl('name'),
-    sortDirection: new FormControl<'asc' | 'desc'>('asc')
-  });
+  // Données pour le paginator
+  pageSize = 12;
+  totalCount = 0;
+  loading = false;
 
-  // Subject pour gérer la désinscription aux observables
+  // Paramètres de filtrage et tri actuels
+  currentFilters: StructureFilters = {};
+  currentSort: StructureSortOptions = { sortBy: 'name', sortDirection: 'asc' };
+  currentPage = 0;
+
   private destroy$ = new Subject<void>();
 
-  ngOnInit(): void {
-    // Définir le titre de la page
-    this.titleService.setTitle('Toutes les structures | Tickly');
+  constructor() {
+    this.title.setTitle('Toutes les structures | Tickly');
+  }
 
-    // Charger les types de structures
+  ngOnInit(): void {
+    // Initialiser les types de structures
     this.loadStructureTypes();
 
     // Charger les structures
     this.loadStructures();
 
-    // S'abonner aux changements de filtres
-    this.filterForm.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.currentPage.set(0); // Revenir à la première page
-        this.loadStructures();
-      });
+    this.isUserLoggedIn = this.authService.isLoggedIn()
+      // .get()
+      // .pipe(takeUntil(this.destroy$))
+      // .subscribe(isLoggedIn => {
+      //   this.isUserLoggedIn = isLoggedIn;
+      // });
+
   }
 
   ngOnDestroy(): void {
-    // Nettoyage des observables
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -98,112 +100,160 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
   /**
    * Charge les types de structures
    */
-  loadStructureTypes(): void {
+  private loadStructureTypes(): void {
     this.structureService.getStructureTypes()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (types) => {
-          this.structureTypes.set(types);
+          this.structureTypes = types;
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des types de structures:', error);
           this.notificationService.displayNotification(
             'Erreur lors du chargement des types de structures',
             'error',
             'Fermer'
           );
+          console.error('Erreur de chargement des types:', error);
         }
       });
   }
 
   /**
-   * Charge les structures en fonction des filtres actuels
+   * Charge les structures en utilisant le service
    */
-  loadStructures(): void {
-    this.isLoading.set(true);
+  private loadStructures(): void {
+    this.loading = true;
 
-    // Récupérer les valeurs du formulaire
-    const formValues = this.filterForm.value;
-
-    // Préparer les paramètres de recherche en filtrant les valeurs null
+    // Préparer les paramètres pour le service
     const searchParams: StructureSearchParams = {
-      query: formValues.query || undefined,
-      typeIds: formValues.typeIds || undefined,
-      location: formValues.location || undefined,
-      sortBy: formValues.sortBy || undefined,
-      sortDirection: formValues.sortDirection || undefined,
+      page: this.currentPage,
+      pageSize: this.pageSize,
+      sortBy: this.currentSort.sortBy,
+      sortDirection: this.currentSort.sortDirection
     };
 
+    // Ajouter les filtres
+    if (this.currentFilters.query) {
+      searchParams.query = this.currentFilters.query;
+    }
+
+    if (this.currentFilters.typeIds && this.currentFilters.typeIds.length > 0) {
+      searchParams.typeIds = this.currentFilters.typeIds;
+    }
+
+    if (this.currentFilters.city) {
+      searchParams.location = this.currentFilters.city;
+    }
+
+    // Charger les structures
     this.structureService.getStructures(searchParams)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (structures) => {
-          this.allStructures.set(structures);
-          this.totalItems.set(structures.length);
-          this.isLoading.set(false);
+          this.structures = structures;
+          this.totalCount = structures.length
+          this.loading = false;
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des structures:', error);
           this.notificationService.displayNotification(
             'Erreur lors du chargement des structures',
             'error',
             'Fermer'
           );
-          this.isLoading.set(false);
+          console.error('Erreur de chargement des structures:', error);
+          this.loading = false;
         }
       });
   }
 
   /**
-   * Réinitialise les filtres
+   * Gère le changement de filtres
    */
-  resetFilters(): void {
-    this.filterForm.reset({
-      query: '',
-      typeIds: [],
-      location: '',
-      sortBy: 'name',
-      sortDirection: 'asc'
-    });
-    // Le changement de valeur déclenchera loadStructures via l'observable
+  onFiltersChanged(filters: StructureFilters): void {
+    this.currentFilters = filters;
+    this.currentPage = 0; // Réinitialiser à la première page
+    this.loadStructures();
   }
 
   /**
-   * Gère le changement de page dans la pagination
+   * Gère le changement de tri
    */
-  onPageChanged(pageEvent: PageEvent): void {
-    this.pageSize.set(pageEvent.pageSize);
-    this.currentPage.set(pageEvent.pageIndex);
+  onSortChanged(sortOptions: StructureSortOptions): void {
+    this.currentSort = sortOptions;
+    this.loadStructures();
   }
 
   /**
-   * Gère le changement de mode d'affichage (grille ou liste)
+   * Gère le changement de page
    */
-  onDisplayModeChanged(mode: 'grid' | 'list'): void {
-    this.displayMode.set(mode);
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+
+    this.loadStructures();
   }
 
   /**
-   * Vérifie si un type de structure est sélectionné
+   * Calcule la date d'il y a 30 jours pour identifier les nouvelles structures
    */
-  isTypeSelected(typeId: number): boolean {
-    const selectedIds = this.filterForm.get('typeIds')?.value || [];
-    return selectedIds.includes(typeId);
+  getThirtyDaysAgo(): Date {
+    const date = new Date();
+    date.setDate(date.getDate() - 30);
+    return date;
   }
 
   /**
-   * Bascule la sélection d'un type de structure
+   * Navigue vers la page des détails d'une structure
    */
-  toggleTypeSelection(typeId: number): void {
-    const control = this.filterForm.get('typeIds');
-    const currentSelection = control?.value || [];
-
-    if (this.isTypeSelected(typeId)) {
-      // Retirer de la sélection
-      control?.setValue(currentSelection.filter(id => id !== typeId));
-    } else {
-      // Ajouter à la sélection
-      control?.setValue([...currentSelection, typeId]);
+  onViewStructureDetails(structure: StructureModel): void {
+    if (!structure.id) {
+      this.notificationService.displayNotification(
+        'Impossible d\'afficher les détails de cette structure',
+        'error',
+        'Fermer'
+      );
+      return;
     }
+    this.router.navigate(['/structures', structure.id]);
   }
+
+  /**
+   * Navigue vers la page des événements d'une structure
+   */
+  onBookEvent(structure: StructureModel): void {
+    if (!structure.id) {
+      this.notificationService.displayNotification(
+        'Impossible d\'afficher les événements de cette structure',
+        'error',
+        'Fermer'
+      );
+      return;
+    }
+    // Renommer de "book" à "events" pour correspondre au nouveau texte du bouton
+    this.router.navigate(['/structures', structure.id, 'events']);
+  }
+
+  /**
+   * Ajoute une structure aux favoris
+   */
+  onAddToFavorites(structure: StructureModel): void {
+    if (!this.isUserLoggedIn) {
+      // Rediriger vers la page de connexion ou afficher un message
+      this.notificationService.displayNotification(
+        'Veuillez vous connecter pour ajouter des structures aux favoris',
+        'info',
+        'Connexion',
+        10000
+      );
+      return;
+    }
+
+    // Code pour ajouter aux favoris
+    this.notificationService.displayNotification(
+      `${structure.name} ajouté aux favoris`,
+      'valid',
+      'Fermer'
+    );
+  }
+
 }

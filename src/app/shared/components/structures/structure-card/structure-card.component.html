@@ -1,0 +1,69 @@
+<div class="structure-card" [class.is-new]="highlightNewStructure">
+  <div class="card-header">
+    <!-- Image de couverture -->
+    <div class="cover-container">
+      <div class="structure-cover" [style.background-image]="'url(' + (structure.coverUrl || 'https://picsum.photos/1200/400?random=' + structure.id) + ')'">
+        <div class="structure-importance" *ngIf="structure.importance !== undefined"
+             [class]="getImportanceClass()"
+             matTooltip="Score de popularité: {{structure.importance}}/100">
+          <mat-icon>stars</mat-icon>
+          <span>{{getImportanceLabel()}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-content">
+    <div class="structure-info">
+      <div class="content-header">
+        <!-- En-tête avec nom et types -->
+        <div class="structure-title">
+          <h3>{{structure.name}}</h3>
+          <div class="structure-types">
+            <mat-chip-set>
+              <mat-chip *ngFor="let type of structure.types"
+                        color="primary"
+                        [matTooltip]="type.type || ''"
+                        class="type-chip">
+                {{type.type}}
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+        </div>
+
+        <!-- Logo à droite -->
+        <div class="structure-logo" *ngIf="structure.logoUrl">
+          <img [src]="structure.logoUrl" [alt]="structure.name + ' logo'" />
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="structure-description" *ngIf="structure.description">
+        <p>
+          {{structure.description | slice:0:150}}{{structure.description && structure.description.length > 150 ? '...' : ''}}
+        </p>
+      </div>
+    </div>
+
+    <!-- Boutons d'action -->
+    <div class="card-actions" *ngIf="showActions">
+      <button mat-flat-button color="primary" class="action-btn details-btn" (click)="onViewDetails()">
+        <mat-icon>visibility</mat-icon>
+        Voir détails
+      </button>
+      <button mat-stroked-button color="accent" class="action-btn events-btn" (click)="onBookEvent()">
+        <mat-icon>event</mat-icon>
+        Événements
+      </button>
+      <button
+        *ngIf="showFavoriteButton"
+        mat-icon-button
+        color="warn"
+        class="favorite-btn"
+        matTooltip="Ajouter aux favoris"
+        (click)="onFavorite()">
+        <mat-icon>favorite_border</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>

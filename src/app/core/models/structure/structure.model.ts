@@ -15,9 +15,11 @@ export interface StructureModel {
   websiteUrl?: string;    // Adresse du site web
   socialsUrl?: string[];  // Tableau d'URLs des réseaux sociaux
   logoUrl?: string;       // URL du logo
-  createdAt?: Date;
+  coverUrl?: string;
+  createdAt: Date;
   updatedAt?: Date;
   importance?: number;
+  eventsCount: number;
 }
 
 // DTOs pour les opérations CRUD
@@ -30,6 +32,8 @@ export interface StructureCreationDto {
   email?: string;
   websiteUrl?: string;
   socialsUrl?: string[];
+  logoUrl?: string;
+  coverUrl?: string;
 }
 
 export interface StructureCreationResponse {

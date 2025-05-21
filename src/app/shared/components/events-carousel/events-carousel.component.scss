@@ -53,8 +53,8 @@ $gap-between-cards: 16px; // Espace entre les cartes
   &__control {
     position: absolute;
     top: 50%;
-    width: 48px;
-    height: 48px;
+    width: 64px;
+    height: 64px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -74,13 +74,13 @@ $gap-between-cards: 16px; // Espace entre les cartes
     }
 
     &--prev {
-      left: 5px;
-      transform: translate(-50%, -50%);
+      left: -75px;
+      transform: translate(50%, -50%);
     }
 
     &--next {
-      right: 5px;
-      transform: translate(50%, -50%);
+      right: -75px;
+      transform: translate(-50%, -50%);
     }
 
     mat-icon {
@@ -144,6 +144,7 @@ $gap-between-cards: 16px; // Espace entre les cartes
     }
 
     &__control {
+      display: none;
       // Les styles de mat-icon-button peuvent suffire, sinon ajuster
       mat-icon {
         font-size: 28px;

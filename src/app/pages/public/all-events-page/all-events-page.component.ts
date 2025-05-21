@@ -37,6 +37,7 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
 
   // Listes d'événements
   events = signal<EventModel[]>([]);
+
   displayedEvents = computed(() => {
     const startIndex = (this.currentPage() - 1) * this.pageSize();
     const endIndex = startIndex + this.pageSize();
@@ -77,6 +78,7 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
           this.events.set(events);
           this.totalItems.set(events.length);
           this.isLoading.set(false);
+          console.log(events.length);
         },
         error: (error) => {
           console.error('Erreur lors du chargement des événements:', error);

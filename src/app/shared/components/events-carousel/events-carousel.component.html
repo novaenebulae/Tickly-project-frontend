@@ -1,7 +1,7 @@
 <div class="events-carousel">
   <div class="events-carousel__viewport"> <!-- Renommé pour plus de clarté -->
     <div class="events-carousel__slides" #carouselSlides>
-      @for (event of events; track event.id || $index) {
+      @for (event of eventsDisplayed; track event.id || $index) {
         <div class="events-carousel__slide-item"> <!-- Wrapper pour chaque carte -->
           <app-event-card [event]="event"></app-event-card>
         </div>

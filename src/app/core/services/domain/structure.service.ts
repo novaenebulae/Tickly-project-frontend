@@ -5,12 +5,14 @@ import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
 
 // Services
 import { NotificationService } from './notification.service';
-import { StructureApiService, StructureSearchParams } from '../api/structure-api.service';
+import { StructureApiService } from '../api/structure-api.service';
+import { StructureSearchParams } from '../../models/structure/structure-search-params.model';
 import { AuthService } from './auth.service';
 import {StructureCreationDto, StructureCreationResponse, StructureModel} from '../../models/structure/structure.model';
 import {StructureTypeModel} from '../../models/structure/structure-type.model';
 import {AreaModel} from '../../models/structure/area.model';
 import {AddressModel} from '../../models/structure/address.model';
+import {delay} from 'rxjs/operators';
 
 // Models
 
@@ -99,9 +101,10 @@ export class StructureService {
    */
   getStructures(
     params: Partial<StructureSearchParams> = {},
-    includeImportanceStats: boolean = false
+    includeImportanceStats: boolean = false,
+    includeEventCount: boolean = true
   ): Observable<StructureModel[]> {
-    return this.structureApi.getStructures(params, includeImportanceStats).pipe(
+    return this.structureApi.getStructures(params, includeImportanceStats, includeEventCount).pipe(
       map(structures => {
         // Si on demande un tri par importance mais que ce n'est pas géré par l'API
         if (params.sortBy === 'importance' && !structures.every(s => s.importance !== undefined)) {
@@ -414,5 +417,16 @@ export class StructureService {
       'error',
       'Fermer'
     );
+
   }
+
+  /**
+   * Obtient le nombre d'événements pour une structure donnée
+   * @param structure Structure dont on veut connaître le nombre d'événements
+   * @returns Nombre d'événements ou 0 si non défini
+   */
+  getEventCount(structure: StructureModel): number {
+    return structure?.eventsCount ?? 0;
+  }
+
 }
