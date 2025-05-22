@@ -28,7 +28,7 @@
 
       <!-- Liste des structures -->
       <div class="row g-4" *ngIf="!loading && structures.length > 0">
-        <div class="col-md-6 col-lg-4" *ngFor="let structure of structures">
+        <div class="col-6" *ngFor="let structure of structures">
           <app-structure-card
             [structure]="structure"
             [eventCount]="structure.eventsCount || 0"
@@ -37,6 +37,7 @@
             (viewDetails)="onViewStructureDetails($event)"
             (bookEvent)="onBookEvent($event)"
             (favorite)="onAddToFavorites($event)"
+            [showFavoriteButton]="isUserLoggedIn"
           ></app-structure-card>
         </div>
       </div>

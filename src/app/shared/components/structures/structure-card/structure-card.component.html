@@ -10,9 +10,19 @@
           <span>{{getImportanceLabel()}}</span>
         </div>
       </div>
+      <!-- Bouton de favoris positionné dans le coin supérieur droit -->
+            </div>
+            <!-- Bouton de favoris positionné dans le coin supérieur droit -->
+            <div class="favorite-btn-container" *ngIf="showFavoriteButton">
+      <button
+        mat-icon-button
+        class="favorite-btn"
+        matTooltip="Ajouter aux favoris"
+        (click)="onFavorite()">
+        <mat-icon>favorite_border</mat-icon>
+      </button>
     </div>
   </div>
-
   <div class="card-content">
     <div class="structure-info">
       <div class="content-header">
@@ -54,15 +64,6 @@
       <button mat-stroked-button color="accent" class="action-btn events-btn" (click)="onBookEvent()">
         <mat-icon>event</mat-icon>
         Événements
-      </button>
-      <button
-        *ngIf="showFavoriteButton"
-        mat-icon-button
-        color="warn"
-        class="favorite-btn"
-        matTooltip="Ajouter aux favoris"
-        (click)="onFavorite()">
-        <mat-icon>favorite_border</mat-icon>
       </button>
     </div>
   </div>

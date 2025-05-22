@@ -108,7 +108,7 @@ export class StructureFiltersComponent implements OnInit, OnDestroy {
       6: 'bi-film',              // Cinéma
       7: 'bi-easel',             // Musée
       8: 'bi-book',              // Bibliothèque
-      9: 'bi-stars'              // Festival
+      9: 'bi-star'              // Festival
     };
 
     return iconMap[typeId] || 'bi-tag';

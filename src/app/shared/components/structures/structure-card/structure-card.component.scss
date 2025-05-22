@@ -75,7 +75,7 @@ $danger: #dc3545;
     left: 0;
     right: 0;
     height: 50%;
-    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
     z-index: 1;
   }
 }
@@ -223,11 +223,24 @@ $danger: #dc3545;
       background-color: rgba($accent, 0.2);
     }
   }
+}
+
+// Bouton de favoris en haut à droite
+.favorite-btn-container {
+  position: absolute;
+  top: 0px;
+  right: 10px;
+  z-index: 10;
+  align-items: center;
 
   .favorite-btn {
-    flex-shrink: 0;
+
     mat-icon {
       transition: all 0.3s ease;
+      color: $accent;
+      font-size: 2rem;
+      height: 2rem;
+      width: 2rem;
     }
 
     &:hover mat-icon {
