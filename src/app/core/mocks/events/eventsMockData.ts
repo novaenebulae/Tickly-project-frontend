@@ -1028,7 +1028,13 @@ export const allMockEvents: EventModel[] = [
     mainPhotoUrl: 'https://picsum.photos/seed/event20/800/400',
     eventPhotoUrls: [
       'https://picsum.photos/seed/event20b/800/400',
-      'https://picsum.photos/seed/event20c/800/400'
+      'https://picsum.photos/seed/event20c/800/400',
+      'https://picsum.photos/seed/event20c/800/400',
+      'https://picsum.photos/seed/event20c/800/400',
+      'https://picsum.photos/seed/event20c/800/400',
+      'https://picsum.photos/seed/event20c/800/400',
+      'https://picsum.photos/seed/event20c/800/400',
+      'https://picsum.photos/seed/event20c/800/400',
     ],
     status: 'published',
     createdAt: new Date('2024-11-20T09:15:00'),

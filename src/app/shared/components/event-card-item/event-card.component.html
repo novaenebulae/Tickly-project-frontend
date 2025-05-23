@@ -1,4 +1,4 @@
-<div class="event-card" matRipple>
+<div class="event-card" matRipple (click)="viewEventDetails(event.id)">
   <!-- Image de l'événement avec badge de date superposé -->
   <div class="event-card__image-container">
     <img [src]="event.mainPhotoUrl || 'https://picsum.photos/seed/' + event.id + '/300/200'"
@@ -33,6 +33,15 @@
         {{ event.shortDescription | slice:0:80 }}{{ event.shortDescription.length > 80 ? '...' : '' }}
       </p>
     }
+  </div>
+
+  <!-- Boutons d'action et prix -->
+  <div class="event-card__footer">
+    <div class="event-card__buttons">
+<!--      <button mat-flat-button color="primary" class="event-card__button-discover" (click)="viewEventDetails(event.id)">-->
+<!--        <span>Découvrir</span>-->
+<!--        <mat-icon>arrow_forward</mat-icon>-->
+<!--      </button>-->
     <!-- Prix ou statut gratuit -->
     <div class="event-card__price-container">
       @if (event.isFreeEvent) {
@@ -45,15 +54,6 @@
         </span>
       }
     </div>
-  </div>
-
-  <!-- Boutons d'action et prix -->
-  <div class="event-card__footer">
-    <div class="event-card__buttons">
-      <button mat-flat-button color="primary" class="event-card__button-discover" (click)="viewEventDetails(event.id)">
-        <span>Découvrir</span>
-        <mat-icon>arrow_forward</mat-icon>
-      </button>
       <button mat-flat-button color="accent" class="event-card__button-reserve" (click)="bookEvent(event.id)">
         <span>Réserver</span>
         <mat-icon>event_seat</mat-icon>

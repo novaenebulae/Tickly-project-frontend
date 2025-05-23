@@ -1,0 +1,56 @@
+<!-- src/app/shared/components/event-details/event-banner/event-banner.component.html -->
+
+<div class="event-banner">
+  <div class="banner-image" [style.background-image]="'url(' + getEventImageUrl() + ')'">
+    <div class="gradient-overlay"></div>
+
+    <div class="banner-content container">
+      <!-- Bouton de retour -->
+      <button mat-icon-button class="back-button" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+
+      <div class="event-status">
+        <mat-chip [ngClass]="statusInfo.class">
+          <mat-icon class="align-middle me-1">{{ statusInfo.icon }}</mat-icon>
+          <span class="align-middle">{{ statusInfo.label }}</span>
+        </mat-chip>
+      </div>
+
+      <div class="event-info mx-sm-2 mx-md-3 mx-5 ">
+        <h1 class="event-title">{{ event.name }}</h1>
+
+        <div class="structure-name" *ngIf="structureName">
+          <mat-icon>business</mat-icon>
+          <span>{{ structureName }}</span>
+        </div>
+
+        <div class="event-datetime">
+          <div class="date-info">
+            <mat-icon>calendar_today</mat-icon>
+            <span>{{ event.startDate | date:'mediumDate':'':'fr'}}</span>
+          </div>
+
+          <div class="time-info">
+            <mat-icon>access_time</mat-icon>
+            <span>{{ event.startDate | date:'shortTime':'':'fr'}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="banner-actions">
+        <button
+          mat-raised-button
+          color="accent"
+          class="booking-button"
+          [disabled]="!isBookable"
+          (click)="onBookEvent()"
+          [matTooltip]="!isBookable ? 'Réservation non disponible' : ''"
+        >
+          <mat-icon>confirmation_number</mat-icon>
+          Réserver
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

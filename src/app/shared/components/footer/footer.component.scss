@@ -69,6 +69,10 @@ $footer-texture-svg-path: "url('/assets/svg/textures/footer-texture.svg')"; // M
       @media (min-width: 768px) {
         align-items: flex-start;
       }
+
+      @media (max-width: 767px) {
+        flex-direction: column;
+      }
     }
   }
 

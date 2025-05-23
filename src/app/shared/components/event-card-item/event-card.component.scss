@@ -83,7 +83,6 @@ $transition-speed: 0.3s;
     font-size: 0.8rem;
     display: flex;
     align-items: center;
-    gap: 4px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 
     .mat-icon {
@@ -150,6 +149,9 @@ $transition-speed: 0.3s;
 
   &__price-container {
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    margin-left: 1rem;
   }
 
   &__free-tag {

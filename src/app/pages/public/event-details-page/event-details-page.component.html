@@ -1,0 +1,91 @@
+<!-- src/app/pages/public/event-details-page/event-details-page.component.html -->
+
+<div class="event-details-page">
+  <!-- État de chargement -->
+  <div class="loading-container" *ngIf="isLoading">
+    <mat-spinner [diameter]="60"></mat-spinner>
+    <p class="loading-text">Chargement des détails de l'événement...</p>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div class="error-container" *ngIf="hasError && !isLoading">
+    <div class="error-message">
+      <mat-icon>error_outline</mat-icon>
+      <h2>Une erreur est survenue</h2>
+      <p>{{ errorMessage }}</p>
+      <button mat-raised-button color="primary" routerLink="/events">Retour aux événements</button>
+    </div>
+  </div>
+
+  <!-- Contenu principal -->
+  <ng-container *ngIf="!isLoading && !hasError && event()">
+<!--    &lt;!&ndash; Navigation mobile (visible uniquement sur mobile) &ndash;&gt;-->
+<!--    <app-event-navigation-->
+<!--      [sections]="sections"-->
+<!--      class="mobile-navigation">-->
+<!--    </app-event-navigation>-->
+
+    <!-- Bannière immersive -->
+    <app-event-banner
+      [event]="event()!"
+      (bookEvent)="startBooking()">
+    </app-event-banner>
+
+    <!-- Section d'informations principales -->
+    <section id="info" class="section info-section">
+      <app-event-info-section
+        [event]="event()!"
+        [structure]="structure()"
+        [isUserLoggedIn]="isUserLoggedIn"
+        (addToCalendar)="addToCalendar()"
+        (addToFavorites)="addToFavorites()">
+      </app-event-info-section>
+    </section>
+
+<!--    &lt;!&ndash; Section de description &ndash;&gt;-->
+<!--    <section id="description" class="section description-section">-->
+<!--      <app-event-description-section-->
+<!--        [event]="event()">-->
+<!--      </app-event-description-section>-->
+<!--    </section>-->
+
+    <!-- Section de galerie -->
+    <section id="gallery" class="section gallery-section px-2" *ngIf="event()?.eventPhotoUrls?.length">
+      <app-event-gallery-section
+        [images]="event()?.eventPhotoUrls || []">
+      </app-event-gallery-section>
+    </section>
+
+    <!-- Section des billets -->
+<!--    <section id="tickets" class="section tickets-section" *ngIf="event()?.tickets?.length">-->
+<!--      <app-event-tickets-section-->
+<!--        [tickets]="event()?.tickets || []"-->
+<!--        [availableSeats]="event()?.availableSeats"-->
+<!--        [totalSeats]="event()?.totalSeats"-->
+<!--        (bookEvent)="startBooking()">-->
+<!--      </app-event-tickets-section>-->
+<!--    </section>-->
+
+<!--    &lt;!&ndash; Section des infos pratiques &ndash;&gt;-->
+<!--    <section id="practical" class="section practical-section" *ngIf="event()?.practicalInfo">-->
+<!--      <app-event-practical-info-section-->
+<!--        [practicalInfo]="event()?.practicalInfo"-->
+<!--        [doorTime]="event()?.doorTime">-->
+<!--      </app-event-practical-info-section>-->
+<!--    </section>-->
+
+<!--    &lt;!&ndash; Section sociale &ndash;&gt;-->
+<!--    <section id="social" class="section social-section" *ngIf="isUserLoggedIn">-->
+<!--      <app-event-social-section-->
+<!--        [eventId]="event()?.id">-->
+<!--      </app-event-social-section>-->
+<!--    </section>-->
+
+<!--    &lt;!&ndash; Section des événements similaires &ndash;&gt;-->
+<!--    <section id="similar" class="section similar-section" *ngIf="similarEvents().length > 0">-->
+<!--      <app-similar-events-section-->
+<!--        [events]="similarEvents()">-->
+<!--      </app-similar-events-section>-->
+<!--    </section>-->
+  </ng-container>
+</div>

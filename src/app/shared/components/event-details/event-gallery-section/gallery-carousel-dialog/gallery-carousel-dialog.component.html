@@ -1,0 +1,33 @@
+<div class="gallery-carousel-container">
+  <button mat-icon-button class="close-button align-middle" (click)="closeDialog()">
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <div class="carousel-main">
+    <button mat-icon-button class="nav-button prev-button align-middle" (click)="prevImage()">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+
+    <div class="image-container">
+      <img [src]="images[currentIndex]" />
+    </div>
+
+    <button mat-icon-button class="nav-button next-button" (click)="nextImage()">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+
+  <div class="image-counter">
+    {{ currentIndex + 1 }} / {{ images.length }}
+  </div>
+
+  <div class="thumbnails-container">
+    <div
+      *ngFor="let image of images; let i = index"
+      class="thumbnail"
+      [ngClass]="{'active': i === currentIndex}"
+      (click)="goToImage(i)">
+      <img [src]="image" />
+    </div>
+  </div>
+</div>

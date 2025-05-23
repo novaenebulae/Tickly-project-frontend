@@ -1,0 +1,55 @@
+<section class="event-gallery-section">
+  <h2 class="section-title">Galerie</h2>
+
+  <div *ngIf="images.length === 0" class="no-images">
+    <p>Aucune image disponible pour cet événement</p>
+  </div>
+
+  <div *ngIf="images.length > 0" class="gallery-grid">
+    <!-- Image principale (plus grande) -->
+    <div class="gallery-item main-image" (click)="openGallery(0)">
+      <img [src]="images[0]" />
+      <div class="image-overlay">
+        <mat-icon>zoom_in</mat-icon>
+      </div>
+    </div>
+
+    @if(images.length > 1) {
+
+    <div class="gallery-item secondary-image" (click)="openGallery(1)">
+      <img [src]="images[1]" />
+      <div class="image-overlay">
+        <mat-icon>zoom_in</mat-icon>
+      </div>
+    </div>
+    }
+
+    <!-- Images secondaires (jusqu'à 4 visibles) -->
+    <div *ngFor="let image of images.slice(2, 4); let i = index"
+         class="gallery-item tertiary-image"
+         (click)="openGallery(i+1)">
+      <img [src]="image"  />
+      <div class="image-overlay">
+        <mat-icon>zoom_in</mat-icon>
+      </div>
+    </div>
+
+    <!-- Bouton "Voir plus" si plus de 5 images -->
+    <div *ngIf="images.length > 5"
+         class="gallery-item view-more"
+         (click)="openGallery(5)">
+      <img [src]="images[5]" />
+      <div class="view-more-overlay">
+        <span>+{{ images.length - 5 }}</span>
+        <p>Voir plus</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="images.length > 0" class="gallery-actions">
+    <button mat-button color="primary" (click)="openGallery()">
+      <mat-icon>collections</mat-icon>
+      Voir toutes les photos ({{ images.length }})
+    </button>
+  </div>
+</section>
