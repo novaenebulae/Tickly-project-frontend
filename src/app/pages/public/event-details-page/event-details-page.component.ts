@@ -1,6 +1,6 @@
 // src/app/pages/public/event-details-page/event-details-page.component.ts
 
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import {Component, OnInit, OnDestroy, inject, signal, AfterViewInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -23,10 +23,8 @@ import { EventInfoSectionComponent } from '../../../shared/components/event-deta
 import { EventDescriptionSectionComponent } from '../../../shared/components/event-details/event-description-section/event-description-section.component';
 import { EventGallerySectionComponent } from '../../../shared/components/event-details/event-gallery-section/event-gallery-section.component';
 import { EventTicketsSectionComponent } from '../../../shared/components/event-details/event-tickets-section/event-tickets-section.component';
-import { EventPracticalInfoSectionComponent } from '../../../shared/components/event-details/event-practical-info-section/event-practical-info-section.component';
 import { EventSocialSectionComponent } from '../../../shared/components/event-details/event-social-section/event-social-section.component';
 import { SimilarEventsSectionComponent } from '../../../shared/components/event-details/similar-events-section/similar-events-section.component';
-import { EventNavigationComponent } from '../../../shared/components/event-details/event-navigation/event-navigation.component';
 import {MatIcon} from '@angular/material/icon';
 
 @Component({
@@ -38,12 +36,10 @@ import {MatIcon} from '@angular/material/icon';
     MatProgressSpinnerModule,
     EventBannerComponent,
     EventInfoSectionComponent,
-    EventDescriptionSectionComponent,
     EventGallerySectionComponent,
     EventSocialSectionComponent,
     SimilarEventsSectionComponent,
-    EventNavigationComponent,
-    MatIcon
+    MatIcon,
   ],
   templateUrl: './event-details-page.component.html',
   styleUrls: ['./event-details-page.component.scss']
@@ -58,6 +54,8 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
   private titleService = inject(Title);
   private authService = inject(AuthService);
 
+  private destroy$ = new Subject<void>();
+
   // Signaux et propriétés
   event = signal<EventModel | undefined>(undefined);
   structure = signal<StructureModel | null>(null);
@@ -67,20 +65,8 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
   hasError = false;
   errorMessage = '';
 
-  // Sections visibles (pour navigation)
-  sections = [
-    { id: 'info', label: 'Informations' },
-    { id: 'description', label: 'Description' },
-    { id: 'gallery', label: 'Galerie' },
-    { id: 'tickets', label: 'Billets' },
-    { id: 'practical', label: 'Infos pratiques' },
-    { id: 'social', label: 'Social' },
-    { id: 'similar', label: 'Événements similaires' }
-  ];
-
-  private destroy$ = new Subject<void>();
-
   ngOnInit(): void {
+
     // Vérifier si l'utilisateur est connecté
     this.isUserLoggedIn = this.authService.isLoggedIn();
 
@@ -97,6 +83,10 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  // ngAfterViewInit(){
+  //   setTimeout(() => window.scrollTo(0, 0), 500);
+  // }
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -116,6 +106,7 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
         finalize(() => {
           this.isLoading = false;
+          window.scrollTo({top: 0, behavior: 'instant'});
         }),
         catchError(error => {
           this.handleError('Impossible de charger les détails de l\'événement');

@@ -1,1 +1,22 @@
-<p>similar-events-section works!</p>
+<section *ngIf="similarEvents.length > 0" class="similar-events-section">
+  <div class="container py-5">
+    <h2 class="section-title mb-4">Événements similaires</h2>
+
+    <div *ngIf="loading" class="text-center py-4">
+      <span>Chargement des événements similaires...</span>
+    </div>
+
+    <div *ngIf="!loading && similarEvents.length > 0">
+      <app-events-carousel
+        [events]="similarEvents"
+        [cardsPerPage]="3"
+        [autoSlide]="true"
+        [slideInterval]="5000">
+      </app-events-carousel>
+    </div>
+
+    <div *ngIf="!loading && similarEvents.length === 0" class="text-center py-4">
+      <p>Aucun événement similaire trouvé</p>
+    </div>
+  </div>
+</section>

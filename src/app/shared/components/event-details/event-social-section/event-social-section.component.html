@@ -1,1 +1,45 @@
-<p>event-social-section works!</p>
+<section class="social-section">
+  <h2 class="section-title">Qui y va</h2>
+
+  <!-- Chargement -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Chargement des participants...</p>
+  </div>
+
+  <!-- Erreur -->
+  <div *ngIf="hasError && !isLoading" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <p>Impossible de charger les participants. Veuillez réessayer.</p>
+    <button (click)="loadFriendsAttending()">Réessayer</button>
+  </div>
+
+  <!-- Aucun ami -->
+  <div *ngIf="!isLoading && !hasError && attendingFriends.length === 0" class="empty-container">
+    <mat-icon>group</mat-icon>
+    <p>Aucun de vos amis ne participe encore à cet événement.</p>
+  </div>
+
+  <!-- Liste d'amis -->
+  <div *ngIf="!isLoading && !hasError && attendingFriends.length > 0" class="friends-list">
+    <div class="friends-grid">
+      <div *ngFor="let friend of attendingFriends" class="friend-card">
+        <div class="friend-avatar">
+          <img *ngIf="friend.avatarUrl" [src]="friend.avatarUrl" [alt]="friend.firstName + ' ' + friend.lastName" />
+          <div *ngIf="!friend.avatarUrl" class="default-avatar">
+            {{ friend.firstName.charAt(0).toUpperCase() }}
+          </div>
+        </div>
+        <div class="friend-name">{{ friend.firstName }} {{ friend.lastName }}</div>
+      </div>
+    </div>
+
+    <!-- Nombre total -->
+    <div class="attendance-stats">
+      <div class="stat-item">
+        <span class="stat-count">{{ attendingFriends.length }}</span>
+        <span class="stat-label">{{ attendingFriends.length > 1 ? 'amis participent' : 'ami participe' }}</span>
+      </div>
+    </div>
+  </div>
+</section>

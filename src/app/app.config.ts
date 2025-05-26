@@ -10,7 +10,6 @@ import {CalendarModule, DateAdapter} from 'angular-calendar';
 import {registerLocaleData} from '@angular/common';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { FriendshipService } from './core/services/domain/friendship.service';
-import {MockFriendshipService} from './core/services/mock/mock-friendship.service';
 
 registerLocaleData('fr');
 
@@ -27,10 +26,6 @@ export const appConfig: ApplicationConfig = {
       })
     ),
     provideCharts(withDefaultRegisterables()),
-    {
-      provide: FriendshipService,
-      useClass: isDevMode() ? MockFriendshipService : FriendshipService
-    }
 
   ],
 };

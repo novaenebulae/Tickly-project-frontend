@@ -19,11 +19,6 @@
 
   <!-- Contenu principal -->
   <ng-container *ngIf="!isLoading && !hasError && event()">
-<!--    &lt;!&ndash; Navigation mobile (visible uniquement sur mobile) &ndash;&gt;-->
-<!--    <app-event-navigation-->
-<!--      [sections]="sections"-->
-<!--      class="mobile-navigation">-->
-<!--    </app-event-navigation>-->
 
     <!-- Bannière immersive -->
     <app-event-banner
@@ -66,26 +61,19 @@
 <!--      </app-event-tickets-section>-->
 <!--    </section>-->
 
-<!--    &lt;!&ndash; Section des infos pratiques &ndash;&gt;-->
-<!--    <section id="practical" class="section practical-section" *ngIf="event()?.practicalInfo">-->
-<!--      <app-event-practical-info-section-->
-<!--        [practicalInfo]="event()?.practicalInfo"-->
-<!--        [doorTime]="event()?.doorTime">-->
-<!--      </app-event-practical-info-section>-->
-<!--    </section>-->
 
-<!--    &lt;!&ndash; Section sociale &ndash;&gt;-->
-<!--    <section id="social" class="section social-section" *ngIf="isUserLoggedIn">-->
-<!--      <app-event-social-section-->
-<!--        [eventId]="event()?.id">-->
-<!--      </app-event-social-section>-->
-<!--    </section>-->
+    <!-- Section sociale -->
+    <section id="social" class="section social-section" *ngIf="isUserLoggedIn">
+      <app-event-social-section
+        [eventId]="event()?.id ?? 0">
+      </app-event-social-section>
+    </section>
 
-<!--    &lt;!&ndash; Section des événements similaires &ndash;&gt;-->
-<!--    <section id="similar" class="section similar-section" *ngIf="similarEvents().length > 0">-->
-<!--      <app-similar-events-section-->
-<!--        [events]="similarEvents()">-->
-<!--      </app-similar-events-section>-->
-<!--    </section>-->
+    <!-- Section des événements similaires -->
+    <section id="similar" class="section similar-section" *ngIf="similarEvents().length > 0">
+      <app-similar-events-section
+        [event]="event()">
+      </app-similar-events-section>
+    </section>
   </ng-container>
 </div>

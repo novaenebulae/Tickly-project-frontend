@@ -14,6 +14,7 @@ import { APP_CONFIG } from '../../config/app-config';
 import {EventSeatingZone, SeatingType} from '../../models/event/seating.model';
 import { EventSearchParams } from '../../models/event/event-search-params.model';
 import {CategoryService} from './category.service';
+import {ApiConfigService} from '../api/api-config.service';
 
 /**
  * Service de gestion des événements
@@ -621,6 +622,7 @@ export class EventService {
 
     return apiEventData;
   }
+
 
   /**
    * Gère les erreurs en les journalisant et en affichant une notification

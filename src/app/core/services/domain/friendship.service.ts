@@ -4,13 +4,17 @@ import { Observable, of, catchError, map, tap, switchMap } from 'rxjs';
 import { FriendshipApiService } from '../api/friendship-api.service';
 import { NotificationService } from './notification.service';
 import { FriendshipModel, FriendRequestModel, FriendModel } from '../../models/friendship/friendship.model';
+import {ApiConfigService} from '../api/api-config.service';
+import {FriendshipMockService} from '../../mocks/friendship/friendships.mock';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FriendshipService {
   private friendshipApi = inject(FriendshipApiService);
+  private friendshipMockService = inject(FriendshipMockService);
   private notification = inject(NotificationService);
+  private apiConfig = inject(ApiConfigService)
 
   // Signaux pour stocker les données
   private friendsSig = signal<FriendModel[]>([]);
@@ -203,6 +207,22 @@ export class FriendshipService {
     return this.friendshipApi.searchUsers(query).pipe(
       catchError(error => {
         this.handleError('Erreur lors de la recherche d\'utilisateurs', error);
+        return of([]);
+      })
+    );
+  }
+
+  // Dans src/app/core/services/domain/friendship.service.ts
+// Assurons-nous que la méthode utilise le bon service selon le contexte
+
+  getFriendsAttendingEvent(eventId: number): Observable<any[]> {
+    // Sinon, utiliser l'API réelle
+    if (this.apiConfig.isMockEnabled) {
+      return of(this.friendshipMockService.getMockFriendsAttendingEvent(eventId));
+    }
+    return this.friendshipApi.getFriendsAttendingEvent(eventId).pipe(
+      catchError(error => {
+        this.handleError('Impossible de récupérer les amis participant à cet événement', error);
         return of([]);
       })
     );

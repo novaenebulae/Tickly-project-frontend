@@ -3,6 +3,7 @@
 import { FriendshipModel, FriendRequestModel, FriendModel } from '../../models/friendship/friendship.model';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import {UserModel} from '../../models/auth/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -194,7 +195,7 @@ export class FriendshipMockService {
     }
 
     const lowercaseQuery = query.toLowerCase();
-    
+
     // Vérifier si c'est une recherche par email exact (contient @ et .)
     if (query.includes('@') && query.includes('.')) {
       // Recherche exacte par email
@@ -210,19 +211,24 @@ export class FriendshipMockService {
   }
 
   /**
-   * Méthode pour utiliser le mock dans le service à la place des appels API
+   * Génère une liste aléatoire d'amis qui participent à un événement
    */
-  provideMockData(): {
-    getFriendsList: () => Observable<FriendModel[]>;
-    getPendingRequests: () => Observable<FriendRequestModel[]>;
-    getSentRequests: () => Observable<FriendRequestModel[]>;
-    searchUsers: (query: string) => Observable<any[]>;
-  } {
-    return {
-      getFriendsList: () => of(this.getMockFriends()),
-      getPendingRequests: () => of(this.getMockPendingRequests()),
-      getSentRequests: () => of(this.getMockSentRequests()),
-      searchUsers: (query: string) => of(this.getMockSearchResults(query))
-    };
+  getMockFriendsAttendingEvent(eventId: number): FriendModel[] {
+    // Récupérer la liste des amis mockés
+    const allFriends = this.getMockFriends();
+
+    // Sélectionner aléatoirement 0 à N amis qui participent
+    const friendCount = Math.floor(Math.random() * (allFriends.length + 1));
+
+    if (friendCount === 0) {
+      return [];
+    }
+
+    // Mélanger le tableau des amis pour obtenir une sélection aléatoire
+    const shuffledFriends = [...allFriends].sort(() => 0.5 - Math.random());
+
+    // Prendre les N premiers amis
+    return shuffledFriends.slice(0, friendCount);
   }
+
 }

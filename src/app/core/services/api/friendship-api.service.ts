@@ -14,6 +14,8 @@ export class FriendshipApiService {
   private apiConfig = inject(ApiConfigService);
   private baseUrl = `${this.apiConfig.apiUrl}/friendships`;
 
+
+
   // Récupérer la liste des amis de l'utilisateur
   getFriendsList(): Observable<FriendModel[]> {
     return this.http.get<FriendModel[]>(`${this.baseUrl}/friends`);
@@ -64,5 +66,9 @@ export class FriendshipApiService {
   // Rechercher un utilisateur spécifiquement par email
   searchUserByEmail(email: string): Observable<UserModel[]> {
     return this.http.get<UserModel[]>(`${this.apiConfig.apiUrl}/users/search?email=${encodeURIComponent(email)}`);
+  }
+
+  getFriendsAttendingEvent(eventId: number): Observable<FriendModel[]> {
+    return this.http.get<FriendModel[]>(`${this.apiConfig.apiUrl}/events/${eventId}/friends`);
   }
 }

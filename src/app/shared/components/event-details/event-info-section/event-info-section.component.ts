@@ -105,7 +105,6 @@ export class EventInfoSectionComponent {
       return 'Adresse non spécifiée';
     }
     this.formattedAddress = `${address.street}${address.number ? ' ' + address.number : ''}, ${address.zipCode} ${address.city}, ${address.country || 'France'}`;
-    console.log(this.formattedAddress)
     return this.formattedAddress;
   }
 

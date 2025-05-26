@@ -9,7 +9,9 @@ export interface UserModel {
   createdAt?: Date;
   updatedAt?: Date;
   needsStructureSetup?: boolean; // Indique si l'utilisateur doit configurer sa structure
+  avatarUrl?: string;
 }
+
 
 export interface UserRegistrationDto {
   firstName: string;
