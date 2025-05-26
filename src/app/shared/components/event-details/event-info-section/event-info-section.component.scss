@@ -2,7 +2,9 @@
 
 .info-section {
   background-color: #f9f9f9;
-  padding: 3rem 0;
+  width: 100%;
+  margin: 0;
+  //padding: 3rem 0;
 
   // Variables de couleur
   --primary-color: #6c63ff;
@@ -17,9 +19,11 @@
   --green: #2ecc71;
 
   .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
+    //max-width: 1200px;
+    //margin: 0 auto;
+    //padding: 0 1.5rem;
+    width: 100%;
+    margin: 0;
   }
 
   .section-title {
@@ -46,6 +50,7 @@
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
     margin-bottom: 3rem;
+    width: 100%;
 
     @media (max-width: 768px) {
       grid-template-columns: 1fr;

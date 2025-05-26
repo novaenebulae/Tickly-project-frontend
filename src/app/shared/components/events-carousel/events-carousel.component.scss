@@ -74,13 +74,13 @@ $gap-between-cards: 16px; // Espace entre les cartes
     }
 
     &--prev {
-      left: -75px;
-      transform: translate(50%, -50%);
+      left: -50px;
+      transform: translate(20%, -50%);
     }
 
     &--next {
-      right: -75px;
-      transform: translate(-50%, -50%);
+      right: -50px;
+      transform: translate(-20%, -50%);
     }
 
     mat-icon {

@@ -40,6 +40,7 @@ import {MatIcon} from '@angular/material/icon';
     EventSocialSectionComponent,
     SimilarEventsSectionComponent,
     MatIcon,
+    EventDescriptionSectionComponent,
   ],
   templateUrl: './event-details-page.component.html',
   styleUrls: ['./event-details-page.component.scss']

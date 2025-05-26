@@ -19,7 +19,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 60vh;
+    min-height: 100vh;
     padding: 2rem;
 
     .loading-text {
@@ -72,9 +72,18 @@
     }
   }
 
+  .event-details-page-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    //padding: 0 3rem;
+  }
+
   // Sections
   .section {
-    padding: 3rem 0;
+    padding: 0rem 5vw;
+    width: 100%;
 
     // Alternance de fond blanc/gris
     &:nth-child(even) {

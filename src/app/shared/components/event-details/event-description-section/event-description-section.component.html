@@ -1,1 +1,44 @@
-<p>event-description-section works!</p>
+<div class="description-section">
+  <div class="container-fluid">
+    <h2 class="section-title">À propos de cet événement</h2>
+
+    <div class="row">
+      <div class="col-md-8">
+        <div class="description-content">
+          <!-- Description de l'événement -->
+          <div class="description-text" [innerHTML]="getDescription()"></div>
+
+          <!-- Catégories / Tags -->
+          <div class="event-categories" *ngIf="event?.tags?.length">
+            <h3>Tags</h3>
+            <div class="categories-list">
+              <mat-chip-set>
+                <mat-chip *ngFor="let tag of event?.tags">
+                  {{ tag }}
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acteurs de l'événement (artistes, intervenants) -->
+      <div class="col-md-4">
+        <div class="event-actors">
+          <h3>Acteurs de l'événement</h3>
+          <div class="actors-list">
+            <div class="actor-card" *ngFor="let actor of eventActors">
+              <div class="actor-image">
+                <img [src]="actor.image" [alt]="actor.name">
+              </div>
+              <div class="actor-info">
+                <h4 class="actor-name">{{ actor.name }}</h4>
+                <p class="actor-role">{{ actor.role }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -32,7 +32,7 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
   isLoading = signal(true);
   displayMode = signal<'grid' | 'list'>('grid');
   currentPage = signal(1);
-  pageSize = signal(12);
+  pageSize = signal(9);
   totalItems = signal(0);
 
   // Listes d'événements

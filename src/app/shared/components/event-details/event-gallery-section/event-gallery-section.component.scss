@@ -1,11 +1,22 @@
 .event-gallery-section {
-  padding: 2rem 0;
 
   .section-title {
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 600;
-    margin-bottom: 1.5rem;
-    color: #333;
+    color: var(--text-color);
+    margin-bottom: 2rem;
+    position: relative;
+
+    &:after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: var(--primary-color);
+      border-radius: 2px;
+    }
   }
 
   .no-images {
@@ -107,6 +118,10 @@
   .main-image {
     grid-column: 1 / 3;
     grid-row: 1 / 3;
+
+    &:hover {
+      transform: scale(1.01);
+    }
 
     @media (max-width: 768px) {
       grid-column: 1 / 3;

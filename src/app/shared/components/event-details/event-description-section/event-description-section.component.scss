@@ -1,0 +1,153 @@
+.description-section {
+  padding: 2rem 0;
+
+  .section-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 2rem;
+    position: relative;
+
+    &:after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: var(--primary-color);
+      border-radius: 2px;
+    }
+  }
+
+  .description-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    height: 100%;
+
+    .description-text {
+      color: #444;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+
+      p {
+        margin-bottom: 1rem;
+      }
+
+      ul, ol {
+        margin-left: 1.5rem;
+        margin-bottom: 1rem;
+
+        li {
+          margin-bottom: 0.5rem;
+        }
+      }
+    }
+
+    .event-categories {
+      h3 {
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        color: #444;
+      }
+
+      .categories-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+
+        mat-chip {
+          background-color: #6c63ff;
+          color: white;
+          font-weight: 400;
+        }
+      }
+    }
+  }
+
+  .event-actors {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+      color: #444;
+      text-align: center;
+    }
+
+    .actors-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+
+      .actor-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .actor-image {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          overflow: hidden;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+
+        .actor-info {
+          flex: 1;
+
+          .actor-name {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+            color: #333;
+          }
+
+          .actor-role {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .description-section {
+    .description-content {
+      padding: 1.5rem;
+    }
+
+    .event-actors {
+      margin-top: 2rem;
+
+      .actors-list {
+        .actor-card {
+          .actor-image {
+            width: 50px;
+            height: 50px;
+          }
+        }
+      }
+    }
+  }
+}

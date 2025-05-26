@@ -46,7 +46,7 @@ export class EventsDisplayComponent implements OnInit {
   @Input() displayMode: 'grid' | 'list' = 'grid';
   @Input() isLoading: boolean = false;
   @Input() totalItems: number = 0;
-  @Input() pageSize: number = 12;
+  @Input() pageSize: number = 9;
   @Input() currentPage: number = 1;
 
   // Outputs
@@ -58,7 +58,7 @@ export class EventsDisplayComponent implements OnInit {
   skeletonArray = Array(12).fill(0);
 
   // Propriétés pour la pagination
-  pageSizeOptions: number[] = [4, 8, 12, 24, 48];
+  pageSizeOptions: number[] = [3, 6, 9, 12, 24, 48];
 
   constructor() { }
 
