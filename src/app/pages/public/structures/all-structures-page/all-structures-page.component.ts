@@ -12,18 +12,18 @@ import { Subject, takeUntil } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 
 // Services et modèles
-import { StructureService } from '../../../core/services/domain/structure.service';
-import { NotificationService } from '../../../core/services/domain/notification.service';
-import { StructureModel } from '../../../core/models/structure/structure.model';
-import { StructureTypeModel } from '../../../core/models/structure/structure-type.model';
-import { StructureSearchParams } from '../../../core/models/structure/structure-search-params.model';
+import { StructureService } from '../../../../core/services/domain/structure.service';
+import { NotificationService } from '../../../../core/services/domain/notification.service';
+import { StructureModel } from '../../../../core/models/structure/structure.model';
+import { StructureTypeModel } from '../../../../core/models/structure/structure-type.model';
+import { StructureSearchParams } from '../../../../core/models/structure/structure-search-params.model';
 import {
   StructureFiltersComponent,
   StructureFilters,
   StructureSortOptions
-} from '../../../shared/components/structures/structure-filters/structure-filters.component';
-import { StructureCardComponent } from '../../../shared/components/structures/structure-card/structure-card.component';
-import {AuthService} from '../../../core/services/domain/auth.service';
+} from '../../../../shared/components/structures/structure-filters/structure-filters.component';
+import { StructureCardComponent } from '../../../../shared/components/structures/structure-card/structure-card.component';
+import {AuthService} from '../../../../core/services/domain/auth.service';
 
 @Component({
   selector: 'app-all-structures-page',

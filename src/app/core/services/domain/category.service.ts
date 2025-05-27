@@ -2,7 +2,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, BehaviorSubject, of, map, tap, catchError } from 'rxjs';
 import { EventCategoryModel } from '../../models/event/event-category.model';
-import { EventApiService } from '../api/event-api.service';
+import { EventApiService } from '../api/event/event-api.service';
 import { mockCategories } from '../../mocks/events/categories.mock';
 
 /**

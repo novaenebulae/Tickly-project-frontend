@@ -5,7 +5,7 @@ import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
 
 // Services
 import { NotificationService } from './notification.service';
-import { StructureApiService } from '../api/structure-api.service';
+import { StructureApiService } from '../api/structure/structure-api.service';
 import { StructureSearchParams } from '../../models/structure/structure-search-params.model';
 import { AuthService } from './auth.service';
 import {StructureCreationDto, StructureCreationResponse, StructureModel} from '../../models/structure/structure.model';

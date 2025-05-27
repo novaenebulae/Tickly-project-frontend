@@ -15,7 +15,7 @@ import { FriendshipService } from '../../../core/services/domain/friendship.serv
 import { UserService } from '../../../core/services/domain/user.service';
 
 // Modèles
-import { UserModel } from '../../../core/models/auth/user.model';
+import { UserModel } from '../../../core/models/user/user.model';
 import { FriendRequestModel } from '../../../core/models/friendship/friendship.model';
 
 @Component({
@@ -136,7 +136,7 @@ export class NavbarComponent implements OnInit {
   openProfileDialog(): void {
     // Fermer les menus et dialogues existants
     this.closeMenus();
-    
+
     // Importation dynamique pour éviter les dépendances circulaires
     import('../dialogs/edit-profile-dialog/edit-profile-dialog.component').then(({ EditProfileDialogComponent }) => {
       this.dialog.open(EditProfileDialogComponent, {
@@ -150,12 +150,12 @@ export class NavbarComponent implements OnInit {
       });
     });
   }
-  
+
   // Ouvre le dialogue de gestion des amis
   openFriendsDialog(): void {
     // Fermer les menus et dialogues existants
     this.closeMenus();
-    
+
     // Importation dynamique pour éviter les dépendances circulaires
     import('../dialogs/manage-friends-dialog/manage-friends-dialog.component').then(({ ManageFriendsDialogComponent }) => {
       this.dialog.open(ManageFriendsDialogComponent, {
@@ -187,11 +187,11 @@ export class NavbarComponent implements OnInit {
     if (this.userMenuTrigger?.menuOpen) {
       this.userMenuTrigger.closeMenu();
     }
-    
+
     // Fermer tous les dialogues ouverts
     this.closeDialogs();
   }
-  
+
   /**
    * Ferme tous les dialogues ouverts
    * Cette méthode est publique pour être utilisée depuis le template
@@ -202,10 +202,10 @@ export class NavbarComponent implements OnInit {
       if (this.dialog) {
         const openDialogs = this.dialog.openDialogs;
         console.log(`Tentative de fermer ${openDialogs.length} dialogues ouverts`);
-        
+
         // Utiliser directement closeAll qui est plus fiable
         this.dialog.closeAll();
-        
+
         // Si besoin, on peut aussi les fermer un par un
         /*
         openDialogs.forEach(dialogRef => {
@@ -217,7 +217,7 @@ export class NavbarComponent implements OnInit {
       console.error('Erreur lors de la fermeture des dialogues', error);
     }
   }
-  
+
   /**
    * Gère le clic sur le menu burger en fermant les dialogues
    * Implémentée pour s'assurer que les dialogues sont fermés avant bascule du menu

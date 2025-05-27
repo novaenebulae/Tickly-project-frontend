@@ -13,7 +13,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { EventCategoryModel} from '../../../core/models/event/event-category.model';
-import {EventApiService} from '../../../core/services/api/event-api.service';
+import {EventApiService} from '../../../core/services/api/event/event-api.service';
 import {CategoryService} from '../../../core/services/domain/category.service';
 
 // Interface pour les options de tri

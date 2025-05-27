@@ -8,11 +8,11 @@ import { jwtDecode } from 'jwt-decode';
 
 // Services
 import { NotificationService} from './notification.service';
-import { AuthApiService } from '../api/auth-api.service';
+import { AuthApiService } from '../api/auth/auth-api.service';
 
 // Models
 import { JwtPayload, AuthResponseDto, LoginCredentials } from '../../models/auth/auth.model';
-import { UserRegistrationDto} from '../../models/auth/user.model';
+import { UserRegistrationDto} from '../../models/user/user.model';
 import { APP_CONFIG } from '../../config/app-config';
 
 /**

@@ -1,29 +1,40 @@
-// src/app/core/services/api/api-config.service.ts
+/**
+ * @file Service for API configuration and utilities.
+ * Centralizes the management of headers, URLs, and mock mode.
+ * @licence Proprietary
+ * @author VotreNomOuEquipe
+ */
 
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { delay } from 'rxjs/operators';
+
 import { APP_CONFIG } from '../../config/app-config';
-import { environment} from '../../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 
 /**
- * Service de configuration et d'utilitaires pour les appels API
- * Centralise la gestion des en-têtes, des URLs et du mode mock
+ * Service for API configuration and utilities.
+ * Centralizes the management of headers, URLs, and mock mode.
  */
 @Injectable({
   providedIn: 'root'
 })
 export class ApiConfigService {
+  /**
+   * The base URL for the API, obtained from the environment or default config.
+   */
   readonly apiUrl: string;
 
   constructor(public http: HttpClient) {
-    // Utilise l'URL de l'API depuis l'environnement ou la config par défaut
+    // Use the API URL from the environment or the default config
     this.apiUrl = environment.apiUrl || APP_CONFIG.api.baseUrl;
   }
 
   /**
-   * Crée des en-têtes HTTP avec authentification si un token est disponible
+   * Creates HTTP headers with content type and authorization if a token is available.
+   * @param additionalHeaders - Optional additional headers to include.
+   * @returns HttpHeaders - The constructed HTTP headers.
    */
   createHeaders(additionalHeaders: Record<string, string> = {}): HttpHeaders {
     let headers = new HttpHeaders({
@@ -35,12 +46,12 @@ export class ApiConfigService {
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
     }
-
     return headers;
   }
 
   /**
-   * Récupère le token d'authentification
+   * Retrieves the authentication token from localStorage or sessionStorage based on 'keepLoggedIn' setting.
+   * @returns The authentication token, or null if not found.
    */
   private getAuthToken(): string | null {
     const keepLoggedIn = localStorage.getItem(APP_CONFIG.auth.keepLoggedInKey) === 'true';
@@ -50,33 +61,35 @@ export class ApiConfigService {
   }
 
   /**
-   * Construit l'URL complète pour un endpoint API
-   * @param endpoint Chemin de l'endpoint (sans slash initial)
+   * Constructs the full URL for an API endpoint.
+   * @param endpoint - The endpoint path (without leading slash).
+   * @returns The full API URL.
    */
   getUrl(endpoint: string): string {
-    // Assure que l'endpoint n'a pas de slash au début (évite doubles slashes)
+    // Ensure the endpoint does not start with a slash (avoid double slashes)
     const normalizedEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
     return `${this.apiUrl}/${normalizedEndpoint}`;
   }
 
   /**
-   * Vérifie si les mocks sont activés globalement
+   * Checks if mocks are enabled globally.
    */
   get isMockEnabled(): boolean {
     return environment.useMocks && APP_CONFIG.mock.enabled;
   }
 
   /**
-   * Vérifie si les mocks sont activés pour un domaine spécifique
-   * @param domain Domaine fonctionnel (auth, events, structures)
+   * Checks if mocks are enabled for a specific domain.
+   * @param domain - The functional domain (auth, events, structures).
    */
-  isMockEnabledForDomain(domain: 'auth' | 'events' | 'structures'): boolean {
+  isMockEnabledForDomain(domain: 'auth' | 'events' | 'structures' | 'ticketing' | 'friendship'| 'users' ): boolean {
     return this.isMockEnabled && APP_CONFIG.mock[domain];
   }
 
   /**
-   * Crée une observable qui simule un délai de réponse API pour les mocks
-   * @param data Données à retourner
+   * Creates an Observable that simulates an API response delay for mocks.
+   * @param data - The data to return.
+   * @returns An Observable that emits the data after a delay.
    */
   createMockResponse<T>(data: T): Observable<T> {
     return of(data).pipe(
@@ -85,12 +98,13 @@ export class ApiConfigService {
   }
 
   /**
-   * Crée une erreur simulée pour les mocks
-   * @param status Code HTTP de l'erreur
-   * @param message Message d'erreur
+   * Creates an Observable that simulates an API error for mocks.
+   * @param status - The HTTP status code of the error.
+   * @param message - The error message.
+   * @returns An Observable that emits an error after a delay.
    */
-  createMockError(status: number, message: string): Observable<never> {
-    // Simule un délai avant de retourner l'erreur
+  createMockError(status: number, message: string): Observable<any> {
+    // Simulate a delay before returning the error
     return throwError(() => ({
       status,
       error: { message }
@@ -100,18 +114,18 @@ export class ApiConfigService {
   }
 
   /**
-   * Construit les paramètres HTTP à partir d'un objet
-   * @param params Objet contenant les paramètres à envoyer
+   * Constructs HTTP parameters from an object.
+   * @param params - An object containing the parameters to send.
+   * @returns HttpParams - The constructed HTTP parameters.
    */
   createHttpParams(params: Record<string, any> = {}): HttpParams {
     let httpParams = new HttpParams();
-
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         if (value instanceof Date) {
           httpParams = httpParams.set(key, value.toISOString());
         } else if (Array.isArray(value)) {
-          // Gérer les tableaux (peut varier selon l'API)
+          // Handle arrays (may vary depending on the API)
           value.forEach(item => {
             httpParams = httpParams.append(`${key}[]`, item.toString());
           });
@@ -120,15 +134,14 @@ export class ApiConfigService {
         }
       }
     });
-
     return httpParams;
   }
 
   /**
-   * Journalise les requêtes API en développement
-   * @param method Méthode HTTP
-   * @param url URL de la requête
-   * @param body Corps de la requête (optionnel)
+   * Logs API requests in development mode.
+   * @param method - The HTTP method.
+   * @param url - The URL of the request.
+   * @param body - The request body (optional).
    */
   logApiRequest(method: string, url: string, body?: any): void {
     if (environment.enableDebugLogs) {
@@ -140,10 +153,10 @@ export class ApiConfigService {
   }
 
   /**
-   * Journalise les réponses API en développement
-   * @param method Méthode HTTP
-   * @param url URL de la requête
-   * @param response Réponse de l'API
+   * Logs API responses in development mode.
+   * @param method - The HTTP method.
+   * @param url - The URL of the request.
+   * @param response - The API response.
    */
   logApiResponse(method: string, url: string, response: any): void {
     if (environment.enableDebugLogs) {
@@ -152,10 +165,10 @@ export class ApiConfigService {
   }
 
   /**
-   * Journalise les erreurs API en développement
-   * @param method Méthode HTTP
-   * @param url URL de la requête
-   * @param error Erreur de l'API
+   * Logs API errors in development mode.
+   * @param method - The HTTP method.
+   * @param url - The URL of the request.
+   * @param error - The API error.
    */
   logApiError(method: string, url: string, error: any): void {
     if (environment.enableDebugLogs) {

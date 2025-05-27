@@ -1,7 +1,7 @@
 // src/app/core/services/domain/friendship.service.ts
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Observable, of, catchError, map, tap, switchMap } from 'rxjs';
-import { FriendshipApiService } from '../api/friendship-api.service';
+import { FriendshipApiService } from '../api/friendship/friendship-api.service';
 import { NotificationService } from './notification.service';
 import { FriendshipModel, FriendRequestModel, FriendModel } from '../../models/friendship/friendship.model';
 import {ApiConfigService} from '../api/api-config.service';

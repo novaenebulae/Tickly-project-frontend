@@ -1,79 +1,182 @@
+/**
+ * @file Defines the core model for an event and related DTOs.
+ * @licence Proprietary
+ * @author VotreNomOuEquipe
+ */
 
-// src/app/core/models/event/event.model.ts
 import { EventCategoryModel } from './event-category.model';
-import { EventSeatingZone, SeatingType } from './seating.model';
-import { AddressModel } from '../structure/address.model';
-import { AreaModel } from '../structure/area.model';
+import { EventAudienceZone, SeatingType } from './event-audience-zone.model'; // Updated import
+import { StructureAddressModel } from '../structure/structure-address.model'; // Using the renamed AddressModel
+import { StructureAreaModel } from '../structure/structure-area.model'; // Using the renamed AreaModel
 
-// Statuts possibles d'un événement
+/**
+ * Defines the possible statuses of an event.
+ */
 export type EventStatus =
-  | 'draft'             // Brouillon, non publié
-  | 'published'         // Publié et visible
-  | 'pending_approval'  // En attente d'approbation
-  | 'cancelled'         // Annulé
-  | 'completed';        // Terminé
+  | 'draft'     // Event is being prepared, not yet visible to the public.
+  | 'published' // Event is live and visible.
+  | 'pending_approval' // Event is awaiting approval from an admin/moderator.
+  | 'cancelled' // Event has been cancelled.
+  | 'completed'; // Event has finished.
 
-// Interface principale pour un événement
+/**
+ * Represents an event in the application.
+ */
 export interface EventModel {
+  /**
+   * The unique identifier for the event. Optional (not present before creation).
+   */
   id?: number;
-  name: string;                       // Nom de l'événement
-  category: EventCategoryModel;       // Catégorie de l'événement
 
-  shortDescription?: string;          // Description courte
-  fullDescription: string;            // Description complète
-  tags?: string[];                    // Mots-clés
+  /**
+   * The name or title of the event.
+   */
+  name: string;
 
-  startDate: Date;                    // Date et heure de début
-  endDate: Date;                      // Date et heure de fin
+  /**
+   * The category of the event (e.g., concert, theater).
+   * This is an object for easy display in the application.
+   */
+  category: EventCategoryModel;
 
-  // Adresse de l'événement
-  address: AddressModel;              // Adresse de l'événement
+  /**
+   * A short, concise description or tagline for the event.
+   */
+  shortDescription?: string;
 
-  // Référence à la structure
-  structureId: number;                // Structure organisatrice
-  areas?: AreaModel[];                // Zones de la structure où se déroule l'événement
+  /**
+   * A full, detailed description of the event. Can be lengthy.
+   */
+  fullDescription: string;
 
-  // Gestion des places et prix
-  isFreeEvent: boolean;               // Si l'événement est gratuit
-  defaultSeatingType: SeatingType;    // Type de placement par défaut
-  seatingZones: EventSeatingZone[];   // Zones de placement configurées pour cet événement
+  /**
+   * A list of tags or keywords associated with the event for searchability.
+   * @example ["rock", "live music", "outdoor"]
+   */
+  tags?: string[];
 
-  // Visibilité et promotion
-  displayOnHomepage: boolean;         // À afficher sur la page d'accueil
-  isFeaturedEvent: boolean;           // Mise en avant
+  /**
+   * The start date and time of the event.
+   */
+  startDate: Date;
 
-  // Liens et médias
-  links?: string[];                   // Liens externes
-  mainPhotoUrl?: string;              // Photo principale
-  eventPhotoUrls?: string[];          // Photos supplémentaires
+  /**
+   * The end date and time of the event.
+   */
+  endDate: Date;
 
-  // Métadonnées
-  status: EventStatus;                // Statut actuel
+  /**
+   * The physical address where the event takes place.
+   */
+  address: StructureAddressModel;
+
+  /**
+   * The ID of the structure (venue) hosting the event.
+   */
+  structureId: number;
+
+  /**
+   * Optional list of general physical areas of the host structure
+   * where this event will take place.
+   * These are `StructureAreaModel` instances.
+   */
+  areas?: StructureAreaModel[]; // References to physical areas of the structure
+
+  /**
+   * Indicates whether the event is free of charge.
+   * Ticket prices are not managed in this application.
+   */
+  isFreeEvent: boolean;
+
+  /**
+   * The default type of seating/placement for this event,
+   * can be overridden by specific `EventAudienceZone` configurations.
+   */
+  defaultSeatingType: SeatingType;
+
+  /**
+   * A list of specific audience zones configured for this event.
+   * Each zone defines capacity, placement type, etc., within a `StructureAreaModel`.
+   */
+  audienceZones: EventAudienceZone[]; // Updated from seatingZones
+
+  /**
+   * Indicates whether the event should be displayed on the application's homepage.
+   */
+  displayOnHomepage: boolean;
+
+  /**
+   * Indicates whether the event is a featured or highlighted event.
+   */
+  isFeaturedEvent: boolean;
+
+  /**
+   * Optional list of external links related to the event (e.g., artist website, social media).
+   */
+  links?: string[];
+
+  /**
+   * URL of the main promotional photo or poster for the event.
+   */
+  mainPhotoUrl?: string;
+
+  /**
+   * Optional list of URLs for additional photos or a gallery for the event.
+   */
+  eventPhotoUrls?: string[];
+
+  /**
+   * The current status of the event (e.g., draft, published, cancelled).
+   */
+  status: EventStatus;
+
+  /**
+   * The date and time when the event record was created.
+   * Managed by the backend.
+   */
   createdAt?: Date;
+
+  /**
+   * The date and time when the event record was last updated.
+   * Managed by the backend.
+   */
   updatedAt?: Date;
 }
 
-// DTO pour la création d'événement
-export interface EventCreationDto {
+/**
+ * Data Transfer Object for creating or updating an Event.
+ * For updates, most fields are optional. 'id' is not part of this DTO as it's usually in the URL.
+ */
+export interface EventDataDto {
   name: string;
-  category: EventCategoryModel; // Utiliser un objet EventCategoryModel complet au lieu d'un ID
+  /**
+   * The ID of the event's category. Sent to the API.
+   */
+  categoryId: number;
   shortDescription?: string;
   fullDescription: string;
-  genre?: string[];
   tags?: string[];
   startDate: Date;
   endDate: Date;
-  address: AddressModel;
+  address: StructureAddressModel; // Sending the full address object
   structureId: number;
-  areaIds?: number[];                 // IDs des zones où se déroule l'événement
+  /**
+   * Optional array of IDs of `StructureAreaModel` where the event takes place.
+   */
+  areaIds?: number[];
   isFreeEvent: boolean;
   defaultSeatingType: SeatingType;
-  seatingZones: Omit<EventSeatingZone, 'id'>[];
+  /**
+   * Audience zones for the event. For creation, `id` within `EventAudienceZone` is omitted.
+   * For update, `id` should be present for existing zones to be modified,
+   * and omitted for new zones to be added.
+   */
+  audienceZones: (Omit<EventAudienceZone, 'id'> | EventAudienceZone)[]; // Allows new and existing zones for update
   displayOnHomepage?: boolean;
   isFeaturedEvent?: boolean;
   links?: string[];
   mainPhotoUrl?: string;
   eventPhotoUrls?: string[];
+  status?: EventStatus; // Status might be updatable separately or along with other fields
+  // Removed 'genre' as 'tags' is more generic. If 'genre' is distinct, it can be re-added.
 }
-
-

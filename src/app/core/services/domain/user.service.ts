@@ -9,7 +9,7 @@ import { ApiConfigService } from '../api/api-config.service';
 import { AuthService } from './auth.service';
 
 // Models
-import { UserModel } from '../../models/auth/user.model';
+import { UserModel } from '../../models/user/user.model';
 import { APP_CONFIG } from '../../config/app-config';
 
 // Mocks

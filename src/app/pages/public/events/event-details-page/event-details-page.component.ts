@@ -8,23 +8,23 @@ import { Observable, Subject, catchError, finalize, of, takeUntil } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 
 // Services
-import { EventService } from '../../../core/services/domain/event.service';
-import { StructureService } from '../../../core/services/domain/structure.service';
-import { NotificationService } from '../../../core/services/domain/notification.service';
-import { AuthService } from '../../../core/services/domain/auth.service';
+import { EventService } from '../../../../core/services/domain/event.service';
+import { StructureService } from '../../../../core/services/domain/structure.service';
+import { NotificationService } from '../../../../core/services/domain/notification.service';
+import { AuthService } from '../../../../core/services/domain/auth.service';
 
 // Models
-import { EventModel } from '../../../core/models/event/event.model';
-import { StructureModel } from '../../../core/models/structure/structure.model';
+import { EventModel } from '../../../../core/models/event/event.model';
+import { StructureModel } from '../../../../core/models/structure/structure.model';
 
 // Components
-import { EventBannerComponent } from '../../../shared/components/event-details/event-banner/event-banner.component';
-import { EventInfoSectionComponent } from '../../../shared/components/event-details/event-info-section/event-info-section.component';
-import { EventDescriptionSectionComponent } from '../../../shared/components/event-details/event-description-section/event-description-section.component';
-import { EventGallerySectionComponent } from '../../../shared/components/event-details/event-gallery-section/event-gallery-section.component';
-import { EventTicketsSectionComponent } from '../../../shared/components/event-details/event-tickets-section/event-tickets-section.component';
-import { EventSocialSectionComponent } from '../../../shared/components/event-details/event-social-section/event-social-section.component';
-import { SimilarEventsSectionComponent } from '../../../shared/components/event-details/similar-events-section/similar-events-section.component';
+import { EventBannerComponent } from '../../../../shared/components/event-details/event-banner/event-banner.component';
+import { EventInfoSectionComponent } from '../../../../shared/components/event-details/event-info-section/event-info-section.component';
+import { EventDescriptionSectionComponent } from '../../../../shared/components/event-details/event-description-section/event-description-section.component';
+import { EventGallerySectionComponent } from '../../../../shared/components/event-details/event-gallery-section/event-gallery-section.component';
+import { EventTicketsSectionComponent } from '../../../../shared/components/event-details/event-tickets-section/event-tickets-section.component';
+import { EventSocialSectionComponent } from '../../../../shared/components/event-details/event-social-section/event-social-section.component';
+import { SimilarEventsSectionComponent } from '../../../../shared/components/event-details/similar-events-section/similar-events-section.component';
 import {MatIcon} from '@angular/material/icon';
 
 @Component({

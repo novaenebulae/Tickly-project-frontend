@@ -1,25 +1,82 @@
 // src/app/core/models/auth/auth.model.ts
+import { UserRole } from './user-role.model';
+
+/**
+ * Represents the payload of a JSON Web Token (JWT).
+ */
 export interface JwtPayload {
+  /**
+   * The subject of the token, typically the user's unique identifier (e.g., username or email).
+   */
   sub: string;
+
+  /**
+   * The unique identifier of the user.
+   */
   userId: number;
-  role: string;
+
+  /**
+   * The role of the user.
+   */
+  role: UserRole;
+
+  /**
+   * Indicates whether the user needs to set up their structure (optional).
+   */
   needsStructureSetup?: boolean;
+
+  /**
+   * The ID of the structure associated with the user (optional).
+   */
   structureId?: number;
+
+  /**
+   * The timestamp indicating when the token was issued (in seconds since epoch).
+   */
   iat?: number;
+
+  /**
+   * The timestamp indicating when the token expires (in seconds since epoch).
+   */
   exp?: number;
 }
 
+/**
+ * Represents the response from the authentication API.
+ */
 export interface AuthResponseDto {
+  /**
+   * The JWT token for the authenticated user.
+   */
   token: string;
+
+  /**
+   * Indicates whether the user needs to set up their structure.
+   */
   needsStructureSetup: boolean;
+
+  /**
+   * The unique identifier of the user.
+   */
   userId: number;
-  role: string;
+
+  /**
+   * The role of the user.
+   */
+  role: UserRole;
 }
 
 /**
- * Interface pour les credentials de connexion
+ * Represents the login credentials (email and password).
  */
 export interface LoginCredentials {
-  email: string | null;
-  password: string | null;
+  /**
+   * The user's email address.
+   */
+  email: string;
+
+  /**
+   * The user's password.
+   */
+  password: string;
 }

@@ -2,9 +2,9 @@ import {LandingPageComponent} from './landing-page/landing-page.component';
 import {PublicLayoutComponent} from './public-layout/public-layout.component';
 import {Routes} from '@angular/router';
 import {RegisterPageComponent} from '../auth/register/register-page.component';
-import {AllEventsPageComponent} from './all-events-page/all-events-page.component';
-import {AllStructuresPageComponent} from './all-structures-page/all-structures-page.component';
-import {EventDetailsPageComponent} from './event-details-page/event-details-page.component';
+import {AllEventsPageComponent} from './events/all-events-page/all-events-page.component';
+import {AllStructuresPageComponent} from './structures/all-structures-page/all-structures-page.component';
+import {EventDetailsPageComponent} from './events/event-details-page/event-details-page.component';
 
 export const publicRoutes: Routes = [
   {

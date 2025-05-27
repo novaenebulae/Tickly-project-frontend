@@ -23,7 +23,7 @@ import { AuthService } from '../../../core/services/domain/auth.service';
 import { StructureService } from '../../../core/services/domain/structure.service';
 
 // Models
-import { UserRegistrationDto } from '../../../core/models/auth/user.model';
+import { UserRegistrationDto } from '../../../core/models/user/user.model';
 
 @Component({
   selector: 'app-register-page',

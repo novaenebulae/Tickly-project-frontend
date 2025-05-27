@@ -5,7 +5,7 @@ import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
 
 // Services
 import { NotificationService} from './notification.service';
-import { EventApiService } from '../api/event-api.service';
+import { EventApiService } from '../api/event/event-api.service';
 
 // Models
 import { EventModel, EventCreationDto, EventStatus } from '../../models/event/event.model';

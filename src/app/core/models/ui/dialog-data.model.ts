@@ -1,12 +1,6 @@
-// src/app/core/models/ui/dialog-data.model.ts
-import { AreaModel } from '../structure/area.model';
-import { EventSeatingZone } from '../event/seating.model';
+import { StructureAreaModel} from '../structure/structure-area.model';
 
 export interface ZoneDialogData {
-  zone: AreaModel | null;
+  zone: StructureAreaModel | null;
 }
 
-export interface SeatingZoneDialogData {
-  seatingZone: EventSeatingZone | null;
-  areaId: number;
-}

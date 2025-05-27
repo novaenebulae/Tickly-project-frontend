@@ -3,7 +3,7 @@
 import { FriendshipModel, FriendRequestModel, FriendModel } from '../../models/friendship/friendship.model';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import {UserModel} from '../../models/auth/user.model';
+import {UserModel} from '../../models/user/user.model';
 
 @Injectable({
   providedIn: 'root'

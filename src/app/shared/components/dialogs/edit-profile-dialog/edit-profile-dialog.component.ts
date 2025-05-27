@@ -15,7 +15,7 @@ import { NotificationService } from '../../../../core/services/domain/notificati
 import { UserService } from '../../../../core/services/domain/user.service';
 
 // Models
-import { UserModel } from '../../../../core/models/auth/user.model';
+import { UserModel } from '../../../../core/models/user/user.model';
 
 // Interface pour les données du dialogue
 export interface EditProfileDialogData {

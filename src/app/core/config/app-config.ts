@@ -1,88 +1,183 @@
-// src/app/core/config/app-config.ts
+/**
+ * @file Application wide configuration settings.
+ * @licence Proprietary
+ * @author VotreNomOuEquipe
+ */
 
 /**
- * Configuration globale de l'application Tickly
- * Ce fichier centralise tous les paramètres de configuration
+ * Defines the structure for application configuration constants.
  */
-export const APP_CONFIG = {
-  // Configuration de l'API
+interface AppConfig {
+  appName: string;
+  appVersion: string;
   api: {
-    baseUrl: 'http://localhost:8080',
+    baseUrl: string;
     endpoints: {
       auth: {
-        login: '/login',
-        register: '/register',
-        refreshToken: '/refresh-token'
+        login: string;
+        register: string;
+        validateToken: string;
+        refreshToken?: string; // Optional: if you implement token refresh
+      };
+      events: {
+        base: string;          // e.g., 'events' for GET (list), POST (create)
+        byId: (id: number | string) => string; // e.g., `events/${id}` for GET (single), PUT, DELETE
+        search: string;
+        categories: string;
+        statusUpdate: (id: number | string) => string; // e.g., `events/${id}/status`
+      };
+      structures: {
+        base: string;
+        byId: (id: number | string) => string;
+        types: string;
+        areas: (structureId: number | string) => string; // e.g., `structures/${structureId}/areas`
+        areaById: (structureId: number | string, areaId: number | string) => string;
+      };
+      users: {
+        base: string; // For admin listing users, if any
+        byId: (id: number | string) => string;
+        profile: string; // For current user's profile (e.g., 'users/me')
+        updateProfile: string;
+        search: string; // To search users (e.g., for adding friends)
+      };
+      friendship: {
+        base: string;          // List current user's friends
+        requests: string;      // GET (received/sent), POST (send new)
+        requestAction: (friendshipId: number | string) => string; // PUT/DELETE for accept/reject/cancel/block
+        friendsAttendingEvent: (eventId: number | string) => string; // GET friends for an event
+      };
+      ticketing: {
+        reservations: string;  // POST to create a new reservation (batch of tickets)
+        myTickets: string;     // GET tickets for the current user
+        ticketById: (ticketId: string) => string; // GET details of a specific ticket
+        validateTicket?: string; // Optional: POST to validate a ticket (scan)
+      };
+      // Add other domains as needed
+    };
+  };
+  mock: {
+    enabled: boolean; // Global switch for all mocks
+    delay: number;    // Default delay in ms for mock responses
+    // Individual domain switches
+    auth: boolean;
+    events: boolean;
+    structures: boolean;
+    users: boolean;
+    friendship: boolean;
+    ticketing: boolean;
+  };
+  auth: {
+    tokenKey: string;             // Key for storing the JWT in localStorage/sessionStorage
+    keepLoggedInKey: string;      // Key for storing the 'keep me logged in' preference
+    userRoleKey: string;          // Optional: Key for storing user role if needed client-side
+    structureIdKey: string;       // Optional: Key for storing associated structure ID
+    tokenRefreshOffset?: number;  // Optional: Time in seconds before token expiry to attempt refresh
+  };
+  events: {
+    defaultHomeCount: number;
+    defaultFeaturedCount: number;
+    // Add other event-specific configurations
+  };
+  pagination: {
+    defaultPageSize: number;
+    maxPageSize?: number;
+  };
+  // Add other global app settings
+  features: {
+    enableTicketingPdfExport: boolean;
+    // Add feature flags here
+  };
+  logging: {
+    logLevel: 'debug' | 'info' | 'warn' | 'error';
+  }
+}
+
+/**
+ * Application configuration constants.
+ * Values here can be overridden by environment-specific files (environment.ts, environment.prod.ts)
+ * if those files also export an object that merges with or replaces parts of this.
+ */
+export const APP_CONFIG: AppConfig = {
+  appName: 'OLIVAREZ Lucas - CDA - Ticketing App',
+  appVersion: '1.0.0',
+
+  api: {
+    baseUrl: 'http://localhost:8080/api', // TODO: Replace with your actual backend URL or use environment variable
+    endpoints: {
+      auth: {
+        login: 'auth/login',
+        register: 'auth/register',
+        validateToken: 'auth/validate-token',
       },
       events: {
-        base: '/api/events',
-        search: '/api/events/search'
+        base: 'events',
+        byId: (id) => `events/${id}`,
+        search: 'events/search',
+        categories: 'events/categories',
+        statusUpdate: (id) => `events/${id}/status`,
       },
       structures: {
-        base: '/api/structures',
-        create: '/api/structures/create-structure',
-        types: '/api/structure-types',
-        areas: '/api/areas'
+        base: 'structures', // GET (list)
+        byId: (id: number | string) => `structures/${id}`, // GET (single), PUT, DELETE
+        types: 'structures/types', // GET structure types
+        areas: (structureId: number | string) => `structures/${structureId}/areas`, // GET, POST (create area)
+        areaById: (structureId: number | string, areaId: number | string) => `structures/${structureId}/areas/${areaId}` // PUT, DELETE area
+      },
+      users: {
+        base: 'users',
+        byId: (id) => `users/${id}`,
+        profile: 'users/me',
+        updateProfile: 'users/me',
+        search: 'users/search',
+      },
+      friendship: {
+        base: 'friendships', // GET list of FriendModel
+        requests: 'friendships/requests', // GET list of FriendRequestModel, POST SendFriendRequestDto
+        requestAction: (friendshipId) => `friendships/requests/${friendshipId}`, // PUT/DELETE with UpdateFriendshipStatusDto
+        friendsAttendingEvent: (eventId) => `friendships/events/${eventId}/attendees`,
+      },
+      ticketing: {
+        reservations: 'ticketing/reservations', // POST ReservationRequestDto
+        myTickets: 'ticketing/tickets/my',     // GET current user's TicketModel[]
+        ticketById: (ticketId) => `ticketing/tickets/${ticketId}`, // GET TicketModel
+        // validateTicket: 'ticketing/tickets/validate',
       }
-    },
-    // Timeout par défaut pour les requêtes HTTP (en ms)
-    defaultTimeout: 30000
-  },
-
-  // Configuration des mocks
-  mock: {
-    // Activation globale des mocks (remplace les appels API réels)
-    enabled: true,
-    // Délai simulé pour les réponses des mocks (en ms)
-    delay: 500,
-
-    // Activation par domaine fonctionnel
-    auth: true,
-    events: true,
-    structures: true
-  },
-
-  // Configuration de l'authentification
-  auth: {
-    // Clé de stockage du token JWT
-    tokenKey: 'jwt_token',
-    // Clé pour la préférence "se souvenir de moi"
-    keepLoggedInKey: 'keepLoggedIn',
-    // Durée de vie du token en secondes (1 heure par défaut)
-    tokenLifetime: 3600,
-    // Activation de l'auto-refresh du token
-    enableAutoRefresh: true,
-    // Seuil de refresh en secondes (15 minutes avant expiration)
-    refreshThreshold: 900
-  },
-
-  // Configuration des notifications
-  notification: {
-    // Durée d'affichage par défaut des notifications (en ms)
-    duration: 5000,
-    // Position des notifications
-    position: {
-      horizontal: 'center',
-      vertical: 'top'
     }
   },
 
-  // Paramètres du système d'événements
-  events: {
-    // Nombre d'événements à afficher par défaut sur la page d'accueil
-    defaultHomeCount: 6,
-    // Nombre d'événements par page dans la liste
-    defaultPageSize: 10,
-    // Taille maximale des photos d'événements (en Ko)
-    maxPhotoSize: 5120,
-    // Nombre maximum de photos par événement
-    maxPhotosPerEvent: 10
+  mock: {
+    enabled: true,  // Set to false to use real API, true for mocks
+    delay: 300,     // Simulate network latency for mocks
+    auth: true,
+    events: true,
+    structures: true,
+    users: true,
+    friendship: true,
+    ticketing: true
   },
 
-  // Paramètres du système de structures
-  structures: {
-    // Nombre maximum de zones par structure
-    maxAreasPerStructure: 20
+  auth: {
+    tokenKey: 'APP_AUTH_TOKEN',
+    keepLoggedInKey: 'APP_KEEP_LOGGED_IN',
+    userRoleKey: 'APP_USER_ROLE',
+    structureIdKey: 'APP_USER_STRUCTURE_ID'
+  },
+
+  events: {
+    defaultHomeCount: 6,
+    defaultFeaturedCount: 3,
+  },
+
+  pagination: {
+    defaultPageSize: 12,
+    maxPageSize: 100,
+  },
+
+  features: {
+    enableTicketingPdfExport: true, // Example feature flag
+  },
+
+  logging: {
+    logLevel: 'debug' // Set to 'info' or 'warn' for production
   }
 };
-
