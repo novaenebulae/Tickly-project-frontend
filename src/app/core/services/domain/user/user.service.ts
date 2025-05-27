@@ -1,0 +1,295 @@
+/**
+ * @file Domain service for user-related operations.
+ * Manages user profiles, updates, and provides utility functions.
+ * Composes UserApiService for data fetching and AuthService for user context.
+ * @licence Proprietary
+ * @author VotreNomOuEquipe
+ */
+
+import { Injectable, inject, signal, computed, WritableSignal, effect } from '@angular/core';
+import { Observable, of, BehaviorSubject } from 'rxjs';
+import { catchError, tap, switchMap } from 'rxjs/operators';
+
+import { UserApiService } from '../../api/user/user-api.service';
+import { AuthService } from './auth.service';
+import { NotificationService } from '../utilities/notification.service';
+
+import { UserModel } from '../../../models/user/user.model';
+import { UserProfileUpdateDto } from '../../../models/user/user-profile-update.dto';
+// ChangePasswordDto is removed as this logic will be in AuthService
+
+@Injectable({
+  providedIn: 'root'
+})
+export class UserService {
+  private userApi = inject(UserApiService); // Using the separated UserApiService
+  private authService = inject(AuthService);
+  private notification = inject(NotificationService);
+
+  // Cache for user profiles (key: userId, value: UserModel)
+  // BehaviorSubject allows components to subscribe and get updates when the cache changes.
+  private userProfilesCache = new BehaviorSubject<Map<number, UserModel>>(new Map());
+
+  // Signal for the currently viewed/active user profile (e.g., on a profile page or for admin view)
+  // undefined: not yet loaded/no specific profile active, null: profile fetch failed or not found
+  private activeUserProfileSig: WritableSignal<UserModel | null | undefined> = signal(undefined);
+  public readonly activeUserProfile = computed(() => this.activeUserProfileSig());
+
+  // Signal for the current authenticated user's own profile data.
+  // This will be populated when the user logs in or when their profile is explicitly loaded.
+  private currentUserProfileDataSig: WritableSignal<UserModel | null> = signal(null);
+  public readonly currentUserProfileData = computed(() => this.currentUserProfileDataSig());
+
+
+  constructor() {
+    // Use effect to react to changes in the authenticated user state from AuthService
+    effect(() => {
+      const authUser = this.authService.currentUser();
+      if (authUser && authUser.userId) {
+        // If a user is logged in, load their profile and set it as the current user's profile data.
+        // This also populates the activeUserProfileSig if it's the first profile loaded.
+        this.loadUserProfile(authUser.userId, true).subscribe(profile => { // Force refresh on login
+          if (profile) {
+            this.currentUserProfileDataSig.set(profile);
+          } else {
+            this.currentUserProfileDataSig.set(null); // Failed to load profile
+          }
+        });
+      } else {
+        // User logged out, clear their profile data and active profile
+        this.currentUserProfileDataSig.set(null);
+        this.activeUserProfileSig.set(undefined);
+        this.userProfilesCache.next(new Map()); // Optionally clear the entire cache on logout
+      }
+    });
+  }
+
+  /**
+   * Loads a specific user's profile by their ID.
+   * Fetches from the API if not in cache or if `forceRefresh` is true.
+   * Updates the `activeUserProfileSig` with the fetched profile.
+   * @param userId - The ID of the user whose profile is to be loaded.
+   * @param forceRefresh - If true, the profile will be fetched from the API even if present in the cache.
+   * @returns An Observable of the `UserModel` or `undefined` if not found or an error occurs.
+   */
+  loadUserProfile(userId: number, forceRefresh = false): Observable<UserModel | undefined> {
+    // Indicate loading state for the active profile if this ID is being targeted
+    if (this.activeUserProfileSig() === undefined || this.activeUserProfileSig()?.id !== userId || forceRefresh) {
+      this.activeUserProfileSig.set(undefined); // Set to loading/undefined if changing target or forcing
+    }
+
+    const cachedProfile = this.userProfilesCache.value.get(userId);
+    if (!forceRefresh && cachedProfile) {
+      this.activeUserProfileSig.set(cachedProfile);
+      return of(cachedProfile);
+    }
+
+    return this.userApi.getUserProfileById(userId).pipe(
+      tap(profile => {
+        if (profile) {
+          const currentCache = this.userProfilesCache.value;
+          currentCache.set(userId, profile);
+          this.userProfilesCache.next(new Map(currentCache)); // Emit new Map instance for change detection
+          this.activeUserProfileSig.set(profile);
+        } else {
+          this.activeUserProfileSig.set(null); // Profile not found
+        }
+      }),
+      catchError(error => {
+        this.activeUserProfileSig.set(null); // Error state for active profile
+        this.notification.displayNotification(
+          error.message || "Impossible de charger le profil utilisateur demandé.", // French message
+          'error'
+        );
+        return of(undefined); // Return undefined on error
+      })
+    );
+  }
+
+  /**
+   * Retrieves the profile of the currently authenticated user.
+   * This method primarily relies on the `currentUserProfileDataSig` which is populated on login.
+   * It can also force a refresh from the API.
+   * @param forceRefresh - If true, fetches the profile from the API, bypassing the signal's current value.
+   * @returns An Observable of the current user's `UserModel` or `undefined`.
+   */
+  getCurrentUserProfile(forceRefresh = false): Observable<UserModel | undefined> {
+    const currentAuthUser = this.authService.currentUser(); // Get basic auth info (ID, role)
+
+    if (!currentAuthUser || !currentAuthUser.userId) {
+      this.notification.displayNotification("Aucun utilisateur n'est actuellement connecté.", 'warning');
+      return of(undefined);
+    }
+
+    if (!forceRefresh && this.currentUserProfileDataSig()) {
+      return of(this.currentUserProfileDataSig()!); // Return cached profile if available and no refresh needed
+    }
+
+    // Fetch from API (or reload into signal)
+    return this.userApi.getCurrentUserProfile().pipe( // UserApiService handles the 'users/me' endpoint
+      tap(profile => {
+        if (profile) {
+          this.currentUserProfileDataSig.set(profile);
+          // Update general cache as well
+          const currentCache = this.userProfilesCache.value;
+          currentCache.set(profile.id!, profile);
+          this.userProfilesCache.next(new Map(currentCache));
+        } else {
+          this.currentUserProfileDataSig.set(null); // Profile not found via API
+        }
+      }),
+      catchError(error => {
+        this.currentUserProfileDataSig.set(null);
+        this.notification.displayNotification(
+          error.message || "Impossible de récupérer votre profil.", // French message
+          'error'
+        );
+        return of(undefined);
+      })
+    );
+  }
+
+  /**
+   * Updates the profile of the currently authenticated user.
+   * @param profileUpdateDto - The DTO containing the fields to update.
+   * @returns An Observable of the updated `UserModel` or `undefined` if an error occurs.
+   */
+  updateCurrentUserProfile(profileUpdateDto: UserProfileUpdateDto): Observable<UserModel | undefined> {
+    const currentAuthUser = this.authService.currentUser();
+    if (!currentAuthUser || !currentAuthUser.userId) {
+      this.notification.displayNotification("Action non autorisée : aucun utilisateur connecté pour la mise à jour.", 'error');
+      return of(undefined);
+    }
+
+    return this.userApi.updateCurrentUserProfile(profileUpdateDto).pipe(
+      tap(updatedProfile => {
+        if (updatedProfile) {
+          // Update general cache
+          const currentCache = this.userProfilesCache.value;
+          currentCache.set(updatedProfile.id!, updatedProfile);
+          this.userProfilesCache.next(new Map(currentCache));
+
+          // Update the currentUserProfileDataSig
+          this.currentUserProfileDataSig.set(updatedProfile);
+
+          // If the updated profile is also the one being actively viewed, update that signal too
+          if (this.activeUserProfileSig()?.id === updatedProfile.id) {
+            this.activeUserProfileSig.set(updatedProfile);
+          }
+
+          // Notify AuthService to potentially update its internal representation if needed
+          // (e.g., if name/avatar stored in JWT payload's mirror needs refresh display-wise)
+          this.authService.refreshCurrentUserDataFromUpdatedProfile(updatedProfile);
+
+          this.notification.displayNotification("Votre profil a été mis à jour avec succès.", 'valid');
+        }
+      }),
+      catchError(error => {
+        this.notification.displayNotification(
+          error.message || "Erreur lors de la mise à jour de votre profil.", // French message
+          'error'
+        );
+        return of(undefined);
+      })
+    );
+  }
+
+  // changePassword method is REMOVED from UserService.
+  // It will be handled by AuthService, involving an email flow from the backend.
+
+  /**
+   * Searches for users based on a query string (e.g., name or email).
+   * @param query - The search term. Must be at least 2 characters long.
+   * @returns An Observable of an array of `Partial<UserModel>`.
+   *          Returns an empty array if the query is too short or an error occurs.
+   */
+  searchUsers(query: string): Observable<Partial<UserModel>[]> {
+    if (!query || query.trim().length < 2) {
+      this.notification.displayNotification("Veuillez entrer au moins 2 caractères pour lancer la recherche.", 'info');
+      return of([]);
+    }
+    return this.userApi.searchUsers(query).pipe(
+      catchError(error => {
+        this.notification.displayNotification(
+          error.message || "Erreur lors de la recherche d'utilisateurs.", // French message
+          'error'
+        );
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Generates a placeholder avatar URL based on the user's initials.
+   * This is a frontend utility and does not involve API calls.
+   * @param firstName - The user's first name.
+   * @param lastName - The user's last name.
+   * @param size - The desired size of the avatar image in pixels (default: 128).
+   * @returns A URL string for the placeholder avatar image.
+   */
+  generateAvatarUrl(firstName?: string, lastName?: string, size: number = 128): string {
+    // Your existing implementation for generateAvatarUrl can be kept.
+    // It's a pure frontend utility.
+    const getInitials = (fName?: string, lName?: string): string => {
+      const firstInitial = fName ? fName.charAt(0).toUpperCase() : '';
+      const lastInitial = lName ? lName.charAt(0).toUpperCase() : '';
+      if (firstInitial && lastInitial) return firstInitial + lastInitial;
+      if (firstInitial) return firstInitial;
+      if (lastInitial) return lastInitial;
+      return '??';
+    };
+    const initials = getInitials(firstName, lastName);
+
+    // Simple color generation based on initials for consistency
+    let hash = 0;
+    for (let i = 0; i < initials.length; i++) {
+      hash = initials.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const h = hash % 360; // Hue
+    // Using HSL for better color distribution, ensuring not too dark/light
+    const s = 70; // Saturation
+    const l = 50; // Lightness
+
+    // Fallback if no initials
+    if (initials === '??') {
+      return `https://via.placeholder.com/${size}/E0E0E0/909090?text=${initials}`;
+    }
+    // Placeholder service like via.placeholder.com or ui-avatars.com (if you prefer)
+    // For custom SVG, you'd construct the SVG string.
+    // This example uses HSL and a placeholder service:
+    const bgColorHex = this.hslToHex(h,s,l);
+    const textColorHex = l > 60 ? '000000' : 'FFFFFF'; // Simple contrast
+
+    return `https://via.placeholder.com/${size}/${bgColorHex}/${textColorHex}?text=${initials}`;
+  }
+
+
+  private hslToHex(h: number, s: number, l: number): string {
+    s /= 100;
+    l /= 100;
+    const k = (n:number) => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n:number) =>
+      l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    const toHex = (x: number) => Math.round(x * 255).toString(16).padStart(2, '0');
+    return `${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
+  }
+
+
+  /**
+   * Clears the currently active user profile from the service's state.
+   * This might be called when a user navigates away from a specific profile page.
+   */
+  clearActiveUserProfile(): void {
+    this.activeUserProfileSig.set(undefined);
+  }
+
+  /**
+   * Retrieves a user profile directly from the service's cache if available.
+   * @param userId - The ID of the user.
+   * @returns The cached `UserModel` or `undefined` if not found in the cache.
+   */
+  getUserFromCache(userId: number): UserModel | undefined {
+    return this.userProfilesCache.value.get(userId);
+  }
+}

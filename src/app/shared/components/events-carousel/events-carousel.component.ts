@@ -15,7 +15,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {EventCardComponent} from '../event-card-item/event-card.component';
 import {MatButtonModule} from '@angular/material/button';
 import {EventModel} from '../../../core/models/event/event.model';
-import {EventService} from '../../../core/services/domain/event.service';
+import {EventService} from '../../../core/services/domain/event/event.service';
 // Les imports pour MatIconModule etc. sont dans le décorateur @Component pour les composants standalone
 
 @Component({

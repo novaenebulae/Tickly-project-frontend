@@ -1,6 +1,6 @@
 import {Component, inject} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
-import {BrowserCloseService} from './core/services/domain/browser-close.service';
+import {BrowserCloseService} from './core/services/domain/utilities/browser-close.service';
 
 @Component({
   selector: 'app-root',

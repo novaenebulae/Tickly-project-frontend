@@ -13,10 +13,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { Subject, debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs';
 
-import { FriendshipService } from '../../../../core/services/domain/friendship.service';
+import { FriendshipService } from '../../../../core/services/domain/user/friendship.service';
 import { FriendModel, FriendRequestModel } from '../../../../core/models/friendship/friendship.model';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { NotificationService } from '../../../../core/services/domain/notification.service';
+import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
 
 @Component({
   selector: 'app-manage-friends-dialog',

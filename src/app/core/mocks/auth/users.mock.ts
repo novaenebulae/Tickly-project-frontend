@@ -14,6 +14,7 @@ export interface MockUser {
   structureId?: number;
   mockToken: string;
   needsStructureSetup?: boolean;
+  avatarUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }

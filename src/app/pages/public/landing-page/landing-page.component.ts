@@ -7,7 +7,7 @@ import {Subject, takeUntil} from 'rxjs';
 import {EventModel} from '../../../core/models/event/event.model';
 
 // Services
-import {EventService} from '../../../core/services/domain/event.service';
+import {EventService} from '../../../core/services/domain/event/event.service';
 
 // Composants partagés
 import {EventsCarouselComponent} from '../../../shared/components/events-carousel/events-carousel.component';

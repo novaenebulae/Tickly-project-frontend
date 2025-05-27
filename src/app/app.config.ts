@@ -9,7 +9,7 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import {CalendarModule, DateAdapter} from 'angular-calendar';
 import {registerLocaleData} from '@angular/common';
 import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
-import { FriendshipService } from './core/services/domain/friendship.service';
+import { FriendshipService } from './core/services/domain/user/friendship.service';
 
 registerLocaleData('fr');
 

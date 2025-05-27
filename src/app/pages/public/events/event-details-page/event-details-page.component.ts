@@ -8,10 +8,10 @@ import { Observable, Subject, catchError, finalize, of, takeUntil } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 
 // Services
-import { EventService } from '../../../../core/services/domain/event.service';
+import { EventService } from '../../../../core/services/domain/event/event.service';
 import { StructureService } from '../../../../core/services/domain/structure.service';
-import { NotificationService } from '../../../../core/services/domain/notification.service';
-import { AuthService } from '../../../../core/services/domain/auth.service';
+import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
+import { AuthService } from '../../../../core/services/domain/user/auth.service';
 
 // Models
 import { EventModel } from '../../../../core/models/event/event.model';

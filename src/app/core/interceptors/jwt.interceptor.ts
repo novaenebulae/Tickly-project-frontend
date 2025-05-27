@@ -1,4 +1,4 @@
-import { AuthService} from '../services/domain/auth.service';
+import { AuthService} from '../services/domain/user/auth.service';
 import {
   HttpInterceptorFn,
   HttpRequest,

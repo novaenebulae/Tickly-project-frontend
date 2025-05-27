@@ -1,5 +1,5 @@
 // src/app/core/models/auth/user.model.ts
-import { UserRole } from './user-role.model';
+import { UserRole } from './user-role.enum';
 
 /**
  * Represents a user in the application.

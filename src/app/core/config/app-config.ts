@@ -18,6 +18,8 @@ interface AppConfig {
         register: string;
         validateToken: string;
         refreshToken?: string; // Optional: if you implement token refresh
+        passwordResetRequest: string;
+        passwordChangeRequest: string;
       };
       events: {
         base: string;          // e.g., 'events' for GET (list), POST (create)
@@ -108,6 +110,8 @@ export const APP_CONFIG: AppConfig = {
         login: 'auth/login',
         register: 'auth/register',
         validateToken: 'auth/validate-token',
+        passwordResetRequest: 'auth/password-reset-request',
+        passwordChangeRequest: 'auth/password-change-request', // For logged-in user
       },
       events: {
         base: 'events',

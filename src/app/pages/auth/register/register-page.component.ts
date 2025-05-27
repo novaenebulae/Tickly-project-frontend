@@ -19,7 +19,7 @@ import { Router, RouterModule } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 // Services
-import { AuthService } from '../../../core/services/domain/auth.service';
+import { AuthService } from '../../../core/services/domain/user/auth.service';
 import { StructureService } from '../../../core/services/domain/structure.service';
 
 // Models

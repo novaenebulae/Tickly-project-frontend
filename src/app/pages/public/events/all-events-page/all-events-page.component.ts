@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { EventsDisplayComponent } from '../../../../shared/ui/events-display/events-display.component';
 import { EventModel } from '../../../../core/models/event/event.model';
-import { EventService } from '../../../../core/services/domain/event.service';
+import { EventService } from '../../../../core/services/domain/event/event.service';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { Subject, takeUntil } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 import { EventSearchParams } from '../../../../core/models/event/event-search-params.model';
-import { NotificationService } from '../../../../core/services/domain/notification.service';
+import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
 
 @Component({
   selector: 'app-all-events-page',

@@ -1,5 +1,5 @@
 import {Component, inject, Input, OnInit} from '@angular/core';
-import {EventService} from '../../../../core/services/domain/event.service';
+import {EventService} from '../../../../core/services/domain/event/event.service';
 import {EventModel} from '../../../../core/models/event/event.model';
 import {EventsCarouselComponent} from '../../events-carousel/events-carousel.component';
 import {CommonModule} from '@angular/common';

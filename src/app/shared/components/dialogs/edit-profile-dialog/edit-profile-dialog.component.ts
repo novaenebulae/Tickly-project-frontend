@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { NotificationService } from '../../../../core/services/domain/notification.service';
+import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
 
 // Services
 import { UserService } from '../../../../core/services/domain/user.service';

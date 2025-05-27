@@ -9,9 +9,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { effect, signal, computed } from '@angular/core';
 
 // Services
-import { AuthService } from '../../../core/services/domain/auth.service';
-import { NotificationService } from '../../../core/services/domain/notification.service';
-import { FriendshipService } from '../../../core/services/domain/friendship.service';
+import { AuthService } from '../../../core/services/domain/user/auth.service';
+import { NotificationService } from '../../../core/services/domain/utilities/notification.service';
+import { FriendshipService } from '../../../core/services/domain/user/friendship.service';
 import { UserService } from '../../../core/services/domain/user.service';
 
 // Modèles

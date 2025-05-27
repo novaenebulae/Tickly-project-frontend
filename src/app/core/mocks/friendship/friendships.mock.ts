@@ -232,3 +232,6 @@ export class FriendshipMockService {
   }
 
 }
+
+export class mockFriendships {
+}

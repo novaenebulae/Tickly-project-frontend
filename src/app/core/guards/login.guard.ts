@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, UrlTree } from '@angular/router';
-import { AuthService } from '../services/domain/auth.service';
-import { NotificationService } from '../services/domain/notification.service';
+import { AuthService } from '../services/domain/user/auth.service';
+import { NotificationService } from '../services/domain/utilities/notification.service';
 import { UserService } from '../services/domain/user.service';
 
 export const LoginGuard: CanActivateFn = (state): boolean | UrlTree => {
