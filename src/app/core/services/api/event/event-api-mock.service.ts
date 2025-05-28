@@ -1,5 +1,3 @@
-// src/app/core/services/api/event-api-mock.service.ts
-
 /**
  * @file Provides mock implementations for the Event API service methods.
  * @licence Proprietary
@@ -19,7 +17,7 @@ import {
   getNextEventId,
 } from '../../../mocks/events/events.mock';
 import { mockCategories } from '../../../mocks/events/categories.mock';
-import { allMockEvents } from '../../../mocks/events/eventsMockData';
+import { allMockEvents } from '../../../mocks/events/data/event-data.mock';
 
 @Injectable({
   providedIn: 'root'

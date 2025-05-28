@@ -1,271 +1,168 @@
 // src/app/core/mocks/events/events.mock.ts
-
-import {EventModel, EventStatus} from '../../models/event/event.model';
-import {SeatingType} from '../../models/event/seating.model';
+import {EventStatus, EventModel} from '../../models/event/event.model'; // EventModel pour référence de type
+import {SeatingType, EventAudienceZone} from '../../models/event/event-audience-zone.model';
+import {StructureAddressModel} from '../../models/structure/structure-address.model';
+import {StructureAreaModel} from '../../models/structure/structure-area.model'; // Pour event.areas
+import {EventCategoryModel} from '../../models/event/event-category.model';
 import {EventSearchParams} from '../../models/event/event-search-params.model';
-import { allMockEvents } from './eventsMockData';
-
-
+import { allMockEvents } from './data/event-data.mock';
 
 /**
- * Fonctions utilitaires pour les mocks d'événements
+ * Represents the structure of event data as returned by the (mocked) API.
+ * Note: Dates are strings (ISO 8601), category is an object.
+ * This structure is what EventApiMockService will serve, and EventService will map to EventModel.
  */
-
-// Récupérer les événements à venir
-export function getUpcomingMockEvents(): EventModel[] {
-  const today = new Date();
-  return allMockEvents.filter(event =>
-    new Date(event.startDate) > today &&
-    event.status === 'published'
-  ).sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+export interface MockApiEventDto {
+  id: number;
+  name: string;
+  category: { id: number; name: string }; // Simulating API returning category object
+  // categoryId?: number; // Alternative if API returns only ID, EventService would resolve it
+  shortDescription?: string;
+  fullDescription: string;
+  tags?: string[];
+  startDate: string; // ISO 8601 string
+  endDate: string;   // ISO 8601 string
+  address: StructureAddressModel;
+  structureId: number;
+  areas?: Partial<StructureAreaModel>[]; // Physical areas where event takes place
+  isFreeEvent: boolean;
+  defaultSeatingType: SeatingType;
+  audienceZones: Partial<EventAudienceZone>[]; // Audience zones specific to this event
+  displayOnHomepage: boolean;
+  isFeaturedEvent: boolean;
+  links?: string[];
+  mainPhotoUrl?: string;
+  eventPhotoUrls?: string[];
+  status: EventStatus;
+  createdAt: string;  // ISO 8601 string
+  updatedAt?: string; // ISO 8601 string
+  // Ces champs sont dans notre EventModel mais ne sont pas envoyés par l'API,
+  // ils sont calculés/ajoutés par le backend ou sont des concepts frontend.
+  // Donc, ils ne devraient pas être dans le mock API DTO.
+  // eventsCount?: number;
+  // importance?: number;
 }
-
-// Récupérer les événements pour la page d'accueil
-export function getHomepageEvents(count: number = 4): EventModel[] {
-  return allMockEvents
-    .filter(event => event.displayOnHomepage && event.status === 'published')
-    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
-    .slice(0, count);
-}
-
-// Récupérer les événements mis en avant
-export function getFeaturedEvents(count: number = 3): EventModel[] {
-  return allMockEvents
-    .filter(event => event.isFeaturedEvent && event.status === 'published')
-    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
-    .slice(0, count);
-}
-
-// Récupérer les événements par statut
-export function getEventsByStatus(status: EventStatus): EventModel[] {
-  return allMockEvents.filter(event => event.status === status);
-}
-
-// Récupérer les événements par structure
-export function getEventsByStructure(structureId: number): EventModel[] {
-  return allMockEvents.filter(event => event.structureId === structureId);
-}
-
-// Récupérer les événements par catégorie
-export function getEventsByCategory(categoryId: number): EventModel[] {
-  return allMockEvents.filter(event => event.category.id === categoryId);
-}
-
-// Recherche d'événements par terme
-export function searchEvents(term: string): EventModel[] {
-  const lowercaseTerm = term.toLowerCase();
-  return allMockEvents.filter(event =>
-    event.name.toLowerCase().includes(lowercaseTerm) ||
-    (event.shortDescription && event.shortDescription.toLowerCase().includes(lowercaseTerm)) ||
-    event.fullDescription.toLowerCase().includes(lowercaseTerm) ||
-    (event.tags && event.tags.some(tag => tag.toLowerCase().includes(lowercaseTerm)))
-  );
-}
-
-// Fonctions d'aide supplémentaires pour les mocks d'événements
 
 /**
- * Récupère un événement par son identifiant
- * @param id Identifiant de l'événement à récupérer
+ * Interface for internal filter parameters used by getFilteredEvents.
+ * This aligns with how EventApiMockService prepares the filters.
  */
-export function getMockEventById(id: number): EventModel | undefined {
+export interface MockEventFilters {
+  query?: string;
+  categoryIds?: number[]; // <<< Changement principal ici
+  startDate?: Date | string; // Peut être Date ou string ISO
+  endDate?: Date | string;
+  free?: boolean;
+  status?: EventStatus;
+  displayOnHomepage?: boolean;
+  isFeaturedEvent?: boolean;
+  structureId?: number;
+  location?: string;
+  page?: number;
+  pageSize?: number;
+  sortBy?: string;
+  sortDirection?: 'asc' | 'desc';
+  tags?: string[];
+  genres?: string[]; // Conserver si utilisé
+  withPhotos?: boolean;
+}
+
+
+// --- Fonctions Utilitaires pour les Mocks ---
+
+let nextEventId = allMockEvents.length > 0 ? Math.max(...allMockEvents.map(e => e.id)) + 1 : 1;
+
+export function getNextEventId(): number {
+  return nextEventId++;
+}
+
+export function getMockEventById(id: number): MockApiEventDto | undefined {
   return allMockEvents.find(event => event.id === id);
 }
 
-/**
- * Récupère les événements par statut pour une structure donnée
- * @param structureId Identifiant de la structure
- * @param status Statut des événements à récupérer
- */
-export function getStructureEventsByStatus(structureId: number, status: EventStatus): EventModel[] {
-  return allMockEvents.filter(
-    event => event.structureId === structureId && event.status === status
-  );
-}
+// Modifiez la signature de getFilteredEvents
+export function getFilteredEvents(allEvents: MockApiEventDto[], filters: Partial<MockEventFilters>): MockApiEventDto[] {
+  let results = [...allEvents];
 
-/**
- * Filtre les événements selon plusieurs critères (utilisé pour la pagination et les filtres)
- * @param filters Critères de filtrage
- * @param page Numéro de la page (commence à 0)
- * @param pageSize Nombre d'éléments par page
- */
-export function getFilteredEvents(events: EventModel[], filters: EventSearchParams): EventModel[] {
-  console.log('Filtrage des événements avec les critères :', filters);
+  if (filters.query) {
+    const query = filters.query.toLowerCase();
+    results = results.filter(event =>
+      event.name.toLowerCase().includes(query) ||
+      (event.shortDescription && event.shortDescription.toLowerCase().includes(query)) ||
+      (event.fullDescription && event.fullDescription.toLowerCase().includes(query)) ||
+      (event.tags && event.tags.some(tag => tag.toLowerCase().includes(query)))
+    );
+  }
 
-  return events.filter(event => {
-    // Filtre par terme de recherche avec vérification de null/undefined
-    if (filters.query) {
-      const query = filters.query.toLowerCase();
-      const nameMatch = event.name.toLowerCase().includes(query);
-      const descMatch = event.shortDescription ? event.shortDescription.toLowerCase().includes(query) : false;
-      if (!nameMatch && !descMatch) return false;
-    }
+  // Le filtrage par categoryIds fonctionnera maintenant sans erreur de type
+  if (filters.categoryIds && Array.isArray(filters.categoryIds) && filters.categoryIds.length > 0) {
+    results = results.filter(event => filters.categoryIds!.includes(event.category.id));
+  }
 
-    // Filtre par statut
-    if (filters.status && event.status !== filters.status) {
-      return false;
-    }
+  if (filters.startDate) {
+    // Convertir en Date pour la comparaison, car filters.startDate peut être string ou Date
+    const filterStartDate = new Date(filters.startDate);
+    results = results.filter(event => new Date(event.startDate) >= filterStartDate);
+  }
 
-    // Filtre par mise en avant
-    if (filters.featured !== undefined && event.isFeaturedEvent !== filters.featured) {
-      return false;
-    }
+  if (filters.endDate) {
+    const filterEndDate = new Date(filters.endDate);
+    results = results.filter(event => new Date(event.endDate) <= filterEndDate);
+  }
 
-    // Filtre par gratuité
-    if (filters.free !== undefined && event.isFreeEvent !== filters.free) {
-      return false;
-    }
+  if (filters.free !== undefined) {
+    results = results.filter(event => event.isFreeEvent === filters.free);
+  }
+  if (filters.status) {
+    results = results.filter(event => event.status === filters.status);
+  }
+  if (filters.displayOnHomepage !== undefined) {
+    results = results.filter(event => event.displayOnHomepage === filters.displayOnHomepage);
+  }
+  if (filters.isFeaturedEvent !== undefined) {
+    results = results.filter(event => event.isFeaturedEvent === filters.isFeaturedEvent);
+  }
+  if (filters.structureId !== undefined) {
+    results = results.filter(event => event.structureId === filters.structureId);
+  }
+  if (filters.location) {
+    const locationQuery = filters.location.toLowerCase();
+    results = results.filter(event =>
+      event.address.city.toLowerCase().includes(locationQuery) ||
+      event.address.street.toLowerCase().includes(locationQuery) ||
+      event.address.country.toLowerCase().includes(locationQuery) ||
+      (event.address.zipCode && event.address.zipCode.includes(locationQuery))
+    );
+  }
+  if (filters.tags && filters.tags.length > 0) {
+    results = results.filter(event =>
+      event.tags && filters.tags!.every(tag => event.tags!.includes(tag))
+    );
+  }
+  if (filters.withPhotos) {
+    results = results.filter(event => event.mainPhotoUrl || (event.eventPhotoUrls && event.eventPhotoUrls.length > 0));
+  }
 
-    // Filtre par structure
-    if (filters.structureId && event.structureId !== filters.structureId) {
-      return false;
-    }
-
-    // Filtre par catégorie (tableau)
-    if (filters.category) {
-      const categoryMatch = filters.category.some(cat => event.category.id === cat.id);
-      if (!categoryMatch) return false;
-    }
-
-    // Filtre par date avec création unique d'objets Date
-    if (filters.startDate) {
-      const filterStartDate = new Date(filters.startDate);
-      const eventStartDate = new Date(event.startDate);
-      if (eventStartDate < filterStartDate) return false;
-    }
-
-    if (filters.endDate) {
-      const filterEndDate = new Date(filters.endDate);
-      const eventEndDate = new Date(event.endDate);
-      if (eventEndDate > filterEndDate) return false;
-    }
-
-    // Filtre par lieu avec vérification d'existence
-    if (filters.location && event.address) {
-      const location = filters.location.toLowerCase();
-      const cityMatch = event.address.city ? event.address.city.toLowerCase().includes(location) : false;
-      const streetMatch = event.address.street ? event.address.street.toLowerCase().includes(location) : false;
-      if (!cityMatch && !streetMatch) return false;
-    }
-
-    return true;
-  }).sort((a, b) => {
-
-    // Gestion du tri
-    if (filters.sortBy) {
-      const direction = filters.sortDirection === 'desc' ? -1 : 1;
-
-      switch (filters.sortBy) {
-        case 'date':
-          return direction * (new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
-        case 'name':
-          return direction * a.name.localeCompare(b.name);
-        case 'price':
-          // Calculer le prix minimum pour chaque événement
-          const aPrice = a.isFreeEvent ? 0 : Math.min(...a.seatingZones.map(z => z.ticketPrice));
-          const bPrice = b.isFreeEvent ? 0 : Math.min(...b.seatingZones.map(z => z.ticketPrice));
-          return direction * (aPrice - bPrice);
-        default:
-          return 0;
+  // Tri
+  if (filters.sortBy) {
+    results.sort((a, b) => {
+      let valA = (a as any)[filters.sortBy!];
+      let valB = (b as any)[filters.sortBy!];
+      if (filters.sortBy === 'startDate' || filters.sortBy === 'endDate' || filters.sortBy === 'createdAt' || filters.sortBy === 'updatedAt') {
+        valA = new Date(valA as string).getTime();
+        valB = new Date(valB as string).getTime();
       }
-    }
+      if (valA < valB) return filters.sortDirection === 'asc' ? -1 : 1;
+      if (valA > valB) return filters.sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
 
-    // Par défaut, trier par date
-    return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
-  });
+  // Pagination
+  if (filters.page !== undefined && filters.pageSize !== undefined) {
+    const start = filters.page * filters.pageSize;
+    results = results.slice(start, start + filters.pageSize);
+  }
+
+  return results;
 }
-
-/**
- * Construit un mock d'événement avec des valeurs par défaut
- * @param overrides Valeurs pour surcharger les valeurs par défaut
- */
-export function buildMockEvent(overrides: Partial<EventModel> = {}): EventModel {
-  // Valeurs par défaut pour un événement
-  const defaultEvent: EventModel = {
-    name: 'Événement par défaut',
-    category: {id: 7, name: 'Other'},
-    fullDescription: 'Description détaillée par défaut pour l\'événement',
-    startDate: new Date(new Date().setDate(new Date().getDate() + 30)),  // Dans 30 jours
-    endDate: new Date(new Date().setDate(new Date().getDate() + 30 + 2)), // Dans 32 jours (durée 2 jours)
-    address: {
-      street: 'Rue par défaut',
-      city: 'Ville par défaut',
-      zipCode: '00000',
-      country: 'France'
-    },
-    structureId: 1,
-    isFreeEvent: false,
-    defaultSeatingType: SeatingType.MIXED,
-    seatingZones: [
-      {
-        id: 999,
-        name: 'Zone par défaut',
-        areaId: 999,
-        maxCapacity: 100,
-        ticketPrice: 10.00,
-        isActive: true,
-        seatingType: SeatingType.MIXED
-      }
-    ],
-    displayOnHomepage: false,
-    isFeaturedEvent: false,
-    status: 'draft',
-    createdAt: new Date(),
-    updatedAt: new Date()
-  };
-
-  // Fusionner les valeurs par défaut avec les overrides
-  return {...defaultEvent, ...overrides};
-}
-
-/**
- * Génère un ID unique pour un nouvel événement
- */
-export function getNextEventId(): number {
-  return Math.max(...allMockEvents.map(e => e.id || 0)) + 1;
-}
-
-// Export d'objets utilitaires
-
-/**
- * Aide pour le mapping entre les statuts frontend et backend
- */
-export const eventStatusMapping = {
-  draft: {label: 'Brouillon', color: 'gray'},
-  published: {label: 'Publié', color: 'green'},
-  pending_approval: {label: 'En attente d\'approbation', color: 'orange'},
-  cancelled: {label: 'Annulé', color: 'red'},
-  completed: {label: 'Terminé', color: 'blue'}
-};
-
-/**
- * Formattage des catégories pour l'affichage
- */
-export const eventCategoryMapping: Record<string, { icon: string, color: string }> = {
-  'Music': {icon: 'music_note', color: '#3F51B5'}, // Indigo
-  'Theater': {icon: 'theater_comedy', color: '#9C27B0'}, // Purple
-  'Sport': {icon: 'sports', color: '#00BCD4'}, // Cyan
-  'Conference': {icon: 'mic', color: '#FF5722'}, // Deep Orange
-  'Exhibition': {icon: 'palette', color: '#FF9800'}, // Orange
-  'Festival': {icon: 'festival', color: '#E91E63'}, // Pink
-  'Other': {icon: 'event', color: '#607D8B'} // Blue Gray
-};
-
-// Version finale pour export
-export default {
-  allMockEvents,
-  getUpcomingMockEvents,
-  getHomepageEvents,
-  getFeaturedEvents,
-  getEventsByStatus,
-  getEventsByStructure,
-  getEventsByCategory,
-  searchEvents,
-  getMockEventById,
-  getStructureEventsByStatus,
-  getFilteredEvents,
-  buildMockEvent,
-  getNextEventId,
-  eventStatusMapping,
-  eventCategoryMapping
-};

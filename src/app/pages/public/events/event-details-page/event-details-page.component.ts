@@ -9,7 +9,7 @@ import { Title } from '@angular/platform-browser';
 
 // Services
 import { EventService } from '../../../../core/services/domain/event/event.service';
-import { StructureService } from '../../../../core/services/domain/structure.service';
+import { StructureService } from '../../../../core/services/domain/structure/structure.service';
 import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
 import { AuthService } from '../../../../core/services/domain/user/auth.service';
 

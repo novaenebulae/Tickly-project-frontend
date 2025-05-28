@@ -1,11 +1,9 @@
-// src/app/core/mocks/structures/areas.mock.ts
-
-import { AreaModel } from '../../models/structure/area.model';
+import { StructureAreaModel } from '../../models/structure/structure-area.model';
 
 /**
  * Liste des zones (espaces) mockées pour le développement et les tests
  */
-export const mockAreas: AreaModel[] = [
+export const mockAreas: StructureAreaModel[] = [
   // Zones pour la structure 1
   {
     id: 1001,
@@ -134,21 +132,21 @@ export const mockAreas: AreaModel[] = [
 /**
  * Helper function pour trouver une zone par ID
  */
-export function findAreaById(id: number): AreaModel | undefined {
+export function findAreaById(id: number): StructureAreaModel | undefined {
   return mockAreas.find(area => area.id === id);
 }
 
 /**
  * Helper function pour récupérer toutes les zones d'une structure
  */
-export function getAreasByStructureId(structureId: number): AreaModel[] {
+export function getAreasByStructureId(structureId: number): StructureAreaModel[] {
   return mockAreas.filter(area => area.structureId === structureId);
 }
 
 /**
  * Helper function pour récupérer les zones actives d'une structure
  */
-export function getActiveAreasByStructureId(structureId: number): AreaModel[] {
+export function getActiveAreasByStructureId(structureId: number): StructureAreaModel[] {
   return mockAreas.filter(area => area.structureId === structureId && area.isActive);
 }
 

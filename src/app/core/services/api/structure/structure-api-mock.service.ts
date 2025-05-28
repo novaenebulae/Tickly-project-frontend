@@ -16,7 +16,7 @@ import { StructureAreaModel } from '../../../models/structure/structure-area.mod
 // Import des données de mock
 import { mockStructureTypes } from '../../../mocks/structures/structure-types.mock';
 import { mockAreas } from '../../../mocks/structures/areas.mock';
-import { mockStructures } from '../../../mocks/structures/mockStructuresData'; // Ensure this mock data includes importance and eventsCount
+import { mockStructures } from '../../../mocks/structures/data/mockStructuresData'; // Ensure this mock data includes importance and eventsCount
 
 @Injectable({
   providedIn: 'root'

@@ -23,7 +23,7 @@ import { FriendParticipantDto } from '../../../models/friendship/friend-particip
 
 // Mock data - Vous devrez créer ces fichiers de mock
 import { mockUsers } from '../../../mocks/auth/users.mock'; // Assuming UserModel[] with id, firstName, lastName, email, avatarUrl
-import { mockFriendships } from '../../../mocks/friendship/friendships.mock';
+import { mockFriendships } from '../../../mocks/friendships/friendships.mock';
 import {UserModel} from '../../../models/user/user.model'; // Assuming FriendshipDataModel[]
 
 @Injectable({
