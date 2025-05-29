@@ -1,0 +1,310 @@
+<div class="manage-friends-dialog">
+  <h2 mat-dialog-title class="dialog-title">
+    <mat-icon>people</mat-icon>
+    Gérer mes amis
+    @if (pendingRequestsCount() > 0) {
+      <mat-chip-set class="status-chips">
+        <mat-chip [color]="'accent'" highlighted>
+          {{ pendingRequestsCount() }} nouvelle(s) demande(s)
+        </mat-chip>
+      </mat-chip-set>
+    }
+  </h2>
+
+  <mat-dialog-content class="dialog-content">
+    <mat-tab-group class="friends-tabs" dynamicHeight>
+
+      <!-- Onglet : Mes Amis -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>people_outline</mat-icon>
+          Mes amis ({{ friends().length }})
+        </ng-template>
+
+        <div class="tab-content">
+          @if (hasFriends()) {
+            <div class="friends-list">
+              @for (friend of friends(); track friend.userId) {
+                <mat-card class="friend-card">
+                  <mat-card-content class="friend-content">
+                    <div class="friend-info">
+                      <div class="friend-avatar">
+                        <img [src]="getAvatarUrl(friend.firstName, friend.lastName)"
+                             [alt]="friend.firstName + ' ' + friend.lastName"
+                             class="avatar-image">
+                      </div>
+                      <div class="friend-details">
+                        <h4 class="friend-name">{{ friend.firstName }} {{ friend.lastName }}</h4>
+                        <p class="friend-email">{{ friend.email }}</p>
+                      </div>
+                    </div>
+
+                    <div class="friend-actions">
+                      <button mat-icon-button
+                              [matMenuTriggerFor]="friendMenu"
+                              [disabled]="isPerformingAction()"
+                              matTooltip="Options">
+                        <mat-icon>more_vert</mat-icon>
+                      </button>
+
+                      <mat-menu #friendMenu="matMenu">
+                        <button mat-menu-item (click)="removeFriend(friend)">
+                          <mat-icon color="warn">person_remove</mat-icon>
+                          <span>Retirer des amis</span>
+                        </button>
+                        <button mat-menu-item (click)="blockUser(friend.friendshipId)">
+                          <mat-icon color="warn">block</mat-icon>
+                          <span>Bloquer</span>
+                        </button>
+                      </mat-menu>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              }
+            </div>
+          } @else {
+            <div class="empty-state">
+              <mat-icon class="empty-icon">people_outline</mat-icon>
+              <h3>Aucun ami pour le moment</h3>
+              <p>Commencez à ajouter des amis en utilisant l'onglet "Ajouter un ami"</p>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Onglet : Demandes Reçues -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon
+            [matBadge]="pendingRequestsCount() > 0 ? pendingRequestsCount() : null"
+            matBadgeColor="accent">
+            inbox
+          </mat-icon>
+          Demandes reçues
+        </ng-template>
+
+        <div class="tab-content">
+          @if (hasPendingRequests()) {
+            <div class="requests-list">
+              @for (request of pendingRequests(); track request.friendshipId) {
+                <mat-card class="request-card">
+                  <mat-card-content class="request-content">
+                    <div class="request-info">
+                      <div class="request-avatar">
+                        <img [src]="getAvatarUrl(request.sender.firstName, request.sender.lastName)"
+                             [alt]="request.sender.firstName + ' ' + request.sender.lastName"
+                             class="avatar-image">
+                      </div>
+                      <div class="request-details">
+                        <h4 class="request-name">{{ request.sender.firstName }} {{ request.sender.lastName }}</h4>
+                        <p class="request-email">{{ request.sender.email }}</p>
+                        <p class="request-date">{{ getRelativeDate(request.requestedAt) }}</p>
+                      </div>
+                    </div>
+
+                    <div class="request-actions">
+                      <button mat-raised-button
+                              color="primary"
+                              [disabled]="isPerformingAction()"
+                              (click)="acceptFriendRequest(request)">
+                        <mat-icon>check</mat-icon>
+                        Accepter
+                      </button>
+                      <button mat-button
+                              color="warn"
+                              [disabled]="isPerformingAction()"
+                              (click)="rejectFriendRequest(request)">
+                        <mat-icon>close</mat-icon>
+                        Refuser
+                      </button>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              }
+            </div>
+          } @else {
+            <div class="empty-state">
+              <mat-icon class="empty-icon">inbox</mat-icon>
+              <h3>Aucune demande en attente</h3>
+              <p>Vous n'avez aucune demande d'amitié en attente</p>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Onglet : Demandes Envoyées -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>send</mat-icon>
+          Demandes envoyées
+        </ng-template>
+
+        <div class="tab-content">
+          @if (hasSentRequests()) {
+            <div class="sent-requests-list">
+              @for (request of sentRequests(); track request.friendshipId) {
+                <mat-card class="sent-request-card">
+                  <mat-card-content class="sent-request-content">
+                    <div class="sent-request-info">
+                      <div class="sent-request-avatar">
+                        <img [src]="getAvatarUrl(request.receiver.firstName, request.receiver.lastName)"
+                             [alt]="request.receiver.firstName + ' ' + request.receiver.lastName"
+                             class="avatar-image">
+                      </div>
+                      <div class="sent-request-details">
+                        <h4 class="sent-request-name">{{ request.receiver.firstName }} {{ request.receiver.lastName }}</h4>
+                        <p class="sent-request-email">{{ request.receiver.email }}</p>
+                        <p class="sent-request-date">Envoyée {{ getRelativeDate(request.sentAt) }}</p>
+                      </div>
+                    </div>
+
+                    <div class="sent-request-status">
+                      <mat-chip [style.background-color]="getStatusColor(request.status)">
+                        {{ getStatusLabel(request.status) }}
+                      </mat-chip>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              }
+            </div>
+          } @else {
+            <div class="empty-state">
+              <mat-icon class="empty-icon">send</mat-icon>
+              <h3>Aucune demande envoyée</h3>
+              <p>Vous n'avez envoyé aucune demande d'amitié</p>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Onglet : Ajouter un Ami -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>person_add</mat-icon>
+          Ajouter un ami
+        </ng-template>
+
+        <div class="tab-content">
+          <!-- Formulaire d'ajout par email -->
+          <mat-card class="add-friend-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>email</mat-icon>
+                Ajouter par email
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="addFriendForm" (ngSubmit)="sendFriendRequestByEmail()">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Adresse email</mat-label>
+                  <input matInput
+                         formControlName="email"
+                         type="email"
+                         placeholder="ami@exemple.com">
+                  <mat-icon matSuffix>email</mat-icon>
+                  <mat-error *ngIf="emailControl?.hasError('required')">
+                    L'email est requis
+                  </mat-error>
+                  <mat-error *ngIf="emailControl?.hasError('email')">
+                    Veuillez entrer un email valide
+                  </mat-error>
+                </mat-form-field>
+
+                <div class="form-actions">
+                  <button mat-raised-button
+                          color="primary"
+                          type="submit"
+                          [disabled]="addFriendForm.invalid || isSendingRequest()">
+                    @if (isSendingRequest()) {
+                      <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+                      Envoi...
+                    } @else {
+                      <mat-icon>send</mat-icon>
+                      Envoyer la demande
+                    }
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Recherche d'utilisateurs -->
+          <mat-card class="search-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>search</mat-icon>
+                Rechercher des utilisateurs
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Rechercher</mat-label>
+                <input matInput
+                       [formControl]="searchControl"
+                       placeholder="Nom ou email...">
+                <mat-icon matSuffix>search</mat-icon>
+              </mat-form-field>
+
+              @if (isLoadingSearch()) {
+                <div class="search-loading">
+                  <mat-spinner diameter="32"></mat-spinner>
+                  <p>Recherche en cours...</p>
+                </div>
+              }
+
+              @if (hasSearchResults() && !isLoadingSearch()) {
+                <div class="search-results">
+                  @for (user of searchResults(); track user.id) {
+                    <mat-card class="search-result-card">
+                      <mat-card-content class="search-result-content">
+                        <div class="search-result-info">
+                          <div class="search-result-avatar">
+                            <img [src]="getAvatarUrl(user.firstName, user.lastName)"
+                                 [alt]="user.firstName + ' ' + user.lastName"
+                                 class="avatar-image">
+                          </div>
+                          <div class="search-result-details">
+                            <h4 class="search-result-name">{{ user.firstName }} {{ user.lastName }}</h4>
+                            <p class="search-result-email">{{ user.email }}</p>
+                          </div>
+                        </div>
+
+                        <div class="search-result-action">
+                          @if (isUserAlreadyFriend(user.id!)) {
+                            <mat-chip color="primary">
+                              <mat-icon>check</mat-icon>
+                              Déjà ami
+                            </mat-chip>
+                          } @else if (isRequestAlreadySent(user.id!)) {
+                            <mat-chip color="accent">
+                              <mat-icon>schedule</mat-icon>
+                              Demande envoyée
+                            </mat-chip>
+                          } @else {
+                            <button mat-raised-button
+                                    color="primary"
+                                    (click)="sendFriendRequestToUser(user.id!)">
+                              <mat-icon>person_add</mat-icon>
+                              Ajouter
+                            </button>
+                          }
+                        </div>
+                      </mat-card-content>
+                    </mat-card>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button (click)="close()">
+      <mat-icon>close</mat-icon>
+      Fermer
+    </button>
+  </mat-dialog-actions>
+</div>

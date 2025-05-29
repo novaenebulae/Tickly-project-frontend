@@ -1,16 +1,23 @@
+/**
+ * @file Authentication component for user login and logout operations.
+ * Handles login form validation and user authentication flow.
+ * @licence Proprietary
+ * @author VotreNomOuEquipe
+ */
+
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { FormsModule, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormBuilder } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService} from '../../../core/services/domain/user/auth.service';
+import { AuthService } from '../../../core/services/domain/user/auth.service';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { LoginCredentials} from '../../../core/models/auth/auth.model';
+import { LoginCredentials } from '../../../core/models/auth/auth.model';
 
 @Component({
   selector: 'app-auth',
@@ -36,53 +43,75 @@ export class AuthComponent {
   private router = inject(Router);
   private authService = inject(AuthService);
 
-  // Signaux pour l'état du composant
+  /**
+   * Signal indicating whether login operation is in progress
+   */
   isLoading = signal(false);
+
+  /**
+   * Signal controlling password field visibility
+   */
   hidePassword = signal(true);
 
-  // Accès aux signaux exposés par AuthService
+  /**
+   * Reactive access to authentication state from AuthService
+   */
   readonly isLoggedIn = this.authService.isLoggedIn;
 
+  /**
+   * Login form with email, password and keepLoggedIn fields
+   */
   formulaire = this.formBuilder.group({
     email: ['admin@example.com', [Validators.required, Validators.email]],
     password: ['rootroot', Validators.required],
     keepLoggedIn: [false],
   });
 
+  /**
+   * Handles user login form submission
+   */
   onLogin(): void {
     this.formulaire.markAllAsTouched();
-9
-    // Définir la préférence "Se souvenir de moi" dans le service
-    this.authService.setKeepLoggedIn(Boolean(this.formulaire.value.keepLoggedIn));
 
     if (this.formulaire.valid) {
       this.isLoading.set(true);
 
       const credentials: LoginCredentials = {
-        email: this.formulaire.value.email || null,
-        password: this.formulaire.value.password || null,
+        email: this.formulaire.value.email || '',
+        password: this.formulaire.value.password || '',
       };
 
-      this.authService.login(credentials).subscribe({
-        next: () => {
-          console.log('AuthComponent: Login call successful (navigation handled by AuthService).');
+      const keepLoggedIn = Boolean(this.formulaire.value.keepLoggedIn);
+
+      this.authService.login(credentials, keepLoggedIn).subscribe({
+        next: (success) => {
+          if (success) {
+            console.log('AuthComponent: Login successful (navigation handled by AuthService).');
+          }
           this.isLoading.set(false);
         },
         error: (err) => {
-          console.error('Login Component Error:', err);
+          console.error('AuthComponent: Login error:', err);
           this.isLoading.set(false);
         },
       });
     } else {
-      console.warn('Login form is invalid');
+      console.warn('AuthComponent: Login form is invalid');
     }
   }
 
+  /**
+   * Handles user logout
+   */
   onLogout(): void {
     this.authService.logout();
   }
 
-  // Helper pour accéder aux erreurs du formulaire dans le template
+  /**
+   * Gets validation error message for a specific form control
+   * @param controlName - Name of the form control
+   * @returns Error message string or empty string if no error
+   */
   getErrorMessage(controlName: string): string {
     const control = this.formulaire.get(controlName);
     if (!control) return '';

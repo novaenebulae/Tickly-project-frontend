@@ -1,0 +1,375 @@
+@import '../../../../../../node_modules/bootstrap/scss/functions';
+@import '../../../../../../node_modules/bootstrap/scss/variables';
+@import '../../../../../../node_modules/bootstrap/scss/mixins';
+/* Option 2: Import via CSS */
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css");
+
+// Variables
+$primary-color: #6c63ff;
+$secondary-color: #4cc9f0;
+$accent-color: #f72585;
+$success-color: #4caf50;
+$warning-color: #ff9800;
+$light-color: #f8f9fa;
+$dark-color: #343a40;
+$gray-color: #adb5bd;
+
+$box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+$border-radius: 8px;
+$transition: all 0.3s ease;
+
+// Container de filtres
+.filters-container {
+  background: white;
+  border-radius: $border-radius;
+  box-shadow: $box-shadow;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(45deg, $primary-color, $secondary-color);
+  }
+
+  &:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  }
+}
+
+// En-tête de filtres
+.filters-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+
+  .filters-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: $primary-color;
+    margin: 0;
+    background: linear-gradient(to right, $primary-color, $secondary-color);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .reset-button {
+    background: transparent;
+    border: none;
+    color: $primary-color;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    transition: $transition;
+
+    &:hover {
+      background: rgba($primary-color, 0.08);
+      transform: translateY(-2px);
+    }
+
+    i {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+// Corps des filtres
+.filters-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// Ligne principale avec recherche, ville et tri
+.main-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  .search-field {
+    flex: 3;
+  }
+
+  .city-field {
+    flex: 2;
+  }
+
+  .sort-field {
+    display: flex;
+    align-items: center;
+
+    .sort-wrapper {
+      display: flex;
+      align-items: center;
+      width: 100%;
+
+      .sort-selector {
+        flex-grow: 1;
+        margin-right: 0.5rem;
+
+        select {
+          width: 100%;
+          padding: 0.7rem 1rem;
+          height: 3.5rem;
+          border-radius: 30px;
+          border: 2px solid rgba($gray-color, 0.2);
+          font-size: 1rem;
+          font-weight: 500;
+          appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236c63ff' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: calc(100% - 1rem) center;
+          background-size: 1rem;
+          padding-right: 2.5rem;
+
+          &:focus {
+            outline: none;
+            border-color: $primary-color;
+            box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+          }
+        }
+      }
+
+      .sort-direction-button {
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 50%;
+        border: 2px solid rgba($gray-color, 0.2);
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: $transition;
+        flex-shrink: 0;
+
+        i {
+          font-size: 1.2rem;
+          color: $primary-color;
+        }
+
+        &:hover {
+          background-color: rgba($primary-color, 0.1);
+          transform: translateY(-2px);
+        }
+      }
+    }
+  }
+}
+
+// Champ avec icône
+.input-with-icon {
+  position: relative;
+
+  input {
+    padding: 1rem 1rem 1rem 3rem;
+    height: 3.5rem;
+    border-radius: 30px;
+    border: 2px solid rgba($gray-color, 0.2);
+    font-size: 1rem;
+    transition: $transition;
+    width: 100%;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba($primary-color, 0.2);
+    }
+
+    &::placeholder {
+      color: rgba($gray-color, 0.8);
+    }
+  }
+
+  i {
+    position: absolute;
+    left: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba($primary-color, 0.7);
+    font-size: 1.2rem;
+  }
+}
+
+// Section de catégories
+.category-section {
+  .filter-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: $dark-color;
+    margin-bottom: 0.75rem;
+  }
+}
+
+// Chips de types
+.type-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+
+  .type-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.6rem 1.2rem;
+    background: $light-color;
+    border-radius: 30px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: $dark-color;
+    cursor: pointer;
+    transition: $transition;
+    border: 2px solid transparent;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+
+    i {
+      margin-right: 0.5rem;
+      font-size: 1rem;
+      color: $primary-color;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      background: rgba($primary-color, 0.06);
+      border-color: rgba($primary-color, 0.1);
+    }
+
+    &.active {
+      background: linear-gradient(45deg, $primary-color, $secondary-color);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 15px rgba($primary-color, 0.35);
+
+      i {
+        color: white;
+      }
+    }
+  }
+
+  .no-types-message {
+    font-style: italic;
+    color: $gray-color;
+    padding: 0.5rem 0;
+  }
+}
+
+// Filtres actifs
+.active-filters {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba($gray-color, 0.2);
+
+  .active-filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: $light-color;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      color: $dark-color;
+      border: 1px solid rgba($primary-color, 0.2);
+
+      i {
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: $primary-color;
+        transition: $transition;
+
+        &:hover {
+          color: $accent-color;
+          transform: scale(1.1);
+        }
+      }
+
+      &.sort-chip {
+        background: rgba($primary-color, 0.1);
+        border-color: rgba($primary-color, 0.3);
+        color: $primary-color;
+      }
+    }
+  }
+}
+
+// Animation d'entrée pour les chips
+.type-chip {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive
+@media (max-width: 992px) {
+  .main-filter-row {
+    flex-wrap: wrap;
+
+    .search-field {
+      flex: 1 0 100%;
+      margin-bottom: 0.75rem;
+    }
+
+    .city-field {
+      flex: 1 0 60%;
+    }
+
+    .sort-field {
+      flex: 1 0 35%;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .main-filter-row {
+    .city-field,
+    .sort-field {
+      flex: 1 0 100%;
+      margin-bottom: 0.75rem;
+    }
+  }
+
+  .sort-field .sort-wrapper {
+    .sort-selector {
+      flex: 1;
+    }
+  }
+
+  .type-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+
+    &::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: $gray-color;
+      border-radius: 4px;
+    }
+  }
+}

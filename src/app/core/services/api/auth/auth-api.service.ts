@@ -25,6 +25,7 @@ export class AuthApiService {
   private http = inject(ApiConfigService).http; // Direct access to HttpClient for more control
   private mockService = inject(AuthApiMockService); // Inject the mock service
 
+  // TODO: Add methods for password reset and change
   requestPasswordReset(dto: { email: string }): Observable<void> {
     /* ... call API ... */
   return new Observable<void>();

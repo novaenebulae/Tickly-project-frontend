@@ -1,10 +1,10 @@
 import {Routes} from '@angular/router';
-import {AdminLayoutComponent} from './admin-layout/admin-layout.component';
+import {AdminLayoutComponent} from '../../../shared/layout/admin-layout/admin-layout.component';
 import {EventsPanelComponent} from './panels/events/events-panel/events-panel.component';
 import {DashboardComponent} from './panels/dashboard/dashboard.component';
 import {StatsComponent} from './panels/stats/stats.component';
 import {EventCreationComponent} from './panels/events/event-creation/event-creation.component';
-import {ZoneManagementComponent} from './panels/structure/zone-management/zone-management.component';
+import {AreaManagementComponent} from './panels/structure/zone-management/area-management.component';
 import {StructurePanelComponent} from './panels/structure/structure-panel/structure-panel.component';
 import {TeamManagementComponent} from './panels/structure/team-management/team-management.component';
 import {StructureEditComponent} from './panels/structure/structure-edit/structure-edit.component';
@@ -51,8 +51,8 @@ export const adminRoutes: Routes = [
         component: StructureEditComponent,
       },
       {
-        path: 'structure/zone-management',
-        component: ZoneManagementComponent,
+        path: 'structure/area-management',
+        component: AreaManagementComponent,
       },
       {
         path: 'stats',

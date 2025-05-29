@@ -1,0 +1,44 @@
+<!-- Only render if item is visible for current user role -->
+@if (isItemVisible()) {
+  <mat-list-item class="nav-list-item" [class.nav-list-item-with-sub]="hasVisibleSubItems()">
+    <!-- Main menu item link or expandable trigger -->
+    @if (hasVisibleSubItems()) {
+      <!-- Expandable menu item (has visible sub-items) -->
+      <div matListItemTitle class="nav-list-item-title" (click)="toggleNestedMenu()">
+        <mat-icon matListItemIcon>{{ item().icon }}</mat-icon>
+        @if (!sideNavCollapsed()) {
+          <span class="nav-list-item-label">{{ item().label }}</span>
+          <mat-icon class="nav-list-item-expand-icon"
+                    [class.expanded]="nestedMenuOpen()">
+            expand_more
+          </mat-icon>
+        }
+      </div>
+    } @else {
+      <!-- Direct navigation item (no visible sub-items) -->
+      <a matListItemTitle
+         [routerLink]="item().route"
+         routerLinkActive="active-link"
+         class="nav-list-item-link">
+        <mat-icon matListItemIcon>{{ item().icon }}</mat-icon>
+        @if (!sideNavCollapsed()) {
+          <span class="nav-list-item-label">{{ item().label }}</span>
+        }
+      </a>
+    }
+
+    <!-- Sub-menu items (only visible ones) -->
+    @if (hasVisibleSubItems() && nestedMenuOpen() && !sideNavCollapsed()) {
+      <div class="nav-sub-menu" @expandContractMenu>
+        @for (subItem of visibleSubItems(); track subItem.route) {
+          <a [routerLink]="subItem.route"
+             routerLinkActive="active-sub-link"
+             class="nav-sub-item">
+            <mat-icon class="nav-sub-item-icon">{{ subItem.icon }}</mat-icon>
+            <span class="nav-sub-item-label">{{ subItem.label }}</span>
+          </a>
+        }
+      </div>
+    }
+  </mat-list-item>
+}

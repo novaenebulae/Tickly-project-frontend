@@ -299,6 +299,15 @@ export const mockStructures: MockApiStructureDto[] = [
   },
 ];
 
-const mockStructureTypesSet = new Set(mockStructures.map(structure => structure.types));
-export const mockStructureTypes = [...mockStructureTypesSet];
+const allTypes = mockStructures.flatMap(structure => structure.types);
+const uniqueTypesMap = new Map<number, StructureTypeModel>();
+
+// Utiliser une Map pour éviter les doublons basés sur l'ID
+allTypes.forEach(type => {
+  uniqueTypesMap.set(type.id, type);
+});
+
+// Convertir la Map en tableau et trier par ID pour un ordre cohérent
+export const mockStructureTypes: StructureTypeModel[] = Array.from(uniqueTypesMap.values())
+  .sort((a, b) => a.id - b.id);
 

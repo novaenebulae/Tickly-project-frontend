@@ -12,7 +12,7 @@ import { map, tap, catchError } from 'rxjs/operators';
 
 // API and Domain Services
 import { EventApiService } from '../../api/event/event-api.service';
-import { CategoryService } from '../category.service'; // For resolving category objects
+import { CategoryService } from './category.service';
 import { NotificationService } from '../utilities/notification.service';
 import { AuthService } from '../user/auth.service';
 

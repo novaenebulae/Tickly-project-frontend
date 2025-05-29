@@ -10,7 +10,7 @@ import {EventModel} from '../../../core/models/event/event.model';
 import {EventService} from '../../../core/services/domain/event/event.service';
 
 // Composants partagés
-import {EventsCarouselComponent} from '../../../shared/components/events-carousel/events-carousel.component';
+import {EventsCarouselComponent} from '../../../shared/domain/events/events-carousel/events-carousel.component';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';

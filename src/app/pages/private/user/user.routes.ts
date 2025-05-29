@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { UserLayoutComponent } from './user-layout/user-layout.component';
+import { UserLayoutComponent } from '../../../shared/layout/user-layout/user-layout.component';
 import { AuthComponent } from '../../auth/auth/auth.component';
 import { LoginGuard } from '../../../core/guards/login.guard';
 

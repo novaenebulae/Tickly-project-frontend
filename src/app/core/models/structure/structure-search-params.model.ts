@@ -1,5 +1,3 @@
-// src/app/core/models/structure/structure-search-params.model.ts
-
 /**
  * Defines the parameters that can be used to search for structures.
  */

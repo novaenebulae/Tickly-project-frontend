@@ -4,7 +4,7 @@ L'objectif reste le même : une architecture composable, claire, testable et mai
 
 ---
 
-### Phase 0 : Analyse Initiale et Compréhension (Terminée)
+### Phase 0 : Analyse Initiale et Compréhension
 
 *   Nous avons passé en revue les services API et de domaine que tu as fournis.
 *   Nous avons identifié la structure générale et les points forts existants (séparation API/Domaine, `ApiConfigService`).

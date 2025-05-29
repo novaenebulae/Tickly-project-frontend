@@ -60,7 +60,7 @@
               <mat-icon matPrefix>category</mat-icon>
               <mat-select formControlName="structureTypes" multiple required>
                 @for (type of structureTypesOptions; track type.id) {
-                <mat-option [value]="type.id">{{ type.type }}</mat-option>
+                <mat-option [value]="type.id">{{ type.name }}</mat-option>
                 }
               </mat-select>
               @if(structureType?.errors?.['required']

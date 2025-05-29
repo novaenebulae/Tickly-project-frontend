@@ -1,8 +1,9 @@
-import { inject } from '@angular/core';
-import { CanActivateFn, Router, UrlTree } from '@angular/router';
-import { AuthService } from '../services/domain/user/auth.service';
-import { NotificationService } from '../services/domain/utilities/notification.service';
-import { UserService } from '../services/domain/user.service';
+import {inject} from '@angular/core';
+import {CanActivateFn, Router, UrlTree} from '@angular/router';
+import {AuthService} from '../services/domain/user/auth.service';
+import {NotificationService} from '../services/domain/utilities/notification.service';
+import {UserService} from '../services/domain/user/user.service';
+import {UserModel} from '../models/user/user.model';
 
 export const LoginGuard: CanActivateFn = (state): boolean | UrlTree => {
   const authService = inject(AuthService);
@@ -24,7 +25,7 @@ export const LoginGuard: CanActivateFn = (state): boolean | UrlTree => {
   }
 
   // Récupérer le profil utilisateur courant
-  const currentUser = userService.currentUserProfile();
+  const currentUser = userService.currentUserProfileData();
 
   // Vérifie si l'utilisateur a besoin de configurer sa structure et redirige vers la page appropriée
   if (currentUser?.needsStructureSetup && !targetUrl.includes('/create-structure')) {

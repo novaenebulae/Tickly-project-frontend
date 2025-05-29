@@ -1,0 +1,188 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+  <div class="container-fluid">
+    <!-- Brand/Logo -->
+    <a class="navbar-brand d-flex align-items-center" routerLink="/" (click)="navigateAndCloseMenus()">
+      <mat-icon class="brand-icon me-2">confirmation_number</mat-icon>
+      <span class="brand-text">Tickly</span>
+    </a>
+
+    <!-- Mobile Menu Toggle -->
+    <button
+      #navbarToggler
+      class="navbar-toggler border-0"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarContent"
+      aria-controls="navbarContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+      (click)="toggleNavbarMenu()">
+      <mat-icon class="navbar-toggler-icon">menu</mat-icon>
+    </button>
+
+    <!-- Navigation Content -->
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <!-- Main Navigation Links -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link"
+             routerLink="/events"
+             routerLinkActive="active"
+             (click)="navigateAndCloseMenus()">
+            <mat-icon class="nav-icon">event</mat-icon>
+            <span class="nav-text">Événements</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link"
+             routerLink="/structures"
+             routerLinkActive="active"
+             (click)="navigateAndCloseMenus()">
+            <mat-icon class="nav-icon">business</mat-icon>
+            <span class="nav-text">Structures</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Authentication Section -->
+      <div class="navbar-nav ms-auto">
+        @if (isLoggedIn()) {
+          <!-- User is logged in -->
+          <div class="nav-item dropdown">
+            <!-- Friends Notification Button -->
+            <button
+              class="btn btn-outline-light btn-sm me-2 friends-button"
+              type="button"
+              (click)="openFriendsDialog()"
+              [matBadge]="hasNotifications() ? getNotificationBadgeText() : null"
+              matBadgeColor="accent"
+              matBadgeSize="small"
+              matBadgePosition="above after"
+              [attr.aria-label]="hasNotifications() ? 'Vous avez ' + pendingRequestsCount() + ' nouvelles demandes d\'amitié' : 'Gérer vos amis'">
+              <mat-icon class="friends-icon">people</mat-icon>
+              <span class="friends-text d-none d-md-inline">Amis</span>
+            </button>
+
+            <!-- User Menu Trigger -->
+            <button
+              class="btn btn-outline-light btn-sm user-menu-trigger"
+              type="button"
+              [matMenuTriggerFor]="userMenu"
+              #userMenuTrigger="matMenuTrigger"
+              (menuOpened)="onUserMenuOpened()"
+              (menuClosed)="onUserMenuClosed()"
+              [attr.aria-label]="'Menu utilisateur pour ' + fullName()">
+
+              <!-- User Avatar -->
+              <div class="user-avatar-container">
+                @if (hasCustomAvatar()) {
+                  <img
+                    [src]="getAvatarUrl()"
+                    [alt]="fullName()"
+                    class="user-avatar-image"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                  <div class="user-avatar-fallback" style="display: none;">
+                    {{ userInitial() }}
+                  </div>
+                } @else {
+                  <div class="user-avatar-initials">
+                    {{ userInitial() }}
+                  </div>
+                }
+              </div>
+
+              <!-- User Info (Desktop) -->
+              <div class="user-info d-none d-lg-block">
+                <div class="user-name">{{ fullName() }}</div>
+                <div class="user-email">{{ userEmail() }}</div>
+              </div>
+
+              <!-- Dropdown Arrow -->
+              <mat-icon class="dropdown-arrow">
+                {{ isUserMenuOpen() ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+              </mat-icon>
+            </button>
+
+            <!-- User Dropdown Menu -->
+            <mat-menu #userMenu="matMenu" class="user-dropdown-menu">
+              <!-- User Info Header (Mobile) -->
+              <div class="user-menu-header d-lg-none">
+                <div class="user-menu-avatar">
+                  @if (hasCustomAvatar()) {
+                    <img
+                      [src]="getAvatarUrl()"
+                      [alt]="fullName()"
+                      class="user-menu-avatar-image">
+                  } @else {
+                    <div class="user-menu-avatar-initials">
+                      {{ userInitial() }}
+                    </div>
+                  }
+                </div>
+                <div class="user-menu-info">
+                  <div class="user-menu-name">{{ fullName() }}</div>
+                  <div class="user-menu-email">{{ userEmail() }}</div>
+                </div>
+              </div>
+
+              <mat-divider class="d-lg-none"></mat-divider>
+
+              <!-- Menu Items -->
+              <button mat-menu-item (click)="openProfileDialog()">
+                <mat-icon>person</mat-icon>
+                <span>Mon profil</span>
+              </button>
+
+              <button mat-menu-item (click)="openFriendsDialog()">
+                <mat-icon [matBadge]="hasNotifications() ? pendingRequestsCount() : null"
+                          matBadgeColor="accent"
+                          matBadgeSize="small">
+                  people
+                </mat-icon>
+                <span>Mes amis</span>
+                @if (hasNotifications()) {
+                  <span class="notification-text">({{ pendingRequestsCount() }} nouvelles)</span>
+                }
+              </button>
+
+              <!-- Admin Link (if user is admin) -->
+              @if (currentUser()?.role?.includes('ADMIN')) {
+                <mat-divider></mat-divider>
+                <a mat-menu-item routerLink="/admin" (click)="navigateAndCloseMenus()">
+                  <mat-icon>admin_panel_settings</mat-icon>
+                  <span>Administration</span>
+                </a>
+              }
+
+              <mat-divider></mat-divider>
+
+              <!-- Logout -->
+              <button mat-menu-item (click)="logout()" class="logout-item">
+                <mat-icon>logout</mat-icon>
+                <span>Se déconnecter</span>
+              </button>
+            </mat-menu>
+          </div>
+        } @else {
+          <!-- User is not logged in -->
+          <div class="nav-item">
+            <a class="btn btn-outline-light btn-sm me-2"
+               routerLink="/auth/login"
+               (click)="navigateAndCloseMenus()">
+              <mat-icon class="auth-icon">login</mat-icon>
+              <span class="auth-text">Connexion</span>
+            </a>
+          </div>
+          <div class="nav-item">
+            <a class="btn btn-light btn-sm"
+               routerLink="/auth/register"
+               (click)="navigateAndCloseMenus()">
+              <mat-icon class="auth-icon">person_add</mat-icon>
+              <span class="auth-text">Inscription</span>
+            </a>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</nav>

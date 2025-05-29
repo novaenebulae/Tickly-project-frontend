@@ -16,7 +16,7 @@ import {Router} from '@angular/router';
 import {
   EventDetailDialogComponent,
   EventDialogData
-} from '../../../components/event-details-modal/event-detail-dialog.component';
+} from '../../../../../../shared/domain/admin/event-details-modal/event-detail-dialog.component';
 import {MatDialog} from '@angular/material/dialog';
 import {MatCard, MatCardContent} from '@angular/material/card';
 import {MatButton} from '@angular/material/button';

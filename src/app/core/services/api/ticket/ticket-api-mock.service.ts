@@ -80,8 +80,8 @@ export class TicketApiMockService {
         },
         audienceZoneId: reservationDto.audienceZoneId,
         audienceZoneSnapshot: { // Create a snapshot
-          name: mockAudienceZone.name,
-          seatingType: mockAudienceZone.seatingType
+          name: mockAudienceZone.name!,
+          seatingType: mockAudienceZone.seatingType!
         },
         participantInfo: participant,
         qrCodeData: `TICKET_VALIDATE_URL/${newTicketId}`, // Example QR data

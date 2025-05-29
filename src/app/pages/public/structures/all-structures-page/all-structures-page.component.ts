@@ -1,4 +1,3 @@
-// all-structures-page.component.ts
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -17,13 +16,21 @@ import { NotificationService } from '../../../../core/services/domain/utilities/
 import { StructureModel } from '../../../../core/models/structure/structure.model';
 import { StructureTypeModel } from '../../../../core/models/structure/structure-type.model';
 import { StructureSearchParams } from '../../../../core/models/structure/structure-search-params.model';
-import {
-  StructureFiltersComponent,
-  StructureFilters,
-  StructureSortOptions
-} from '../../../../shared/components/structures/structure-filters/structure-filters.component';
-import { StructureCardComponent } from '../../../../shared/components/structures/structure-card/structure-card.component';
-import {AuthService} from '../../../../core/services/domain/user/auth.service';
+import { StructureFiltersComponent } from '../../../../shared/domain/structures/structure-filters/structure-filters.component';
+import { StructureCardComponent } from '../../../../shared/domain/structures/structure-card/structure-card.component';
+import { AuthService } from '../../../../core/services/domain/user/auth.service';
+
+// Interfaces pour les types utilisés localement
+interface StructureFilters {
+  query?: string;
+  city?: string;
+  typeIds?: number[];
+}
+
+interface StructureSortOptions {
+  sortBy: string;
+  sortDirection: 'asc' | 'desc';
+}
 
 @Component({
   selector: 'app-all-structures-page',
@@ -83,13 +90,7 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
     // Charger les structures
     this.loadStructures();
 
-    this.isUserLoggedIn = this.authService.isLoggedIn()
-      // .get()
-      // .pipe(takeUntil(this.destroy$))
-      // .subscribe(isLoggedIn => {
-      //   this.isUserLoggedIn = isLoggedIn;
-      // });
-
+    this.isUserLoggedIn = this.authService.isLoggedIn();
   }
 
   ngOnDestroy(): void {
@@ -151,7 +152,7 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (structures) => {
           this.structures = structures;
-          this.totalCount = structures.length
+          this.totalCount = structures.length;
           this.loading = false;
         },
         error: (error) => {
@@ -189,7 +190,6 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
   onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex;
     this.pageSize = event.pageSize;
-
     this.loadStructures();
   }
 
@@ -229,7 +229,6 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
       );
       return;
     }
-    // Renommer de "book" à "events" pour correspondre au nouveau texte du bouton
     this.router.navigate(['/structures', structure.id, 'events']);
   }
 
@@ -238,7 +237,6 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
    */
   onAddToFavorites(structure: StructureModel): void {
     if (!this.isUserLoggedIn) {
-      // Rediriger vers la page de connexion ou afficher un message
       this.notificationService.displayNotification(
         'Veuillez vous connecter pour ajouter des structures aux favoris',
         'info',
@@ -248,12 +246,10 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Code pour ajouter aux favoris
     this.notificationService.displayNotification(
       `${structure.name} ajouté aux favoris`,
       'valid',
       'Fermer'
     );
   }
-
 }

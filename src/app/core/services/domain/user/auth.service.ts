@@ -192,6 +192,7 @@ export class AuthService {
       this.notification.displayNotification("Vous devez être connecté pour demander un changement de mot de passe.", 'warning');
       return throwError(() => new Error('User not logged in'));
     }
+
     // This method will call AuthApiService.requestPasswordChange (to be created)
     return this.authApi.requestPasswordChange().pipe(
       tap(() => {
@@ -240,11 +241,12 @@ export class AuthService {
     }
   }
 
+
   /**
    * Retrieves the stored authentication token.
    * @returns The token string or null if not found.
    */
-  private getToken(): string | null {
+  public getToken(): string | null {
     return this.keepLoggedInSig()
       ? localStorage.getItem(APP_CONFIG.auth.tokenKey)
       : sessionStorage.getItem(APP_CONFIG.auth.tokenKey);

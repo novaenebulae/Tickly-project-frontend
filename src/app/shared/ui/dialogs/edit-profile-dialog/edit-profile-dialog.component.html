@@ -1,0 +1,125 @@
+<div class="edit-profile-dialog">
+  <h2 mat-dialog-title class="dialog-title">
+    <mat-icon>person</mat-icon>
+    Modifier le profil
+  </h2>
+
+  <mat-dialog-content class="dialog-content">
+    <!-- Avatar Preview -->
+    <div class="avatar-section">
+      <div class="avatar-preview">
+        <img [src]="profileAvatarUrl()"
+             [alt]="data.user.firstName + ' ' + data.user.lastName"
+             class="avatar-image">
+      </div>
+      <p class="avatar-info">
+        Avatar généré automatiquement basé sur vos initiales
+      </p>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Profile Form -->
+    <form [formGroup]="profileForm" class="profile-form">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Prénom</mat-label>
+          <input matInput
+                 formControlName="firstName"
+                 placeholder="Votre prénom"
+                 (input)="profileForm.updateValueAndValidity()">
+          <mat-error *ngIf="firstName?.hasError('required')">
+            Le prénom est requis
+          </mat-error>
+          <mat-error *ngIf="firstName?.hasError('minlength')">
+            Le prénom doit contenir au moins 2 caractères
+          </mat-error>
+          <mat-error *ngIf="firstName?.hasError('maxlength')">
+            Le prénom ne peut pas dépasser 50 caractères
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Nom</mat-label>
+          <input matInput
+                 formControlName="lastName"
+                 placeholder="Votre nom"
+                 (input)="profileForm.updateValueAndValidity()">
+          <mat-error *ngIf="lastName?.hasError('required')">
+            Le nom est requis
+          </mat-error>
+          <mat-error *ngIf="lastName?.hasError('minlength')">
+            Le nom doit contenir au moins 2 caractères
+          </mat-error>
+          <mat-error *ngIf="lastName?.hasError('maxlength')">
+            Le nom ne peut pas dépasser 50 caractères
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+<!--      <mat-form-field appearance="outline" class="full-width">-->
+<!--        <mat-label>Email</mat-label>-->
+<!--        <input matInput-->
+<!--               formControlName="email"-->
+<!--               type="email"-->
+<!--               placeholder="votre.email@exemple.com">-->
+<!--        <mat-error *ngIf="email?.hasError('required')">-->
+<!--          L'email est requis-->
+<!--        </mat-error>-->
+<!--        <mat-error *ngIf="email?.hasError('email')">-->
+<!--          Veuillez entrer un email valide-->
+<!--        </mat-error>-->
+<!--        <mat-error *ngIf="email?.hasError('maxlength')">-->
+<!--          L'email ne peut pas dépasser 100 caractères-->
+<!--        </mat-error>-->
+<!--      </mat-form-field>-->
+    </form>
+
+    <mat-divider></mat-divider>
+
+    <!-- Password Reset Section -->
+    <div class="password-section">
+      <h3 class="section-title">
+        <mat-icon>security</mat-icon>
+        Sécurité
+      </h3>
+      <p class="password-info">
+        Pour modifier votre mot de passe, nous vous enverrons un lien sécurisé par email.
+      </p>
+      <button mat-stroked-button
+              color="primary"
+              [disabled]="isRequestingPasswordReset()"
+              (click)="requestPasswordReset()"
+              class="password-reset-button">
+        <mat-icon>email</mat-icon>
+        @if (isRequestingPasswordReset()) {
+          <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+          Envoi en cours...
+        } @else {
+          Changer le mot de passe
+        }
+      </button>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button
+            (click)="cancel()"
+            [disabled]="isUpdatingProfile()">
+      Annuler
+    </button>
+
+    <button mat-raised-button
+            color="primary"
+            [disabled]="!isProfileFormChanged() || profileForm.invalid || isUpdatingProfile()"
+            (click)="submitProfileChanges()">
+      @if (isUpdatingProfile()) {
+        <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+        Mise à jour...
+      } @else {
+        <mat-icon>save</mat-icon>
+        Sauvegarder
+      }
+    </button>
+  </mat-dialog-actions>
+</div>

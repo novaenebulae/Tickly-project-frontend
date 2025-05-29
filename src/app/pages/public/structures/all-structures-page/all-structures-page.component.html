@@ -1,56 +1,53 @@
-<!--<div class="container">-->
-  <div class="structures-page">
-    <h1 class="page-title">Toutes les structures</h1>
+<div class="structures-page">
+  <h1 class="page-title">Toutes les structures</h1>
 
-    <!-- Filtres -->
-    <app-structure-filters
-      [structureTypes]="structureTypes"
-      (filtersChanged)="onFiltersChanged($event)"
-      (sortChanged)="onSortChanged($event)"
-    ></app-structure-filters>
+  <!-- Filtres -->
+  <app-structure-filters
+    (filtersChanged)="onFiltersChanged($event)"
+    (sortChanged)="onSortChanged($event)"
+  ></app-structure-filters>
 
-    <!-- Affichage des structures -->
-    <div class="structures-container">
-      <!-- État de chargement -->
-      <div class="loading-state" *ngIf="loading">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Chargement...</span>
-        </div>
-        <p>Chargement des structures...</p>
+  <!-- Affichage des structures -->
+  <div class="structures-container">
+    <!-- État de chargement -->
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
       </div>
-
-      <!-- Aucun résultat -->
-      <div class="no-results" *ngIf="!loading && structures.length === 0">
-        <i class="bi bi-search"></i>
-        <h3>Aucune structure ne correspond à votre recherche</h3>
-        <p>Essayez de modifier vos filtres ou effectuez une nouvelle recherche</p>
-      </div>
-
-      <!-- Liste des structures -->
-      <div class="row g-4" *ngIf="!loading && structures.length > 0">
-        <div class="col-6" *ngFor="let structure of structures">
-          <app-structure-card
-            [structure]="structure"
-            [eventCount]="structure.eventsCount || 0"
-            [highlightNewStructure]="structure.createdAt && (structure.createdAt > getThirtyDaysAgo() || false)"
-            [showActions]="true"
-            (viewDetails)="onViewStructureDetails($event)"
-            (bookEvent)="onBookEvent($event)"
-            (favorite)="onAddToFavorites($event)"
-            [showFavoriteButton]="isUserLoggedIn"
-          ></app-structure-card>
-        </div>
-      </div>
-
-      <!-- Pagination -->
-      <mat-paginator
-        *ngIf="!loading && structures.length > 0"
-        [length]="totalCount"
-        [pageSize]="pageSize"
-        [pageSizeOptions]="[6, 12, 24, 48]"
-        (page)="onPageChange($event)"
-        aria-label="Sélectionnez une page">
-      </mat-paginator>
+      <p>Chargement des structures...</p>
     </div>
+
+    <!-- Aucun résultat -->
+    <div class="no-results" *ngIf="!loading && structures.length === 0">
+      <i class="bi bi-search"></i>
+      <h3>Aucune structure ne correspond à votre recherche</h3>
+      <p>Essayez de modifier vos filtres ou effectuez une nouvelle recherche</p>
+    </div>
+
+    <!-- Liste des structures -->
+    <div class="row g-4" *ngIf="!loading && structures.length > 0">
+      <div class="col-6" *ngFor="let structure of structures">
+        <app-structure-card
+          [structure]="structure"
+          [eventCount]="structure.eventsCount || 0"
+          [highlightNewStructure]="structure.createdAt && (structure.createdAt > getThirtyDaysAgo() || false)"
+          [showActions]="true"
+          (viewDetails)="onViewStructureDetails($event)"
+          (bookEvent)="onBookEvent($event)"
+          (favorite)="onAddToFavorites($event)"
+          [showFavoriteButton]="isUserLoggedIn"
+        ></app-structure-card>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <mat-paginator
+      *ngIf="!loading && structures.length > 0"
+      [length]="totalCount"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[6, 12, 24, 48]"
+      (page)="onPageChange($event)"
+      aria-label="Sélectionnez une page">
+    </mat-paginator>
   </div>
-<!--</div>-->
+</div>

@@ -128,14 +128,7 @@ export class StructureCreationComponent implements OnInit {
     console.log('Submitting structure creation:', newStructureValues);
 
     this.structureService.createStructure(newStructureValues).subscribe({
-      next: (response: StructureCreationResponse) => {
-        console.log('Structure created successfully');
-        this.notification.displayNotification(
-          'Structure créée avec succès !',
-          'valid',
-          'Fermer'
-        );
-        this.auth.updateTokenAndState(response.newToken)
+      next: () => {
         this.isLoading = false;
         this.router.navigateByUrl('/admin');
       },

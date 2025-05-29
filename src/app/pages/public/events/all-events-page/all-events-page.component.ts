@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { EventsDisplayComponent } from '../../../../shared/ui/events-display/events-display.component';
+import { EventsDisplayComponent } from '../../../../shared/domain/events/events-display/events-display.component';
 import { EventModel } from '../../../../core/models/event/event.model';
 import { EventService } from '../../../../core/services/domain/event/event.service';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';

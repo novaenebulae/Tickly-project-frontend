@@ -1,5 +1,5 @@
 import {LandingPageComponent} from './landing-page/landing-page.component';
-import {PublicLayoutComponent} from './public-layout/public-layout.component';
+import {PublicLayoutComponent} from '../../shared/layout/public-layout/public-layout.component';
 import {Routes} from '@angular/router';
 import {RegisterPageComponent} from '../auth/register/register-page.component';
 import {AllEventsPageComponent} from './events/all-events-page/all-events-page.component';

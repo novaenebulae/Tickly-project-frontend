@@ -1,0 +1,72 @@
+@if (event) {
+  <div class="event-list-item" matRipple>
+    <!-- Section Image -->
+    <div class="event-list-item__image-area">
+      <img [src]="event.mainPhotoUrl || 'https://picsum.photos/seed/' + event.id + '/300/200'"
+           [alt]="'Image pour ' + event.name"
+           class="event-list-item__image">
+      @if (event.isFeaturedEvent) {
+        <div class="event-list-item__featured-banner">
+          <mat-icon>star</mat-icon><span>À la une</span>
+        </div>
+      }
+    </div>
+
+    <!-- Section Contenu Principal -->
+    <div class="event-list-item__content-area" (click)="viewEventDetails($event)">
+      <div class="event-list-item__header">
+        <div class="event-list-item__header-top">
+          @if (event.category) {
+            <span class="event-list-item__category">{{ event.category.name }}</span>
+          }
+          <h3 class="event-list-item__title">{{ event.name }}</h3>
+        </div>
+        <div class="event-list-item__meta">
+          <span class="meta-item">
+            <mat-icon>calendar_today</mat-icon>
+            <span>{{ formattedStartDate }}</span>
+          </span>
+          @if (displayLocation) {
+            <span class="meta-item">
+              <mat-icon>location_on</mat-icon>
+              <span>{{ displayLocation }}</span>
+            </span>
+          }
+
+          <!-- Affichage du prix -->
+          <div class="event-list-item__price">
+            @if (event.isFreeEvent) {
+              <span class="free-event">GRATUIT</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Description courte de l'événement -->
+      @if (event.shortDescription) {
+        <p class="event-list-item__description">
+          {{ event.shortDescription | slice:0:150 }}{{ event.shortDescription.length > 150 ? '...' : '' }}
+        </p>
+      }
+    </div>
+
+    <!-- Section Actions -->
+    <div class="event-list-item__action-area">
+      <div class="event-list-item__buttons">
+        <button mat-flat-button class="event-list-item__cta-button event-list-item__cta-button--white" (click)="onButtonClick($event)">
+          <mat-icon>event_seat</mat-icon>
+          <span>Réserver</span>
+        </button>
+        <button mat-flat-button color="primary" class="event-list-item__cta-button event-list-item__cta-button--blue" (click)="onButtonClick($event)">
+          <mat-icon>info</mat-icon>
+          <span>Découvrir</span>
+        </button>
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="event-list-item event-list-item--placeholder">
+    <p>Chargement de l'événement...</p>
+    <!-- Ici, vous pourriez mettre un skeleton loader plus élaboré -->
+  </div>
+}

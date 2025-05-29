@@ -1,10 +1,10 @@
-import { inject, Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { Observable } from 'rxjs';
-import { AuthService } from '../services/domain/user/auth.service';
-import { NotificationService } from '../services/domain/utilities/notification.service';
-import { UserService } from '../services/domain/user/user.service';
-import {AsyncPipe} from '@angular/common';
+import {inject, Injectable} from '@angular/core';
+import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree} from '@angular/router';
+import {Observable} from 'rxjs';
+import {AuthService} from '../services/domain/user/auth.service';
+import {NotificationService} from '../services/domain/utilities/notification.service';
+import {UserService} from '../services/domain/user/user.service';
+import {UserRole} from '../models/user/user-role.enum';
 
 @Injectable({ providedIn: 'root' })
 export class PublicGuard implements CanActivate {
@@ -38,8 +38,8 @@ export class PublicGuard implements CanActivate {
         'Fermer'
       );
 
-      // Utiliser le service utilisateur pour obtenir le profil actuel
-      const currentUser = this.userService.getCurrentUserProfile()
+      const currentUser = this.userService.currentUserProfileData();
+
       let redirectUrl: string;
 
       if (currentUser?.needsStructureSetup === true) {
@@ -47,7 +47,7 @@ export class PublicGuard implements CanActivate {
         console.log(
           `PublicGuard: Redirecting to ${redirectUrl} (needs setup).`
         );
-      } else if (currentUser?.role === 'STRUCTURE_ADMINISTRATOR') {
+      } else if (currentUser?.role === UserRole.STRUCTURE_ADMINISTRATOR) {
         redirectUrl = '/admin';
         console.log(`PublicGuard: Redirecting to ${redirectUrl} (admin).`);
       } else {

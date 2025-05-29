@@ -18,7 +18,7 @@ import { Subscription } from 'rxjs';
 
 // Importer les dialogues (adapter les chemins)
 import { TeamDetailDialogComponent, TeamDialogResult, TeamDialogData} from './team-detail-dialog/team-detail-dialog.component'; // Renommé
-import { ConfirmationDialogComponent, ConfirmationDialogData} from '../../../../../../shared/ui/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent, ConfirmationDialogData} from '../../../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
 
 // Interfaces
 interface Role { id: number; name: string; key?: string; }

@@ -1,0 +1,356 @@
+.manage-friends-dialog {
+  width: 100%;
+  max-width: 800px;
+  min-height: 600px;
+
+  .dialog-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+
+    mat-icon {
+      color: var(--primary-color, #1976d2);
+    }
+
+    .status-chips {
+      margin-left: auto;
+    }
+  }
+
+  .dialog-content {
+    padding: 0;
+    max-height: 70vh;
+    overflow: hidden;
+  }
+
+  .friends-tabs {
+    height: 100%;
+
+    ::ng-deep .mat-mdc-tab-body-wrapper {
+      height: 100%;
+    }
+
+    ::ng-deep .mat-mdc-tab-body-content {
+      height: 100%;
+      overflow-y: auto;
+    }
+  }
+
+  .tab-content {
+    padding: 1rem;
+    min-height: 400px;
+  }
+
+  // === CARTES COMMUNES ===
+  .friend-card,
+  .request-card,
+  .sent-request-card,
+  .search-result-card {
+    margin-bottom: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .avatar-image {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--primary-color, #1976d2);
+    }
+
+    h4 {
+      margin: 0 0 0.25rem 0;
+      font-weight: 500;
+      color: var(--text-primary, #333);
+    }
+
+    p {
+      margin: 0;
+      color: var(--text-secondary, #666);
+      font-size: 0.875rem;
+    }
+  }
+
+  // === SECTION AMIS ===
+  .friends-list {
+    .friend-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+
+      .friend-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+
+        .friend-details {
+          .friend-name {
+            font-size: 1.1rem;
+          }
+
+          .friend-email {
+            opacity: 0.8;
+          }
+        }
+      }
+
+      .friend-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+    }
+  }
+
+  // === SECTION DEMANDES REÇUES ===
+  .requests-list {
+    .request-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+
+      .request-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+
+        .request-details {
+          .request-date {
+            font-style: italic;
+            opacity: 0.7;
+          }
+        }
+      }
+
+      .request-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+
+        button {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+        }
+      }
+    }
+  }
+
+  // === SECTION DEMANDES ENVOYÉES ===
+  .sent-requests-list {
+    .sent-request-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+
+      .sent-request-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+
+        .sent-request-details {
+          .sent-request-date {
+            font-style: italic;
+            opacity: 0.7;
+          }
+        }
+      }
+
+      .sent-request-status {
+        mat-chip {
+          color: white;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  // === SECTION AJOUT D'AMI ===
+  .add-friend-card,
+  .search-card {
+    margin-bottom: 1.5rem;
+
+    mat-card-header {
+      margin-bottom: 1rem;
+
+      mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.1rem;
+
+        mat-icon {
+          color: var(--primary-color, #1976d2);
+        }
+      }
+    }
+
+    .full-width {
+      width: 100%;
+    }
+
+    .form-actions {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: flex-end;
+
+      button {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+    }
+  }
+
+  // === RECHERCHE ===
+  .search-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    gap: 1rem;
+
+    p {
+      color: var(--text-secondary, #666);
+    }
+  }
+
+  .search-results {
+    margin-top: 1rem;
+
+    .search-result-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+
+      .search-result-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+      }
+
+      .search-result-action {
+        mat-chip {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+        }
+
+        button {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+        }
+      }
+    }
+  }
+
+  // === ÉTATS VIDES ===
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    height: 300px;
+
+    .empty-icon {
+      font-size: 4rem;
+      width: 4rem;
+      height: 4rem;
+      color: var(--text-disabled, #ccc);
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      color: var(--text-secondary, #666);
+      margin: 0 0 0.5rem 0;
+    }
+
+    p {
+      color: var(--text-disabled, #999);
+      max-width: 300px;
+      line-height: 1.4;
+    }
+  }
+
+  // === ACTIONS DU DIALOGUE ===
+  .dialog-actions {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color, #e0e0e0);
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  .inline-spinner {
+    margin-right: 0.5rem;
+  }
+}
+
+// === RESPONSIVE ===
+@media (max-width: 768px) {
+  .manage-friends-dialog {
+    max-width: 95vw;
+    margin: 1rem;
+
+    .friend-content,
+    .request-content,
+    .sent-request-content,
+    .search-result-content {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+
+      .friend-info,
+      .request-info,
+      .sent-request-info,
+      .search-result-info {
+        width: 100%;
+      }
+
+      .friend-actions,
+      .request-actions,
+      .search-result-action {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+
+    .request-actions {
+      flex-direction: column;
+      gap: 0.5rem;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// Variables CSS
+:root {
+  --primary-color: #1976d2;
+  --accent-color: #ff4081;
+  --text-primary: #333;
+  --text-secondary: #666;
+  --text-disabled: #999;
+  --border-color: #e0e0e0;
+}
