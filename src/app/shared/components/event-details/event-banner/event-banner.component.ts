@@ -12,7 +12,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 import { EventModel, EventStatus } from '../../../../core/models/event/event.model';
-import { StructureService } from '../../../../core/services/domain/structure.service';
+import { StructureService } from '../../../../core/services/domain/structure/structure.service';
 
 @Component({
   selector: 'app-event-banner',

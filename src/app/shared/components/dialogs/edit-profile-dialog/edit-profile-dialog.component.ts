@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
 
 // Services
-import { UserService } from '../../../../core/services/domain/user.service';
+import { UserService } from '../../../../core/services/domain/user/user.service';
 
 // Models
 import { UserModel } from '../../../../core/models/user/user.model';

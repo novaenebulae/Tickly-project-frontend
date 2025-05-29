@@ -8,7 +8,7 @@ export interface UserModel {
   /**
    * The unique identifier of the user (assigned by the backend).
    */
-  id?: number;
+  id: number;
 
   /**
    * The first name of the user.

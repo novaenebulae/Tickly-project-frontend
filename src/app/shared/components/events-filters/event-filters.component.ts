@@ -14,7 +14,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { EventCategoryModel} from '../../../core/models/event/event-category.model';
 import {EventApiService} from '../../../core/services/api/event/event-api.service';
-import {CategoryService} from '../../../core/services/domain/category.service';
+import {CategoryService} from '../../../core/services/domain/event/category.service';
 
 // Interface pour les options de tri
 interface SortOption {

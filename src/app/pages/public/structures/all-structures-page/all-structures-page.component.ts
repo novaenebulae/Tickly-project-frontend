@@ -12,7 +12,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 
 // Services et modèles
-import { StructureService } from '../../../../core/services/domain/structure.service';
+import { StructureService } from '../../../../core/services/domain/structure/structure.service';
 import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
 import { StructureModel } from '../../../../core/models/structure/structure.model';
 import { StructureTypeModel } from '../../../../core/models/structure/structure-type.model';

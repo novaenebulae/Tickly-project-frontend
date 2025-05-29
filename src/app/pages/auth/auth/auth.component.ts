@@ -51,7 +51,7 @@ export class AuthComponent {
 
   onLogin(): void {
     this.formulaire.markAllAsTouched();
-
+9
     // Définir la préférence "Se souvenir de moi" dans le service
     this.authService.setKeepLoggedIn(Boolean(this.formulaire.value.keepLoggedIn));
 

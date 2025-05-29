@@ -12,7 +12,7 @@ import { effect, signal, computed } from '@angular/core';
 import { AuthService } from '../../../core/services/domain/user/auth.service';
 import { NotificationService } from '../../../core/services/domain/utilities/notification.service';
 import { FriendshipService } from '../../../core/services/domain/user/friendship.service';
-import { UserService } from '../../../core/services/domain/user.service';
+import { UserService } from '../../../core/services/domain/user/user.service';
 
 // Modèles
 import { UserModel } from '../../../core/models/user/user.model';

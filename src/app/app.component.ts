@@ -13,6 +13,6 @@ export class AppComponent {
   private browserCloseService = inject(BrowserCloseService);
 
   constructor() {
-    this.browserCloseService.setNeedLogout(true);
+    this.browserCloseService.setPerformCleanupOnClose(true);
   }
 }

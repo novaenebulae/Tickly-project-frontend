@@ -14,9 +14,9 @@ import { StructureSearchParams } from '../../../models/structure/structure-searc
 import { StructureAreaModel } from '../../../models/structure/structure-area.model';
 
 // Import des données de mock
-import { mockStructureTypes } from '../../../mocks/structures/structure-types.mock';
+import { mockStructureTypes } from '../../../mocks/structures/data/structure-data.mock';
 import { mockAreas } from '../../../mocks/structures/areas.mock';
-import { mockStructures } from '../../../mocks/structures/data/mockStructuresData'; // Ensure this mock data includes importance and eventsCount
+import { mockStructures } from '../../../mocks/structures/data/structure-data.mock';
 
 @Injectable({
   providedIn: 'root'

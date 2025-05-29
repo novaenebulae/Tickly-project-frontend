@@ -12,7 +12,7 @@ import { RouterModule } from '@angular/router';
 
 import { EventModel } from '../../../../core/models/event/event.model';
 import { StructureModel } from '../../../../core/models/structure/structure.model';
-import { SeatingType } from '../../../../core/models/event/seating.model';
+import { SeatingType } from '../../../../core/models/event/event-audience-zone.model';
 import {mockAreas} from '../../../../core/mocks/structures/areas.mock';
 
 @Component({

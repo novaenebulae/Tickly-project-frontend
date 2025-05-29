@@ -36,7 +36,6 @@ export interface MockApiStructureDto {
   // Cependant, si votre API *retourne* les areas avec la structure, ajoutez '
 }
 
-
 export const mockStructures: MockApiStructureDto[] = [
   // Structure ID 1: Grand complexe (utilisé par event 1, 5, 11, 12, 30, 41)
   {
@@ -299,4 +298,7 @@ export const mockStructures: MockApiStructureDto[] = [
     eventsCount: 30
   },
 ];
+
+const mockStructureTypesSet = new Set(mockStructures.map(structure => structure.types));
+export const mockStructureTypes = [...mockStructureTypesSet];
 

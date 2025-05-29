@@ -20,7 +20,7 @@ import { TicketStatus} from '../../../models/tickets/ticket-status.enum';
 
 // Mock data - We'll need mock events and audience zones for snapshots
 // For simplicity, we'll use placeholder snapshots or require them in the DTO for mock.
-import { allMockEvents } from '../../../mocks/events/eventsMockData';
+import { allMockEvents } from '../../../mocks/events/data/event-data.mock';
 
 // You might need mock audience zones too, or construct snapshots manually.
 

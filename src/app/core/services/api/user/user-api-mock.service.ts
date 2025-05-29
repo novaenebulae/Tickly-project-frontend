@@ -12,7 +12,7 @@ import { UserModel } from '../../../models/user/user.model';
 import { UserProfileUpdateDto } from '../../../models/user/user-profile-update.dto';
 
 // Mock data - Ensure mockUsers is an array of UserModel
-import { mockUsers } from '../../../mocks/auth/users.mock';
+import { mockUsers } from '../../../mocks/auth/data/user-data.mock';
 
 @Injectable({
   providedIn: 'root'

@@ -4,13 +4,14 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { ApiConfigService } from '../api-config.service';
-import { LoginCredentials, AuthResponseDto} from '../../../models/auth/auth.model';
-import { UserRegistrationDto } from '../../../models/user/user.model';
-import { mockUsers} from '../../../mocks/auth/users.mock';
+import {inject, Injectable} from '@angular/core';
+import {Observable} from 'rxjs';
+import {ApiConfigService} from '../api-config.service';
+import {AuthResponseDto, LoginCredentials} from '../../../models/auth/auth.model';
+import {UserRegistrationDto} from '../../../models/user/user.model';
+import {mockUsers} from '../../../mocks/auth/data/user-data.mock';
 import {APP_CONFIG} from '../../../config/app-config';
+import {UserRole} from '../../../models/user/user-role.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -76,7 +77,7 @@ export class AuthApiMockService {
       token: newUserToken,
       userId: mockUsers.length + 1,
       needsStructureSetup: userRegistrationDto.createStructure || false, // Based on registration choice
-      role: 'USER' // Or 'ADMIN' based on createStructure - adjust as needed
+      role: UserRole.SPECTATOR
     };
     return this.apiConfig.createMockResponse(mockResponse);
   }
@@ -99,7 +100,7 @@ export class AuthApiMockService {
       token: newToken,
       userId: 1, // This should be extracted from the existing token
       needsStructureSetup: false,
-      role: 'USER' // This should also be extracted from the existing token
+      role: UserRole.SPECTATOR
     };
     return this.apiConfig.createMockResponse(mockResponse);
   }

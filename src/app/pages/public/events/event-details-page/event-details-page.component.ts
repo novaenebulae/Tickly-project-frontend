@@ -26,6 +26,7 @@ import { EventTicketsSectionComponent } from '../../../../shared/components/even
 import { EventSocialSectionComponent } from '../../../../shared/components/event-details/event-social-section/event-social-section.component';
 import { SimilarEventsSectionComponent } from '../../../../shared/components/event-details/similar-events-section/similar-events-section.component';
 import {MatIcon} from '@angular/material/icon';
+import {MatButton} from '@angular/material/button';
 
 @Component({
   selector: 'app-event-details-page',
@@ -41,6 +42,7 @@ import {MatIcon} from '@angular/material/icon';
     SimilarEventsSectionComponent,
     MatIcon,
     EventDescriptionSectionComponent,
+    MatButton,
   ],
   templateUrl: './event-details-page.component.html',
   styleUrls: ['./event-details-page.component.scss']

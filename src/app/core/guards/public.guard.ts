@@ -3,7 +3,8 @@ import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTr
 import { Observable } from 'rxjs';
 import { AuthService } from '../services/domain/user/auth.service';
 import { NotificationService } from '../services/domain/utilities/notification.service';
-import { UserService } from '../services/domain/user.service';
+import { UserService } from '../services/domain/user/user.service';
+import {AsyncPipe} from '@angular/common';
 
 @Injectable({ providedIn: 'root' })
 export class PublicGuard implements CanActivate {
@@ -38,7 +39,7 @@ export class PublicGuard implements CanActivate {
       );
 
       // Utiliser le service utilisateur pour obtenir le profil actuel
-      const currentUser = this.userService.currentUserProfile();
+      const currentUser = this.userService.getCurrentUserProfile()
       let redirectUrl: string;
 
       if (currentUser?.needsStructureSetup === true) {

@@ -1,6 +1,6 @@
 // src/app/core/models/structure/structure.model.ts
-import { AddressModel } from './address.model';
-import { AreaModel } from './area.model';
+import { StructureAddressModel } from './structure-address.model';
+import { StructureAreaModel } from './structure-area.model';
 import { StructureTypeModel } from './structure-type.model';
 
 /**
@@ -32,12 +32,12 @@ export interface StructureModel {
   /**
    * The physical address of the structure.
    */
-  address: AddressModel;
+  address: StructureAddressModel;
 
   /**
    * Optional list of physical areas defined within this structure.
    */
-  areas?: AreaModel[];
+  areas?: StructureAreaModel[];
 
   /**
    * Contact phone number for the structure.
@@ -103,7 +103,7 @@ export interface StructureCreationDto {
    */
   typeIds: number[];
   description?: string;
-  address: AddressModel;
+  address: StructureAddressModel;
   phone?: string;
   email?: string;
   websiteUrl?: string;
