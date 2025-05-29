@@ -18,17 +18,11 @@
       transform: scale(1.05);
     }
 
-    .brand-icon {
-      font-size: 1.8rem;
-      color: #ffd700;
+    .brand-logo {
+      height: 50px;
+      width: auto;
     }
 
-    .brand-text {
-      background: linear-gradient(45deg, #ffffff, #ffd700);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
   }
 
   // === MOBILE TOGGLE ===

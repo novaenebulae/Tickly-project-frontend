@@ -45,7 +45,7 @@ export class UserService {
     // Use effect to react to changes in the authenticated user state from AuthService
     effect(() => {
       const authUser = this.authService.currentUser();
-      if (authUser && authUser.userId) {
+      if (authUser && !this.currentUserProfileDataSig()) {
         // If a user is logged in, load their profile and set it as the current user's profile data.
         // This also populates the activeUserProfileSig if it's the first profile loaded.
         this.loadUserProfile(authUser.userId, true).subscribe(profile => { // Force refresh on login

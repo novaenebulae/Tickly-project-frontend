@@ -122,7 +122,7 @@ export class RegisterPageComponent implements OnInit {
 
     console.log('Submitting registration:', newUserRegistration);
 
-    this.authService.register(newUserRegistration).subscribe({
+    this.authService.register(newUserRegistration, false).subscribe({
       next: () => {
         // Exécuté si l'observable de register se complète SANS erreur
         console.log(

@@ -14,6 +14,7 @@ import {
 } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import {APP_CONFIG} from '../config/app-config';
 
 /**
  * JWT HTTP interceptor function that adds Bearer token to requests.
@@ -32,6 +33,9 @@ export const jwtInterceptor: HttpInterceptorFn = (
 
   // Clone the request and add Authorization header ONLY if a token exists
   if (token) {
+    if (APP_CONFIG.mock.enabled) {
+      return next(req);
+    }
     const clonedReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`,

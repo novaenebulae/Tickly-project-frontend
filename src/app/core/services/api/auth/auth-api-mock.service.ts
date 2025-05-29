@@ -21,6 +21,34 @@ export class AuthApiMockService {
   private apiConfig = inject(ApiConfigService);
 
   /**
+   * Génère un token JWT valide pour les tests
+   */
+  private generateValidMockToken(userId: number, userMail: string, needsStructureSetup: boolean, role: UserRole): string {
+    // Créer un JWT simple mais valide pour les tests
+    const header = {
+      "alg": "HS256",
+      "typ": "JWT"
+    };
+
+    const payload = {
+      "sub": userMail.toString(),
+      "role": role,
+      "needsStructureSetup": needsStructureSetup,
+      "userId": userId,
+      "iat": Math.floor(Date.now() / 1000),
+      "exp": Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24h
+    };
+
+    const base64Header = btoa(JSON.stringify(header));
+    const base64Payload = btoa(JSON.stringify(payload));
+
+    // Pour un mock, on utilise une signature simple
+    const signature = btoa(`mock-signature-${userId}-${role}`);
+
+    return `${base64Header}.${base64Payload}.${signature}`;
+  }
+
+  /**
    * Mock implementation of the login API.
    * @param credentials - Login credentials (email and password).
    * @returns An Observable of AuthResponseDto representing the mock authentication response.
@@ -41,9 +69,12 @@ export class AuthApiMockService {
       return this.apiConfig.createMockError(401, 'Incorrect email or password');
     }
 
+    // Créer un token JWT valide
+    const validToken = this.generateValidMockToken(user.id, user.email, user.needsStructureSetup!, user.role,);
+
     // Create a mock response with a token and user details
     const mockResponse: AuthResponseDto = {
-      token: user.mockToken,
+      token: validToken,
       userId: user.id,
       needsStructureSetup: user.needsStructureSetup || false,
       role: user.role
@@ -71,13 +102,17 @@ export class AuthApiMockService {
       return this.apiConfig.createMockError(400, 'Invalid data. Please verify the fields.');
     }
 
-    // Simulate a new user with a mock token
-    const newUserToken = `mock_token_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+    const newUserId = mockUsers.length + 1;
+    const newUserRole = UserRole.SPECTATOR;
+
+    // Générer un token JWT valide pour le nouvel utilisateur
+    const validToken = this.generateValidMockToken(newUserId, newUserRole, false, newUserRole);
+
     const mockResponse: AuthResponseDto = {
-      token: newUserToken,
-      userId: mockUsers.length + 1,
-      needsStructureSetup: userRegistrationDto.createStructure || false, // Based on registration choice
-      role: UserRole.SPECTATOR
+      token: validToken,
+      userId: newUserId,
+      needsStructureSetup: userRegistrationDto.createStructure || false,
+      role: newUserRole
     };
     return this.apiConfig.createMockResponse(mockResponse);
   }
@@ -94,11 +129,12 @@ export class AuthApiMockService {
       return this.apiConfig.createMockError(401, 'Token not available');
     }
 
-    const newToken = `${token.split('_')[0]}_refreshed_${Date.now()}`;
-    // For refresh, we'd keep the same user details as in the current token
+    // Pour les mocks, on génère un nouveau token valide
+    const newToken = this.getStoredToken();
+
     const mockResponse: AuthResponseDto = {
-      token: newToken,
-      userId: 1, // This should be extracted from the existing token
+      token: newToken!,
+      userId: 1,
       needsStructureSetup: false,
       role: UserRole.SPECTATOR
     };
