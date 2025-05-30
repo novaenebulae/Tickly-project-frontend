@@ -26,8 +26,7 @@
           <mat-label>Prénom</mat-label>
           <input matInput
                  formControlName="firstName"
-                 placeholder="Votre prénom"
-                 (input)="profileForm.updateValueAndValidity()">
+                 placeholder="Votre prénom">
           <mat-error *ngIf="firstName?.hasError('required')">
             Le prénom est requis
           </mat-error>
@@ -43,8 +42,7 @@
           <mat-label>Nom</mat-label>
           <input matInput
                  formControlName="lastName"
-                 placeholder="Votre nom"
-                 (input)="profileForm.updateValueAndValidity()">
+                 placeholder="Votre nom">
           <mat-error *ngIf="lastName?.hasError('required')">
             Le nom est requis
           </mat-error>
@@ -111,7 +109,7 @@
 
     <button mat-raised-button
             color="primary"
-            [disabled]="!isProfileFormChanged() || profileForm.invalid || isUpdatingProfile()"
+
             (click)="submitProfileChanges()">
       @if (isUpdatingProfile()) {
         <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>

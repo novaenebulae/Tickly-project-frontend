@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
@@ -45,6 +45,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private friendshipService = inject(FriendshipService);
   private dialog = inject(MatDialog);
   private notification = inject(NotificationService);
+  private router = inject(Router);
 
   private destroy$ = new Subject<void>();
 
@@ -95,9 +96,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   readonly userAvatarUrl = computed(() => {
     const profile = this.currentUserProfile();
-    if (profile?.avatarUrl) {
-      return profile.avatarUrl;
-    }
+
+    //TODO : Changer si on met des photos users
+    // if (profile?.avatarUrl) {
+    //   return profile.avatarUrl;
+    // }
+
     // Générer un avatar par défaut avec les initiales
     return this.userService.generateAvatarUrl(
       profile?.firstName || this.fullName().split(' ')[0],
@@ -106,7 +110,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     );
   });
 
-  readonly hasNotifications = computed(() => this.pendingRequestsCount() > 0);
+  readonly hasNotifications = computed(() => {
+    const count = this.pendingRequestsCount();
+    return count > 0;
+  });
 
   constructor() {
     // ✅ Effect pour gérer les changements d'état d'authentification
@@ -201,7 +208,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   // === GESTION DES DIALOGUES ===
 
   /**
-   * ✅ Ouvre le dialogue de modification de profil
+   * ✅ Ouvre le dialogue de modification de profil avec configuration optimisée
    */
   openProfileDialog(): void {
     this.closeMenus();
@@ -211,26 +218,35 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.dialog.open(EditProfileDialogComponent, {
           width: '500px',
           maxWidth: '95vw',
+          // ✅ Dimensions adaptatives au contenu
+          minHeight: '350px',
+          maxHeight: '80vh',
           restoreFocus: false,
           disableClose: false,
+          hasBackdrop: true,
+          // ✅ Classes spécifiques pour le style
+          backdropClass: 'profile-dialog-backdrop',
+          panelClass: ['profile-dialog-panel', 'dialog-panel-high-z'],
+          autoFocus: true,
+          closeOnNavigation: true,
           data: { user: this.currentUserProfile() }
         }).afterClosed().pipe(
           takeUntil(this.destroy$)
         ).subscribe(() => {
-          // Le service se met à jour automatiquement via les signaux
+          // Les services se mettent à jour automatiquement via les signaux
         });
       })
       .catch(error => {
         console.error('Erreur lors du chargement du dialogue de profil:', error);
         this.notification.displayNotification(
-          'Impossible d\'ouvrir le dialogue de profil',
+          'Impossible d\'ouvrir le dialogue de modification de profil',
           'error'
         );
       });
   }
 
   /**
-   * ✅ Ouvre le dialogue de gestion des amis
+   * ✅ Ouvre le dialogue de gestion des amis avec z-index approprié
    */
   openFriendsDialog(): void {
     this.closeMenus();
@@ -240,10 +256,15 @@ export class NavbarComponent implements OnInit, OnDestroy {
         this.dialog.open(ManageFriendsDialogComponent, {
           width: '800px',
           maxWidth: '95vw',
-          height: '80vh',
           maxHeight: '90vh',
           restoreFocus: false,
-          disableClose: false
+          disableClose: false,
+          hasBackdrop: true,
+          // ✅ Configuration spécifique pour le z-index
+          backdropClass: 'friends-dialog-backdrop',
+          panelClass: ['friends-dialog-panel', 'dialog-panel-high-z'],
+          autoFocus: true,
+          closeOnNavigation: true
         }).afterClosed().pipe(
           takeUntil(this.destroy$)
         ).subscribe(() => {
@@ -276,12 +297,19 @@ export class NavbarComponent implements OnInit, OnDestroy {
   // === ACTIONS UTILISATEUR ===
 
   /**
+   * ✅ Navigue vers le dashboard utilisateur
+   */
+  navigateToUserDashboard(): void {
+    this.closeMenus();
+    this.router.navigate(['/user/dashboard']);
+  }
+
+  /**
    * ✅ Déconnecte l'utilisateur
    */
   logout(): void {
     this.closeMenus();
-
-    this.authService.logout()
+    this.authService.logout();
   }
 
   /**
@@ -306,6 +334,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
    */
   getNotificationBadgeText(): string {
     const count = this.pendingRequestsCount();
+    if (count === 0) return '';
     return count > 99 ? '99+' : count.toString();
   }
 

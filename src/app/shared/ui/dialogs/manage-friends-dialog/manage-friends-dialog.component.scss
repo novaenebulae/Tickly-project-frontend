@@ -1,16 +1,23 @@
+// === CONFIGURATION GLOBALE DU DIALOG ===
 .manage-friends-dialog {
   width: 100%;
-  max-width: 800px;
-  min-height: 600px;
+  display: flex;
+  flex-direction: column;
 
   .dialog-title {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 1rem 1.5rem 0.75rem; // ✅ Réduction du padding
+    font-size: 1.4rem; // ✅ Taille légèrement réduite
+    font-weight: 600;
 
     mat-icon {
       color: var(--primary-color, #1976d2);
+      font-size: 1.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
     }
 
     .status-chips {
@@ -20,26 +27,37 @@
 
   .dialog-content {
     padding: 0;
-    max-height: 70vh;
+    margin: 0;
+    // ✅ Hauteur adaptative au contenu
+    flex: 1;
     overflow: hidden;
   }
 
   .friends-tabs {
-    height: 100%;
+    // ✅ Suppression de la hauteur fixe
+    display: flex;
+    flex-direction: column;
 
-    ::ng-deep .mat-mdc-tab-body-wrapper {
-      height: 100%;
+    .mat-mdc-tab-header {
+      border-bottom: 1px solid var(--border-color, #e0e0e0);
+      flex-shrink: 0;
     }
 
-    ::ng-deep .mat-mdc-tab-body-content {
-      height: 100%;
+    .mat-mdc-tab-body-wrapper {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .mat-mdc-tab-body-content {
       overflow-y: auto;
+      padding: 0;
+      // ✅ Hauteur maximale adaptative
+      max-height: calc(70vh - 200px);
     }
   }
 
   .tab-content {
-    padding: 1rem;
-    min-height: 400px;
+    padding: 0.75rem; // ✅ Réduction du padding
   }
 
   // === CARTES COMMUNES ===
@@ -47,32 +65,40 @@
   .request-card,
   .sent-request-card,
   .search-result-card {
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem; // ✅ Réduction des marges
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 6px; // ✅ Bordures légèrement réduites
+    overflow: hidden;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
 
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
     }
 
     .avatar-image {
-      width: 48px;
-      height: 48px;
+      width: 40px; // ✅ Taille d'avatar réduite
+      height: 40px;
       border-radius: 50%;
       object-fit: cover;
       border: 2px solid var(--primary-color, #1976d2);
+      flex-shrink: 0;
     }
 
     h4 {
-      margin: 0 0 0.25rem 0;
+      margin: 0 0 0.2rem 0; // ✅ Marges réduites
       font-weight: 500;
       color: var(--text-primary, #333);
+      font-size: 1rem; // ✅ Taille de police réduite
     }
 
     p {
       margin: 0;
       color: var(--text-secondary, #666);
-      font-size: 0.875rem;
+      font-size: 0.85rem;
     }
   }
 
@@ -82,21 +108,30 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1rem;
+      padding: 0.75rem; // ✅ Padding réduit
 
       .friend-info {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.75rem; // ✅ Gap réduit
         flex: 1;
+        min-width: 0;
 
         .friend-details {
+          min-width: 0;
+          flex: 1;
+
           .friend-name {
-            font-size: 1.1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
 
           .friend-email {
             opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         }
       }
@@ -105,6 +140,7 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        flex-shrink: 0;
       }
     }
   }
@@ -115,18 +151,23 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1rem;
+      padding: 0.75rem; // ✅ Padding réduit
 
       .request-info {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.75rem;
         flex: 1;
+        min-width: 0;
 
         .request-details {
+          min-width: 0;
+          flex: 1;
+
           .request-date {
             font-style: italic;
             opacity: 0.7;
+            font-size: 0.75rem; // ✅ Taille réduite
           }
         }
       }
@@ -135,11 +176,15 @@
         display: flex;
         gap: 0.5rem;
         align-items: center;
+        flex-shrink: 0;
 
         button {
           display: flex;
           align-items: center;
           gap: 0.25rem;
+          min-width: auto;
+          padding: 0.4rem 0.8rem; // ✅ Padding réduit
+          font-size: 0.9rem;
         }
       }
     }
@@ -151,26 +196,35 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1rem;
+      padding: 0.75rem;
 
       .sent-request-info {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.75rem;
         flex: 1;
+        min-width: 0;
 
         .sent-request-details {
+          min-width: 0;
+          flex: 1;
+
           .sent-request-date {
             font-style: italic;
             opacity: 0.7;
+            font-size: 0.75rem;
           }
         }
       }
 
       .sent-request-status {
+        flex-shrink: 0;
+
         mat-chip {
           color: white;
           font-weight: 500;
+          font-size: 0.75rem;
+          padding: 0.2rem 0.5rem;
         }
       }
     }
@@ -179,21 +233,29 @@
   // === SECTION AJOUT D'AMI ===
   .add-friend-card,
   .search-card {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.75rem; // ✅ Marge réduite
 
     mat-card-header {
-      margin-bottom: 1rem;
+      padding: 0.75rem 0.75rem 0.5rem; // ✅ Padding réduit
 
       mat-card-title {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 1.1rem;
+        font-size: 1rem; // ✅ Taille réduite
+        margin: 0;
 
         mat-icon {
           color: var(--primary-color, #1976d2);
+          font-size: 1.2rem;
+          width: 1.2rem;
+          height: 1.2rem;
         }
       }
+    }
+
+    mat-card-content {
+      padding: 0 0.75rem 0.75rem; // ✅ Padding réduit
     }
 
     .full-width {
@@ -201,7 +263,7 @@
     }
 
     .form-actions {
-      margin-top: 1rem;
+      margin-top: 0.75rem; // ✅ Marge réduite
       display: flex;
       justify-content: flex-end;
 
@@ -213,85 +275,46 @@
     }
   }
 
-  // === RECHERCHE ===
-  .search-loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem;
-    gap: 1rem;
-
-    p {
-      color: var(--text-secondary, #666);
-    }
-  }
-
-  .search-results {
-    margin-top: 1rem;
-
-    .search-result-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem;
-
-      .search-result-info {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        flex: 1;
-      }
-
-      .search-result-action {
-        mat-chip {
-          display: flex;
-          align-items: center;
-          gap: 0.25rem;
-        }
-
-        button {
-          display: flex;
-          align-items: center;
-          gap: 0.25rem;
-        }
-      }
-    }
-  }
-
   // === ÉTATS VIDES ===
   .empty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 3rem 1rem;
+    padding: 1.5rem 1rem; // ✅ Padding réduit
     text-align: center;
-    height: 300px;
+    min-height: 180px; // ✅ Hauteur minimale réduite
 
     .empty-icon {
-      font-size: 4rem;
-      width: 4rem;
-      height: 4rem;
+      font-size: 2.5rem; // ✅ Taille d'icône réduite
+      width: 2.5rem;
+      height: 2.5rem;
       color: var(--text-disabled, #ccc);
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem; // ✅ Marge réduite
     }
 
     h3 {
       color: var(--text-secondary, #666);
       margin: 0 0 0.5rem 0;
+      font-size: 1.1rem; // ✅ Taille réduite
+      font-weight: 500;
     }
 
     p {
       color: var(--text-disabled, #999);
-      max-width: 300px;
-      line-height: 1.4;
+      max-width: 280px;
+      line-height: 1.3;
+      margin: 0;
+      font-size: 0.9rem; // ✅ Taille réduite
     }
   }
 
   // === ACTIONS DU DIALOGUE ===
   .dialog-actions {
-    padding: 1rem;
+    padding: 0.75rem 1.5rem; // ✅ Padding réduit
     border-top: 1px solid var(--border-color, #e0e0e0);
+    background-color: #fafafa;
+    flex-shrink: 0;
 
     button {
       display: flex;
@@ -309,43 +332,78 @@
 @media (max-width: 768px) {
   .manage-friends-dialog {
     max-width: 95vw;
-    margin: 1rem;
+    margin: 0.5rem;
+
+    .dialog-title {
+      padding: 0.5rem 1rem 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    .tab-content {
+      padding: 0.5rem;
+    }
 
     .friend-content,
     .request-content,
-    .sent-request-content,
-    .search-result-content {
+    .sent-request-content {
       flex-direction: column;
       align-items: flex-start;
-      gap: 1rem;
+      gap: 0.5rem;
+      padding: 0.5rem;
 
       .friend-info,
       .request-info,
-      .sent-request-info,
-      .search-result-info {
+      .sent-request-info {
         width: 100%;
       }
 
       .friend-actions,
-      .request-actions,
-      .search-result-action {
+      .request-actions {
         width: 100%;
         justify-content: flex-end;
       }
     }
 
     .request-actions {
-      flex-direction: column;
+      flex-direction: row;
       gap: 0.5rem;
 
       button {
-        width: 100%;
+        flex: 1;
+        justify-content: center;
+      }
+    }
+
+    .dialog-actions {
+      padding: 0.5rem;
+    }
+
+    .empty-state {
+      padding: 1rem 0.5rem;
+      min-height: 150px;
+
+      .empty-icon {
+        font-size: 2rem;
+        width: 2rem;
+        height: 2rem;
       }
     }
   }
 }
 
-// Variables CSS
+@media (max-width: 480px) {
+  .manage-friends-dialog {
+    max-width: 100vw;
+    margin: 0;
+    border-radius: 0;
+
+    .friends-tabs .mat-mdc-tab-body-content {
+      max-height: calc(100vh - 180px);
+    }
+  }
+}
+
+// === VARIABLES CSS ===
 :root {
   --primary-color: #1976d2;
   --accent-color: #ff4081;

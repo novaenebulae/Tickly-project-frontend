@@ -71,7 +71,6 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
   isLoadingSearch = signal(false);
   isSendingRequest = signal(false);
   isPerformingAction = signal(false);
-  searchResults = signal<Partial<UserModel>[]>([]);
 
   // ✅ Accès direct aux signaux du service
   readonly friends = this.friendshipService.friends;
@@ -83,7 +82,6 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
   readonly hasFriends = computed(() => this.friends().length > 0);
   readonly hasPendingRequests = computed(() => this.pendingRequests().length > 0);
   readonly hasSentRequests = computed(() => this.sentRequests().length > 0);
-  readonly hasSearchResults = computed(() => this.searchResults().length > 0);
 
   // Formulaires
   addFriendForm!: FormGroup;
@@ -91,7 +89,6 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initForms();
-    this.setupSearch();
     this.loadInitialData();
   }
 
@@ -106,34 +103,6 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
   private initForms(): void {
     this.addFriendForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]]
-    });
-  }
-
-  /**
-   * Configure la recherche d'utilisateurs avec debouncing
-   */
-  private setupSearch(): void {
-    this.searchControl.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      takeUntil(this.destroy$),
-      switchMap(query => {
-        if (query && query.trim().length >= 2) {
-          this.isLoadingSearch.set(true);
-          return this.userService.searchUsers(query.trim());
-        }
-        this.searchResults.set([]);
-        return [];
-      })
-    ).subscribe({
-      next: (results) => {
-        this.searchResults.set(results);
-        this.isLoadingSearch.set(false);
-      },
-      error: () => {
-        this.searchResults.set([]);
-        this.isLoadingSearch.set(false);
-      }
     });
   }
 
@@ -164,7 +133,6 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
         if (result) {
           this.addFriendForm.reset();
           this.searchControl.setValue('');
-          this.searchResults.set([]);
         }
       },
       error: () => {
@@ -173,20 +141,6 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * ✅ Envoie une demande d'ami par ID utilisateur
-   */
-  sendFriendRequestToUser(userId: number): void {
-    this.friendshipService.sendFriendRequest(userId).subscribe({
-      next: (result) => {
-        if (result) {
-          // Optionnel : retirer l'utilisateur des résultats de recherche
-          const currentResults = this.searchResults();
-          this.searchResults.set(currentResults.filter(user => user.id !== userId));
-        }
-      }
-    });
-  }
 
   /**
    * ✅ Accepte une demande d'ami

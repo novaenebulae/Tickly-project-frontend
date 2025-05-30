@@ -1,6 +1,6 @@
 // src/app/shared/components/event-details/event-info-section/event-info-section.component.ts
 
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,7 +31,7 @@ import {mockAreas} from '../../../../core/mocks/structures/areas.mock';
   templateUrl: './event-info-section.component.html',
   styleUrls: ['./event-info-section.component.scss']
 })
-export class EventInfoSectionComponent {
+export class EventInfoSectionComponent implements OnInit {
   @Input() event!: EventModel;
   @Input() structure: StructureModel | null = null;
   @Input() isUserLoggedIn = false;
@@ -40,6 +40,19 @@ export class EventInfoSectionComponent {
   @Output() addToFavorites = new EventEmitter<void>();
 
   protected formattedAddress: string = '';
+
+  ngOnInit(): void {
+    if (!this.event) {
+      console.error('EventInfoSectionComponent: Event input is missing.');
+    } else {
+      console.log('=== DEBUG EVENT INFO SECTION ===');
+      console.log('Event complet:', this.event);
+      console.log('Event areas:', this.event.areas);
+      console.log('Event areas length:', this.event.areas?.length);
+      console.log('Type de areas:', typeof this.event.areas);
+      console.log('=== FIN DEBUG ===');
+    }
+  }
 
   /**
    * Retourne l'URL du logo de la structure ou une image par défaut

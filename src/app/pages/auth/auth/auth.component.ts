@@ -62,8 +62,8 @@ export class AuthComponent {
    * Login form with email, password and keepLoggedIn fields
    */
   formulaire = this.formBuilder.group({
-    email: ['admin@example.com', [Validators.required, Validators.email]],
-    password: ['rootroot', Validators.required],
+    email: ['grace.martin@example.com', [Validators.required, Validators.email]],
+    password: ['password123', Validators.required],
     keepLoggedIn: [false],
   });
 

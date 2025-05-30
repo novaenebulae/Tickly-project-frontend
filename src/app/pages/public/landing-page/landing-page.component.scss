@@ -71,9 +71,9 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
 .hero-section {
   position: relative;
   width: 100%;
-  height: 85vh; // Hauteur du viewport
+  height: 50vh;
   min-height: 500px;
-  max-height: 700px;
+  //max-height: 700px;
   overflow: hidden;
   // background-image: $hero-texture-path; // Si une texture de fond est souhaitée en plus des images
   // background-repeat: repeat;

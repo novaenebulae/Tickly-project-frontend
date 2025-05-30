@@ -27,6 +27,7 @@ import { EventSocialSectionComponent } from '../../../../shared/domain/events/ev
 import { SimilarEventsSectionComponent } from '../../../../shared/domain/events/similar-events-section/similar-events-section.component';
 import {MatIcon} from '@angular/material/icon';
 import {MatButton} from '@angular/material/button';
+import {tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-event-details-page',
@@ -106,6 +107,11 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
     // Récupérer les détails de l'événement
     this.eventService.getEventById(eventId)
       .pipe(
+        tap(eventData => {
+          console.log('Données reçues dans le composant parent:', eventData);
+          console.log('Areas dans le composant parent:', eventData?.areas);
+
+        }),
         takeUntil(this.destroy$),
         finalize(() => {
           this.isLoading = false;

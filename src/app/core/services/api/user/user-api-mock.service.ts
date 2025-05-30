@@ -13,19 +13,19 @@ import { UserProfileUpdateDto } from '../../../models/user/user-profile-update.d
 
 // Mock data - Ensure mockUsers is an array of UserModel
 import { mockUsers } from '../../../mocks/auth/data/user-data.mock';
+import {AuthService} from '../../domain/user/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserApiMockService {
   private apiConfig = inject(ApiConfigService);
+  private authService = inject(AuthService);
 
   // In-memory store for mock users (make a copy to allow modifications)
   // This simulates changes being persistent during the mock session.
   private currentMockUsers: UserModel[] = JSON.parse(JSON.stringify(mockUsers));
-  private currentUserId = 1; // Example: Simulate a logged-in user for 'users/me' context.
-                             // In a more advanced mock setup, this could be dynamic.
-
+  private readonly currentUserId = this.authService.currentUser()?.userId;
   /**
    * Mock implementation for fetching the current authenticated user's profile.
    * @returns An Observable of a `UserModel` object representing the current user's profile,
@@ -83,6 +83,8 @@ export class UserApiMockService {
       avatarUrl: profileUpdateDto.avatarUrl !== undefined ? (profileUpdateDto.avatarUrl === null ? undefined : profileUpdateDto.avatarUrl) : currentUser.avatarUrl,
       updatedAt: new Date()
     };
+
+    console.log(updatedUser);
 
     this.currentMockUsers[userIndex] = updatedUser; // Update the in-memory store
     return this.apiConfig.createMockResponse(updatedUser);

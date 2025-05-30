@@ -6,7 +6,7 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject, signal, computed, WritableSignal, effect } from '@angular/core';
+import {Injectable, inject, signal, computed, WritableSignal, effect, untracked} from '@angular/core';
 import { Observable, of, BehaviorSubject } from 'rxjs';
 import { catchError, tap, switchMap } from 'rxjs/operators';
 
@@ -29,6 +29,8 @@ export class UserService {
   // Cache for user profiles (key: userId, value: UserModel)
   // BehaviorSubject allows components to subscribe and get updates when the cache changes.
   private userProfilesCache = new BehaviorSubject<Map<number, UserModel>>(new Map());
+  private avatarUrlCache = new Map<string, string>();
+
 
   // Signal for the currently viewed/active user profile (e.g., on a profile page or for admin view)
   // undefined: not yet loaded/no specific profile active, null: profile fetch failed or not found
@@ -45,23 +47,32 @@ export class UserService {
     // Use effect to react to changes in the authenticated user state from AuthService
     effect(() => {
       const authUser = this.authService.currentUser();
-      if (authUser && !this.currentUserProfileDataSig()) {
-        // If a user is logged in, load their profile and set it as the current user's profile data.
-        // This also populates the activeUserProfileSig if it's the first profile loaded.
-        this.loadUserProfile(authUser.userId, true).subscribe(profile => { // Force refresh on login
-          if (profile) {
-            this.currentUserProfileDataSig.set(profile);
-          } else {
-            this.currentUserProfileDataSig.set(null); // Failed to load profile
+
+      if (authUser && authUser.userId) {
+        // Utiliser untracked pour lire currentUserProfileDataSig sans déclencher l'effect
+        const currentProfileData = untracked(() => this.currentUserProfileDataSig());
+
+        if (!currentProfileData || currentProfileData.id !== authUser.userId) {
+          this.loadUserProfile(authUser.userId, true).subscribe(profile => {
+            if (profile) {
+              this.currentUserProfileDataSig.set(profile);
+            } else {
+              this.currentUserProfileDataSig.set(null);
+            }
+          });
+        }
+      } else {
+        // User logged out
+        untracked(() => {
+          if (this.currentUserProfileDataSig() !== null) {
+            this.currentUserProfileDataSig.set(null);
+            this.activeUserProfileSig.set(undefined);
+            this.userProfilesCache.next(new Map());
           }
         });
-      } else {
-        // User logged out, clear their profile data and active profile
-        this.currentUserProfileDataSig.set(null);
-        this.activeUserProfileSig.set(undefined);
-        this.userProfilesCache.next(new Map()); // Optionally clear the entire cache on logout
       }
     });
+
   }
 
   /**
@@ -220,16 +231,22 @@ export class UserService {
   }
 
   /**
-   * Generates a placeholder avatar URL based on the user's initials.
-   * This is a frontend utility and does not involve API calls.
+   * Generates a placeholder avatar URL based on the user's initials with caching.
    * @param firstName - The user's first name.
    * @param lastName - The user's last name.
    * @param size - The desired size of the avatar image in pixels (default: 128).
    * @returns A URL string for the placeholder avatar image.
    */
   generateAvatarUrl(firstName?: string, lastName?: string, size: number = 128): string {
-    // Your existing implementation for generateAvatarUrl can be kept.
-    // It's a pure frontend utility.
+    // ✅ Création d'une clé de cache unique
+    const cacheKey = `${firstName || ''}-${lastName || ''}-${size}`;
+
+    // ✅ Vérification du cache
+    const cachedUrl = this.avatarUrlCache.get(cacheKey);
+    if (cachedUrl) {
+      return cachedUrl;
+    }
+
     const getInitials = (fName?: string, lName?: string): string => {
       const firstInitial = fName ? fName.charAt(0).toUpperCase() : '';
       const lastInitial = lName ? lName.charAt(0).toUpperCase() : '';
@@ -238,6 +255,7 @@ export class UserService {
       if (lastInitial) return lastInitial;
       return '??';
     };
+
     const initials = getInitials(firstName, lastName);
 
     // Simple color generation based on initials for consistency
@@ -245,22 +263,25 @@ export class UserService {
     for (let i = 0; i < initials.length; i++) {
       hash = initials.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const h = hash % 360; // Hue
-    // Using HSL for better color distribution, ensuring not too dark/light
-    const s = 70; // Saturation
-    const l = 50; // Lightness
+    const h = hash % 360;
+    const s = 70;
+    const l = 50;
+
+    let avatarUrl: string;
 
     // Fallback if no initials
     if (initials === '??') {
-      return `https://via.placeholder.com/${size}/E0E0E0/909090?text=${initials}`;
+      avatarUrl = `https://avatar.iran.liara.run/public`;
+    } else {
+      const bgColorHex = this.hslToHex(h,s,l);
+      const textColorHex = this.hslToHex(h,s,(l < 50 ? l + 40 : l - 20));
+      avatarUrl = `https://avatar.iran.liara.run/username?username=${firstName}+${lastName}&color=${textColorHex}&background=${bgColorHex}&size=${size}`;
     }
-    // Placeholder service like via.placeholder.com or ui-avatars.com (if you prefer)
-    // For custom SVG, you'd construct the SVG string.
-    // This example uses HSL and a placeholder service:
-    const bgColorHex = this.hslToHex(h,s,l);
-    const textColorHex = l > 60 ? '000000' : 'FFFFFF'; // Simple contrast
 
-    return `https://via.placeholder.com/${size}/${bgColorHex}/${textColorHex}?text=${initials}`;
+    // ✅ Mise en cache du résultat
+    this.avatarUrlCache.set(cacheKey, avatarUrl);
+    console.log(this.avatarUrlCache);
+    return avatarUrl;
   }
 
 

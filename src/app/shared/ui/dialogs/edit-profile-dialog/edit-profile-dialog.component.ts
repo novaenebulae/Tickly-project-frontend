@@ -90,8 +90,7 @@ export class EditProfileDialogComponent implements OnInit {
     const form = this.profileForm.value;
 
     return form.firstName !== user.firstName ||
-      form.lastName !== user.lastName ||
-      form.email !== user.email;
+      form.lastName !== user.lastName
   });
 
   constructor() {
@@ -125,10 +124,6 @@ export class EditProfileDialogComponent implements OnInit {
       lastName: [
         user.lastName,
         [Validators.required, Validators.minLength(2), Validators.maxLength(50)]
-      ],
-      email: [
-        user.email,
-        [Validators.required, Validators.email, Validators.maxLength(100)]
       ]
     });
   }
@@ -217,5 +212,4 @@ export class EditProfileDialogComponent implements OnInit {
   // ✅ Getters pour l'accès facile aux contrôles de formulaire
   get firstName() { return this.profileForm.get('firstName'); }
   get lastName() { return this.profileForm.get('lastName'); }
-  get email() { return this.profileForm.get('email'); }
 }

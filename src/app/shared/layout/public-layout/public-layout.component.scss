@@ -5,7 +5,6 @@
 
   .main-content {
     flex: 1;
-    margin-top: 76px; // Hauteur de la navbar fixe + marge
     min-height: calc(100vh - 76px - 80px); // 100vh - navbar - footer
 
     @media (max-width: 768px) {

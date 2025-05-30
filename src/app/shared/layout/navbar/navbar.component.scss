@@ -1,10 +1,10 @@
 .navbar {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   backdrop-filter: blur(10px);
-  z-index: 1030;
+  //z-index: 1030;
 
   .container-fluid {
-    padding: 0.5rem 1rem;
+    //padding: 0.5rem 1rem;
   }
 
   // === BRAND ===
@@ -22,7 +22,6 @@
       height: 50px;
       width: auto;
     }
-
   }
 
   // === MOBILE TOGGLE ===
@@ -68,32 +67,6 @@
     }
   }
 
-  // === FRIENDS BUTTON ===
-  .friends-button {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 0.375rem;
-    transition: all 0.3s ease;
-    position: relative;
-
-    .friends-icon {
-      font-size: 1.1rem;
-    }
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.5);
-      transform: translateY(-1px);
-    }
-
-    &:focus {
-      box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3);
-    }
-  }
-
   // === USER MENU ===
   .user-menu-trigger {
     display: flex;
@@ -104,6 +77,7 @@
     border-radius: 0.375rem;
     transition: all 0.3s ease;
     max-width: 250px;
+    position: relative; // Pour le badge
 
     &:hover {
       background-color: rgba(255, 255, 255, 0.1);
@@ -188,7 +162,7 @@
     text-decoration: none;
 
     .auth-icon {
-      font-size: 1rem;
+      font-size: 1.1rem;
     }
 
     &:hover {
@@ -221,6 +195,10 @@
   box-shadow: 0 10px 30px rgba(0,0,0,0.15);
   border-radius: 0.5rem;
   padding: 0.5rem 0;
+
+  .mat-mdc-menu-panel {
+    min-width: 0;
+  }
 
   .user-menu-header {
     display: flex;
@@ -333,12 +311,6 @@
       }
     }
 
-    .friends-button {
-      .friends-text {
-        display: none;
-      }
-    }
-
     .nav-link {
       .nav-text {
         margin-left: 0.5rem;
@@ -353,7 +325,6 @@
       padding: 0.5rem;
     }
 
-    .friends-button,
     .user-menu-trigger {
       padding: 0.5rem;
     }
@@ -381,12 +352,16 @@
 }
 
 // === BADGE CUSTOMIZATION ===
-::ng-deep .mat-badge {
+::ng-deep .mat-badge-small {
   .mat-badge-content {
     background-color: #ff4081;
     color: white;
-    font-size: 0.75rem;
+    font-size: 0.75rem !important;
     font-weight: 600;
     border: 2px solid white;
+    min-width: 18px !important;
+    height: 18px;
+    line-height: 15px !important;
+    translate: -5px 5px !important;
   }
 }

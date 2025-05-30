@@ -41,28 +41,26 @@
             <span class="nav-text">Structures</span>
           </a>
         </li>
+        @if (isLoggedIn()) {
+          <!-- Espace Personnel Link -->
+          <li class="nav-item">
+            <a class="nav-link"
+               routerLink="/user/dashboard"
+               routerLinkActive="active"
+               (click)="navigateAndCloseMenus()">
+              <mat-icon class="nav-icon">dashboard</mat-icon>
+              <span class="nav-text">Espace Personnel</span>
+            </a>
+          </li>
+        }
       </ul>
 
       <!-- Authentication Section -->
       <div class="navbar-nav ms-auto">
         @if (isLoggedIn()) {
           <!-- User is logged in -->
-          <div class="nav-item dropdown">
-            <!-- Friends Notification Button -->
-            <button
-              class="btn btn-outline-light btn-sm me-2 friends-button"
-              type="button"
-              (click)="openFriendsDialog()"
-              [matBadge]="hasNotifications() ? getNotificationBadgeText() : null"
-              matBadgeColor="accent"
-              matBadgeSize="small"
-              matBadgePosition="above after"
-              [attr.aria-label]="hasNotifications() ? 'Vous avez ' + pendingRequestsCount() + ' nouvelles demandes d\'amitié' : 'Gérer vos amis'">
-              <mat-icon class="friends-icon">people</mat-icon>
-              <span class="friends-text d-none d-md-inline">Amis</span>
-            </button>
-
-            <!-- User Menu Trigger -->
+          <div class="nav-item dropdown d-flex">
+            <!-- User Menu Trigger avec Badge de notifications -->
             <button
               class="btn btn-outline-light btn-sm user-menu-trigger"
               type="button"
@@ -70,7 +68,11 @@
               #userMenuTrigger="matMenuTrigger"
               (menuOpened)="onUserMenuOpened()"
               (menuClosed)="onUserMenuClosed()"
-              [attr.aria-label]="'Menu utilisateur pour ' + fullName()">
+              [matBadge]="hasNotifications() ? getNotificationBadgeText() : null"
+              matBadgeColor="accent"
+              matBadgeSize="small"
+              matBadgePosition="above after"
+              [attr.aria-label]="'Menu utilisateur pour ' + fullName() + (hasNotifications() ? ' - ' + pendingRequestsCount() + ' nouvelles notifications' : '')">
 
               <!-- User Avatar -->
               <div class="user-avatar-container">
@@ -132,16 +134,19 @@
                 <span>Mon profil</span>
               </button>
 
+              <button mat-menu-item (click)="navigateToUserDashboard()">
+                <mat-icon>dashboard</mat-icon>
+                <span>Mes billets</span>
+              </button>
+
               <button mat-menu-item (click)="openFriendsDialog()">
-                <mat-icon [matBadge]="hasNotifications() ? pendingRequestsCount() : null"
+                <mat-icon [matBadge]="hasNotifications() ? getNotificationBadgeText() : null"
                           matBadgeColor="accent"
-                          matBadgeSize="small">
+                          matBadgeSize="small"
+                          matBadgePosition="above after">
                   people
                 </mat-icon>
                 <span>Mes amis</span>
-                @if (hasNotifications()) {
-                  <span class="notification-text">({{ pendingRequestsCount() }} nouvelles)</span>
-                }
               </button>
 
               <!-- Admin Link (if user is admin) -->
@@ -168,16 +173,16 @@
             <a class="btn btn-outline-light btn-sm me-2"
                routerLink="/login"
                (click)="navigateAndCloseMenus()">
-              <mat-icon class="auth-icon">login</mat-icon>
-              <span class="auth-text">Connexion</span>
+              <mat-icon class="auth-icon align-content-center">login</mat-icon>
+              <span class="auth-text align-content-center">Connexion</span>
             </a>
           </div>
           <div class="nav-item">
             <a class="btn btn-light btn-sm"
                routerLink="/register"
                (click)="navigateAndCloseMenus()">
-              <mat-icon class="auth-icon">person_add</mat-icon>
-              <span class="auth-text">Inscription</span>
+              <mat-icon class="auth-icon align-content-center">person_add</mat-icon>
+              <span class="auth-text align-content-center">Inscription</span>
             </a>
           </div>
         }
