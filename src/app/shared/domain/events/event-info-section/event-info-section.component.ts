@@ -13,7 +13,6 @@ import { RouterModule } from '@angular/router';
 import { EventModel } from '../../../../core/models/event/event.model';
 import { StructureModel } from '../../../../core/models/structure/structure.model';
 import { SeatingType } from '../../../../core/models/event/event-audience-zone.model';
-import {mockAreas} from '../../../../core/mocks/structures/areas.mock';
 
 @Component({
   selector: 'app-event-info-section',
@@ -31,7 +30,7 @@ import {mockAreas} from '../../../../core/mocks/structures/areas.mock';
   templateUrl: './event-info-section.component.html',
   styleUrls: ['./event-info-section.component.scss']
 })
-export class EventInfoSectionComponent implements OnInit {
+export class EventInfoSectionComponent {
   @Input() event!: EventModel;
   @Input() structure: StructureModel | null = null;
   @Input() isUserLoggedIn = false;
@@ -41,18 +40,18 @@ export class EventInfoSectionComponent implements OnInit {
 
   protected formattedAddress: string = '';
 
-  ngOnInit(): void {
-    if (!this.event) {
-      console.error('EventInfoSectionComponent: Event input is missing.');
-    } else {
-      console.log('=== DEBUG EVENT INFO SECTION ===');
-      console.log('Event complet:', this.event);
-      console.log('Event areas:', this.event.areas);
-      console.log('Event areas length:', this.event.areas?.length);
-      console.log('Type de areas:', typeof this.event.areas);
-      console.log('=== FIN DEBUG ===');
-    }
-  }
+  // ngOnInit(): void {
+  //   if (!this.event) {
+  //     console.error('EventInfoSectionComponent: Event input is missing.');
+  //   } else {
+  //     console.log('=== DEBUG EVENT INFO SECTION ===');
+  //     console.log('Event complet:', this.event);
+  //     console.log('Event areas:', this.event.areas);
+  //     console.log('Event areas length:', this.event.areas?.length);
+  //     console.log('Type de areas:', typeof this.event.areas);
+  //     console.log('=== FIN DEBUG ===');
+  //   }
+  // }
 
   /**
    * Retourne l'URL du logo de la structure ou une image par défaut

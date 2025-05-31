@@ -15,7 +15,7 @@ import { StructureAreaModel } from '../../../models/structure/structure-area.mod
 
 // Import des données de mock
 import { mockStructureTypes } from '../../../mocks/structures/data/structure-data.mock';
-import { mockAreas } from '../../../mocks/structures/areas.mock';
+import { mockAreas } from '../../../mocks/structures/data/areas-data.mock';
 import { mockStructures } from '../../../mocks/structures/data/structure-data.mock';
 
 @Injectable({

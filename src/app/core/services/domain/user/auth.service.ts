@@ -18,7 +18,8 @@ import { APP_CONFIG } from '../../../config/app-config';
 import { LoginCredentials, AuthResponseDto, JwtPayload } from '../../../models/auth/auth.model';
 import { UserRegistrationDto } from '../../../models/user/user.model';
 import { UserRole } from '../../../models/user/user-role.enum';
-import { UserModel } from '../../../models/user/user.model'; // For refreshCurrentUserDataFromUpdatedProfile
+import { UserModel } from '../../../models/user/user.model';
+import {UserService} from './user.service'; // For refreshCurrentUserDataFromUpdatedProfile
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +28,6 @@ export class AuthService {
   private authApi = inject(AuthApiService);
   private notification = inject(NotificationService);
   private router = inject(Router);
-  // private userService = inject(UserService); // Optional: if needed for deep cache clearing on logout
 
   // --- User State Signals ---
   private currentUserSig: WritableSignal<JwtPayload | null> = signal(null);
@@ -124,7 +124,6 @@ export class AuthService {
    */
   logout(navigateToLogin = true): void {
     this.clearAuthData();
-    // this.userService?.clearUserCacheOnLogout(); // Optional: if UserService needs specific cache clearing
     this.notification.displayNotification("Vous avez été déconnecté.", 'info');
     if (navigateToLogin) {
       this.router.navigate(['/auth/login']);
@@ -301,6 +300,10 @@ export class AuthService {
     this.userRoleSig.set(null);
     this.needsStructureSetupSig.set(false);
     this.structureIdSig.set(null);
+
+    console.log("Auth flushed")
+
+    this.router.navigateByUrl('/', { skipLocationChange: true });
   }
 
   /**

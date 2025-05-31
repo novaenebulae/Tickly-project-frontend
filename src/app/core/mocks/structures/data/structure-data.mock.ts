@@ -41,7 +41,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 1,
     name: 'Le Grand Complexe Événementiel Parisien',
-    types: [{ id: 1, name: 'Salle de Concert / Spectacle' }, { id: 6, name: 'Centre de Congrès / Exposition' }],
+    types: [{ id: 1, name: 'Salle de Concert' }, { id: 6, name: 'Centre de Congrès' }],
     description: 'Un espace modulable capable d\'accueillir les plus grands événements, des concerts rock aux salons professionnels et conférences internationales. Plusieurs salles et espaces extérieurs.',
     address: { street: '15 Avenue des Champs-Élysées', city: 'Paris', zipCode: '75008', country: 'France' },
     phone: '01 23 45 67 89',
@@ -59,7 +59,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 2,
     name: 'Auditorium Harmonia',
-    types: [{ id: 1, name: 'Salle de Concert / Spectacle' }, { id: 2, name: 'Théâtre' }],
+    types: [{ id: 1, name: 'Salle de Concert' }, { id: 2, name: 'Théâtre' }],
     description: 'Salle de concert et de spectacle de renommée internationale, connue pour son acoustique exceptionnelle et sa programmation éclectique.',
     address: { street: '149 Rue Garibaldi', city: 'Lyon', zipCode: '69003', country: 'France' },
     phone: '04 72 82 20 00',
@@ -75,7 +75,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 3,
     name: 'Espace Culturel "Perspectives"',
-    types: [{ id: 3, name: 'Musée / Galerie d\'Art' }, { id: 6, name: 'Centre de Congrès / Exposition' }],
+    types: [{ id: 3, name: 'Musée' }, { id: 6, name: 'Centre de Congrès' }],
     description: 'Un lieu vibrant dédié à l\'art contemporain, aux expositions thématiques et aux rencontres culturelles. Plusieurs galeries et un auditorium.',
     address: { street: '41 Rue Jobin, La Friche', city: 'Marseille', zipCode: '13003', country: 'France' },
     phone: '04 95 09 30 30',
@@ -91,7 +91,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 4,
     name: 'Stade Municipal de Bordeaux',
-    types: [{ id: 4, name: 'Stade / Complexe Sportif' }],
+    types: [{ id: 4, name: 'Stade' }],
     description: 'Le principal stade de la ville, accueillant des matchs de football, de rugby et d\'autres événements sportifs majeurs.',
     address: { street: 'Cours Jules Ladoumègue', city: 'Bordeaux', zipCode: '33300', country: 'France' },
     phone: '05 56 00 00 00',
@@ -106,7 +106,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 5,
     name: 'Théâtre de la Comète',
-    types: [{ id: 2, name: 'Théâtre' }, { id: 1, name: 'Salle de Concert / Spectacle' }],
+    types: [{ id: 2, name: 'Théâtre' }, { id: 1, name: 'Salle de Concert' }],
     description: 'Un théâtre historique proposant une programmation variée, du classique au contemporain, ainsi que des concerts intimistes.',
     address: { street: '1 Rue Pierre Baudis', city: 'Toulouse', zipCode: '31000', country: 'France' },
     phone: '05 61 22 00 00',
@@ -121,7 +121,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 6,
     name: 'Grand Parc Urbain',
-    types: [{ id: 5, name: 'Lieu en Plein Air / Parc' }],
+    types: [{ id: 5, name: 'Lieu en Plein Air' }],
     description: 'Vaste parc paysager au cœur de la ville, idéal pour les événements en plein air, les festivals et les activités de loisirs.',
     address: { street: 'Avenue du Parc Central', city: 'Nice', zipCode: '06000', country: 'France' },
     phone: '04 93 00 00 00',
@@ -136,7 +136,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 7,
     name: 'Place de la République',
-    types: [{ id: 7, name: 'Place Publique / Espace Urbain' }],
+    types: [{ id: 7, name: 'Place Publique' }],
     description: 'Place centrale animée, accueillant marchés, concerts en plein air et rassemblements populaires.',
     address: { street: 'Place de la République', city: 'Strasbourg', zipCode: '67000', country: 'France' },
     createdAt: addDays(today, -500).toISOString(),
@@ -147,7 +147,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 8,
     name: 'Les Ateliers Créatifs de la Ville',
-    types: [{ id: 8, name: 'Atelier / École (Art, Cuisine, etc.)' }],
+    types: [{ id: 8, name: 'Atelier' }],
     description: 'Un lieu dédié à l\'apprentissage et à la pratique artistique et artisanale. Propose des cours et des ateliers pour tous les âges.',
     address: { street: '5 Rue des Tanneurs', city: 'Lille', zipCode: '59000', country: 'France' },
     phone: '03 20 00 00 00',
@@ -161,7 +161,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 9,
     name: 'Place de la Mairie de Rennes',
-    types: [{ id: 7, name: 'Place Publique / Espace Urbain' }],
+    types: [{ id: 7, name: 'Place Publique' }],
     description: 'La place centrale devant l\'hôtel de ville, souvent utilisée pour des événements publics.',
     address: { street: 'Place de la Mairie', city: 'Rennes', zipCode: '35000', country: 'France' },
     createdAt: addDays(today, -600).toISOString(),
@@ -172,7 +172,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 10,
     name: 'Espace Événementiel "Le Confluent"',
-    types: [{ id: 11, name: 'Espace Événementiel Polyvalent' }, { id: 5, name: 'Lieu en Plein Air / Parc' }],
+    types: [{ id: 11, name: 'Espace Événementiel Polyvalent' }, { id: 5, name: 'Lieu en Plein Air' }],
     description: 'Grand espace capable d\'accueillir des festivals, des courses et des événements de grande envergure, avec des infrastructures adaptées.',
     address: { street: 'Route du Lac', city: 'Annecy', zipCode: '74000', country: 'France' },
     logoUrl: `https://picsum.photos/seed/structurelogo10/200/200`,
@@ -196,7 +196,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 12,
     name: 'Le Petit Café Intime',
-    types: [{ id: 9, name: 'Café-Concert / Petit Club' }],
+    types: [{ id: 9, name: 'Café-Concert' }],
     description: 'Un café chaleureux proposant des concerts acoustiques et des soirées jazz dans une ambiance feutrée.',
     address: { street: '12 Rue de Vesle', city: 'Reims', zipCode: '51100', country: 'France' },
     logoUrl: `https://picsum.photos/seed/structurelogo12/200/200`,
@@ -219,7 +219,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 14,
     name: 'Librairie "L\'Encre et la Plume"',
-    types: [{ id: 14, name: 'Librairie / Espace Culturel' }],
+    types: [{ id: 14, name: 'Librairie' }],
     description: 'Librairie indépendante proposant une large sélection d\'ouvrages et accueillant régulièrement des ateliers d\'écriture et des rencontres d\'auteurs.',
     address: { street: '7 Rue des Écoles', city: 'Paris', zipCode: '75005', country: 'France' },
     logoUrl: `https://picsum.photos/seed/structurelogo14/200/200`,
@@ -242,7 +242,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 16,
     name: 'Parc National des Calanques - Point Info',
-    types: [{ id: 16, name: 'Parc National / Zone Naturelle' }],
+    types: [{ id: 16, name: 'Zone Naturelle' }],
     description: 'Point d\'information et de départ pour les randonnées dans le Parc National des Calanques.',
     address: { street: 'Route de la Gineste', city: 'Marseille', zipCode: '13009', country: 'France' },
     createdAt: addDays(today, -450).toISOString(),
@@ -255,7 +255,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 17,
     name: 'Ludothèque "Le Dé Pipé"',
-    types: [{ id: 12, name: 'Ludothèque / Espace de Jeux' }],
+    types: [{ id: 12, name: 'Ludothèque' }],
     description: 'Un espace convivial pour jouer à des centaines de jeux de société, participer à des tournois et découvrir de nouvelles pépites ludiques.',
     address: { street: '33 Rue des Filatiers', city: 'Toulouse', zipCode: '31000', country: 'France' },
     logoUrl: `https://picsum.photos/seed/structurelogo17/200/200`,
@@ -267,7 +267,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 18,
     name: 'Chapiteau Magique - Cirque Itinérant',
-    types: [{ id: 18, name: 'Chapiteau de Cirque / Structure Temporaire' }],
+    types: [{ id: 18, name: 'Structure Temporaire' }],
     description: 'Un grand chapiteau coloré accueillant des spectacles de cirque traditionnels et modernes lors de ses tournées.',
     address: { street: 'Emplacement variable selon tournée', city: 'Tournée Nationale', zipCode: '', country: 'France' },
     createdAt: addDays(today, -150).toISOString(),
@@ -278,7 +278,7 @@ export const mockStructures: MockApiStructureDto[] = [
   {
     id: 19,
     name: 'Centre Culturel "Le Lien"',
-    types: [{ id: 19, name: 'Centre Socio-Culturel / Maison de Quartier' }, { id: 8, name: 'Atelier / École (Art, Cuisine, etc.)'}],
+    types: [{ id: 19, name: 'Centre Socio-Culturel' }, { id: 8, name: 'Atelier'}],
     description: 'Un lieu de vie et d\'activités pour tous les habitants du quartier, proposant ateliers, spectacles, et services communautaires.',
     address: { street: '1 Place du Marché', city: 'Strasbourg', zipCode: '67200', country: 'France' },
     logoUrl: `https://picsum.photos/seed/structurelogo19/200/200`,

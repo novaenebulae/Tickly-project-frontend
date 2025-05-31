@@ -7,15 +7,16 @@
  */
 
 import {Injectable, inject, signal, computed, WritableSignal, effect, untracked} from '@angular/core';
-import { Observable, of, BehaviorSubject } from 'rxjs';
-import { catchError, tap, switchMap } from 'rxjs/operators';
+import {Observable, of, BehaviorSubject} from 'rxjs';
+import {catchError, tap, switchMap} from 'rxjs/operators';
 
-import { UserApiService } from '../../api/user/user-api.service';
-import { AuthService } from './auth.service';
-import { NotificationService } from '../utilities/notification.service';
+import {UserApiService} from '../../api/user/user-api.service';
+import {AuthService} from './auth.service';
+import {NotificationService} from '../utilities/notification.service';
 
-import { UserModel } from '../../../models/user/user.model';
-import { UserProfileUpdateDto } from '../../../models/user/user-profile-update.dto';
+import {UserModel} from '../../../models/user/user.model';
+import {UserProfileUpdateDto} from '../../../models/user/user-profile-update.dto';
+
 // ChangePasswordDto is removed as this logic will be in AuthService
 
 @Injectable({
@@ -64,11 +65,10 @@ export class UserService {
       } else {
         // User logged out
         untracked(() => {
-          if (this.currentUserProfileDataSig() !== null) {
-            this.currentUserProfileDataSig.set(null);
-            this.activeUserProfileSig.set(undefined);
-            this.userProfilesCache.next(new Map());
-          }
+          console.log('UserService flushed');
+          this.currentUserProfileDataSig.set(null);
+          this.activeUserProfileSig.set(undefined);
+          this.userProfilesCache.next(new Map());
         });
       }
     });
@@ -273,8 +273,8 @@ export class UserService {
     if (initials === '??') {
       avatarUrl = `https://avatar.iran.liara.run/public`;
     } else {
-      const bgColorHex = this.hslToHex(h,s,l);
-      const textColorHex = this.hslToHex(h,s,(l < 50 ? l + 40 : l - 20));
+      const bgColorHex = this.hslToHex(h, s, l);
+      const textColorHex = this.hslToHex(h, s, (l < 50 ? l + 40 : l - 20));
       avatarUrl = `https://avatar.iran.liara.run/username?username=${firstName}+${lastName}&color=${textColorHex}&background=${bgColorHex}&size=${size}`;
     }
 
@@ -288,9 +288,9 @@ export class UserService {
   private hslToHex(h: number, s: number, l: number): string {
     s /= 100;
     l /= 100;
-    const k = (n:number) => (n + h / 30) % 12;
+    const k = (n: number) => (n + h / 30) % 12;
     const a = s * Math.min(l, 1 - l);
-    const f = (n:number) =>
+    const f = (n: number) =>
       l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
     const toHex = (x: number) => Math.round(x * 255).toString(16).padStart(2, '0');
     return `${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;

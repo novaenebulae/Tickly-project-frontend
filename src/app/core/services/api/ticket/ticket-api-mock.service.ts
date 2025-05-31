@@ -34,6 +34,7 @@ export class TicketApiMockService {
   private currentMockTickets: TicketModel[] = [];
   private currentUserId = 1; // Simulate a logged-in user
 
+  //TODO: get user id
   /**
    * Mock implementation for creating a reservation and issuing tickets.
    * @param reservationDto - DTO containing reservation request details.

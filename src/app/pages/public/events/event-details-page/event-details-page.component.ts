@@ -107,11 +107,11 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
     // Récupérer les détails de l'événement
     this.eventService.getEventById(eventId)
       .pipe(
-        tap(eventData => {
-          console.log('Données reçues dans le composant parent:', eventData);
-          console.log('Areas dans le composant parent:', eventData?.areas);
-
-        }),
+        // tap(eventData => {
+        //   console.log('Données reçues dans le composant parent:', eventData);
+        //   console.log('Areas dans le composant parent:', eventData?.areas);
+        //
+        // }),
         takeUntil(this.destroy$),
         finalize(() => {
           this.isLoading = false;

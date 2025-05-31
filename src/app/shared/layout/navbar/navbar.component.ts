@@ -144,16 +144,17 @@ export class NavbarComponent implements OnInit, OnDestroy {
    */
   private loadUserDataIfNeeded(): void {
     const currentUser = this.currentUser();
-    if (currentUser?.userId && !this.currentUserProfile()) {
-      // Forcer le chargement du profil utilisateur
-      this.userService.getCurrentUserProfile(true).pipe(
-        takeUntil(this.destroy$)
-      ).subscribe({
-        error: (error) => {
-          console.error('Erreur lors du chargement du profil utilisateur:', error);
-        }
-      });
-    }
+    console.log("loaded user !!!!!!")
+    // if (currentUser?.userId && !this.currentUserProfile()) {
+    //   // Forcer le chargement du profil utilisateur
+    //   this.userService.getCurrentUserProfile(true).pipe(
+    //     takeUntil(this.destroy$)
+    //   ).subscribe({
+    //     error: (error) => {
+    //       console.error('Erreur lors du chargement du profil utilisateur:', error);
+    //     }
+    //   });
+    // }
   }
 
   // === GESTION DES MENUS ===

@@ -25,16 +25,21 @@ import { FriendParticipantDto } from '../../../models/friendship/friend-particip
 import {mockUsers} from '../../../mocks/auth/data/user-data.mock';
 import { mockFriendships } from '../../../mocks/friendships/data/friendships-data.mock';
 import {UserModel} from '../../../models/user/user.model'; // Assuming FriendshipDataModel[]
+import { AuthService } from '../../domain/user/auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FriendshipApiMockService {
   private apiConfig = inject(ApiConfigService);
+  private authService = inject(AuthService);
 
   // In-memory store for mock friendships to reflect changes (simulates DB)
   private currentMockFriendships: FriendshipDataModel[] = JSON.parse(JSON.stringify(mockFriendships));
-  private currentUserId = 1; // Simulate a logged-in user for context
+
+  private getCurrentUserId(): number | undefined {
+    return this.authService.currentUser()?.userId;
+  }
 
   /**
    * Mock implementation for getting the current user's friends list.
@@ -46,9 +51,9 @@ export class FriendshipApiMockService {
     this.currentMockFriendships.forEach(fs => {
       if (fs.status === FriendshipStatus.ACCEPTED) {
         let friendUser;
-        if (fs.senderId === this.currentUserId) {
+        if (fs.senderId === this.getCurrentUserId()) {
           friendUser = mockUsers.find(u => u.id === fs.receiverId);
-        } else if (fs.receiverId === this.currentUserId) {
+        } else if (fs.receiverId === this.getCurrentUserId()) {
           friendUser = mockUsers.find(u => u.id === fs.senderId);
         }
 
@@ -84,13 +89,13 @@ export class FriendshipApiMockService {
       }
     }
 
-    if (!receiverId || receiverId === this.currentUserId) {
+    if (!receiverId || receiverId === this.getCurrentUserId()) {
       return this.apiConfig.createMockError(400, 'Invalid receiverId or cannot send request to self');
     }
 
     const existingFriendship = this.currentMockFriendships.find(
-      fs => (fs.senderId === this.currentUserId && fs.receiverId === receiverId) ||
-        (fs.senderId === receiverId && fs.receiverId === this.currentUserId)
+      fs => (fs.senderId === this.getCurrentUserId() && fs.receiverId === receiverId) ||
+        (fs.senderId === receiverId && fs.receiverId === this.getCurrentUserId())
     );
 
     if (existingFriendship && existingFriendship.status !== FriendshipStatus.CANCELLED && existingFriendship.status !== FriendshipStatus.REJECTED) {
@@ -100,7 +105,7 @@ export class FriendshipApiMockService {
     const newId = Math.max(0, ...this.currentMockFriendships.map(f => f.id)) + 1;
     const newFriendship: FriendshipDataModel = {
       id: newId,
-      senderId: this.currentUserId,
+      senderId: this.getCurrentUserId()!,
       receiverId: receiverId,
       status: FriendshipStatus.PENDING,
       createdAt: new Date(),
@@ -118,7 +123,7 @@ export class FriendshipApiMockService {
     this.apiConfig.logApiRequest('MOCK GET', 'friendships/pending', null);
     const requests: ReceivedFriendRequestModel[] = [];
     this.currentMockFriendships.forEach(fs => {
-      if (fs.receiverId === this.currentUserId && fs.status === FriendshipStatus.PENDING) {
+      if (fs.receiverId === this.getCurrentUserId() && fs.status === FriendshipStatus.PENDING) {
         const senderUser = mockUsers.find(u => u.id === fs.senderId);
         if (senderUser) {
           requests.push({
@@ -147,7 +152,7 @@ export class FriendshipApiMockService {
     this.apiConfig.logApiRequest('MOCK GET', 'friendships/sent', null);
     const requests: SentFriendRequestModel[] = [];
     this.currentMockFriendships.forEach(fs => {
-      if (fs.senderId === this.currentUserId && (fs.status === FriendshipStatus.PENDING || fs.status === FriendshipStatus.REJECTED)) {
+      if (fs.senderId === this.getCurrentUserId() && (fs.status === FriendshipStatus.PENDING || fs.status === FriendshipStatus.REJECTED)) {
         const receiverUser = mockUsers.find(u => u.id === fs.receiverId);
         if (receiverUser) {
           requests.push({
@@ -187,7 +192,7 @@ export class FriendshipApiMockService {
     if (friendship.status === FriendshipStatus.ACCEPTED && (dto.newStatus === FriendshipStatus.PENDING || dto.newStatus === FriendshipStatus.REJECTED)) {
       return this.apiConfig.createMockError(400, `Cannot change status from ${friendship.status} to ${dto.newStatus}`);
     }
-    if (friendship.status === FriendshipStatus.PENDING && friendship.receiverId !== this.currentUserId && dto.newStatus === FriendshipStatus.ACCEPTED) {
+    if (friendship.status === FriendshipStatus.PENDING && friendship.receiverId !== this.getCurrentUserId() && dto.newStatus === FriendshipStatus.ACCEPTED) {
       return this.apiConfig.createMockError(403, 'Only the receiver can accept a pending request');
     }
 
@@ -231,7 +236,7 @@ export class FriendshipApiMockService {
     this.apiConfig.logApiRequest('MOCK GET', 'users/search', { q: query });
     const searchTerm = query.toLowerCase();
     const results = mockUsers.filter(u =>
-      u.id !== this.currentUserId && // Don't find self
+      u.id !== this.getCurrentUserId() && // Don't find self
       (u.firstName.toLowerCase().includes(searchTerm) ||
         u.lastName.toLowerCase().includes(searchTerm) ||
         u.email.toLowerCase().includes(searchTerm))
@@ -255,8 +260,8 @@ export class FriendshipApiMockService {
     // This mock needs more data: which events users are attending.
     // For now, let's return a few mock friends as attending.
     const friendsList = this.currentMockFriendships
-      .filter(fs => fs.status === FriendshipStatus.ACCEPTED && (fs.senderId === this.currentUserId || fs.receiverId === this.currentUserId))
-      .map(fs => fs.senderId === this.currentUserId ? fs.receiverId : fs.senderId);
+      .filter(fs => fs.status === FriendshipStatus.ACCEPTED && (fs.senderId === this.getCurrentUserId() || fs.receiverId === this.getCurrentUserId()))
+      .map(fs => fs.senderId === this.getCurrentUserId() ? fs.receiverId : fs.senderId);
 
     const attendingFriends: FriendParticipantDto[] = [];
     const friendsToPotentiallyAttend = mockUsers.filter(u => friendsList.includes(u.id));

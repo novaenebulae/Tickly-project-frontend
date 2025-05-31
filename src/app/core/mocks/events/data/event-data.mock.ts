@@ -14,7 +14,7 @@ export const allMockEvents: MockApiEventDto[] = [
   {
     id: 1,
     name: 'Festival Rock en Seine',
-    category: {id: 2, name: 'Festival'}, // Correspond à mockCategories
+    category: {id: 2, name: 'Festival'},
     shortDescription: 'Le plus grand festival rock de Paris revient pour une édition explosive !',
     fullDescription: 'Vibrez au son des meilleures guitares du moment avec des têtes d\'affiche internationales et des découvertes prometteuses. Trois jours de musique non-stop, de rencontres et d\'ambiance électrique au cœur du Domaine National de Saint-Cloud.',
     tags: ['rock', 'pop', 'live', 'paris', 'festival'],
@@ -26,16 +26,14 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '92210',
       country: 'France',
     },
-    structureId: 1, // Doit correspondre à un ID dans mockStructuresData
-    // 'areas' (Physical areas of the structure where the event takes place, if multi-area)
-    // Example: If the festival uses multiple distinct named areas of the park (StructureAreaModel)
+    structureId: 1,
     areas: [
-      {id: 101, name: 'Grande Scène Park'}, // ID d'une StructureAreaModel de la structure 1
-      {id: 102, name: 'Scène Cascade Park'}  // ID d'une autre StructureAreaModel
+      {id: 101, name: 'Grande Scène Park'},
+      {id: 102, name: 'Scène Cascade Park'}
     ],
     isFreeEvent: false,
     defaultSeatingType: SeatingType.STANDING,
-    audienceZones: [ // Zones configurées pour le public de cet événement
+    audienceZones: [
       {
         id: 1001,
         name: 'Fosse Or - Scène Principale',
@@ -78,14 +76,17 @@ export const allMockEvents: MockApiEventDto[] = [
     fullDescription: 'Une soirée magique vous attend avec l\'interprétation vibrante des Quatre Saisons de Vivaldi, suivie d\'autres pièces maîtresses du répertoire classique. Un moment de pure émotion musicale à ne pas manquer.',
     tags: ['classique', 'vivaldi', 'orchestre', 'lyon'],
     startDate: addDays(today, 45).toISOString(),
-    endDate: addDays(today, 45).toISOString().replace('T18', 'T20'), // 2h event
+    endDate: addDays(today, 45).toISOString().replace('T18', 'T20'),
     address: {
       street: 'Auditorium Maurice Ravel, 149 Rue Garibaldi',
       city: 'Lyon',
       zipCode: '69003',
       country: 'France',
     },
-    structureId: 2, // ID d'une autre structure (ex: Auditorium de Lyon)
+    structureId: 2,
+    areas: [
+      {id: 201, name: 'Grande Salle Symphonique'}
+    ],
     isFreeEvent: false,
     defaultSeatingType: SeatingType.SEATED,
     audienceZones: [
@@ -114,10 +115,6 @@ export const allMockEvents: MockApiEventDto[] = [
     createdAt: addDays(today, -90).toISOString(),
     updatedAt: addDays(today, -5).toISOString(),
   },
-  // ... Ajoutez une dizaine d'autres événements variés ici ...
-  // Veillez à la cohérence des structureId et areaId si vous avez des mocks pour structures et areas.
-  // Utilisez des dates variées (passées, futures, en cours).
-  // Variez les statuts (draft, cancelled, completed).
   {
     id: 3,
     name: 'Exposition "Art Numérique Rétrospectif"',
@@ -125,17 +122,20 @@ export const allMockEvents: MockApiEventDto[] = [
     shortDescription: 'Un voyage à travers l\'évolution de l\'art numérique.',
     fullDescription: 'Découvrez les pionniers et les œuvres marquantes qui ont façonné l\'art numérique, des premières expérimentations aux créations immersives d\'aujourd\'hui. Une exposition interactive pour tous les âges.',
     tags: ['art', 'numérique', 'exposition', 'marseille', 'technologie'],
-    startDate: addDays(today, -15).toISOString(), // Event already started
-    endDate: addDays(today, 60).toISOString(),   // Event ongoing
+    startDate: addDays(today, -15).toISOString(),
+    endDate: addDays(today, 60).toISOString(),
     address: {
       street: 'La Friche Belle de Mai, 41 Rue Jobin',
       city: 'Marseille',
       zipCode: '13003',
       country: 'France',
     },
-    structureId: 3, // ID d'une structure type "Musée" ou "Galerie"
+    structureId: 3,
+    areas: [
+      {id: 301, name: 'Galerie Principale (Exposition)'}
+    ],
     isFreeEvent: true,
-    defaultSeatingType: SeatingType.MIXED, // Mostly standing/walking for expo
+    defaultSeatingType: SeatingType.MIXED,
     audienceZones: [
       {
         id: 3001,
@@ -159,7 +159,7 @@ export const allMockEvents: MockApiEventDto[] = [
     shortDescription: 'Le derby tant attendu pour la suprématie locale !',
     fullDescription: 'Venez supporter votre équipe dans ce match crucial du championnat. Ambiance garantie dans les tribunes pour ce face-à-face qui promet des étincelles et du beau jeu.',
     tags: ['football', 'sport', 'match', 'local', 'championnat'],
-    startDate: addDays(today, 7).toISOString().replace('T18', 'T20:30'), // Soirée
+    startDate: addDays(today, 7).toISOString().replace('T18', 'T20:30'),
     endDate: addDays(today, 7).toISOString().replace('T18', 'T22:30'),
     address: {
       street: 'Stade Municipal',
@@ -167,7 +167,11 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '33000',
       country: 'France',
     },
-    structureId: 4, // ID d'un stade
+    structureId: 4,
+    areas: [
+      {id: 401, name: 'Terrain Principal et Tribunes'},
+      {id: 402, name: 'Virages (Zones Debout)'}
+    ],
     isFreeEvent: false,
     defaultSeatingType: SeatingType.SEATED,
     audienceZones: [
@@ -195,7 +199,7 @@ export const allMockEvents: MockApiEventDto[] = [
     shortDescription: 'Experts et chercheurs débattent des prochaines révolutions de l\'IA.',
     fullDescription: 'Participez à une journée de discussions éclairantes sur les avancées, les défis éthiques et les impacts sociétaux de l\'intelligence artificielle. Keynotes, tables rondes et sessions de Q&R.',
     tags: ['ia', 'technologie', 'conférence', 'débat', 'futur'],
-    startDate: addDays(today, 90).toISOString().replace('T18', 'T09:00'), // Journée complète
+    startDate: addDays(today, 90).toISOString().replace('T18', 'T09:00'),
     endDate: addDays(today, 90).toISOString().replace('T18', 'T17:00'),
     address: {
       street: 'Palais des Congrès, 2 Pl de la Porte Maillot',
@@ -203,8 +207,11 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '75017',
       country: 'France',
     },
-    structureId: 1, // Peut être la même structure que Rock en Seine si c'est un grand complexe
-    isFreeEvent: true, // Souvent les conférences professionnelles sont payantes, mais ici exemple gratuit
+    structureId: 1,
+    areas: [
+      {id: 103, name: 'Amphithéâtre Principal (Intérieur)'}
+    ],
+    isFreeEvent: true,
     defaultSeatingType: SeatingType.SEATED,
     audienceZones: [
       {
@@ -237,7 +244,10 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '31000',
       country: 'France',
     },
-    structureId: 5, // ID d'un théâtre
+    structureId: 5,
+    areas: [
+      {id: 501, name: 'Salle Principale du Théâtre'}
+    ],
     isFreeEvent: false,
     defaultSeatingType: SeatingType.SEATED,
     audienceZones: [
@@ -257,7 +267,7 @@ export const allMockEvents: MockApiEventDto[] = [
     shortDescription: 'Revivez vos films préférés sous les étoiles.',
     fullDescription: 'Chaque semaine, un grand classique du cinéma projeté en plein air dans le parc municipal. Apportez vos couvertures et profitez d\'une soirée cinéma conviviale et gratuite.',
     tags: ['cinéma', 'plein air', 'gratuit', 'été', 'famille', 'nice'],
-    startDate: addDays(today, 14).toISOString().replace('T18', 'T21:00'), // Prochain vendredi
+    startDate: addDays(today, 14).toISOString().replace('T18', 'T21:00'),
     endDate: addDays(today, 14).toISOString().replace('T18', 'T23:30'),
     address: {
       street: 'Parc de la Colline du Château',
@@ -265,9 +275,12 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '06300',
       country: 'France',
     },
-    structureId: 6, // ID pour un "Parc Municipal" ou "Lieu en Plein Air"
+    structureId: 6,
+    areas: [
+      {id: 601, name: 'Kiosque à Musique et Pelouse'}
+    ],
     isFreeEvent: true,
-    defaultSeatingType: SeatingType.MIXED, // Sur l'herbe
+    defaultSeatingType: SeatingType.MIXED,
     audienceZones: [
       {
         id: 7001,
@@ -291,7 +304,7 @@ export const allMockEvents: MockApiEventDto[] = [
     shortDescription: 'Artisanat local, bijoux, déco et gourmandises en soirée.',
     fullDescription: 'Flânez parmi les stands des artisans locaux et découvrez des pièces uniques. Une ambiance chaleureuse et musicale pour vos emplettes de soirée.',
     tags: ['marché', 'artisanal', 'créateurs', 'nocturne', 'local', 'strasbourg'],
-    startDate: addDays(today, 3).toISOString().replace('T18:00', 'T18:00'), // Ce weekend
+    startDate: addDays(today, 3).toISOString().replace('T18:00', 'T18:00'),
     endDate: addDays(today, 3).toISOString().replace('T18:00', 'T23:00'),
     address: {
       street: 'Place Kléber',
@@ -299,10 +312,13 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '67000',
       country: 'France',
     },
-    structureId: 7, // ID pour une "Place Publique"
-    isFreeEvent: true, // L'entrée au marché est gratuite
-    defaultSeatingType: SeatingType.STANDING, // On déambule
-    audienceZones: [ // Pas de zones spécifiques pour un marché, mais on peut en définir une globale
+    structureId: 7,
+    areas: [
+      {id: 701, name: 'Place Centrale (Marché)'}
+    ],
+    isFreeEvent: true,
+    defaultSeatingType: SeatingType.STANDING,
+    audienceZones: [
       {
         id: 8001,
         name: 'Zone du Marché',
@@ -325,7 +341,6 @@ export const allMockEvents: MockApiEventDto[] = [
     shortDescription: 'Mettez les mains à la terre et créez vos propres objets.',
     fullDescription: 'Un atelier convivial pour découvrir les bases de la poterie : modelage, tournage et décoration. Repartez avec vos créations ! Matériel fourni.',
     tags: ['poterie', 'atelier', 'créatif', 'diy', 'artisanat', 'lille'],
-    // Plusieurs sessions pour un atelier
     startDate: addDays(today, 20).toISOString().replace('T18', 'T14:00'),
     endDate: addDays(today, 20).toISOString().replace('T18', 'T17:00'),
     address: {
@@ -334,9 +349,12 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '59000',
       country: 'France',
     },
-    structureId: 8, // ID d'un "Atelier d'Artistes"
+    structureId: 8,
+    areas: [
+      {id: 801, name: 'Salle d\'Atelier Polyvalente'}
+    ],
     isFreeEvent: false,
-    defaultSeatingType: SeatingType.SEATED, // On est assis pour travailler
+    defaultSeatingType: SeatingType.SEATED,
     audienceZones: [
       {
         id: 9001,
@@ -356,11 +374,11 @@ export const allMockEvents: MockApiEventDto[] = [
   {
     id: 10,
     name: 'Grand Bal Populaire Annulé',
-    category: {id: 2, name: 'Festival'}, // ou une catégorie "Bal"
+    category: {id: 2, name: 'Festival'},
     shortDescription: 'Le traditionnel bal du 14 juillet est annulé cette année.',
     fullDescription: 'En raison des conditions météorologiques défavorables annoncées, nous sommes au regret de vous informer de l\'annulation du Grand Bal Populaire. Nous vous remercions de votre compréhension.',
     tags: ['bal', 'populaire', 'gratuit', 'annulé'],
-    startDate: addDays(today, -2).toISOString(), // Supposons qu'il était prévu pour hier
+    startDate: addDays(today, -2).toISOString(),
     endDate: addDays(today, -2).toISOString(),
     address: {
       street: 'Place de la Mairie',
@@ -368,7 +386,10 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '35000',
       country: 'France',
     },
-    structureId: 9, // ID d'une autre "Place Publique"
+    structureId: 9,
+    areas: [
+      {id: 901, name: 'Parvis de la Mairie (Bal)'}
+    ],
     isFreeEvent: true,
     defaultSeatingType: SeatingType.MIXED,
     audienceZones: [
@@ -377,18 +398,18 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event10/800/400`,
-    status: 'cancelled', // Statut annulé
+    status: 'cancelled',
     createdAt: addDays(today, -60).toISOString(),
-    updatedAt: addDays(today, -1).toISOString(), // Mis à jour hier pour l'annulation
+    updatedAt: addDays(today, -1).toISOString(),
   },
   {
     id: 11,
     name: 'Tournoi eSport "Arena Legends" - Terminé',
-    category: {id: 5, name: 'Sport'}, // ou "eSport"
+    category: {id: 5, name: 'Sport'},
     shortDescription: 'La grande finale du tournoi Arena Legends a eu lieu le mois dernier.',
     fullDescription: 'Félicitations aux champions de l\'édition 2025 du tournoi Arena Legends ! Revivez les meilleurs moments et consultez les résultats sur notre site web.',
     tags: ['esport', 'gaming', 'tournoi', 'compétition', 'terminé'],
-    startDate: addDays(today, -40).toISOString(), // Mois dernier
+    startDate: addDays(today, -40).toISOString(),
     endDate: addDays(today, -38).toISOString(),
     address: {
       street: 'Gaming Center XYZ',
@@ -396,8 +417,11 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '75015',
       country: 'France',
     },
-    structureId: 1, // Supposons que la structure 1 (Rock en Seine) ait aussi un espace eSport
-    isFreeEvent: false, // Les spectateurs payent
+    structureId: 1,
+    areas: [
+      {id: 104, name: 'Arène eSport Alpha'}
+    ],
+    isFreeEvent: false,
     defaultSeatingType: SeatingType.SEATED,
     audienceZones: [
       {
@@ -412,25 +436,14 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event11/800/400`,
-    status: 'completed', // Statut terminé
+    status: 'completed',
     createdAt: addDays(today, -100).toISOString(),
     updatedAt: addDays(today, -37).toISOString(),
   },
-  // Insérez ces objets à la suite des événements existants dans votre tableau allMockEvents[]
-
-// Helper pour générer des dates futures relatives (assurez-vous qu'il est défini en haut de votre fichier mock)
-// const addDays = (date: Date, days: number): Date => {
-//   const result = new Date(date);
-//   result.setDate(result.getDate() + days);
-//   return result;
-// };
-// const today = new Date();
-
-// --- Événement 12 ---
   {
     id: 12,
     name: 'Salon du Livre Ancien et Moderne',
-    category: {id: 4, name: 'Exposition'}, // Ou une catégorie "Salon"
+    category: {id: 4, name: 'Exposition'},
     shortDescription: 'Des trésors de la littérature et des éditions rares à découvrir.',
     fullDescription: 'Amateurs de beaux livres et collectionneurs, ce salon est pour vous. Rencontrez des libraires passionnés, découvrez des manuscrits uniques et enrichissez votre bibliothèque.',
     tags: ['livres', 'salon', 'littérature', 'collection', 'rare', 'paris'],
@@ -442,9 +455,13 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '75007',
       country: 'France',
     },
-    structureId: 1, // Supposons que le Grand Palais est la structure 1
+    structureId: 1,
+    areas: [
+      {id: 105, name: 'Hall d\'Exposition A'},
+      {id: 106, name: 'Salle de Conférences "Victor Hugo"'}
+    ],
     isFreeEvent: false,
-    defaultSeatingType: SeatingType.MIXED, // Stands et allées
+    defaultSeatingType: SeatingType.MIXED,
     audienceZones: [
       {
         id: 12001,
@@ -469,7 +486,6 @@ export const allMockEvents: MockApiEventDto[] = [
     status: 'published',
     createdAt: addDays(today, -70).toISOString(),
   },
-// --- Événement 13 ---
   {
     id: 13,
     name: 'Course Cycliste "Le Tour des Collines"',
@@ -479,14 +495,18 @@ export const allMockEvents: MockApiEventDto[] = [
     tags: ['cyclisme', 'course', 'sport', 'montagne', 'compétition', 'alpes'],
     startDate: addDays(today, 75).toISOString().replace('T18', 'T10:00'),
     endDate: addDays(today, 75).toISOString().replace('T18', 'T17:00'),
-    address: { // L'adresse est celle du point de départ/arrivée ou de la zone principale
+    address: {
       street: 'Place du Village',
-      city: 'Annecy', // Ville de départ/arrivée
+      city: 'Annecy',
       zipCode: '74000',
       country: 'France',
     },
-    structureId: 10, // ID pour un "Parcours en extérieur" ou une "Zone d'événement sportif"
-    isFreeEvent: true, // Pour les spectateurs le long du parcours
+    structureId: 10,
+    areas: [
+      {id: 1001, name: 'Zone Arrivée Course Cycliste'},
+      {id: 1002, name: 'Point de Vue Montagne (Course)'}
+    ],
+    isFreeEvent: true,
     defaultSeatingType: SeatingType.STANDING,
     audienceZones: [
       {
@@ -512,7 +532,6 @@ export const allMockEvents: MockApiEventDto[] = [
     status: 'published',
     createdAt: addDays(today, -90).toISOString(),
   },
-// --- Événement 14 ---
   {
     id: 14,
     name: 'Théâtre Immersif "Le Secret du Manoir"',
@@ -521,16 +540,19 @@ export const allMockEvents: MockApiEventDto[] = [
     fullDescription: 'Une expérience théâtrale unique où le public déambule dans un manoir et interagit avec les personnages pour résoudre un mystère. Chaque représentation est différente !',
     tags: ['théâtre', 'immersif', 'enquête', 'mystère', 'interactif', 'nantes'],
     startDate: addDays(today, 60).toISOString().replace('T18', 'T19:30'),
-    endDate: addDays(today, 90).toISOString().replace('T18', 'T22:00'), // Plusieurs dates possibles sur une période
+    endDate: addDays(today, 90).toISOString().replace('T18', 'T22:00'),
     address: {
       street: 'Château de Goulaine',
-      city: 'Haute-Goulaine', // Près de Nantes
+      city: 'Haute-Goulaine',
       zipCode: '44115',
       country: 'France',
     },
-    structureId: 2, // ID d'un château ou lieu patrimonial
+    structureId: 2,
+    areas: [
+      {id: 202, name: 'Espace Château (pour théâtre immersif)'}
+    ],
     isFreeEvent: false,
-    defaultSeatingType: SeatingType.MIXED, // Déplacement et scènes fixes
+    defaultSeatingType: SeatingType.MIXED,
     audienceZones: [
       {
         id: 14001,
@@ -539,7 +561,7 @@ export const allMockEvents: MockApiEventDto[] = [
         maxCapacity: 50,
         isActive: true,
         seatingType: SeatingType.MIXED
-      }, // Capacité par session
+      },
     ],
     displayOnHomepage: false,
     isFeaturedEvent: true,
@@ -547,7 +569,6 @@ export const allMockEvents: MockApiEventDto[] = [
     status: 'published',
     createdAt: addDays(today, -50).toISOString(),
   },
-// --- Événement 15 ---
   {
     id: 15,
     name: 'Brouillon : Fête de la Musique Quartier X',
@@ -555,7 +576,7 @@ export const allMockEvents: MockApiEventDto[] = [
     shortDescription: 'Préparation de la fête de la musique.',
     fullDescription: 'Organisation en cours pour la Fête de la Musique du quartier. Recherche de groupes, définition des scènes. Plus d\'informations à venir.',
     tags: ['musique', 'fête', 'local', 'brouillon'],
-    startDate: addDays(today, 120).toISOString(), // Date lointaine
+    startDate: addDays(today, 120).toISOString(),
     endDate: addDays(today, 120).toISOString(),
     address: {
       street: 'Rue Principale',
@@ -563,17 +584,19 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '34000',
       country: 'France',
     },
-    structureId: 7, // Place publique ou quartier
+    structureId: 7,
+    areas: [
+      {id: 701, name: 'Place Centrale (Marché)'}
+    ],
     isFreeEvent: true,
     defaultSeatingType: SeatingType.MIXED,
-    audienceZones: [], // Pas encore définies
+    audienceZones: [],
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event15/800/400`,
-    status: 'draft', // Statut brouillon
+    status: 'draft',
     createdAt: addDays(today, -5).toISOString(),
   },
-// --- Événement 16 ---
   {
     id: 16,
     name: 'Atelier de Cuisine : Pâtisseries Françaises',
@@ -589,9 +612,12 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '33000',
       country: 'France',
     },
-    structureId: 8, // ID d'une école de cuisine ou atelier
+    structureId: 8,
+    areas: [
+      {id: 801, name: 'Salle d\'Atelier Polyvalente'}
+    ],
     isFreeEvent: false,
-    defaultSeatingType: SeatingType.SEATED, // Postes de travail
+    defaultSeatingType: SeatingType.SEATED,
     audienceZones: [
       {
         id: 16001,
@@ -608,7 +634,6 @@ export const allMockEvents: MockApiEventDto[] = [
     status: 'published',
     createdAt: addDays(today, -35).toISOString(),
   },
-// --- Événement 17 ---
   {
     id: 17,
     name: 'Festival de Jazz de Marciac - Soirée d\'Ouverture',
@@ -624,7 +649,10 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '32230',
       country: 'France',
     },
-    structureId: 10, // Supposons une structure pour les grands événements de Marciac
+    structureId: 10,
+    areas: [
+      {id: 1003, name: 'Chapiteau Festival Jazz Marciac'}
+    ],
     isFreeEvent: false,
     defaultSeatingType: SeatingType.SEATED,
     audienceZones: [
@@ -651,7 +679,6 @@ export const allMockEvents: MockApiEventDto[] = [
     status: 'published',
     createdAt: addDays(today, -150).toISOString(),
   },
-// --- Événement 18 ---
   {
     id: 18,
     name: 'Projection "Blade Runner" - Version Final Cut (Plein Air)',
@@ -667,7 +694,10 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '59000',
       country: 'France',
     },
-    structureId: 6, // Parc
+    structureId: 6,
+    areas: [
+      {id: 602, name: 'Clairière des Projections'}
+    ],
     isFreeEvent: true,
     defaultSeatingType: SeatingType.MIXED,
     audienceZones: [
@@ -686,7 +716,6 @@ export const allMockEvents: MockApiEventDto[] = [
     status: 'published',
     createdAt: addDays(today, -25).toISOString(),
   },
-// --- Événement 19 ---
   {
     id: 19,
     name: 'Conférence TEDx "Idées en Mouvement"',
@@ -702,8 +731,11 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '67000',
       country: 'France',
     },
-    structureId: 3, // Un centre de congrès
-    isFreeEvent: false, // TEDx sont souvent payants
+    structureId: 3,
+    areas: [
+      {id: 302, name: 'Auditorium (Conférences)'}
+    ],
+    isFreeEvent: false,
     defaultSeatingType: SeatingType.SEATED,
     audienceZones: [
       {
@@ -722,11 +754,10 @@ export const allMockEvents: MockApiEventDto[] = [
     status: 'published',
     createdAt: addDays(today, -60).toISOString(),
   },
-// --- Événement 20 ---
   {
     id: 20,
     name: 'Compétition de Danse Hip-Hop "Urban Beats"',
-    category: {id: 7, name: 'Danse'}, // ou Sport
+    category: {id: 7, name: 'Danse'},
     shortDescription: 'Les meilleurs crews s\'affrontent dans des battles endiablées.',
     fullDescription: 'Assistez à des performances de breakdance, popping, locking et autres styles de danse urbaine. Un jury de professionnels désignera les vainqueurs.',
     tags: ['danse', 'hiphop', 'battle', 'compétition', 'urbain', 'lyon'],
@@ -738,9 +769,12 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '69007',
       country: 'France',
     },
-    structureId: 2, // Une grande salle de spectacle
+    structureId: 2,
+    areas: [
+      {id: 203, name: 'Salle Polyvalente "Le Studio"'}
+    ],
     isFreeEvent: false,
-    defaultSeatingType: SeatingType.MIXED, // Gradins et espace devant la scène
+    defaultSeatingType: SeatingType.MIXED,
     audienceZones: [
       {
         id: 20001,
@@ -765,7 +799,6 @@ export const allMockEvents: MockApiEventDto[] = [
     status: 'published',
     createdAt: addDays(today, -42).toISOString(),
   },
-// --- Événement 21 (Passé et Complété) ---
   {
     id: 21,
     name: 'Marché de Noël Traditionnel (Édition 2024)',
@@ -773,7 +806,7 @@ export const allMockEvents: MockApiEventDto[] = [
     shortDescription: 'L\'édition passée du marché de Noël et ses merveilles.',
     fullDescription: 'Revivez la magie du marché de Noël de l\'année dernière avec ses chalets en bois, ses produits artisanaux, son vin chaud et ses animations pour enfants. Merci à tous les visiteurs et exposants !',
     tags: ['marché', 'noël', 'artisanal', 'tradition', 'passé', 'colmar'],
-    startDate: addDays(today, -150).toISOString(), // Ex: Décembre dernier
+    startDate: addDays(today, -150).toISOString(),
     endDate: addDays(today, -140).toISOString(),
     address: {
       street: 'Place de la Cathédrale',
@@ -781,7 +814,10 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '68000',
       country: 'France',
     },
-    structureId: 7, // Place publique
+    structureId: 7,
+    areas: [
+      {id: 702, name: 'Village de Noël (Place Cathédrale)'}
+    ],
     isFreeEvent: true,
     defaultSeatingType: SeatingType.STANDING,
     audienceZones: [
@@ -797,11 +833,10 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event21/800/400`,
-    status: 'completed', // Statut terminé
+    status: 'completed',
     createdAt: addDays(today, -200).toISOString(),
-    updatedAt: addDays(today, -139).toISOString(), // Dernière mise à jour post-événement
+    updatedAt: addDays(today, -139).toISOString(),
   },
-// --- Événement 22 (Brouillon lointain) ---
   {
     id: 22,
     name: 'Futur Festival Electro "Synthetica 2026"',
@@ -809,7 +844,7 @@ export const allMockEvents: MockApiEventDto[] = [
     shortDescription: 'Planification initiale pour un nouveau festival électro.',
     fullDescription: 'Idées et concepts en cours d\'élaboration pour Synthetica 2026. Thème, lieu et artistes à définir. Suivez-nous pour les annonces !',
     tags: ['électro', 'festival', 'futur', 'planification', 'brouillon'],
-    startDate: addDays(today, 700).toISOString(), // Dans presque 2 ans
+    startDate: addDays(today, 700).toISOString(),
     endDate: addDays(today, 702).toISOString(),
     address: {
       street: 'À déterminer',
@@ -817,17 +852,19 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '',
       country: 'France',
     },
-    structureId: 11, // Nouveau structureId pour un lieu pas encore défini
+    structureId: 11,
+    areas: [
+      {id: 1101, name: 'Zone en Développement'}
+    ],
     isFreeEvent: false,
     defaultSeatingType: SeatingType.STANDING,
-    audienceZones: [], // Pas encore définies
+    audienceZones: [],
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event22_draft/800/400`,
     status: 'draft',
     createdAt: addDays(today, -1).toISOString(),
   },
-// --- Événement 23 (Concert en attente d'approbation) ---
   {
     id: 23,
     name: 'Concert Acoustique Intimiste - Artiste Émergent',
@@ -843,7 +880,10 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '51100',
       country: 'France',
     },
-    structureId: 12, // ID d'un café-concert
+    structureId: 12,
+    areas: [
+      {id: 1201, name: 'Petite Salle Concert Café'}
+    ],
     isFreeEvent: false,
     defaultSeatingType: SeatingType.SEATED,
     audienceZones: [
@@ -859,10 +899,9 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event23_pending/800/400`,
-    status: 'pending_approval', // Statut en attente d'approbation
+    status: 'pending_approval',
     createdAt: addDays(today, -3).toISOString(),
   },
-// --- Événement 24 (Sport - Tournoi de Beach Volley) ---
   {
     id: 24,
     name: 'Tournoi Estival de Beach Volley',
@@ -871,16 +910,20 @@ export const allMockEvents: MockApiEventDto[] = [
     fullDescription: 'Le tournoi de beach volley revient sur la plage principale. Catégories amateurs et confirmés. Nombreux lots à gagner et ambiance conviviale assurée.',
     tags: ['beach volley', 'sport', 'été', 'plage', 'tournoi', 'la rochelle'],
     startDate: addDays(today, 65).toISOString().replace('T18', 'T09:00'),
-    endDate: addDays(today, 66).toISOString().replace('T18', 'T18:00'), // Sur 2 jours
+    endDate: addDays(today, 66).toISOString().replace('T18', 'T18:00'),
     address: {
       street: 'Plage des Minimes',
       city: 'La Rochelle',
       zipCode: '17000',
       country: 'France',
     },
-    structureId: 13, // ID pour une "Plage Aménagée"
-    isFreeEvent: false, // Pour l'inscription des équipes
-    defaultSeatingType: SeatingType.STANDING, // Pour les spectateurs
+    structureId: 13,
+    areas: [
+      {id: 1301, name: 'Terrain Beach Volley Central'},
+      {id: 1302, name: 'Terrains Beach Volley Annexes'}
+    ],
+    isFreeEvent: false,
+    defaultSeatingType: SeatingType.STANDING,
     audienceZones: [
       {
         id: 24001,
@@ -889,7 +932,7 @@ export const allMockEvents: MockApiEventDto[] = [
         maxCapacity: 200,
         isActive: true,
         seatingType: SeatingType.STANDING
-      }, // Spectateurs autour
+      },
       {
         id: 24002,
         name: 'Terrains Annexes',
@@ -905,7 +948,6 @@ export const allMockEvents: MockApiEventDto[] = [
     status: 'published',
     createdAt: addDays(today, -20).toISOString(),
   },
-// --- Événement 25 (Exposition Photographique) ---
   {
     id: 25,
     name: 'Regards Croisés : Photographies du Monde',
@@ -921,7 +963,10 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '35000',
       country: 'France',
     },
-    structureId: 3, // Une galerie d'art
+    structureId: 3,
+    areas: [
+      {id: 303, name: 'Galerie "Le Rayon Vert"'}
+    ],
     isFreeEvent: true,
     defaultSeatingType: SeatingType.MIXED,
     audienceZones: [
@@ -940,26 +985,29 @@ export const allMockEvents: MockApiEventDto[] = [
     status: 'published',
     createdAt: addDays(today, -15).toISOString(),
   },
-// --- Événement 26 (Théâtre de Rue) ---
   {
     id: 26,
     name: 'Festival des Arts de la Rue "Les Saltimbanques"',
-    category: {id: 2, name: 'Festival'}, // Pourrait aussi être Théâtre
+    category: {id: 2, name: 'Festival'},
     shortDescription: 'Clowns, acrobates, et comédiens envahissent les places de la ville.',
     fullDescription: 'Un week-end festif dédié aux arts de la rue. Spectacles gratuits pour petits et grands, déambulations, fanfares et bonne humeur garantie !',
     tags: ['théâtre de rue', 'festival', 'gratuit', 'arts', 'famille', 'avignon'],
     startDate: addDays(today, 55).toISOString(),
     endDate: addDays(today, 56).toISOString(),
-    address: { // Adresse générale du festival
+    address: {
       street: 'Centre Ville Historique',
       city: 'Avignon',
       zipCode: '84000',
       country: 'France',
     },
-    structureId: 7, // Plusieurs lieux publics
+    structureId: 7,
+    areas: [
+      {id: 703, name: 'Scène Place de l\'Horloge'},
+      {id: 704, name: 'Déambulation Rue des Teinturiers'}
+    ],
     isFreeEvent: true,
     defaultSeatingType: SeatingType.MIXED,
-    audienceZones: [ // Plusieurs "scènes" virtuelles dans la ville
+    audienceZones: [
       {
         id: 26001,
         name: 'Place de l\'Horloge',
@@ -983,7 +1031,6 @@ export const allMockEvents: MockApiEventDto[] = [
     status: 'published',
     createdAt: addDays(today, -80).toISOString(),
   },
-// --- Événement 27 (Atelier d'Écriture) ---
   {
     id: 27,
     name: 'Atelier d\'Écriture Créative : Nouvelle & Poésie',
@@ -992,14 +1039,17 @@ export const allMockEvents: MockApiEventDto[] = [
     fullDescription: 'Un atelier pour stimuler votre créativité, partager vos textes et recevoir des conseils personnalisés. Ouvert à tous les niveaux, des débutants aux auteurs confirmés.',
     tags: ['écriture', 'atelier', 'créatif', 'littérature', 'nouvelle', 'poésie', 'paris'],
     startDate: addDays(today, 38).toISOString().replace('T18', 'T18:30'),
-    endDate: addDays(today, 38).toISOString().replace('T18', 'T20:30'), // Session de 2h
+    endDate: addDays(today, 38).toISOString().replace('T18', 'T20:30'),
     address: {
       street: 'Librairie "Les Mots Voyageurs", 7 Rue des Écoles',
       city: 'Paris',
       zipCode: '75005',
       country: 'France',
     },
-    structureId: 14, // ID d'une librairie ou centre culturel
+    structureId: 14,
+    areas: [
+      {id: 1401, name: 'Salle Arrière (Ateliers)'}
+    ],
     isFreeEvent: false,
     defaultSeatingType: SeatingType.SEATED,
     audienceZones: [
@@ -1018,7 +1068,6 @@ export const allMockEvents: MockApiEventDto[] = [
     status: 'published',
     createdAt: addDays(today, -28).toISOString(),
   },
-// --- Événement 28 (Concert Pop Rock - Groupe Local) ---
   {
     id: 28,
     name: 'Release Party - Nouvel Album "Les Échos Urbains"',
@@ -1030,11 +1079,14 @@ export const allMockEvents: MockApiEventDto[] = [
     endDate: addDays(today, 12).toISOString().replace('T18', 'T23:30'),
     address: {
       street: 'Le Bikini, Parc Technologique du Canal',
-      city: 'Ramonville-Saint-Agne', // Près de Toulouse
+      city: 'Ramonville-Saint-Agne',
       zipCode: '31520',
       country: 'France',
     },
-    structureId: 5, // Une salle de concert connue
+    structureId: 5,
+    areas: [
+      {id: 502, name: 'Salle de Concert "Le Bikini"'}
+    ],
     isFreeEvent: false,
     defaultSeatingType: SeatingType.STANDING,
     audienceZones: [
@@ -1054,6 +1106,53 @@ export const allMockEvents: MockApiEventDto[] = [
     status: 'published',
     createdAt: addDays(today, -18).toISOString(),
   },
+  {
+    id: 29,
+    name: 'Festival International de la Bande Dessinée',
+    category: {id: 2, name: 'Festival'},
+    shortDescription: 'Le rendez-vous incontournable des passionnés du 9ème art.',
+    fullDescription: 'Rencontrez vos auteurs préférés, assistez à des dédicaces, découvrez des expositions exclusives et participez à des ateliers de dessin. Un événement majeur pour tous les fans de BD.',
+    tags: ['bd', 'bande dessinée', 'festival', 'dédicace', 'exposition', 'angoulême'],
+    startDate: addDays(today, 200).toISOString(),
+    endDate: addDays(today, 203).toISOString(),
+    address: {
+      street: 'Divers lieux en ville',
+      city: 'Angoulême',
+      zipCode: '16000',
+      country: 'France',
+    },
+    structureId: 15,
+    areas: [
+      {id: 1501, name: 'Grand Hall "Espace Bulles"'},
+      {id: 1502, name: 'Auditorium Rencontres & Dédicaces'}
+    ],
+    isFreeEvent: false,
+    defaultSeatingType: SeatingType.MIXED,
+    audienceZones: [
+      {
+        id: 29001,
+        name: 'Espace Bulles (Exposants)',
+        areaId: 1501,
+        maxCapacity: 5000,
+        isActive: true,
+        seatingType: SeatingType.MIXED
+      },
+      {
+        id: 29002,
+        name: 'Auditorium Dédicaces',
+        areaId: 1502,
+        maxCapacity: 300,
+        isActive: true,
+        seatingType: SeatingType.SEATED
+      },
+    ],
+    displayOnHomepage: true,
+    isFeaturedEvent: true,
+    mainPhotoUrl: `https://picsum.photos/seed/event29/800/400`,
+    status: 'published',
+    createdAt: addDays(today, -30).toISOString(),
+  },
+
 // --- Événement 29 (Festival de BD) ---
   {
     id: 29,
@@ -1097,11 +1196,14 @@ export const allMockEvents: MockApiEventDto[] = [
     status: 'published',
     createdAt: addDays(today, -30).toISOString(),
   },
-// --- Événement 30 (Spectacle de Magie) ---
+// --- Événement 29 (déjà fourni) ---
+// ... (voir plus haut)
+
+// --- Événement 30 ---
   {
     id: 30,
     name: 'Le Grand Cabaret Magique',
-    category: {id: 3, name: 'Théâtre'}, // Ou une catégorie "Spectacle"
+    category: {id: 3, name: 'Théâtre'},
     shortDescription: 'Illusions, mentalisme et grandes évasions pour une soirée époustouflante.',
     fullDescription: 'Laissez-vous émerveiller par les plus grands magiciens internationaux réunis sur scène pour un spectacle familial plein de surprises et de mystère.',
     tags: ['magie', 'spectacle', 'illusion', 'mentalisme', 'cabaret', 'paris'],
@@ -1113,7 +1215,10 @@ export const allMockEvents: MockApiEventDto[] = [
       zipCode: '75009',
       country: 'France',
     },
-    structureId: 1, // Une salle de spectacle parisienne
+    structureId: 1,
+    areas: [
+      {id: 107, name: 'Salle de Spectacle "Molière"'}
+    ],
     isFreeEvent: false,
     defaultSeatingType: SeatingType.SEATED,
     audienceZones: [
@@ -1127,26 +1232,30 @@ export const allMockEvents: MockApiEventDto[] = [
     status: 'published',
     createdAt: addDays(today, -75).toISOString(),
   },
-// --- Événement 31 (Randonnée Guidée) ---
+
+// --- Événement 31 ---
   {
     id: 31,
     name: 'Randonnée Découverte : Les Calanques Secrètes',
-    category: {id: 5, name: 'Sport'}, // Ou "Plein Air", "Nature"
+    category: {id: 5, name: 'Sport'},
     shortDescription: 'Explorez les sentiers cachés et les criques isolées des Calanques.',
     fullDescription: 'Une randonnée accompagnée par un guide local pour découvrir la faune, la flore et les panoramas exceptionnels du Parc National des Calanques, loin des sentiers battus.',
     tags: ['randonnée', 'nature', 'calanques', 'découverte', 'sport', 'marseille'],
     startDate: addDays(today, 18).toISOString().replace('T18', 'T09:00'),
     endDate: addDays(today, 18).toISOString().replace('T18', 'T16:00'),
-    address: { // Point de départ
+    address: {
       street: 'Parking de la Gardiole, Route de la Gineste',
-      city: 'Marseille', // ou Cassis
+      city: 'Marseille',
       zipCode: '13009',
       country: 'France',
     },
-    structureId: 16, // ID pour un "Parc National" ou "Zone Naturelle"
-    isFreeEvent: false, // Randonnée guidée payante
-    defaultSeatingType: SeatingType.STANDING, // C'est une marche
-    audienceZones: [ // La "zone" est le groupe de randonneurs
+    structureId: 16,
+    areas: [
+      {id: 1601, name: 'Sentier Principal Randonnée Guidée'}
+    ],
+    isFreeEvent: false,
+    defaultSeatingType: SeatingType.STANDING,
+    audienceZones: [
       {
         id: 31001,
         name: 'Groupe de Randonnée (Max 15 pers.)',

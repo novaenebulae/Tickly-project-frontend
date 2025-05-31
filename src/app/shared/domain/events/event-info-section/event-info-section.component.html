@@ -59,6 +59,14 @@
 
         <div class="card-content">
           <div class="location-info">
+            <div class="areas-container mt-2 mb-4" *ngIf="event.areas && event.areas.length > 0">
+              <h4>Zones concernées</h4>
+              <ul class="areas-list">
+                @for (area of event.areas; track $index) {
+                <li>{{ area.name }}</li>
+                }
+              </ul>
+            </div>
             <div class="address-container">
               <p class="address">{{ getFormattedAddress() }}</p>
 
@@ -68,14 +76,6 @@
               </a>
             </div>
 
-            <div class="areas-container" *ngIf="event.areas && event.areas.length > 0">
-              <h4>Zones concernées</h4>
-              <ul class="areas-list">
-                @for (area of event.areas; track $index) {
-                <li>{{ area.name }}</li>
-                }
-              </ul>
-            </div>
           </div>
         </div>
       </div>

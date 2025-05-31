@@ -53,9 +53,9 @@ export class FriendshipService {
   constructor() {
     // Auto-load data when user logs in or out
     effect(() => {
-      const isLoggedIn = this.authService.isLoggedIn();
-      if (isLoggedIn) {
-        this.loadInitialFriendshipData().subscribe();
+      const isLoggedIn = this.authService.isLoggedIn;
+      if (isLoggedIn()) {
+        this.loadInitialFriendshipData(true).subscribe();
       } else {
         // Clear all friendship related data on logout
         this.friendsSig.set([]);
@@ -74,7 +74,6 @@ export class FriendshipService {
   loadInitialFriendshipData(forceRefresh = false): Observable<void> {
     // If not forcing refresh and data is already present, consider skipping.
     // However, friendship data can change frequently, so fetching might be good.
-    this.notification.displayNotification("Mise à jour des données d'amitié...", 'info', undefined, 2000);
 
     return forkJoin({
       friends: this.friendshipApi.getFriendsList(),
