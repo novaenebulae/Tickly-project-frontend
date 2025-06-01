@@ -23,6 +23,7 @@
     "@ngrx/signals": "^19.1.0",
     "@ngrx/store": "^19.1.0",
     "angular-calendar": "^0.31.1",
+    "angularx-qrcode": "^19.0.0",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.3.0",
     "date-fns": "^4.1.0",

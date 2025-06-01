@@ -35,11 +35,11 @@ export class EventCardComponent implements OnInit {
     } else {
       // Log pour déboguer
       console.log('Event data:', this.event);
-      console.log('Has seating zones:', !!this.event.audienceZones);
-      if (this.event.audienceZones) {
-        console.log('Active zones:',
-          this.event.audienceZones.filter(zone => zone.isActive));
-      }
+      // console.log('Has seating zones:', !!this.event.audienceZones);
+      // if (this.event.audienceZones) {
+      //   console.log('Active zones:',
+      //     this.event.audienceZones.filter(zone => zone.isActive));
+      // }
     }
   }
 

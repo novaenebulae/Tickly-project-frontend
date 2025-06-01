@@ -1,1 +1,238 @@
-<p>event-ticket-reservation-page works!</p>
+<div class="reservation-page">
+  <!-- En-tête avec informations de l'événement -->
+  <div class="event-header" *ngIf="event() && !isLoading()">
+    <div class="container">
+      <div class="back-button">
+        <button mat-icon-button [routerLink]="['/events', event()?.id]">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+      </div>
+      <div class="event-info">
+        <img [src]="event()?.mainPhotoUrl" [alt]="event()?.name" class="event-image">
+        <div class="event-details">
+          <h1>{{ event()?.name }}</h1>
+          <p class="event-date">
+            <mat-icon>event</mat-icon>
+            {{ event()?.startDate | date:'fullDate' }} à {{ event()?.startDate | date:'HH:mm' }}
+          </p>
+          <p class="event-location">
+            <mat-icon>location_on</mat-icon>
+            {{ event()?.address?.number }} {{ event()?.address?.street }}, {{ event()?.address?.city }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- État de chargement -->
+  <div class="loading-container" *ngIf="isLoading()">
+    <mat-spinner></mat-spinner>
+    <p>Chargement des informations de réservation...</p>
+  </div>
+
+  <!-- Processus de réservation -->
+  <div class="reservation-content" *ngIf="!isLoading() && event()">
+    <div class="container">
+
+      <!-- Stepper de progression -->
+      <mat-stepper [selectedIndex]="currentStep()" orientation="horizontal" class="reservation-stepper">
+
+        <!-- Étape 1: Sélection de la zone et nombre de billets -->
+        <mat-step [completed]="currentStep() > 0">
+          <ng-template matStepLabel>Sélection des billets</ng-template>
+          <div class="step-content">
+            <h2>Choisissez votre zone et le nombre de billets</h2>
+
+            <form [formGroup]="zoneSelectionForm" (ngSubmit)="onZoneSelectionSubmit()">
+              <!-- Groupe de radio buttons pour la sélection de zone -->
+              <mat-radio-group formControlName="audienceZoneId" class="zones-grid">
+                <mat-card class="zone-card"
+                          *ngFor="let zone of availableZones()"
+                          [class.selected]="zoneSelectionForm.get('audienceZoneId')?.value == zone.id">
+                  <mat-card-content>
+                    <div class="zone-info">
+                      <mat-radio-button
+                        [value]="zone.id"
+                        class="zone-radio">
+                        <h3>{{ zone.name }}</h3>
+                      <p class="zone-type">{{ zone.seatingType | titlecase }}</p>
+                      <p class="zone-capacity">
+                        <mat-icon>people</mat-icon>
+                        Capacité max : {{ zone.maxCapacity }} places
+                      </p>
+                      </mat-radio-button>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </mat-radio-group>
+
+              <div class="ticket-count-section" *ngIf="zoneSelectionForm.get('audienceZoneId')?.value">
+                <mat-form-field appearance="outline">
+                  <mat-label>Nombre de billets</mat-label>
+                  <mat-select formControlName="ticketCount">
+                    <mat-option [value]="1">1 billet</mat-option>
+                    <mat-option [value]="2">2 billets</mat-option>
+                    <mat-option [value]="3">3 billets</mat-option>
+                    <mat-option [value]="4">4 billets</mat-option>
+                  </mat-select>
+                  <mat-hint>Maximum 4 billets par réservation</mat-hint>
+                </mat-form-field>
+              </div>
+
+              <div class="step-actions">
+                <button mat-raised-button color="primary" type="submit" [disabled]="!zoneSelectionForm.valid">
+                  Continuer
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+            </form>
+          </div>
+        </mat-step>
+
+        <!-- Étape 2: Informations des participants -->
+        <mat-step [completed]="currentStep() > 1">
+          <ng-template matStepLabel>Informations des participants</ng-template>
+          <div class="step-content">
+            <h2>Renseignez les informations des participants</h2>
+
+            <form [formGroup]="participantsForm" (ngSubmit)="onParticipantsSubmit()">
+              <div class="participants-container">
+                <mat-card class="participant-card"
+                          *ngFor="let participant of participantsArray.controls; let i = index">
+                  <!-- CORRECTION: Casting en FormGroup pour éviter l'erreur de type -->
+                  <div [formGroup]="$any(participant)">
+                    <mat-card-header>
+                      <mat-card-title>
+                        <mat-icon>person</mat-icon>
+                        Participant {{ i + 1 }}
+                        <span *ngIf="i === 0" class="main-participant">(Principal)</span>
+                      </mat-card-title>
+                    </mat-card-header>
+
+                    <mat-card-content>
+                      <div class="participant-fields">
+                        <mat-form-field appearance="outline">
+                          <mat-label>Prénom</mat-label>
+                          <input matInput formControlName="firstName" required>
+                          <mat-error *ngIf="participant.get('firstName')?.hasError('required')">
+                            Le prénom est obligatoire
+                          </mat-error>
+                          <mat-error *ngIf="participant.get('firstName')?.hasError('minlength')">
+                            Le prénom doit contenir au moins 2 caractères
+                          </mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                          <mat-label>Nom</mat-label>
+                          <input matInput formControlName="lastName" required>
+                          <mat-error *ngIf="participant.get('lastName')?.hasError('required')">
+                            Le nom est obligatoire
+                          </mat-error>
+                          <mat-error *ngIf="participant.get('lastName')?.hasError('minlength')">
+                            Le nom doit contenir au moins 2 caractères
+                          </mat-error>
+                        </mat-form-field>
+
+                        <mat-checkbox formControlName="sendTicketByEmail" *ngIf="i > 0" class="send-email-checkbox">
+                          Envoyer le billet par email à ce participant
+                        </mat-checkbox>
+
+                        <mat-form-field appearance="outline" *ngIf="i === 0 || participant.get('sendTicketByEmail')?.value" class="email-field">
+                          <mat-label>Email</mat-label>
+                          <input matInput formControlName="email" type="email" required>
+                          <mat-error *ngIf="participant.get('email')?.hasError('required')">
+                            L'email est obligatoire
+                          </mat-error>
+                          <mat-error *ngIf="participant.get('email')?.hasError('email')">
+                            Format d'email invalide
+                          </mat-error>
+                        </mat-form-field>
+                      </div>
+                    </mat-card-content>
+                  </div>
+                </mat-card>
+              </div>
+
+              <div class="step-actions">
+                <button mat-button type="button" (click)="goToPreviousStep()">
+                  <mat-icon>arrow_back</mat-icon>
+                  Retour
+                </button>
+                <button mat-raised-button color="primary" type="submit" [disabled]="!participantsForm.valid">
+                  Continuer
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+            </form>
+          </div>
+        </mat-step>
+
+        <!-- Étape 3: Confirmation -->
+        <mat-step>
+          <ng-template matStepLabel>Confirmation</ng-template>
+          <div class="step-content">
+            <h2>Confirmez votre réservation</h2>
+
+            <div class="confirmation-summary">
+              <mat-card class="summary-card">
+                <mat-card-header>
+                  <mat-card-title>Récapitulatif de votre réservation</mat-card-title>
+                </mat-card-header>
+
+                <mat-card-content>
+                  <div class="summary-section">
+                    <h3>Événement</h3>
+                    <p><strong>{{ event()?.name }}</strong></p>
+                    <p>{{ event()?.startDate | date:'fullDate' }} à {{ event()?.startDate | date:'HH:mm' }}</p>
+                    <p>{{ event()?.address?.number }} {{ event()?.address?.street }}, {{ event()?.address?.city }}</p>
+                  </div>
+
+                  <div class="summary-section" *ngIf="selectedZone()">
+                    <h3>Zone sélectionnée</h3>
+                    <p><strong>{{ selectedZone()?.name }}</strong></p>
+                    <p>Type : {{ selectedZone()?.seatingType | titlecase }}</p>
+                  </div>
+
+                  <div class="summary-section">
+                    <h3>Participants ({{ participantsData().length }})</h3>
+                    <div class="participants-list">
+                      <div class="participant-summary" *ngFor="let participant of participantsData(); let i = index">
+                        <mat-icon>person</mat-icon>
+                        <div class="participant-info">
+                          <strong>{{ participant.firstName }} {{ participant.lastName }}</strong>
+                          <small>{{ participant.email }}</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="summary-section total">
+                    <h3>Total</h3>
+                    <p class="total-tickets">
+                      <strong>{{ participantsData().length }} billet(s) gratuit(s)</strong>
+                    </p>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+            <div class="step-actions">
+              <button mat-button type="button" (click)="goToPreviousStep()" [disabled]="isSubmitting()">
+                <mat-icon>arrow_back</mat-icon>
+                Retour
+              </button>
+              <button mat-raised-button color="primary"
+                      (click)="onFinalConfirmation()"
+                      [disabled]="isSubmitting()">
+                <mat-spinner diameter="20" *ngIf="isSubmitting()"></mat-spinner>
+                <span *ngIf="!isSubmitting()">Confirmer la réservation</span>
+                <span *ngIf="isSubmitting()">Traitement en cours...</span>
+              </button>
+            </div>
+          </div>
+        </mat-step>
+
+      </mat-stepper>
+    </div>
+  </div>
+</div>

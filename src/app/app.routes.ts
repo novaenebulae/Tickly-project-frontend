@@ -1,42 +1,58 @@
 import { Routes } from '@angular/router';
 import { LoginGuard } from './core/guards/login.guard';
-import { AuthComponent } from './pages/auth/auth/auth.component';
-import { adminRoutes } from './pages/private/admin/admin.routes';
-import { userRoutes } from './pages/private/user/user.routes';
-import { RegisterPageComponent } from './pages/auth/register/register-page.component';
 import { PublicGuard } from './core/guards/public.guard';
-import { StructureCreationComponent } from './pages/private/admin/structure-creation/structure-creation.component';
-import {PublicLayoutComponent} from './shared/layout/public-layout/public-layout.component';
-import {publicRoutes} from './pages/public/public.routes';
+import { AuthComponent } from './pages/auth/auth/auth.component';
+import { RegisterPageComponent } from './pages/auth/register/register-page.component';
+import { publicRoutes } from './pages/public/public.routes';
+import { userRoutes } from './pages/private/user/user.routes';
+import { adminRoutes } from './pages/private/admin/admin.routes';
+import { MainLayoutComponent } from './shared/layout/main-layout/main-layout.component';
 
+/**
+ * Main application routes configuration
+ *
+ * The application is divided into three main areas:
+ * - Public routes: Accessible to all users (home, events, etc.)
+ * - User routes: For authenticated users (tickets, profile, etc.)
+ * - Admin routes: For administrators (event management, etc.)
+ */
 export const routes: Routes = [
+  // Authentication routes (accessible when not logged in)
+
   {
     path: 'login',
     component: AuthComponent,
     canActivate: [PublicGuard],
+    title: 'Connexion | Tickly'
   },
   {
     path: 'register',
     component: RegisterPageComponent,
     canActivate: [PublicGuard],
+    title: 'Inscription | Tickly'
   },
-  {
-    path: 'create-structure',
-    component: StructureCreationComponent,
-    // canActivate: [LoginGuard],
-  },
+
+  // User private area (requires authentication)
   {
     path: 'user',
-    // canActivate: [LoginGuard],
-    children: userRoutes,
+    canActivate: [LoginGuard],
+    children: userRoutes
   },
+
+  // Admin private area (requires authentication)
   {
     path: 'admin',
-    // canActivate: [LoginGuard],
-    children: adminRoutes,
+    canActivate: [LoginGuard],
+    children: adminRoutes
   },
+
+  // Public area (default)
+  ...publicRoutes,
+
+  // Fallback for unmatched routes
   {
-    path: '',
-    children: publicRoutes,
-  },
+    path: '**',
+    redirectTo: '',
+    pathMatch: 'full'
+  }
 ];

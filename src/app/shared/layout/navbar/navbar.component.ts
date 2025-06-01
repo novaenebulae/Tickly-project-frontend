@@ -302,7 +302,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
    */
   navigateToUserDashboard(): void {
     this.closeMenus();
-    this.router.navigate(['/user/dashboard']);
+    this.router.navigate(['/user/tickets']);
   }
 
   /**

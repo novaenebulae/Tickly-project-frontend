@@ -1,7 +1,6 @@
 import { StructureSearchParams } from '../../models/structure/structure-search-params.model';
 import { MockApiStructureDto } from './data/structure-data.mock';
 import { mockStructures } from './data/structure-data.mock';
-import { mockAreas } from './areas.mock'; // Ajustez le chemin
 import { StructureAreaModel } from '../../models/structure/structure-area.model';
 
 // Optionnel : Si vous avez besoin de fonctions de filtrage complexes pour les structures

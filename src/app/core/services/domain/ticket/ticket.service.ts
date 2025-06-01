@@ -121,7 +121,6 @@ export class TicketService {
     if (!forceRefresh && this.myTicketsSig().length > 0) {
       return of(this.myTicketsSig());
     }
-    this.myTicketsSig.set([]); // Indicate loading or clear old data
 
     return this.ticketApi.getMyTickets().pipe(
       map(apiTickets => apiTickets.map(t => this.mapApiToTicketModel(t))),

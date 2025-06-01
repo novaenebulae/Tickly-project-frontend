@@ -1,68 +1,98 @@
-import {Routes} from '@angular/router';
-import {AdminLayoutComponent} from '../../../shared/layout/admin-layout/admin-layout.component';
-import {EventsPanelComponent} from './panels/events/events-panel/events-panel.component';
-import {DashboardComponent} from './panels/dashboard/dashboard.component';
-import {StatsComponent} from './panels/stats/stats.component';
-import {EventCreationComponent} from './panels/events/event-creation/event-creation.component';
-import {AreaManagementComponent} from './panels/structure/zone-management/area-management.component';
-import {StructurePanelComponent} from './panels/structure/structure-panel/structure-panel.component';
-import {TeamManagementComponent} from './panels/structure/team-management/team-management.component';
-import {StructureEditComponent} from './panels/structure/structure-edit/structure-edit.component';
-import {EventCalendarComponent} from './panels/events/event-calendar/event-calendar.component';
-import {EventDetailsPanelComponent} from './panels/events/event-details-panel/event-details-panel.component';
+import { Routes } from '@angular/router';
+import { AdminLayoutComponent } from '../../../shared/layout/admin-layout/admin-layout.component';
+import { DashboardComponent } from './panels/dashboard/dashboard.component';
+import { StatsComponent } from './panels/stats/stats.component';
 
+// Event management components
+import { EventsPanelComponent } from './panels/events/events-panel/events-panel.component';
+import { EventCreationComponent } from './panels/events/event-creation/event-creation.component';
+import { EventCalendarComponent } from './panels/events/event-calendar/event-calendar.component';
+import { EventDetailsPanelComponent } from './panels/events/event-details-panel/event-details-panel.component';
+
+// Structure management components
+import { StructurePanelComponent } from './panels/structure/structure-panel/structure-panel.component';
+import { StructureEditComponent } from './panels/structure/structure-edit/structure-edit.component';
+import { TeamManagementComponent } from './panels/structure/team-management/team-management.component';
+import { AreaManagementComponent } from './panels/structure/zone-management/area-management.component';
+
+/**
+ * Admin area routes configuration
+ *
+ * All routes are accessible under the /admin/* path
+ * and require admin authentication (via LoginGuard in app.routes.ts)
+ *
+ * Routes are organized by functional areas:
+ * - Dashboard & Stats
+ * - Event management
+ * - Structure management
+ */
 export const adminRoutes: Routes = [
   {
     path: '',
     component: AdminLayoutComponent,
     children: [
+      // Default route redirects to dashboard
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      },
+
+      // Dashboard & Stats
       {
         path: 'dashboard',
         component: DashboardComponent,
-      },
-      {
-        path: 'events',
-        component: EventsPanelComponent,
-      },
-
-      {
-        path: 'events/create',
-        component: EventCreationComponent,
-      },
-      {
-        path: 'events/calendar',
-        component: EventCalendarComponent
-      },
-      {
-        path: 'event/details',
-        component: EventDetailsPanelComponent,
-      },
-      {
-        path: 'structure',
-        component: StructurePanelComponent,
-      },
-
-      {
-        path: 'structure/team-management',
-        component: TeamManagementComponent,
-      },
-      {
-        path: 'structure/edit',
-        component: StructureEditComponent,
-      },
-      {
-        path: 'structure/area-management',
-        component: AreaManagementComponent,
+        title: 'Tableau de bord | Administration'
       },
       {
         path: 'stats',
         component: StatsComponent,
+        title: 'Statistiques | Administration'
+      },
+
+      // Event Management
+      {
+        path: 'events',
+        component: EventsPanelComponent,
+        title: 'Gestion des événements | Administration'
       },
       {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full',
+        path: 'events/create',
+        component: EventCreationComponent,
+        title: 'Créer un événement | Administration'
       },
-    ],
-  },
+      {
+        path: 'events/calendar',
+        component: EventCalendarComponent,
+        title: 'Calendrier des événements | Administration'
+      },
+      {
+        path: 'event/details',
+        component: EventDetailsPanelComponent,
+        title: 'Détails d\'événement | Administration'
+      },
+
+      // Structure Management
+      {
+        path: 'structure',
+        component: StructurePanelComponent,
+        title: 'Gestion de l\'organisation | Administration'
+      },
+      {
+        path: 'structure/edit',
+        component: StructureEditComponent,
+        title: 'Modifier l\'organisation | Administration'
+      },
+      {
+        path: 'structure/team-management',
+        component: TeamManagementComponent,
+        title: 'Gestion de l\'équipe | Administration'
+      },
+      {
+        path: 'structure/area-management',
+        component: AreaManagementComponent,
+        title: 'Gestion des zones | Administration'
+      }
+    ]
+  }
 ];

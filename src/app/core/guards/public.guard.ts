@@ -51,9 +51,9 @@ export class PublicGuard implements CanActivate {
         redirectUrl = '/admin';
         console.log(`PublicGuard: Redirecting to ${redirectUrl} (admin).`);
       } else {
-        redirectUrl = '/user';
+        redirectUrl = '';
         console.log(
-          `PublicGuard: Redirecting to ${redirectUrl} (default/spectator).`
+          `PublicGuard: Redirecting to last url (default/spectator).`
         );
       }
       return this.router.createUrlTree([redirectUrl]);

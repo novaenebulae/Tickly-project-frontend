@@ -1,0 +1,158 @@
+<div class="ticket-detail-modal">
+  <!-- En-tête -->
+  <div mat-dialog-title class="modal-header">
+    <div class="header-content">
+      <div class="ticket-title">
+        <mat-icon>confirmation_number</mat-icon>
+        <h2>Billet d'entrée</h2>
+      </div>
+      <button mat-icon-button (click)="close()" class="close-button">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <mat-chip [color]="getStatusColor(ticket.status)" class="status-chip">
+      {{ getStatusLabel(ticket.status) }}
+    </mat-chip>
+  </div>
+
+  <!-- Contenu principal -->
+  <div mat-dialog-content class="modal-content">
+
+    <!-- Informations de l'événement -->
+    <mat-card class="event-section">
+      <mat-card-header>
+        <div class="event-header">
+          <div class="event-image" *ngIf="ticket.eventSnapshot.mainPhotoUrl">
+            <img [src]="ticket.eventSnapshot.mainPhotoUrl" [alt]="ticket.eventSnapshot.name">
+          </div>
+          <div class="event-info">
+            <mat-card-title>{{ ticket.eventSnapshot.name }}</mat-card-title>
+            <mat-card-subtitle>
+              {{ formatDate(ticket.eventSnapshot.startDate) }}
+            </mat-card-subtitle>
+          </div>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="event-details">
+          <div class="detail-row">
+            <mat-icon>location_on</mat-icon>
+            <div class="detail-content">
+              <strong>Lieu</strong>
+              <span>{{ ticket.eventSnapshot.address?.number || ''}} {{ ticket.eventSnapshot.address?.street || 'Adresse non disponible' }}</span>
+              <span *ngIf="ticket.eventSnapshot.address?.city">{{ ticket.eventSnapshot.address.city }}</span>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <mat-icon>theater_comedy</mat-icon>
+            <div class="detail-content">
+              <strong>Zone</strong>
+              <span>{{ ticket.audienceZoneSnapshot.name }}</span>
+              <small>{{ ticket.audienceZoneSnapshot.seatingType | titlecase }}</small>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <mat-icon>person</mat-icon>
+            <div class="detail-content">
+              <strong>Participant</strong>
+              <span>{{ ticket.participantInfo.firstName }} {{ ticket.participantInfo.lastName }}</span>
+              <small>{{ ticket.participantInfo.email }}</small>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <mat-icon>schedule</mat-icon>
+            <div class="detail-content">
+              <strong>Billet émis</strong>
+              <span>{{ ticket.issuedAt | date:'short' }}</span>
+            </div>
+          </div>
+
+          <div class="detail-row" *ngIf="ticket.usedAt">
+            <mat-icon>check_circle</mat-icon>
+            <div class="detail-content">
+              <strong>Utilisé</strong>
+              <span>{{ ticket.usedAt | date:'short' }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- QR Code -->
+    <mat-card class="qr-section" *ngIf="ticket.status === 'valid' && isEventUpcoming()">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>qr_code</mat-icon>
+          Code d'entrée
+        </mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="qr-container">
+          <qrcode
+            [qrdata]="ticket.qrCodeData"
+            [width]="200"
+            [errorCorrectionLevel]="'M'"
+            [colorDark]="'#333333'"
+            [colorLight]="'#ffffff'">
+          </qrcode>
+          <p class="qr-instructions">
+            Présentez ce code QR à l'entrée de l'événement
+          </p>
+          <p class="ticket-id">
+            <small>ID: {{ ticket.id }}</small>
+          </p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Message pour billets non valides -->
+    <mat-card class="invalid-ticket-message" *ngIf="ticket.status !== 'valid' || !isEventUpcoming()">
+      <mat-card-content>
+        <div class="message-content">
+          <mat-icon class="warning-icon">info</mat-icon>
+          <div class="message-text">
+            <h3 *ngIf="ticket.status === 'used'">Billet déjà utilisé</h3>
+            <h3 *ngIf="ticket.status === 'cancelled'">Billet annulé</h3>
+            <h3 *ngIf="ticket.status === 'expired'">Billet expiré</h3>
+            <h3 *ngIf="!isEventUpcoming() && ticket.status === 'valid'">Événement passé</h3>
+
+            <p *ngIf="ticket.status === 'used'">
+              Ce billet a été scanné et utilisé pour l'entrée à l'événement.
+            </p>
+            <p *ngIf="ticket.status === 'cancelled'">
+              Ce billet a été annulé et n'est plus valide pour l'entrée.
+            </p>
+            <p *ngIf="ticket.status === 'expired'">
+              Ce billet a expiré et n'est plus valide pour l'entrée.
+            </p>
+            <p *ngIf="!isEventUpcoming() && ticket.status === 'valid'">
+              L'événement a eu lieu. Nous espérons que vous avez passé un bon moment !
+            </p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+  <!-- Actions -->
+  <div mat-dialog-actions class="modal-actions">
+    <button mat-button (click)="close()">
+      Fermer
+    </button>
+    <button mat-raised-button
+            color="primary"
+            (click)="downloadPdf()"
+            [disabled]="isDownloading()">
+      <mat-spinner diameter="20" *ngIf="isDownloading()"></mat-spinner>
+      <mat-icon *ngIf="!isDownloading()">download</mat-icon>
+      <span *ngIf="!isDownloading()">Télécharger PDF</span>
+      <span *ngIf="isDownloading()">Génération...</span>
+    </button>
+  </div>
+</div>

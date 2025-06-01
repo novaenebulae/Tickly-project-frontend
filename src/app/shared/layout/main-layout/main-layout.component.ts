@@ -8,17 +8,17 @@ import { FooterComponent } from '../footer/footer.component';
  * Version simplifiée sans fonctionnalités d'authentification
  */
 @Component({
-  selector: 'app-public-layout',
+  selector: 'app-main-layout',
   standalone: true,
   imports: [
     NavbarComponent,
     FooterComponent,
     RouterOutlet
   ],
-  templateUrl: './public-layout.component.html',
-  styleUrl: './public-layout.component.scss'
+  templateUrl: './main-layout.component.html',
+  styleUrl: './main-layout.component.scss'
 })
-export class PublicLayoutComponent {
+export class MainLayoutComponent {
   // Composant simple - pas de logique particulière nécessaire
   // La navbar gère déjà l'état d'authentification de manière autonome
 }

@@ -1,0 +1,278 @@
+.ticket-detail-modal {
+  --primary-color: #6c63ff;
+  --accent-color: #f72585;
+  --light-gray: #f8f9fa;
+  --dark-gray: #343a40;
+  --text-color: #212529;
+  --white: #ffffff;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+
+  .modal-header {
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+
+      .ticket-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        mat-icon {
+          color: var(--primary-color);
+          font-size: 2rem;
+          width: 2rem;
+          height: 2rem;
+        }
+
+        h2 {
+          margin: 0;
+          color: var(--dark-gray);
+          font-weight: 600;
+        }
+      }
+
+      .close-button {
+        color: var(--dark-gray);
+      }
+    }
+
+    .status-chip {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+  }
+
+  .modal-content {
+    padding: 0;
+    margin: 0;
+    max-height: 70vh;
+    overflow-y: auto;
+
+    // Section informations événement
+    .event-section {
+      margin-bottom: 1.5rem;
+
+      .event-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
+
+        .event-image {
+          width: 80px;
+          height: 80px;
+          border-radius: var(--border-radius);
+          overflow: hidden;
+          flex-shrink: 0;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+
+        .event-info {
+          flex: 1;
+          min-width: 0;
+
+          mat-card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            word-wrap: break-word;
+          }
+
+          mat-card-subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+          }
+        }
+      }
+
+      .event-details {
+        margin-top: 1.5rem;
+
+        .detail-row {
+          display: flex;
+          align-items: flex-start;
+          gap: 1rem;
+          margin: 1rem 0;
+
+          mat-icon {
+            color: var(--primary-color);
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            margin-top: 0.1rem;
+            flex-shrink: 0;
+          }
+
+          .detail-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+
+            strong {
+              color: var(--dark-gray);
+              font-weight: 600;
+              font-size: 0.9rem;
+            }
+
+            span {
+              color: var(--text-color);
+              word-wrap: break-word;
+            }
+
+            small {
+              color: var(--text-color);
+              opacity: 0.7;
+              font-size: 0.8rem;
+            }
+          }
+        }
+      }
+    }
+
+    // Section QR Code
+    .qr-section {
+      margin-bottom: 1.5rem;
+
+      mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--dark-gray);
+
+        mat-icon {
+          color: var(--primary-color);
+        }
+      }
+
+      .qr-container {
+        text-align: center;
+        padding: 1rem 0;
+
+        qrcode {
+          display: inline-block;
+          border: 1px solid #e0e0e0;
+          border-radius: var(--border-radius);
+          padding: 1rem;
+          background-color: var(--white);
+        }
+
+        .qr-instructions {
+          margin: 1rem 0 0.5rem 0;
+          color: var(--text-color);
+          font-weight: 500;
+        }
+
+        .ticket-id {
+          margin: 0;
+
+          small {
+            color: var(--text-color);
+            opacity: 0.6;
+            font-family: monospace;
+          }
+        }
+      }
+    }
+
+    // Message pour billets non valides
+    .invalid-ticket-message {
+      margin-bottom: 1.5rem;
+      background-color: #fff3cd;
+      border: 1px solid #ffeaa7;
+
+      .message-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+
+        .warning-icon {
+          color: #f39c12;
+          font-size: 2rem;
+          width: 2rem;
+          height: 2rem;
+          flex-shrink: 0;
+        }
+
+        .message-text {
+          flex: 1;
+
+          h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--dark-gray);
+            font-size: 1.1rem;
+          }
+
+          p {
+            margin: 0;
+            color: var(--text-color);
+            line-height: 1.5;
+          }
+        }
+      }
+    }
+  }
+
+  .modal-actions {
+    padding: 1rem 0 0 0;
+    margin: 0;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      mat-spinner {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .ticket-detail-modal {
+    .modal-content {
+      .event-section {
+        .event-header {
+          flex-direction: column;
+          text-align: center;
+
+          .event-image {
+            width: 60px;
+            height: 60px;
+          }
+        }
+      }
+
+      .qr-section {
+        .qr-container {
+          qrcode {
+            padding: 0.5rem;
+          }
+        }
+      }
+    }
+
+    .modal-actions {
+      flex-direction: column;
+
+      button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+}
