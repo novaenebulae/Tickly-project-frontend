@@ -1,7 +1,6 @@
 .tickets-page {
-  min-height: 100vh;
   background-color: #f8f9fa;
-  padding: 2rem 0;
+  padding: 0 0 2rem 0;
 
   --primary-color: #6c63ff;
   --accent-color: #f72585;
@@ -11,58 +10,110 @@
   --white: #ffffff;
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   --border-radius: 8px;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+
+  .status-badge {
+    //font-size: 0.8rem;
+    //font-weight: 500;
+    //padding: 0.2rem 0.6rem;
+    //border-radius: 12px;
+
+    &.valid {
+      background-color: var(--success-color) !important;
+      color: white;
+    }
+
+    &.used {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    &.cancelled {
+      background-color: var(--danger-color);
+      color: white;
+    }
+
+    &.expired {
+      background-color: var(--warning-color);
+      color: var(--dark-gray);
+    }
+  }
 
   .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
 
     @media (max-width: 768px) {
       padding: 0 0.5rem;
     }
   }
 
-  // En-tête de la page
-  .page-header {
-    text-align: center;
-    margin-bottom: 3rem;
+  // En-tête de la page avec bannière
+  .page-header-banner {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #4a45ff 100%);
+    color: white;
+    padding: 2.5rem 0;
+    margin-bottom: 2rem;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 
-    h1 {
+    .banner-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
       display: flex;
-      align-items: center;
+      flex-direction: column;
       justify-content: center;
-      gap: 0.5rem;
-      color: var(--dark-gray);
-      font-size: 2.5rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
+      align-items: center;
 
-      @media (max-width: 768px) {
-        font-size: 2rem;
+      .header-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
       }
 
-      mat-icon {
-        font-size: 2.5rem;
-        width: 2.5rem;
-        height: 2.5rem;
-        color: var(--primary-color);
+      .header-icon {
+        font-size: 2.8rem;
+        width: 2.8rem;
+        height: 2.8rem;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        padding: 0.7rem;
+        box-sizing: content-box;
 
         @media (max-width: 768px) {
           font-size: 2rem;
           width: 2rem;
           height: 2rem;
+          padding: 0.5rem;
         }
       }
-    }
 
-    .page-description {
-      font-size: 1.2rem;
-      color: var(--text-color);
-      opacity: 0.8;
-      margin: 0;
+      h1 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 
-      @media (max-width: 768px) {
-        font-size: 1rem;
+        @media (max-width: 768px) {
+          font-size: 2rem;
+        }
+      }
+
+      .page-description {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 800px;
+        margin: 0;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+        @media (max-width: 768px) {
+          font-size: 1rem;
+        }
       }
     }
   }
@@ -107,8 +158,15 @@
     }
   }
 
+  .tickets-content {
+    max-width: 80%;
+    margin: 0 auto;
+  }
+
   // Onglets des billets
   .tickets-tabs {
+    margin-top: 1.5rem;
+
     ::ng-deep {
       .mat-tab-label {
         font-weight: 500;
@@ -126,27 +184,28 @@
     .tab-content {
       padding: 2rem 0;
 
-      // Grille des billets
-      .tickets-grid {
+      // Grille des événements
+      .events-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
         gap: 1.5rem;
 
         @media (max-width: 768px) {
           grid-template-columns: 1fr;
         }
 
-        .ticket-card {
+        .event-card {
           cursor: pointer;
           transition: all 0.3s ease;
           border: 1px solid #e0e0e0;
+
 
           &:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
           }
 
-          &.past-ticket {
+          &.past-event {
             opacity: 0.85;
 
             &:hover {
@@ -154,20 +213,12 @@
             }
           }
 
-          &.cancelled-ticket {
-            opacity: 0.7;
-            background-color: #fafafa;
-
-            &:hover {
-              opacity: 0.9;
-            }
-          }
-
-          .ticket-header {
+          .event-header {
             display: flex;
             align-items: flex-start;
             gap: 1rem;
             width: 100%;
+            padding: 0.5rem 0.5rem 0;
 
             .event-image {
               width: 60px;
@@ -194,12 +245,12 @@
               }
             }
 
-            .ticket-info {
+            .event-info {
               flex: 1;
               min-width: 0;
 
               mat-card-title {
-                font-size: 1.1rem;
+                font-size: 1.2rem;
                 font-weight: 600;
                 margin-bottom: 0.5rem;
                 word-wrap: break-word;
@@ -211,21 +262,34 @@
               }
             }
 
-            mat-chip {
+            .tickets-summary {
               flex-shrink: 0;
-              font-size: 0.8rem;
+
+              mat-chip {
+                font-size: 0.8rem;
+              }
             }
           }
 
-          .ticket-details {
-            margin-top: 1rem;
+          .participants-preview {
+            margin: 1.5rem 0;
+            padding: 0 0.5rem;
 
-            .detail-item {
+            .participant-item {
               display: flex;
               align-items: center;
               gap: 0.5rem;
               margin: 0.5rem 0;
               font-size: 0.9rem;
+
+              &.invalid {
+                opacity: 0.6;
+              }
+
+              &.used {
+                opacity: 0.8;
+                text-decoration: line-through;
+              }
 
               mat-icon {
                 font-size: 16px;
@@ -235,15 +299,31 @@
               }
 
               span {
-                word-wrap: break-word;
                 flex: 1;
+                word-wrap: break-word;
               }
+
+              .mini-status {
+                font-size: 0.7rem;
+                height: 20px;
+                line-height: 20px;
+              }
+            }
+
+            .more-participants {
+              font-size: 0.8rem;
+              color: var(--text-color);
+              opacity: 0.7;
+              margin-top: 0.5rem;
+              font-style: italic;
             }
           }
 
           mat-card-actions {
-            padding-top: 1rem;
             border-top: 1px solid #e0e0e0;
+            padding: 0.5rem;
+            width: 100%;
+            justify-content: space-between;
 
             button {
               font-size: 0.9rem;

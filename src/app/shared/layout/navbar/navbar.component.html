@@ -45,11 +45,23 @@
           <!-- Espace Personnel Link -->
           <li class="nav-item">
             <a class="nav-link"
-               routerLink="/user/dashboard"
+               routerLink="/user/tickets"
+               routerLinkActive="active"
+               (click)="navigateAndCloseMenus()">
+              <mat-icon class="nav-icon">confirmation_number</mat-icon>
+              <span class="nav-text">Mes Billets</span>
+            </a>
+          </li>
+        }
+        @if (isLoggedIn() && currentUser()?.role?.includes('ADMIN')) {
+          <!-- Espace Personnel Link -->
+          <li class="nav-item">
+            <a class="nav-link"
+               routerLink="/admin/dashboard"
                routerLinkActive="active"
                (click)="navigateAndCloseMenus()">
               <mat-icon class="nav-icon">dashboard</mat-icon>
-              <span class="nav-text">Espace Personnel</span>
+              <span class="nav-text">Ma Structure</span>
             </a>
           </li>
         }

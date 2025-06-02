@@ -36,45 +36,63 @@ export class TicketDetailModalComponent {
   private ticketService = inject(TicketService);
   private dialogRef = inject(MatDialogRef<TicketDetailModalComponent>);
 
-  ticket: TicketModel;
+  tickets: TicketModel[] = [];
+  eventInfo: any;
   isDownloading = signal(false);
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: TicketDetailModalData) {
-    this.ticket = data.ticket;
+    if (Array.isArray(data.ticket)) {
+      this.tickets = data.ticket;
+      this.eventInfo = this.tickets[0]?.eventSnapshot;
+    } else {
+      this.tickets = [data.ticket];
+      this.eventInfo = data.ticket.eventSnapshot;
+    }
   }
 
   close(): void {
     this.dialogRef.close();
   }
 
-  downloadPdf(): void {
+  downloadAllPdfs(): void {
     this.isDownloading.set(true);
 
-    this.ticketService.prepareTicketPdfData(this.ticket.id).subscribe({
+    // Télécharger tous les billets
+    const downloadPromises = this.tickets.map(ticket =>
+      this.ticketService.prepareTicketPdfData(ticket.id).toPromise()
+    );
+
+    Promise.all(downloadPromises).then((pdfDataArray) => {
+      pdfDataArray.forEach((pdfData, index) => {
+        if (pdfData) {
+          this.generatePdfFromData(pdfData, this.tickets[index]);
+        }
+      });
+      this.isDownloading.set(false);
+    }).catch(() => {
+      this.isDownloading.set(false);
+    });
+  }
+
+  downloadSinglePdf(ticket: TicketModel): void {
+    this.ticketService.prepareTicketPdfData(ticket.id).subscribe({
       next: (pdfData) => {
         if (pdfData) {
-          // Ici, vous pourriez intégrer une bibliothèque de génération PDF
-          // comme jsPDF ou utiliser un service backend pour générer le PDF
-          this.generatePdfFromData(pdfData);
+          this.generatePdfFromData(pdfData, ticket);
         }
-        this.isDownloading.set(false);
       },
       error: () => {
-        this.isDownloading.set(false);
+        console.error('Erreur lors du téléchargement du PDF');
       }
     });
   }
 
-  private generatePdfFromData(pdfData: any): void {
-    // Implémentation de la génération PDF
-    // Pour l'instant, on simule le téléchargement
-    const fileName = `billet-${this.ticket.eventSnapshot.name.replace(/\s+/g, '-')}-${this.ticket.id}.pdf`;
+  private generatePdfFromData(pdfData: any, ticket: TicketModel): void {
+    const fileName = `billet-${this.eventInfo.name.replace(/\s+/g, '-')}-${ticket.participantInfo.firstName}-${ticket.id.slice(-6)}.pdf`;
     console.log('Génération du PDF:', fileName, pdfData);
 
-    // Simuler le téléchargement
     const link = document.createElement('a');
     link.download = fileName;
-    // link.href = 'data:application/pdf;base64,' + pdfBase64; // À implémenter
     link.click();
   }
 
@@ -120,6 +138,14 @@ export class TicketDetailModalComponent {
   }
 
   isEventUpcoming(): boolean {
-    return new Date(this.ticket.eventSnapshot.startDate) > new Date();
+    return new Date(this.eventInfo.startDate) > new Date();
+  }
+
+  hasValidTickets(): boolean {
+    return this.tickets.some(ticket => ticket.status === TicketStatus.VALID);
+  }
+
+  getValidTicketsCount(): number {
+    return this.tickets.filter(ticket => ticket.status === TicketStatus.VALID).length;
   }
 }

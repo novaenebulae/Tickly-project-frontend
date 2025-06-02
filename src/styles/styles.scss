@@ -123,3 +123,7 @@ mat-snack-bar-container {
     background-color: rgba(0,0,0,0.3);
   }
 }
+
+.mat-mdc-icon-button {
+  display: flex !important;
+}

@@ -2,14 +2,16 @@
   <div class="container">
 
     <!-- En-tête -->
-    <div class="page-header">
-      <h1>
-        <mat-icon>confirmation_number</mat-icon>
-        Mes billets
-      </h1>
-      <p class="page-description">
-        Retrouvez tous vos billets d'événements, passés et à venir
-      </p>
+    <div class="page-header-banner">
+      <div class="banner-content">
+        <div class="header-title">
+          <mat-icon class="header-icon">confirmation_number</mat-icon>
+          <h1>Mes billets</h1>
+        </div>
+        <p class="page-description">
+          Retrouvez tous vos billets d'événements, groupés par événement
+        </p>
+      </div>
     </div>
 
     <!-- État de chargement -->
@@ -22,7 +24,7 @@
     <div class="tickets-content" *ngIf="!isLoading()">
 
       <!-- Message si aucun billet -->
-      <div class="no-tickets" *ngIf="allTickets().length === 0">
+      <div class="no-tickets" *ngIf="groupedTickets().size === 0">
         <mat-icon>inbox</mat-icon>
         <h2>Aucun billet trouvé</h2>
         <p>Vous n'avez encore réservé aucun billet.</p>
@@ -31,49 +33,51 @@
         </button>
       </div>
 
-      <!-- Onglets de billets -->
-      <mat-tab-group *ngIf="allTickets().length > 0" class="tickets-tabs" dynamicHeight>
+      <!-- Onglets des événements -->
+      <mat-tab-group *ngIf="groupedTickets().size > 0" class="tickets-tabs" dynamicHeight>
 
-        <!-- Billets à venir -->
-        <mat-tab [label]="'À venir (' + upcomingTickets().length + ')'">
+        <!-- Événements à venir -->
+        <mat-tab [label]="'À venir (' + upcomingEvents().size + ')'">
           <div class="tab-content">
-            <div class="tickets-grid" *ngIf="upcomingTickets().length > 0">
-              <mat-card class="ticket-card"
-                        *ngFor="let ticket of upcomingTickets()"
-                        (click)="openTicketDetail(ticket)">
+            <div class="events-grid" *ngIf="upcomingEvents().size > 0">
+              <mat-card class="event-card"
+                        *ngFor="let entry of upcomingEvents() | keyvalue"
+                        (click)="openEventTickets(entry.value)">
                 <mat-card-header>
-                  <div class="ticket-header">
+                  <div class="event-header">
                     <div class="event-image">
-                      <img [src]="ticket.eventSnapshot.mainPhotoUrl"
-                           [alt]="ticket.eventSnapshot.name"
-                           *ngIf="ticket.eventSnapshot.mainPhotoUrl">
-                      <mat-icon *ngIf="!ticket.eventSnapshot.mainPhotoUrl">event</mat-icon>
+                      <img [src]="entry.value[0].eventSnapshot.mainPhotoUrl"
+                           [alt]="entry.value[0].eventSnapshot.name"
+                           *ngIf="entry.value[0].eventSnapshot.mainPhotoUrl">
+                      <mat-icon *ngIf="!entry.value[0].eventSnapshot.mainPhotoUrl">event</mat-icon>
                     </div>
-                    <div class="ticket-info">
-                      <mat-card-title>{{ ticket.eventSnapshot.name }}</mat-card-title>
+                    <div class="event-info">
+                      <mat-card-title>{{ entry.value[0].eventSnapshot.name }}</mat-card-title>
                       <mat-card-subtitle>
-                        {{ formatEventDate(ticket.eventSnapshot.startDate) }}
+                        {{ formatEventDate(entry.value[0].eventSnapshot.startDate) }}
                       </mat-card-subtitle>
                     </div>
-                    <mat-chip [color]="getStatusColor(ticket.status)">
-                      {{ getStatusLabel(ticket.status) }}
-                    </mat-chip>
+                    <div class="tickets-summary">
+                      <mat-chip [color]="getStatusColor(getMainEventStatus(entry.value))">
+                        {{ getEventTicketsSummary(entry.value) }}
+                      </mat-chip>
+                    </div>
                   </div>
                 </mat-card-header>
 
                 <mat-card-content>
-                  <div class="ticket-details">
-                    <div class="detail-item">
-                      <mat-icon>location_on</mat-icon>
-                      <span>{{ ticket.eventSnapshot.address?.number || '' }} {{ ticket.eventSnapshot.address?.street || 'Adresse non disponible' }}</span>
-                    </div>
-                    <div class="detail-item">
+                  <div class="participants-preview">
+                    <div class="participant-item"
+                         *ngFor="let ticket of entry.value.slice(0, 3)"
+                         [class.invalid]="ticket.status !== 'valid'">
                       <mat-icon>person</mat-icon>
                       <span>{{ ticket.participantInfo.firstName }} {{ ticket.participantInfo.lastName }}</span>
+                      <mat-chip [ngClass]="getStatusColor(ticket.status)" class="mini-status status-badge">
+                        {{ getStatusLabel(ticket.status) }}
+                      </mat-chip>
                     </div>
-                    <div class="detail-item">
-                      <mat-icon>theater_comedy</mat-icon>
-                      <span>{{ ticket.audienceZoneSnapshot.name }}</span>
+                    <div class="more-participants" *ngIf="entry.value.length > 3">
+                      <span>+{{ entry.value.length - 3 }} autre{{ entry.value.length - 3 > 1 ? 's' : '' }} participant{{ entry.value.length - 3 > 1 ? 's' : '' }}</span>
                     </div>
                   </div>
                 </mat-card-content>
@@ -81,7 +85,7 @@
                 <mat-card-actions>
                   <button mat-button color="primary">
                     <mat-icon>qr_code</mat-icon>
-                    Voir le billet
+                    Voir les billets
                   </button>
                   <button mat-button>
                     <mat-icon>download</mat-icon>
@@ -91,7 +95,7 @@
               </mat-card>
             </div>
 
-            <div class="empty-state" *ngIf="upcomingTickets().length === 0">
+            <div class="empty-state" *ngIf="upcomingEvents().size === 0">
               <mat-icon>event_upcoming</mat-icon>
               <h3>Aucun événement à venir</h3>
               <p>Vous n'avez pas de billets pour des événements futurs.</p>
@@ -102,46 +106,45 @@
           </div>
         </mat-tab>
 
-        <!-- Billets passés -->
-        <mat-tab [label]="'Passés (' + pastTickets().length + ')'">
+        <!-- Événements passés -->
+        <mat-tab [label]="'Passés (' + pastEvents().size + ')'">
           <div class="tab-content">
-            <div class="tickets-grid" *ngIf="pastTickets().length > 0">
-              <mat-card class="ticket-card past-ticket"
-                        *ngFor="let ticket of pastTickets()"
-                        (click)="openTicketDetail(ticket)">
+            <div class="events-grid" *ngIf="pastEvents().size > 0">
+              <mat-card class="event-card past-event"
+                        *ngFor="let entry of pastEvents() | keyvalue"
+                        (click)="openEventTickets(entry.value)">
                 <mat-card-header>
-                  <div class="ticket-header">
+                  <div class="event-header">
                     <div class="event-image">
-                      <img [src]="ticket.eventSnapshot.mainPhotoUrl"
-                           [alt]="ticket.eventSnapshot.name"
-                           *ngIf="ticket.eventSnapshot.mainPhotoUrl">
-                      <mat-icon *ngIf="!ticket.eventSnapshot.mainPhotoUrl">event</mat-icon>
+                      <img [src]="entry.value[0].eventSnapshot.mainPhotoUrl"
+                           [alt]="entry.value[0].eventSnapshot.name"
+                           *ngIf="entry.value[0].eventSnapshot.mainPhotoUrl">
+                      <mat-icon *ngIf="!entry.value[0].eventSnapshot.mainPhotoUrl">event</mat-icon>
                     </div>
-                    <div class="ticket-info">
-                      <mat-card-title>{{ ticket.eventSnapshot.name }}</mat-card-title>
+                    <div class="event-info">
+                      <mat-card-title>{{ entry.value[0].eventSnapshot.name }}</mat-card-title>
                       <mat-card-subtitle>
-                        {{ formatEventDate(ticket.eventSnapshot.startDate) }}
+                        {{ formatEventDate(entry.value[0].eventSnapshot.startDate) }}
                       </mat-card-subtitle>
                     </div>
-                    <mat-chip [color]="getStatusColor(ticket.status)">
-                      {{ getStatusLabel(ticket.status) }}
-                    </mat-chip>
+                    <div class="tickets-summary">
+                      <mat-chip [color]="getStatusColor(getMainEventStatus(entry.value))">
+                        {{ getEventTicketsSummary(entry.value) }}
+                      </mat-chip>
+                    </div>
                   </div>
                 </mat-card-header>
 
                 <mat-card-content>
-                  <div class="ticket-details">
-                    <div class="detail-item">
+                  <div class="participants-preview">
+                    <div class="participant-item"
+                         *ngFor="let ticket of entry.value.slice(0, 3)"
+                         [class.used]="ticket.status === 'used'">
                       <mat-icon>person</mat-icon>
                       <span>{{ ticket.participantInfo.firstName }} {{ ticket.participantInfo.lastName }}</span>
                     </div>
-                    <div class="detail-item">
-                      <mat-icon>theater_comedy</mat-icon>
-                      <span>{{ ticket.audienceZoneSnapshot.name }}</span>
-                    </div>
-                    <div class="detail-item" *ngIf="ticket.usedAt">
-                      <mat-icon>access_time</mat-icon>
-                      <span>Utilisé le {{ ticket.usedAt | date:'short' }}</span>
+                    <div class="more-participants" *ngIf="entry.value.length > 3">
+                      <span>+{{ entry.value.length - 3 }} autre{{ entry.value.length - 3 > 1 ? 's' : '' }}</span>
                     </div>
                   </div>
                 </mat-card-content>
@@ -159,61 +162,10 @@
               </mat-card>
             </div>
 
-            <div class="empty-state" *ngIf="pastTickets().length === 0">
+            <div class="empty-state" *ngIf="pastEvents().size === 0">
               <mat-icon>history</mat-icon>
               <h3>Aucun événement passé</h3>
               <p>Vous n'avez pas encore assisté à d'événements.</p>
-            </div>
-          </div>
-        </mat-tab>
-
-        <!-- Billets annulés -->
-        <mat-tab [label]="'Annulés (' + cancelledTickets().length + ')'" *ngIf="cancelledTickets().length > 0">
-          <div class="tab-content">
-            <div class="tickets-grid">
-              <mat-card class="ticket-card cancelled-ticket"
-                        *ngFor="let ticket of cancelledTickets()"
-                        (click)="openTicketDetail(ticket)">
-                <mat-card-header>
-                  <div class="ticket-header">
-                    <div class="event-image">
-                      <img [src]="ticket.eventSnapshot.mainPhotoUrl"
-                           [alt]="ticket.eventSnapshot.name"
-                           *ngIf="ticket.eventSnapshot.mainPhotoUrl">
-                      <mat-icon *ngIf="!ticket.eventSnapshot.mainPhotoUrl">event</mat-icon>
-                    </div>
-                    <div class="ticket-info">
-                      <mat-card-title>{{ ticket.eventSnapshot.name }}</mat-card-title>
-                      <mat-card-subtitle>
-                        {{ formatEventDate(ticket.eventSnapshot.startDate) }}
-                      </mat-card-subtitle>
-                    </div>
-                    <mat-chip [color]="getStatusColor(ticket.status)">
-                      {{ getStatusLabel(ticket.status) }}
-                    </mat-chip>
-                  </div>
-                </mat-card-header>
-
-                <mat-card-content>
-                  <div class="ticket-details">
-                    <div class="detail-item">
-                      <mat-icon>person</mat-icon>
-                      <span>{{ ticket.participantInfo.firstName }} {{ ticket.participantInfo.lastName }}</span>
-                    </div>
-                    <div class="detail-item">
-                      <mat-icon>theater_comedy</mat-icon>
-                      <span>{{ ticket.audienceZoneSnapshot.name }}</span>
-                    </div>
-                  </div>
-                </mat-card-content>
-
-                <mat-card-actions>
-                  <button mat-button>
-                    <mat-icon>visibility</mat-icon>
-                    Voir les détails
-                  </button>
-                </mat-card-actions>
-              </mat-card>
             </div>
           </div>
         </mat-tab>

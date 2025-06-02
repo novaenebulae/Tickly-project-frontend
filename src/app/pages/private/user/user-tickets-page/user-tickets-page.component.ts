@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, KeyValuePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
@@ -44,26 +44,55 @@ export class UserTicketsPage implements OnInit, OnDestroy {
   allTickets = computed(() => this.ticketService.myTickets());
   isLoading = signal(true);
 
-  // Tickets filtrés par statut et date
-  upcomingTickets = computed(() => {
-    const now = new Date();
-    return this.allTickets().filter(ticket =>
-      new Date(ticket.eventSnapshot.startDate) > now &&
-      (ticket.status === TicketStatus.VALID)
-    );
+  // Tickets groupés par événement
+  groupedTickets = computed(() => {
+    const tickets = this.allTickets();
+    const grouped = new Map<number, TicketModel[]>();
+
+    tickets.forEach(ticket => {
+      const eventId = ticket.eventId;
+      if (!grouped.has(eventId)) {
+        grouped.set(eventId, []);
+      }
+      grouped.get(eventId)!.push(ticket);
+    });
+
+    return grouped;
   });
 
-  pastTickets = computed(() => {
+  // Événements avec billets à venir
+  upcomingEvents = computed(() => {
     const now = new Date();
-    return this.allTickets().filter(ticket =>
-      new Date(ticket.eventSnapshot.startDate) <= now ||
-      ticket.status === TicketStatus.USED ||
-      ticket.status === TicketStatus.EXPIRED
-    );
+    const events = new Map<number, TicketModel[]>();
+
+    this.groupedTickets().forEach((tickets, eventId) => {
+      const eventDate = new Date(tickets[0].eventSnapshot.startDate);
+      if (eventDate > now) {
+        const validTickets = tickets.filter(t => t.status === TicketStatus.VALID);
+        if (validTickets.length > 0) {
+          events.set(eventId, tickets);
+        }
+      }
+    });
+
+    // Convertir en tableau pour éviter l'erreur ExpressionChangedAfterItHasBeenCheckedError
+    return events;
   });
 
-  cancelledTickets = computed(() => {
-    return this.allTickets().filter(ticket => ticket.status === TicketStatus.CANCELLED);
+  // Événements passés
+  pastEvents = computed(() => {
+    const now = new Date();
+    const events = new Map<number, TicketModel[]>();
+
+    this.groupedTickets().forEach((tickets, eventId) => {
+      const eventDate = new Date(tickets[0].eventSnapshot.startDate);
+      if (eventDate <= now || tickets.some(t => t.status === TicketStatus.USED || t.status === TicketStatus.EXPIRED)) {
+        events.set(eventId, tickets);
+      }
+    });
+
+    // Convertir en tableau pour éviter l'erreur ExpressionChangedAfterItHasBeenCheckedError
+    return events;
   });
 
   ngOnInit(): void {
@@ -90,11 +119,12 @@ export class UserTicketsPage implements OnInit, OnDestroy {
     });
   }
 
-  openTicketDetail(ticket: TicketModel): void {
+  openEventTickets(tickets: TicketModel[]): void {
     const dialogRef = this.dialog.open(TicketDetailModalComponent, {
-      width: '90vw',
-      maxWidth: '600px',
-      data: { ticket }
+      width: 'auto',
+      maxWidth: '800px',
+      // maxHeight: '90vh',
+      data: { ticket: tickets } // Passer la liste de billets
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -104,14 +134,38 @@ export class UserTicketsPage implements OnInit, OnDestroy {
     });
   }
 
+  getEventTicketsSummary(tickets: TicketModel[]): string {
+    const validCount = tickets.filter(t => t.status === TicketStatus.VALID).length;
+    const total = tickets.length;
+
+    if (validCount === total) {
+      return `${total} billet${total > 1 ? 's' : ''}`;
+    } else {
+      return `${validCount}/${total} billet${total > 1 ? 's' : ''} valide${validCount > 1 ? 's' : ''}`;
+    }
+  }
+
+  getMainEventStatus(tickets: TicketModel[]): TicketStatus {
+    if (tickets.every(t => t.status === TicketStatus.VALID)) {
+      return TicketStatus.VALID;
+    } else if (tickets.some(t => t.status === TicketStatus.USED)) {
+      return TicketStatus.USED;
+    } else if (tickets.some(t => t.status === TicketStatus.CANCELLED)) {
+      return TicketStatus.CANCELLED;
+    } else {
+      return TicketStatus.EXPIRED;
+    }
+  }
+
+  // Méthodes utilitaires existantes...
   getStatusColor(status: TicketStatus): string {
     switch (status) {
       case TicketStatus.VALID:
-        return 'primary';
+        return 'valid';
       case TicketStatus.USED:
-        return 'accent';
+        return 'used';
       case TicketStatus.CANCELLED:
-        return 'warn';
+        return 'canceled';
       case TicketStatus.EXPIRED:
         return '';
       default:
@@ -144,9 +198,5 @@ export class UserTicketsPage implements OnInit, OnDestroy {
       hour: '2-digit',
       minute: '2-digit'
     });
-  }
-
-  isEventUpcoming(date: Date | string): boolean {
-    return new Date(date) > new Date();
   }
 }

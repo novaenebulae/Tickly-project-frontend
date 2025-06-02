@@ -11,12 +11,16 @@ import { Observable, of } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid'; // For generating unique ticket IDs
 
 import { ApiConfigService } from '../api-config.service';
+import { AuthService } from '../../domain/user/auth.service'; // Ajout pour récupérer l'utilisateur connecté
 import {
   ReservationRequestDto,
   ReservationConfirmationModel,
 } from '../../../models/tickets/reservation.model';
 import { TicketModel } from '../../../models/tickets/ticket.model';
 import { TicketStatus} from '../../../models/tickets/ticket-status.enum';
+
+// Importer les données mock existantes
+import { mockTickets } from '../../../mocks/tickets/data/tickets-data.mock';
 
 // Mock data - We'll need mock events and audience zones for snapshots
 // For simplicity, we'll use placeholder snapshots or require them in the DTO for mock.
@@ -29,12 +33,18 @@ import { allMockEvents } from '../../../mocks/events/data/event-data.mock';
 })
 export class TicketApiMockService {
   private apiConfig = inject(ApiConfigService);
+  private authService = inject(AuthService); // Injection du service d'authentification
 
-  // In-memory store for mock tickets (simulates DB)
-  private currentMockTickets: TicketModel[] = [];
-  private currentUserId = 1; // Simulate a logged-in user
+  // In-memory store for mock tickets (simulates DB) - Initialiser avec les données mock
+  private currentMockTickets: TicketModel[] = [...mockTickets]; // Copie des données mock
 
-  //TODO: get user id
+  /**
+   * Récupère l'ID de l'utilisateur actuellement connecté
+   */
+  private getCurrentUserId(): number {
+    return this.authService.currentUser()?.userId || 1; // Fallback sur 1 si pas connecté
+  }
+
   /**
    * Mock implementation for creating a reservation and issuing tickets.
    * @param reservationDto - DTO containing reservation request details.
@@ -63,7 +73,7 @@ export class TicketApiMockService {
       return this.apiConfig.createMockError(404, `Mock: Audience Zone with ID ${reservationDto.audienceZoneId} not found for event ${reservationDto.eventId}.`);
     }
 
-
+    const currentUserId = this.getCurrentUserId();
     const issuedTickets: TicketModel[] = [];
     const now = new Date();
 
@@ -88,7 +98,7 @@ export class TicketApiMockService {
         qrCodeData: `TICKET_VALIDATE_URL/${newTicketId}`, // Example QR data
         status: TicketStatus.VALID,
         issuedAt: now,
-        bookedByUserId: reservationDto.userId || this.currentUserId,
+        bookedByUserId: reservationDto.userId || currentUserId,
       };
       issuedTickets.push(newTicket);
       this.currentMockTickets.push(newTicket); // Add to in-memory store
@@ -97,7 +107,7 @@ export class TicketApiMockService {
     const confirmation: ReservationConfirmationModel = {
       reservationId: `RES-${uuidv4().substring(0, 8).toUpperCase()}`,
       eventId: reservationDto.eventId,
-      userId: reservationDto.userId || this.currentUserId,
+      userId: reservationDto.userId || currentUserId,
       issuedTickets: issuedTickets,
       totalTicketsIssued: issuedTickets.length,
       reservationDate: now,
@@ -114,9 +124,14 @@ export class TicketApiMockService {
     const endpointContext = 'ticketing/tickets/my';
     this.apiConfig.logApiRequest('MOCK GET', endpointContext);
 
+    const currentUserId = this.getCurrentUserId();
     const userTickets = this.currentMockTickets.filter(
-      ticket => ticket.bookedByUserId === this.currentUserId
+      ticket => ticket.bookedByUserId === currentUserId
     );
+
+    console.log(`🎫 Mock: Récupération des billets pour l'utilisateur ID ${currentUserId}`);
+    console.log(`🎫 Total billets trouvés: ${userTickets.length}`, userTickets);
+
     return this.apiConfig.createMockResponse(userTickets);
   }
 
