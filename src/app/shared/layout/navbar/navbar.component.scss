@@ -78,6 +78,7 @@
     transition: all 0.3s ease;
     max-width: 250px;
     position: relative; // Pour le badge
+    overflow: visible;
 
     &:hover {
       background-color: rgba(255, 255, 255, 0.1);

@@ -6,9 +6,11 @@
 
     <div class="banner-content container">
       <!-- Bouton de retour -->
+      @if (showNav) {
       <button mat-icon-button class="back-button" (click)="goBack()">
         <mat-icon>arrow_back</mat-icon>
       </button>
+      }
 
       <div class="event-status">
         <mat-chip [ngClass]="statusInfo.class">

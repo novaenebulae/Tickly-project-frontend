@@ -2,18 +2,49 @@
   <div class="filters-header">
     <h3 class="filters-title">Filtrer les structures</h3>
     <button class="reset-button" (click)="resetFilters()">
-      <i class="bi bi-arrow-counterclockwise"></i>
+      <mat-icon>refresh</mat-icon>
       Réinitialiser les filtres
     </button>
   </div>
 
   <div class="filters-body">
+    <!-- Catégories (types) avec drawer expansible -->
+    <div class="category-section">
+      <div class="category-header">
+        <label class="filter-label">Catégories</label>
+        <button class="expand-categories-btn" (click)="toggleCategoriesExpand()" *ngIf="structureTypes.length > MAX_VISIBLE_CATEGORIES">
+          <mat-icon>{{ isCategoriesExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+          {{ isCategoriesExpanded ? 'Réduire' : 'Voir tout' }}
+        </button>
+      </div>
+
+      <div class="type-chips-container" [class.expanded]="isCategoriesExpanded">
+        <div class="type-chips">
+          <!-- Affiche seulement MAX_VISIBLE_CATEGORIES quand le drawer est fermé -->
+          <div
+            *ngFor="let type of structureTypes; let i = index"
+            class="type-chip"
+            [class.active]="isTypeSelected(type.id)"
+            [class.hidden]="!isCategoriesExpanded && i >= MAX_VISIBLE_CATEGORIES"
+            (click)="toggleTypeFilter(type.id)"
+          >
+            <mat-icon>{{ getTypeIcon(type.id) }}</mat-icon>
+            {{ type.name }}
+          </div>
+
+          <!-- Message si pas de types disponibles -->
+          <div *ngIf="!structureTypes || structureTypes.length === 0" class="no-types-message">
+            Aucune catégorie disponible
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Ligne principale: recherche, ville et tri sur la même ligne -->
     <div class="main-filter-row">
       <!-- Recherche -->
       <div class="search-field">
         <div class="input-with-icon">
-          <i class="bi bi-search"></i>
+          <mat-icon>search</mat-icon>
           <input
             type="text"
             class="form-control"
@@ -57,32 +88,13 @@
 
           <!-- Bouton de direction de tri -->
           <button class="sort-direction-button" (click)="toggleSortDirection()">
-            <i class="bi" [ngClass]="sortDirection === 'asc' ? 'bi-arrow-up' : 'bi-arrow-down'"></i>
+            <mat-icon>{{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Catégories (types) -->
-    <div class="category-section">
-      <label class="filter-label">Catégories</label>
-      <div class="type-chips">
-        <div
-          *ngFor="let type of structureTypes"
-          class="type-chip"
-          [class.active]="isTypeSelected(type.id)"
-          (click)="toggleTypeFilter(type.id)"
-        >
-          <i class="bi" [ngClass]="getTypeIcon(type.id)"></i>
-          {{ type.name }}
-        </div>
 
-        <!-- Message si pas de types disponibles -->
-        <div *ngIf="!structureTypes || structureTypes.length === 0" class="no-types-message">
-          Aucune catégorie disponible
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Indicateur des filtres actifs -->
@@ -90,15 +102,15 @@
     <div class="active-filter-chips">
       <div class="filter-chip" *ngIf="searchQuery">
         <span>Recherche: {{ searchQuery }}</span>
-        <i class="bi bi-x-circle" (click)="clearSearch()"></i>
+        <mat-icon (click)="clearSearch()">cancel</mat-icon>
       </div>
       <div class="filter-chip" *ngIf="cityQuery">
         <span>Ville: {{ cityQuery }}</span>
-        <i class="bi bi-x-circle" (click)="clearCity()"></i>
+        <mat-icon (click)="clearCity()">cancel</mat-icon>
       </div>
       <div class="filter-chip" *ngFor="let type of selectedTypes">
         <span>{{ getTypeName(type) }}</span>
-        <i class="bi bi-x-circle" (click)="toggleTypeFilter(type)"></i>
+        <mat-icon (click)="toggleTypeFilter(type)">cancel</mat-icon>
       </div>
       <div class="filter-chip sort-chip">
         <span>Tri: {{ getSortLabel() }} ({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>

@@ -1,0 +1,234 @@
+<div class="structure-details-page">
+  <!-- Loading état de la structure -->
+  <div *ngIf="isLoadingStructure()" class="loading-container">
+    <div class="structure-skeleton">
+      <div class="skeleton-hero"></div>
+      <div class="skeleton-content"></div>
+    </div>
+  </div>
+
+  <!-- Erreur de chargement de la structure -->
+  <div *ngIf="structureError()" class="error-container">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <h2>{{ structureError() }}</h2>
+    <button mat-raised-button color="primary" routerLink="/structures">
+      <mat-icon>arrow_back</mat-icon>
+      Retour aux structures
+    </button>
+  </div>
+
+  <!-- Contenu principal -->
+  <div *ngIf="structure() && !isLoadingStructure()" class="structure-content">
+
+    <!-- Hero Section avec bannière de la structure -->
+    <section class="structure-hero">
+      <!-- Bouton retour -->
+      <button mat-fab
+              class="back-button"
+              color="primary"
+              routerLink="/structures"
+              matTooltip="Retour aux structures">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+
+      <div class="hero-background">
+        <img [src]="structure()!.coverUrl || 'images/structure-default-cover.jpg'"
+             [alt]="structure()!.name"
+             class="hero-image">
+        <div class="hero-overlay"></div>
+      </div>
+
+      <div class="hero-content">
+        <div class="container">
+          <div class="structure-main-info">
+            <!-- Logo de la structure -->
+            <div class="structure-logo-container">
+              <img *ngIf="structure()!.logoUrl"
+                   [src]="structure()!.logoUrl"
+                   [alt]="structure()!.name + ' logo'"
+                   class="structure-logo">
+              <div *ngIf="!structure()!.logoUrl" class="structure-logo-placeholder">
+                <mat-icon>business</mat-icon>
+              </div>
+            </div>
+
+            <!-- Nom et types -->
+            <div class="structure-identity">
+              <h1 class="structure-name">{{ structure()!.name }}</h1>
+              <div class="structure-types">
+                <div *ngFor="let type of structure()!.types" class="glass-chip">
+                  {{ type.name }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="quick-actions">
+              <button mat-fab extended
+                      color="accent"
+                      (click)="contactStructure()"
+                      *ngIf="structure()!.email"
+                      class="action-button">
+                <mat-icon>email</mat-icon>
+                Contact
+              </button>
+              <button mat-fab extended
+                      color="primary"
+                      (click)="openWebsite()"
+                      *ngIf="structure()!.websiteUrl"
+                      class="action-button">
+                <mat-icon>language</mat-icon>
+                Site web
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section informations détaillées -->
+    <section class="structure-details-section">
+      <div class="container">
+        <div class="details-grid">
+          <!-- Description -->
+          <div class="detail-card description-card">
+            <div class="card-header">
+              <mat-icon>info</mat-icon>
+              <h3>À propos</h3>
+            </div>
+            <div class="card-content">
+              <p>{{ structure()!.description || 'Aucune description disponible.' }}</p>
+            </div>
+          </div>
+
+          <!-- Localisation -->
+          <div class="detail-card location-card" *ngIf="structure()!.address">
+            <div class="card-header">
+              <mat-icon>location_on</mat-icon>
+              <h3>Localisation</h3>
+            </div>
+            <div class="card-content">
+              <div class="address-info">
+                <span class="street">{{ structure()!.address.street }}</span>
+                <span class="city">{{ structure()!.address.zipCode }} {{ structure()!.address.city }}</span>
+                <span class="country">{{ structure()!.address.country }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact (seulement si on a des infos de contact) -->
+          <div class="detail-card contact-card"
+               *ngIf="structure()!.phone || structure()!.email || structure()!.websiteUrl">
+            <div class="card-header">
+              <mat-icon>contact_phone</mat-icon>
+              <h3>Contact</h3>
+            </div>
+            <div class="card-content">
+              <div class="contact-info">
+                <div *ngIf="structure()!.phone" class="contact-item">
+                  <mat-icon>phone</mat-icon>
+                  <span>{{ structure()!.phone }}</span>
+                </div>
+                <div *ngIf="structure()!.email" class="contact-item">
+                  <mat-icon>email</mat-icon>
+                  <span>{{ structure()!.email }}</span>
+                </div>
+                <div *ngIf="structure()!.websiteUrl" class="contact-item">
+                  <mat-icon>language</mat-icon>
+                  <a [href]="structure()!.websiteUrl" target="_blank">Site web</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section événements -->
+    <section class="events-section">
+      <div class="container">
+        <a id="events"></a>
+        <div class="events-header">
+          <h2>
+            <mat-icon>event</mat-icon>
+            Événements de {{ structure()!.name }}
+          </h2>
+        </div>
+<!--        <div *ngIf="featuredEvents().length > 0" class="featured-events-carousel">-->
+<!--          <div class="carousel-header">-->
+<!--            <h3>-->
+<!--              <mat-icon>star</mat-icon>-->
+<!--              À la une-->
+<!--            </h3>-->
+<!--          </div>-->
+<!--        </div>-->
+        <!-- Événement principal à la une (Banner) -->
+        <div *ngIf="featuredEvent()" class="featured-event-banner">
+          <app-event-banner
+            [event]="featuredEvent()!"
+            [showNav]="false"
+            (bookEvent)="onBookFeaturedEvent()">
+          </app-event-banner>
+        </div>
+
+        <!-- Événements à la une (Carousel) -->
+        <div *ngIf="featuredEvents().length > 0" class="featured-events-carousel">
+<!--          <div class="carousel-header">-->
+<!--            <h3>-->
+<!--              <mat-icon>star</mat-icon>-->
+<!--              À la une-->
+<!--            </h3>-->
+<!--          </div>-->
+          <app-events-carousel
+            [events]="featuredEvents()"
+            [showControls]="true"
+            [autoSlide]="true"
+            [cardsPerPage]="3">
+          </app-events-carousel>
+        </div>
+
+        <!-- Tous les événements -->
+        <div class="all-events-display">
+          <div class="display-header">
+            <div class="header-content">
+              <h3>
+                <mat-icon>event_available</mat-icon>
+                Tous les événements
+                <span class="events-count">({{ totalEvents() }})</span>
+              </h3>
+
+              <button mat-button
+                      (click)="toggleFilters()"
+                      class="filters-toggle">
+                <mat-icon>tune</mat-icon>
+                {{ showFilters() ? 'Masquer' : 'Afficher' }} les filtres
+              </button>
+            </div>
+          </div>
+
+          <app-events-display
+            [events]="allEvents()"
+            [isLoading]="isLoadingEvents()"
+            [totalItems]="totalEvents()"
+            [pageSize]="pageSize()"
+            [currentPage]="currentPage()"
+            [displayMode]="displayMode()"
+            [showFilters]="showFilters()"
+            (pageChanged)="onPageChanged($event)"
+            (filtersChanged)="onFiltersChanged($event)"
+            (displayModeChanged)="onDisplayModeChanged($event)">
+          </app-events-display>
+
+          <!-- Message si aucun événement -->
+          <div *ngIf="!isLoadingEvents() && allEvents().length === 0" class="no-events">
+            <div class="no-events-icon">
+              <mat-icon>event_busy</mat-icon>
+            </div>
+            <h3>Aucun événement programmé</h3>
+            <p>Cette structure n'a actuellement aucun événement programmé.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

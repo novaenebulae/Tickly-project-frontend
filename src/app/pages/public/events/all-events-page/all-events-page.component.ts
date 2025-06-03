@@ -75,6 +75,7 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (events) => {
+          window.scrollTo({ top: 0, behavior: 'instant' });
           this.events.set(events);
           this.totalItems.set(events.length);
           this.isLoading.set(false);

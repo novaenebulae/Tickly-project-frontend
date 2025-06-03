@@ -47,24 +47,24 @@
 
         <div class="advanced-filters-body">
           <!-- Rangée 1: Date et Lieu -->
-            <!-- Section pour les catégories avec design moderne -->
-            <div class="categories-section filter-item">
-              <div class="categories-label">
-                <mat-icon>category</mat-icon>
-                <span>Catégories</span>
-              </div>
-              <div class="categories-chips-scroll">
-                <mat-chip-listbox aria-label="Sélection de catégorie" multiple formControlName="selectedCategories"
-                                  class="categories-chips">
-                  @for (category of categoriesList; track category) {
-                    <mat-chip-option [value]="category" (click)="toggleCategory(category)"
-                                     [selected]="isCategorySelected(category)" class="category-chip">
-                      {{ category.name }}
-                    </mat-chip-option>
-                  }
-                </mat-chip-listbox>
-              </div>
+          <!-- Section pour les catégories avec design moderne -->
+          <div class="categories-section filter-item">
+            <div class="categories-label">
+              <mat-icon>category</mat-icon>
+              <span>Catégories</span>
             </div>
+            <div class="categories-chips-scroll">
+              <mat-chip-listbox aria-label="Sélection de catégorie" multiple formControlName="selectedCategories"
+                                class="categories-chips">
+                @for (category of categoriesList; track category) {
+                  <mat-chip-option [value]="category" (click)="toggleCategory(category)"
+                                   [selected]="isCategorySelected(category)" class="category-chip">
+                    {{ category.name }}
+                  </mat-chip-option>
+                }
+              </mat-chip-listbox>
+            </div>
+          </div>
           <div class="filters-grid">
             <!-- Colonne Date -->
             <div class="filter-item date-filter">

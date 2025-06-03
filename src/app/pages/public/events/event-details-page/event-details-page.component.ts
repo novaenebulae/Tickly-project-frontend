@@ -214,28 +214,6 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Ajoute l'événement aux favoris de l'utilisateur
-   */
-  addToFavorites(): void {
-    if (!this.isUserLoggedIn) {
-      this.notificationService.displayNotification(
-        'Veuillez vous connecter pour ajouter cet événement à vos favoris',
-        'info',
-        'Se connecter',
-        10000
-      );
-      return;
-    }
-
-    // Implémenter la logique pour ajouter aux favoris
-    this.notificationService.displayNotification(
-      'Événement ajouté à vos favoris',
-      'valid',
-      'Fermer'
-    );
-  }
-
-  /**
    * Commence le processus de réservation
    */
   startBooking(): void {

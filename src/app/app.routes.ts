@@ -7,6 +7,7 @@ import { publicRoutes } from './pages/public/public.routes';
 import { userRoutes } from './pages/private/user/user.routes';
 import { adminRoutes } from './pages/private/admin/admin.routes';
 import { MainLayoutComponent } from './shared/layout/main-layout/main-layout.component';
+import {AdminGuard} from './core/guards/admin.guard';
 
 /**
  * Main application routes configuration
@@ -42,7 +43,7 @@ export const routes: Routes = [
   // Admin private area (requires authentication)
   {
     path: 'admin',
-    canActivate: [LoginGuard],
+    canActivate: [AdminGuard],
     children: adminRoutes
   },
 

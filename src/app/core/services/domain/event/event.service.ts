@@ -245,6 +245,17 @@ export class EventService {
     );
   }
 
+  getStructureFeaturedEvents(structureId: number, count = APP_CONFIG.events.defaultFeaturedCount) {
+    return this.eventApi.getFeaturedEvents(count, structureId).pipe(
+      map(apiEvents => this.mapApiEventsToEventModels(apiEvents)),
+      tap(events => this.featuredEventsSig.set(events)),
+      catchError(error => {
+        this.handleError('Impossible de récupérer les événements mis en avant.', error);
+        return of([]);
+      })
+    );
+  }
+
   getUpcomingEvents(params: Partial<EventSearchParams> = {}): Observable<EventModel[]> {
     return this.eventApi.getUpcomingEvents(params).pipe( // EventApiService handles HttpParams conversion
       map(apiEvents => this.mapApiEventsToEventModels(apiEvents)),
@@ -275,6 +286,16 @@ export class EventService {
     };
     return this.getEvents(params);
   }
+
+  // /**
+  //  * Récupère l'événement principal à la une (le plus proche avec featured: true)
+  //  */
+  // getFeaturedEvent(structureId: number, count = APP_CONFIG.events.defaultFeaturedCount): Observable<EventModel | null> {
+  //
+  //   return this.getEvents(searchParams).pipe(
+  //     map(result => result.events && result.events.length > 0 ? result.events[0] : null)
+  //   );
+  // }
 
   // --- Cache Refresh Logic ---
 

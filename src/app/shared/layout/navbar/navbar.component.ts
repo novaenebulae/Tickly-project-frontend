@@ -8,6 +8,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
+import { UserRole } from '../../../core/models/user/user-role.enum';
 
 // Services
 import { AuthService } from '../../../core/services/domain/user/auth.service';
@@ -119,10 +120,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     // ✅ Effect pour gérer les changements d'état d'authentification
     effect(() => {
       const isLoggedIn = this.isLoggedIn();
-      if (isLoggedIn) {
-        // L'utilisateur est connecté - les services se chargent automatiquement
-        this.loadUserDataIfNeeded();
-      } else {
+
+      if (!isLoggedIn) {
         // L'utilisateur est déconnecté - nettoyer l'état local
         this.isMenuCollapsed.set(true);
         this.isUserMenuOpen.set(false);
@@ -139,23 +138,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /**
-   * ✅ Charge les données utilisateur si nécessaire
-   */
-  private loadUserDataIfNeeded(): void {
-    const currentUser = this.currentUser();
-    console.log("loaded user !!!!!!")
-    // if (currentUser?.userId && !this.currentUserProfile()) {
-    //   // Forcer le chargement du profil utilisateur
-    //   this.userService.getCurrentUserProfile(true).pipe(
-    //     takeUntil(this.destroy$)
-    //   ).subscribe({
-    //     error: (error) => {
-    //       console.error('Erreur lors du chargement du profil utilisateur:', error);
-    //     }
-    //   });
-    // }
-  }
 
   // === GESTION DES MENUS ===
 
@@ -300,9 +282,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
   /**
    * ✅ Navigue vers le dashboard utilisateur
    */
-  navigateToUserDashboard(): void {
+  navigateToUserTickets(): void {
     this.closeMenus();
     this.router.navigate(['/user/tickets']);
+  }
+
+  navigateToUserFavoritesStructures(): void {
+    this.closeMenus();
+    this.router.navigate(['/user/favorites']);
   }
 
   /**
@@ -346,4 +333,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     const profile = this.currentUserProfile();
     return !!(profile?.avatarUrl && profile.avatarUrl.trim());
   }
+
+  protected readonly UserRole = UserRole;
 }

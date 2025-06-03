@@ -13,7 +13,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { ApiConfigService } from '../api-config.service';
 import { EventApiMockService } from './event-api-mock.service';
 import { APP_CONFIG } from '../../../config/app-config';
-import { EventStatus } from '../../../models/event/event.model';
+import {EventModel, EventStatus} from '../../../models/event/event.model';
 import { EventSearchParams } from '../../../models/event/event-search-params.model';
 
 @Injectable({
@@ -197,9 +197,11 @@ export class EventApiService {
   /**
    * Retrieves featured events.
    * @param count - The number of featured events to retrieve.
+   * @param structureId - If defined gets only featured events of this structure.
    */
-  getFeaturedEvents(count: number = 3): Observable<any[]> {
+  getFeaturedEvents(count: number = 3, structureId?: number): Observable<EventModel[]> {
     const params: EventSearchParams = {
+      structureId: structureId,
       isFeaturedEvent: true, // Using the renamed model property
       status: 'published',
       sortBy: 'startDate',

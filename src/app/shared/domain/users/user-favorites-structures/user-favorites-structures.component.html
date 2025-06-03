@@ -1,0 +1,97 @@
+<div class="favorites-container">
+  <!-- En-tête avec titre et actions -->
+  <div class="favorites-header">
+    <div class="header-title">
+      <h2>
+        <mat-icon>favorite</mat-icon>
+        Mes Structures Favorites
+        <span class="favorites-count" *ngIf="favoritesCount() > 0">
+          ({{ favoritesCount() }})
+        </span>
+      </h2>
+      <p class="header-subtitle">
+        Retrouvez ici toutes vos structures préférées !
+      </p>
+    </div>
+
+
+  </div>
+
+  <!-- État de chargement global -->
+  <div class="loading-state" *ngIf="isLoading() && favoritesCount() === 0">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Chargement de vos favoris...</p>
+  </div>
+
+  <!-- État vide -->
+  <div class="empty-state" *ngIf="!isLoading() && favoritesCount() === 0">
+    <div class="empty-content">
+      <mat-icon class="empty-icon">favorite_border</mat-icon>
+      <h3>Aucune structure favorite</h3>
+      <p>Vous n'avez pas encore ajouté de structures à vos favoris.</p>
+      <p>Parcourez notre catalogue et cliquez sur le cœur pour ajouter vos structures préférées !</p>
+      <button
+        mat-raised-button
+        color="primary"
+        routerLink="/structures"
+        class="browse-button">
+        <mat-icon>explore</mat-icon>
+        Découvrir les structures
+      </button>
+    </div>
+  </div>
+
+  <!-- Grille des favoris utilisant les cards structures -->
+  <div
+    class="favorites-grid"
+    [class.grid-view]="viewMode() === 'grid'"
+    [class.list-view]="viewMode() === 'list'"
+    *ngIf="!isLoading() && favoritesCount() > 0">
+
+    @for (favorite of favoritesWithDetails(); track favorite.structure.id) {
+      <div class="favorite-item-wrapper">
+        <!-- Card structure réutilisée -->
+        <app-structure-card
+          [structure]="favorite.structure"
+          [showActions]="true"
+          [showFavoriteButton]="true"
+          [highlightNewStructure]="isRecentlyAdded(favorite.addedAt)"
+          (viewDetails)="onViewStructureDetails($event)"
+          (bookEvent)="onBookStructureEvents($event)"
+          (favorite)="onToggleFavorite($event)"
+          class="structure-card-favorite">
+        </app-structure-card>
+
+        <!-- Informations supplémentaires des favoris -->
+        <div class="favorite-meta-info">
+          <div class="added-date">
+            <mat-icon>schedule</mat-icon>
+            <span>Ajouté le {{ formatAddedDate(favorite.addedAt) }}</span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Actions rapides -->
+  <div class="quick-actions" *ngIf="favoritesCount() > 0">
+    <button
+      mat-stroked-button
+      color="primary"
+      routerLink="/structures"
+      class="action-button">
+      <mat-icon>add</mat-icon>
+      Ajouter d'autres favoris
+    </button>
+
+    <button
+      mat-stroked-button
+      color="accent"
+      routerLink="/events"
+      [queryParams]="getEventsQueryParams()"
+      class="action-button">
+      <mat-icon>event</mat-icon>
+      Voir événements des favoris
+    </button>
+  </div>
+</div>

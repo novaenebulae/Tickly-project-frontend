@@ -54,6 +54,8 @@ export interface UserModel {
    * URL of the user's avatar image (optional).
    */
   avatarUrl?: string;
+
+  favoriteStructureIds?: number[]; // IDs des structures favorites
 }
 
 /**

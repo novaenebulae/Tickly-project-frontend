@@ -20,7 +20,6 @@ import { NavbarComponent } from '../navbar/navbar.component';
     AdminSidenavComponent,
     RouterModule,
     MatMenuModule,
-    NavbarComponent,
   ],
   templateUrl: './admin-layout.component.html',
   styleUrl: './admin-layout.component.scss',
@@ -39,22 +38,4 @@ export class AdminLayoutComponent {
   readonly currentUser = this.authService.currentUser;
   readonly currentUserProfile = this.userService.currentUserProfileData;
 
-  // ✅ Vérification des permissions admin
-  readonly isAdmin = computed(() => {
-    const user = this.currentUser();
-    return user?.role?.includes('ADMIN') || false;
-  });
-
-  constructor() {
-    // ✅ Effect pour surveiller les permissions admin
-    effect(() => {
-      const isLoggedIn = this.isLoggedIn();
-      const isAdmin = this.isAdmin();
-
-      if (!isLoggedIn || !isAdmin) {
-        console.log('AdminLayout: Accès non autorisé détecté');
-        // Le guard de route s'occupera de la redirection
-      }
-    });
-  }
 }

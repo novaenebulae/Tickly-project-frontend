@@ -11,8 +11,8 @@ $section-bg-darker: #f0f4f8;
 .events-display {
   display: flex;
   flex-direction: column;
-  width: 90vw;
-  min-height: 100%;
+  width: 100%;
+  height: fit-content;
   background-color: $section-bg-darker;
 }
 

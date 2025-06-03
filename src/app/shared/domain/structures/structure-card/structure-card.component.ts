@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {Component, Input, Output, EventEmitter, inject} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import {Router, RouterModule} from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,10 +28,14 @@ export class StructureCardComponent {
   @Input() eventCount?: number;
   @Input() highlightNewStructure = false;
   @Input() showFavoriteButton = false;
+  @Input() isFavorite = false; // Nouveau input
+
 
   @Output() viewDetails = new EventEmitter<StructureModel>();
   @Output() bookEvent = new EventEmitter<StructureModel>();
   @Output() favorite = new EventEmitter<StructureModel>();
+
+  private router = inject(Router)
 
   constructor() {}
 
@@ -55,11 +59,13 @@ export class StructureCardComponent {
     this.viewDetails.emit(this.structure);
   }
 
-  onBookEvent(): void {
-    this.bookEvent.emit(this.structure);
-  }
 
+  // Mise à jour de la méthode onFavorite
   onFavorite(): void {
     this.favorite.emit(this.structure);
+  }
+
+  onGoToStructureEvents() {
+    this.router.navigateByUrl('/structures/' + this.structure.id + '#events');
   }
 }

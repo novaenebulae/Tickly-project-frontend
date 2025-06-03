@@ -48,6 +48,7 @@ export class EventsDisplayComponent implements OnInit {
   @Input() totalItems: number = 0;
   @Input() pageSize: number = 9;
   @Input() currentPage: number = 1;
+  @Input() showFilters: boolean = true;
 
   // Outputs
   @Output() pageChanged = new EventEmitter<PageEvent>();

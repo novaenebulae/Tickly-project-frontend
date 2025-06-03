@@ -3,7 +3,7 @@
   <div class="event-header" *ngIf="event() && !isLoading()">
     <div class="container">
       <div class="back-button">
-        <button mat-icon-button [routerLink]="['/events', event()?.id]">
+        <button mat-icon-button (click)="goBack()">
           <mat-icon>arrow_back</mat-icon>
         </button>
       </div>

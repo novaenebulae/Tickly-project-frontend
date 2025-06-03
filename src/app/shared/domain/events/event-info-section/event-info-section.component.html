@@ -80,13 +80,13 @@
         </div>
       </div>
 
-      <!-- Carte prix -->
+      <!-- Carte réservation -->
       <div class="info-card price-card">
         <div class="card-header">
           <div class="icon-wrapper">
             <mat-icon>confirmation_number</mat-icon>
           </div>
-          <h3>Tarifs</h3>
+          <h3>Réservation</h3>
         </div>
 
         <div class="card-content">
@@ -106,7 +106,14 @@
             </div>
 
             <div class="availability-info">
-              <p>Réservez dès maintenant pour garantir votre place !</p>
+              <p>Réservez maintenant pour garantir votre place</p>
+            </div>
+
+            <div class="w-100 d-flex justify-content-end mt-3">
+              <button mat-flat-button color="accent" class="reservation-button" (click)="onBookEvent()">
+                <span>Réserver</span>
+                <mat-icon>event_seat</mat-icon>
+              </button>
             </div>
           </div>
         </div>

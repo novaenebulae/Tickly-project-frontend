@@ -30,6 +30,7 @@ import { NotificationService } from '../../../../core/services/domain/utilities/
 import { UserService } from '../../../../core/services/domain/user/user.service';
 import {AuthService} from "../../../../core/services/domain/user/auth.service";
 import {UserModel} from "../../../../core/models/user/user.model";
+import {Location} from "@angular/common";
 
 @Component({
   selector: 'app-event-ticket-reservation-page',
@@ -62,6 +63,7 @@ export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private userService = inject(UserService);
   private authService = inject(AuthService);
+  private location = inject(Location);
 
   private destroy$ = new Subject<void>();
 
@@ -124,6 +126,7 @@ export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
   }
 
   private loadEventData(eventId: number): void {
+    window.scrollTo({top: 0, behavior: 'instant'});
     this.isLoading.set(true);
 
     this.eventService.getEventById(eventId).pipe(
@@ -288,6 +291,10 @@ export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  goBack() {
+    this.location.back();
   }
 
   private handleError(message: string): void {

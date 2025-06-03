@@ -32,7 +32,24 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 .filters-container {
   width: 100%;
   font-family: 'Roboto', sans-serif;
-  //padding: 16px;
+  transition: all 0.4s ease;
+  transform-origin: top;
+
+  // Animation de masquage/affichage
+  &.hidden {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transform: scaleY(0);
+    margin-bottom: 0;
+    pointer-events: none;
+  }
+
+  &:not(.hidden) {
+    opacity: 1;
+    max-height: 2000px; // Valeur élevée pour permettre l'expansion
+    transform: scaleY(1);
+  }
 }
 
 .filters-form {
@@ -61,7 +78,6 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   align-items: center;
   flex-wrap: wrap;
   gap: 16px;
-  //margin-bottom: 16px;
   width: 100%;
 
   @media (max-width: 768px) {
@@ -499,4 +515,31 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 // Utilitaires
 .full-width {
   width: 100%;
+}
+
+// Animation de slide pour le masquage/affichage
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scaleY(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scaleY(0.8);
+  }
+}
+
+.filters-container:not(.hidden) {
+  animation: slideDown 0.4s ease-out;
 }

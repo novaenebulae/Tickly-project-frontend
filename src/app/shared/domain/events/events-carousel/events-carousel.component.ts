@@ -49,7 +49,6 @@ export class EventsCarouselComponent implements OnInit, AfterViewInit, OnDestroy
 
   ngOnInit(): void {
     this.eventsDisplayed = this.events.length > 9 ? this.events.slice(0, 9) : this.events;
-    console.log(this.eventsDisplayed);
     this.calculateTotalPages();
     if (this.autoSlide && this.totalPages > 1) {
       this.startAutoSlide();

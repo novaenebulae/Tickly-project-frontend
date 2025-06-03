@@ -219,8 +219,10 @@
                       <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
                       Envoi...
                     } @else {
-                      <mat-icon>send</mat-icon>
-                      Envoyer la demande
+                      <ng-container>
+                        <mat-icon>send</mat-icon>
+                        Envoyer la demande
+                      </ng-container>
                     }
                   </button>
                 </div>

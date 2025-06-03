@@ -60,14 +60,14 @@ export const publicRoutes: Routes = [
             path: '',
             component: AllStructuresPageComponent,
             title: 'Organisations | Tickly'
-          }
+          },
           // Single structure details (commented until implemented)
-          // {
-          //   path: ':id',
-          //   loadComponent: () => import('./structures/structure-details-page/structure-details-page.component')
-          //     .then(m => m.StructureDetailsPageComponent),
-          //   title: 'Détails de l\'organisation | Tickly'
-          // }
+          {
+            path: ':id',
+            loadComponent: () => import('./structures/structure-details-page/structure-details-page.component')
+              .then(m => m.StructureDetailsPageComponent),
+            title: 'Détails de l\'organisation | Tickly'
+          }
         ]
       },
 

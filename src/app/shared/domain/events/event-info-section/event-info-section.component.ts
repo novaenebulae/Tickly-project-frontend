@@ -36,7 +36,7 @@ export class EventInfoSectionComponent {
   @Input() isUserLoggedIn = false;
 
   @Output() addToCalendar = new EventEmitter<void>();
-  @Output() addToFavorites = new EventEmitter<void>();
+  @Output() bookEvent = new EventEmitter<void>();
 
   protected formattedAddress: string = '';
 
@@ -96,10 +96,10 @@ export class EventInfoSectionComponent {
   }
 
   /**
-   * Émet l'événement pour ajouter aux favoris
+   * Émet l'événement pour réserver l'événement
    */
-  onAddToFavorites(): void {
-    this.addToFavorites.emit();
+  onBookEvent(): void {
+    this.bookEvent.emit();
   }
 
   /**

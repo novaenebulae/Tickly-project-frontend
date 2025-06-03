@@ -1,5 +1,8 @@
 import { Routes } from '@angular/router';
 import { UserTicketsPage } from './user-tickets-page/user-tickets-page.component';
+import {
+  UserFavoritesStructuresComponent
+} from '../../../shared/domain/users/user-favorites-structures/user-favorites-structures.component';
 
 /**
  * User private area routes configuration
@@ -27,19 +30,16 @@ export const userRoutes: Routes = [
     path: 'reservations',
     redirectTo: 'tickets',
     pathMatch: 'full'
-  }
-
+  },
   // Profile page (to be implemented)
   // {
   //   path: 'profile',
   //   component: UserProfileComponent,
   //   title: 'Mon Profil | Tickly'
   // },
-
-  // Favorites page (to be implemented)
-  // {
-  //   path: 'favorites',
-  //   component: UserFavoritesComponent,
-  //   title: 'Mes Favoris | Tickly'
-  // }
+  {
+    path: 'favorites',
+    component: UserFavoritesStructuresComponent,
+    title: 'Mes Favoris | Tickly'
+  }
 ];

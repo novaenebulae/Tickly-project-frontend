@@ -53,7 +53,7 @@
             </a>
           </li>
         }
-        @if (isLoggedIn() && currentUser()?.role?.includes('ADMIN')) {
+        @if (isLoggedIn() && currentUser()?.role === UserRole.STRUCTURE_ADMINISTRATOR) {
           <!-- Espace Personnel Link -->
           <li class="nav-item">
             <a class="nav-link"
@@ -146,9 +146,14 @@
                 <span>Mon profil</span>
               </button>
 
-              <button mat-menu-item (click)="navigateToUserDashboard()">
-                <mat-icon>dashboard</mat-icon>
+              <button mat-menu-item (click)="navigateToUserTickets()">
+                <mat-icon>confirmation_number</mat-icon>
                 <span>Mes billets</span>
+              </button>
+
+              <button mat-menu-item (click)="navigateToUserFavoritesStructures()">
+                <mat-icon>favorite</mat-icon>
+                <span>Mes favoris</span>
               </button>
 
               <button mat-menu-item (click)="openFriendsDialog()">
@@ -162,7 +167,7 @@
               </button>
 
               <!-- Admin Link (if user is admin) -->
-              @if (currentUser()?.role?.includes('ADMIN')) {
+              @if (currentUser()?.role === UserRole.STRUCTURE_ADMINISTRATOR) {
                 <mat-divider></mat-divider>
                 <a mat-menu-item routerLink="/admin" (click)="navigateAndCloseMenus()">
                   <mat-icon>admin_panel_settings</mat-icon>

@@ -94,7 +94,7 @@
           <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
           Envoi en cours...
         } @else {
-          Changer le mot de passe
+          <ng-container>Changer le mot de passe</ng-container>
         }
       </button>
     </div>
@@ -109,14 +109,15 @@
 
     <button mat-raised-button
             color="primary"
-
             (click)="submitProfileChanges()">
       @if (isUpdatingProfile()) {
         <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
         Mise à jour...
       } @else {
-        <mat-icon>save</mat-icon>
-        Sauvegarder
+        <ng-container>
+          <mat-icon>save</mat-icon>
+          Sauvegarder
+        </ng-container>
       }
     </button>
   </mat-dialog-actions>

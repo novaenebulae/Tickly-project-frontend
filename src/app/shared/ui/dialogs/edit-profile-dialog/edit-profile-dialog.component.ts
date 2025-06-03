@@ -45,8 +45,6 @@ export interface EditProfileDialogData {
     MatIconModule,
     MatProgressSpinnerModule,
     MatDividerModule,
-    MatTabGroup,
-    MatTab
   ]
 })
 export class EditProfileDialogComponent implements OnInit {

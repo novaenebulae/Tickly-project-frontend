@@ -34,7 +34,7 @@ export class EventCardComponent implements OnInit {
       console.error('EventCardComponent: Event input is missing.');
     } else {
       // Log pour déboguer
-      console.log('Event data:', this.event);
+      // console.log('Event data:', this.event);
       // console.log('Has seating zones:', !!this.event.audienceZones);
       // if (this.event.audienceZones) {
       //   console.log('Active zones:',

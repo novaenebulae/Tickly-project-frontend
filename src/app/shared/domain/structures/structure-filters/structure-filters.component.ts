@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -26,7 +27,7 @@ interface StructureSortOptions {
 @Component({
   selector: 'app-structure-filters',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatIconModule],
   templateUrl: './structure-filters.component.html',
   styleUrl: './structure-filters.component.scss'
 })
@@ -51,6 +52,10 @@ export class StructureFiltersComponent implements OnInit, OnDestroy {
   // Types de structures
   structureTypes: StructureTypeModel[] = [];
   isLoadingTypes = false;
+  isCategoriesExpanded = false;
+
+  // Nombre maximal de catégories visibles quand le drawer est fermé
+  readonly MAX_VISIBLE_CATEGORIES = 8;
 
   ngOnInit(): void {
     this.loadStructureTypes();
@@ -177,19 +182,19 @@ export class StructureFiltersComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Retourne l'icône d'un type par son ID
+   * Retourne l'icône Material Design d'un type par son ID
    */
   getTypeIcon(typeId: number): string {
-    // Mapping basique d'icônes par ID de type
+    // Mapping basique d'icônes Material Design par ID de type
     const iconMapping: { [key: number]: string } = {
-      1: 'bi-music-note-beamed', // Salle de concert
-      2: 'bi-mask',              // Théâtre
-      3: 'bi-building',          // Centre de conférence
-      4: 'bi-grid-3x3',          // Espace polyvalent
-      5: 'bi-cup-straw',         // Bar / Club
-      99: 'bi-question-circle'   // Autre
+      1: 'music_note',       // Salle de concert
+      2: 'theater_comedy',   // Théâtre
+      3: 'business',         // Centre de conférence
+      4: 'dashboard',        // Espace polyvalent
+      5: 'local_bar',        // Bar / Club
+      99: 'help'             // Autre
     };
-    return iconMapping[typeId] || 'bi-building';
+    return iconMapping[typeId] || 'location_city';
   }
 
   /**
@@ -213,5 +218,12 @@ export class StructureFiltersComponent implements OnInit, OnDestroy {
       city: this.cityQuery || undefined,
       typeIds: this.selectedTypes.length > 0 ? this.selectedTypes : undefined
     };
+  }
+
+  /**
+   * Bascule l'affichage des catégories (ouverture/fermeture du drawer)
+   */
+  toggleCategoriesExpand(): void {
+    this.isCategoriesExpanded = !this.isCategoriesExpanded;
   }
 }

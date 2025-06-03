@@ -32,6 +32,7 @@ import { StructureService } from '../../../../core/services/domain/structure/str
 })
 export class EventBannerComponent implements OnChanges {
   @Input() event!: EventModel;
+  @Input() showNav: boolean = true;
   @Output() bookEvent = new EventEmitter<void>();
 
   private location = inject(Location);
