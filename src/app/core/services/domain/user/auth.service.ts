@@ -42,8 +42,9 @@ export class AuthService {
   private needsStructureSetupSig: WritableSignal<boolean> = signal(false);
   public readonly needsStructureSetup = computed(() => this.needsStructureSetupSig());
 
-  private structureIdSig: WritableSignal<number | null> = signal(null);
-  public readonly structureId = computed(() => this.structureIdSig());
+  private userStructureIdSig: WritableSignal<number | null> = signal(null);
+  public readonly userStructureId = computed(() => this.userStructureIdSig());
+
 
   private keepLoggedInSig: WritableSignal<boolean> = signal(
     localStorage.getItem(APP_CONFIG.auth.keepLoggedInKey) === 'true'
@@ -147,7 +148,7 @@ export class AuthService {
         this.isLoggedInSig.set(false);
         this.userRoleSig.set(null);
         this.needsStructureSetupSig.set(false);
-        this.structureIdSig.set(null);
+        this.userStructureIdSig.set(null);
         console.log('AuthService: Session data cleared because "keep me logged in" was not active.');
       }
     } else {
@@ -261,7 +262,7 @@ export class AuthService {
     this.isLoggedInSig.set(true);
     this.userRoleSig.set(decodedToken.role as UserRole); // Assuming role in token matches UserRole enum
     this.needsStructureSetupSig.set(decodedToken.needsStructureSetup || false);
-    this.structureIdSig.set(decodedToken.structureId || null);
+    this.userStructureIdSig.set(decodedToken.structureId || null);
 
     if (token) { // Ensure token is stored according to keepLoggedIn preference
       this.storeToken(token);
@@ -299,7 +300,7 @@ export class AuthService {
     this.isLoggedInSig.set(false);
     this.userRoleSig.set(null);
     this.needsStructureSetupSig.set(false);
-    this.structureIdSig.set(null);
+    this.userStructureIdSig.set(null);
 
     console.log("Auth flushed")
 
@@ -345,6 +346,22 @@ export class AuthService {
       this.currentUserSig.set(updatedPayload);
     }
   }
+
+  /**
+   * Met à jour le contexte de structure de l'utilisateur.
+   * @param structureId - ID de la structure de l'utilisateur.
+   */
+  updateUserStructureContext(structureId: number): void {
+    this.userStructureIdSig.set(structureId);
+  }
+
+  /**
+   * Efface le contexte de structure.
+   */
+  clearUserStructureContext(): void {
+    this.userStructureIdSig.set(null);
+  }
+
 
   /**
    * Checks if the current user has a specific role or one of an array of roles.

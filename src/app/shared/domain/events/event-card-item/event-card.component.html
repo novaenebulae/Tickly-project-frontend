@@ -16,6 +16,12 @@
         <mat-icon>star</mat-icon>
       </div>
     }
+
+    <!-- Bouton Réserver superposé sur l'image -->
+    <button mat-flat-button color="accent" class="event-card__button-reserve-overlay" (click)="bookEvent(event.id); $event.stopPropagation();">
+      <span>Réserver</span>
+      <mat-icon>event_seat</mat-icon>
+    </button>
   </div>
 
   <!-- Détails de l'événement -->
@@ -28,11 +34,11 @@
       <span>{{ displayLocation }}</span>
     </div>
 
-    @if (event.shortDescription) {
-      <p class="event-card__description">
-        {{ event.shortDescription | slice:0:80 }}{{ event.shortDescription.length > 80 ? '...' : '' }}
-      </p>
-    }
+<!--    @if (event.shortDescription) {-->
+<!--      <p class="event-card__description">-->
+<!--        {{ event.shortDescription | slice:0:80 }}{{ event.shortDescription.length > 80 ? '...' : '' }}-->
+<!--      </p>-->
+<!--    }-->
   </div>
 
   <!-- Boutons d'action et prix -->
@@ -43,21 +49,17 @@
 <!--        <mat-icon>arrow_forward</mat-icon>-->
 <!--      </button>-->
     <!-- Prix ou statut gratuit -->
-    <div class="event-card__price-container">
-      @if (event.isFreeEvent) {
-        <span class="event-card__free-tag">GRATUIT</span>
-      } @else {
-        <!-- Toujours afficher un prix si c'est payant (même si 0 ou non défini) -->
-        <span
-          [ngClass]="{'event-card__price': getMinTicketPrice() > 0, 'event-card__price-na': getMinTicketPrice() <= 0}">
-          {{ getMinTicketPrice() > 0 ? (getMinTicketPrice() | currency:'EUR':'symbol':'1.2-2':'fr') : 'Prix à venir' }}
-        </span>
-      }
-    </div>
-      <button mat-flat-button color="accent" class="event-card__button-reserve" (click)="bookEvent(event.id)">
-        <span>Réserver</span>
-        <mat-icon>event_seat</mat-icon>
-      </button>
+<!--    <div class="event-card__price-container">-->
+<!--      @if (event.isFreeEvent) {-->
+<!--        <span class="event-card__free-tag">GRATUIT</span>-->
+<!--      } @else {-->
+<!--        &lt;!&ndash; Toujours afficher un prix si c'est payant (même si 0 ou non défini) &ndash;&gt;-->
+<!--        <span-->
+<!--          [ngClass]="{'event-card__price': getMinTicketPrice() > 0, 'event-card__price-na': getMinTicketPrice() <= 0}">-->
+<!--          {{ getMinTicketPrice() > 0 ? (getMinTicketPrice() | currency:'EUR':'symbol':'1.2-2':'fr') : 'Prix à venir' }}-->
+<!--        </span>-->
+<!--      }-->
+<!--    </div>-->
     </div>
 
   </div>

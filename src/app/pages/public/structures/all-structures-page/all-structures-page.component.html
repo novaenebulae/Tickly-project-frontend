@@ -8,7 +8,7 @@
     </div>
   </div>
 <div class="structures-page">
-  <h1 class="page-title">Toutes les structures</h1>
+<!--  <h1 class="page-title">Toutes les structures</h1>-->
 
   <!-- Filtres -->
   <app-structure-filters
@@ -34,6 +34,7 @@
     </div>
 
     <!-- Liste des structures -->
+    <!-- Dans la section des structures -->
     <div class="row g-4" *ngIf="!loading && structures.length > 0">
       <div class="col-6" *ngFor="let structure of structures">
         <app-structure-card
@@ -41,11 +42,12 @@
           [eventCount]="structure.eventsCount || 0"
           [highlightNewStructure]="structure.createdAt && (structure.createdAt > getThirtyDaysAgo() || false)"
           [showActions]="true"
+          [showFavoriteButton]="isUserLoggedIn"
+          [isFavorite]="favoritesService.isFavorite(structure.id || 0)"
           (viewDetails)="onViewStructureDetails($event)"
           (bookEvent)="onBookEvent($event)"
-          (favorite)="onAddToFavorites($event)"
-          [showFavoriteButton]="isUserLoggedIn"
-        ></app-structure-card>
+          (favorite)="onAddToFavorites($event)">
+        </app-structure-card>
       </div>
     </div>
 

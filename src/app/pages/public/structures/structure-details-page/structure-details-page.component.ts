@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {CommonModule, ViewportScroller} from '@angular/common';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -43,6 +43,7 @@ export class StructureDetailsPageComponent implements OnInit, OnDestroy {
   private structureService = inject(StructureService);
   private eventService = inject(EventService);
   private destroy$ = new Subject<void>();
+  private viewPortScroller = inject(ViewportScroller);
 
   // Signals pour l'état
   structure = signal<StructureModel | null>(null);
@@ -97,7 +98,8 @@ export class StructureDetailsPageComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (structure) => {
           if (structure) {
-            // if (this.route.snapshot.url[2].path === 'events') {
+            // if (this.route.fragment === 'events' ) {
+            //   this.router.navigate([], { fragment: "events" });
             // }
             window.scrollTo({top: 0, behavior: 'instant'});
             this.structure.set(structure);
@@ -120,7 +122,6 @@ export class StructureDetailsPageComponent implements OnInit, OnDestroy {
   private loadStructureEvents(structureId: number): void {
     this.isLoadingEvents.set(true);
     this.eventsError.set(null);
-
     combineLatest([
       this.eventService.getEventsByStructure(structureId),
       this.eventService.getStructureFeaturedEvents(structureId)
@@ -131,6 +132,12 @@ export class StructureDetailsPageComponent implements OnInit, OnDestroy {
           this.totalEvents.set(eventsResult.length || 0);
           this.featuredEvents.set(featuredEvents || []);
           this.featuredEvent.set(featuredEvents[0]);
+          this.route.fragment.subscribe(fragment => {
+            if (fragment) {
+              // Scroll manuel vers le fragment
+              this.viewPortScroller.scrollToAnchor(fragment);
+            }
+          });
           this.isLoadingEvents.set(false);
         },
         error: (error) => {

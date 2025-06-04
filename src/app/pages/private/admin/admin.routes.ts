@@ -76,20 +76,20 @@ export const adminRoutes: Routes = [
       {
         path: 'structure',
         component: StructurePanelComponent,
-        title: 'Gestion de l\'organisation | Administration'
+        title: 'Gestion de la Structure | Administration'
       },
       {
         path: 'structure/edit',
         component: StructureEditComponent,
-        title: 'Modifier l\'organisation | Administration'
+        title: 'Modifier la structure | Administration'
       },
       {
-        path: 'structure/team-management',
+        path: 'structure/team',
         component: TeamManagementComponent,
         title: 'Gestion de l\'équipe | Administration'
       },
       {
-        path: 'structure/area-management',
+        path: 'structure/areas',
         component: AreaManagementComponent,
         title: 'Gestion des zones | Administration'
       }

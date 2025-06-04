@@ -14,8 +14,6 @@ import {EventModel} from '../../../../core/models/event/event.model';
   providers: [DatePipe],
   imports: [
     CommonModule, // Ajout du CommonModule pour NgClass
-    CurrencyPipe,
-    SlicePipe,
     MatRippleModule,
     MatIconModule,
     MatButtonModule

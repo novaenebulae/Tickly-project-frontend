@@ -28,7 +28,7 @@ export class StructureCardComponent {
   @Input() eventCount?: number;
   @Input() highlightNewStructure = false;
   @Input() showFavoriteButton = false;
-  @Input() isFavorite = false; // Nouveau input
+  @Input() isFavorite = false;
 
 
   @Output() viewDetails = new EventEmitter<StructureModel>();
@@ -62,6 +62,7 @@ export class StructureCardComponent {
 
   // Mise à jour de la méthode onFavorite
   onFavorite(): void {
+    this.isFavorite = !this.isFavorite;
     this.favorite.emit(this.structure);
   }
 

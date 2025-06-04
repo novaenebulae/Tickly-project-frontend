@@ -92,6 +92,38 @@ $transition-speed: 0.3s;
     }
   }
 
+  // Bouton Réserver superposé
+  &__button-reserve-overlay {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    background-color: $accent-color;
+    color: white;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    z-index: 10;
+    transition: transform 0.2s, box-shadow 0.2s;
+    opacity: 0.75;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      opacity: 0.8;
+    }
+
+    .mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      margin: 0;
+    }
+  }
+
   // Contenu principal
   &__content {
     flex-grow: 1;
@@ -184,10 +216,9 @@ $transition-speed: 0.3s;
     flex-shrink: 0;
   }
 
-  &__button-discover,
-  &__button-reserve {
+  &__button-discover {
     display: flex;
-    align-items: center;
+    align-items: end;
     width: 50%;
     gap: 6px;
     padding: 10px 16px;
@@ -200,14 +231,8 @@ $transition-speed: 0.3s;
       height: 18px;
       margin: 0;
     }
-  }
 
-  &__button-discover {
     background-color: $primary-color;
-  }
-
-  &__button-reserve {
-    background-color: $accent-color;
   }
 }
 

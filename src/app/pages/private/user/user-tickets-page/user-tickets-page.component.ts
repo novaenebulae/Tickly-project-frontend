@@ -105,6 +105,7 @@ export class UserTicketsPage implements OnInit, OnDestroy {
   }
 
   private loadTickets(): void {
+    window.scrollTo({ top: 0, behavior: 'instant'});
     this.isLoading.set(true);
 
     this.ticketService.loadMyTickets(true).pipe(

@@ -13,7 +13,6 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { EventCategoryModel} from '../../../../core/models/event/event-category.model';
-import {EventApiService} from '../../../../core/services/api/event/event-api.service';
 import {CategoryService} from '../../../../core/services/domain/event/category.service';
 
 // Interface pour les options de tri
@@ -74,7 +73,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected readonly categoriesList = this.categoryService.categories()
 
-  eventApiService = inject(EventApiService);
 
   // Options pour le tri
   sortOptions: SortOption[] = [

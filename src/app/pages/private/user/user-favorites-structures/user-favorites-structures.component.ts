@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBadgeModule } from '@angular/material/badge';
 
-import {StructureCardComponent} from '../../structures/structure-card/structure-card.component';
+import {StructureCardComponent} from '../../../../shared/domain/structures/structure-card/structure-card.component';
 import { UserFavoritesService } from '../../../../core/services/domain/user/user-favorites.service';
 import { AuthService } from '../../../../core/services/domain/user/auth.service';
 import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
@@ -43,7 +43,8 @@ export class UserFavoritesStructuresComponent implements OnInit {
   private router = inject(Router);
 
   // Signaux pour la gestion des états
-  public readonly favoritesWithDetails = this.favoritesService.favoritesWithDetails;
+  public readonly favoritesDataSig = this.favoritesService.favoritesWithDetails;
+
   public readonly isLoading = this.favoritesService.isLoading;
   public readonly favoritesCount = computed(() => this.favoritesService.getFavoritesCount());
   public readonly currentUser = this.authService.currentUser;
@@ -53,7 +54,7 @@ export class UserFavoritesStructuresComponent implements OnInit {
   public readonly viewMode = computed(() => this.viewModeSig());
 
   ngOnInit(): void {
-    this.loadFavorites();
+      this.loadFavorites(true);
   }
 
   /**
@@ -61,13 +62,6 @@ export class UserFavoritesStructuresComponent implements OnInit {
    * @param forceRefresh - Force le rechargement depuis l'API.
    */
   loadFavorites(forceRefresh = false): void {
-    if (!this.currentUser()) {
-      this.notification.displayNotification(
-        "Vous devez être connecté pour voir vos favoris.",
-        'warning'
-      );
-      return;
-    }
 
     this.favoritesService.loadFavorites(forceRefresh).subscribe({
       next: (favorites) => {
@@ -83,12 +77,6 @@ export class UserFavoritesStructuresComponent implements OnInit {
     });
   }
 
-  /**
-   * Rafraîchit la liste des favoris.
-   */
-  refreshFavorites(): void {
-    this.loadFavorites(true);
-  }
 
   /**
    * Gère l'affichage des détails d'une structure depuis la card.
@@ -113,31 +101,7 @@ export class UserFavoritesStructuresComponent implements OnInit {
    * @param structure - La structure à ajouter/supprimer des favoris.
    */
   onToggleFavorite(structure: StructureModel): void {
-    if (!structure.id) {
-      this.notification.displayNotification(
-        "Erreur: ID de structure manquant.",
-        'error'
-      );
-      return;
-    }
-
-    // Utiliser le service de favoris pour basculer
-    this.favoritesService.toggleFavorite(structure.id).subscribe({
-      next: (isNowFavorite) => {
-        const message = isNowFavorite
-          ? `${structure.name} ajoutée aux favoris`
-          : `${structure.name} retirée des favoris`;
-
-        this.notification.displayNotification(message, 'valid');
-      },
-      error: (error) => {
-        console.error('Erreur lors du toggle favori:', error);
-        this.notification.displayNotification(
-          "Erreur lors de la modification des favoris.",
-          'error'
-        );
-      }
-    });
+    this.favoritesService.toggleFavorite(structure.id!).subscribe();
   }
 
   /**
@@ -164,19 +128,19 @@ export class UserFavoritesStructuresComponent implements OnInit {
     }).format(new Date(date));
   }
 
-  /**
-   * Génère les paramètres de requête pour filtrer les événements par structures favorites.
-   * @returns Paramètres de requête pour la page événements.
-   */
-  getEventsQueryParams(): { [key: string]: string } {
-    const structureIds = this.favoritesWithDetails()
-      .map(fav => fav.structure.id)
-      .filter(id => id !== undefined)
-      .join(',');
-
-    return {
-      structureIds: structureIds,
-      favoriteStructures: 'true'
-    };
-  }
+  // /**
+  //  * Génère les paramètres de requête pour filtrer les événements par structures favorites.
+  //  * @returns Paramètres de requête pour la page événements.
+  //  */
+  // getEventsQueryParams(): { [key: string]: string } {
+  //   const structureIds = this.favoritesWithDetails()
+  //     .map(fav => fav.structure.id)
+  //     .filter(id => id !== undefined)
+  //     .join(',');
+  //
+  //   return {
+  //     structureIds: structureIds,
+  //     favoriteStructures: 'true'
+  //   };
+  // }
 }

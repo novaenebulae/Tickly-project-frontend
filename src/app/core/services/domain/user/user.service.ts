@@ -7,8 +7,8 @@
  */
 
 import {Injectable, inject, signal, computed, WritableSignal, effect, untracked} from '@angular/core';
-import {Observable, of, BehaviorSubject, map} from 'rxjs';
-import {catchError, tap, switchMap} from 'rxjs/operators';
+import {Observable, of, BehaviorSubject} from 'rxjs';
+import {catchError, tap} from 'rxjs/operators';
 
 import {UserApiService} from '../../api/user/user-api.service';
 import {AuthService} from './auth.service';
@@ -48,7 +48,6 @@ export class UserService {
   private userFavoritesSig: WritableSignal<UserFavoriteStructureModel[]> = signal([]);
   public readonly userFavorites = computed(() => this.userFavoritesSig());
 
-
   constructor() {
     // Use effect to react to changes in the authenticated user state from AuthService
     effect(() => {
@@ -66,10 +65,9 @@ export class UserService {
               this.currentUserProfileDataSig.set(null);
             }
           });
+
         }
 
-        // Load user favorites when user logs in
-        this.loadUserFavorites().subscribe();
       } else {
         // User logged out
         untracked(() => {
@@ -213,126 +211,6 @@ export class UserService {
       })
     );
   }
-
-  /**
-   * Loads the current user's favorite structures.
-   * @param forceRefresh - If true, fetches from API even if already loaded.
-   * @returns An Observable of an array of `UserFavoriteStructureModel`.
-   */
-  loadUserFavorites(forceRefresh = false): Observable<UserFavoriteStructureModel[]> {
-    if (!forceRefresh && this.userFavoritesSig().length > 0) {
-      return of(this.userFavoritesSig());
-    }
-
-    return this.userApi.getUserFavoriteStructures().pipe(
-      tap(favorites => {
-        this.userFavoritesSig.set(favorites || []);
-      }),
-      catchError(error => {
-        this.notification.displayNotification(
-          error.message || "Erreur lors du chargement des favoris.",
-          'error'
-        );
-        return of([]);
-      })
-    );
-  }
-
-  /**
-   * Adds a structure to the current user's favorites.
-   * @param structureId - The ID of the structure to add.
-   * @returns An Observable of the created favorite or undefined if error.
-   */
-  addToFavorites(structureId: number): Observable<UserFavoriteStructureModel | undefined> {
-    return this.userApi.addStructureToFavorites(structureId).pipe(
-      tap(newFavorite => {
-        if (newFavorite) {
-          const currentFavorites = this.userFavoritesSig();
-          this.userFavoritesSig.set([...currentFavorites, newFavorite]);
-          this.notification.displayNotification("Structure ajoutée aux favoris.", 'valid');
-        }
-      }),
-      catchError(error => {
-        this.notification.displayNotification(
-          error.message || "Erreur lors de l'ajout aux favoris.",
-          'error'
-        );
-        return of(undefined);
-      })
-    );
-  }
-
-  /**
-   * Removes a structure from the current user's favorites.
-   * @param structureId - The ID of the structure to remove.
-   * @returns An Observable of void or undefined if error.
-   */
-  removeFromFavorites(structureId: number): Observable<void | undefined> {
-    return this.userApi.removeStructureFromFavorites(structureId).pipe(
-      tap(() => {
-        const currentFavorites = this.userFavoritesSig();
-        const updatedFavorites = currentFavorites.filter(fav => fav.structureId !== structureId);
-        this.userFavoritesSig.set(updatedFavorites);
-        this.notification.displayNotification("Structure retirée des favoris.", 'valid');
-      }),
-      catchError(error => {
-        this.notification.displayNotification(
-          error.message || "Erreur lors de la suppression des favoris.",
-          'error'
-        );
-        return of(undefined);
-      })
-    );
-  }
-
-  /**
-   * Checks if a structure is in the current user's favorites.
-   * @param structureId - The ID of the structure to check.
-   * @returns An Observable of boolean.
-   */
-  isStructureFavorite(structureId: number): Observable<boolean> {
-    return this.userApi.isStructureFavorite(structureId).pipe(
-      catchError(() => of(false))
-    );
-  }
-
-  /**
-   * Toggles a structure's favorite status.
-   * @param structureId - The ID of the structure to toggle.
-   * @returns An Observable with the operation result and new state.
-   */
-  toggleFavorite(structureId: number): Observable<{success: boolean, isFavorite: boolean, favorite?: UserFavoriteStructureModel}> {
-    const currentFavorites = this.userFavoritesSig();
-    const isFavorite = currentFavorites.some(fav => fav.structureId === structureId);
-
-    if (isFavorite) {
-      return this.removeFromFavorites(structureId).pipe(
-        map(() => ({success: true, isFavorite: false})),
-        catchError(() => of({success: false, isFavorite: true}))
-      );
-    } else {
-      return this.addToFavorites(structureId).pipe(
-        map((favorite) => ({
-          success: favorite !== undefined,
-          isFavorite: favorite !== undefined,
-          favorite
-        })),
-        catchError(() => of({success: false, isFavorite: false}))
-      );
-    }
-  }
-
-  /**
-   * Gets the list of favorite structure IDs for quick checks.
-   * @returns An array of structure IDs that are favorites.
-   */
-  getFavoriteStructureIds(): number[] {
-    return this.userFavoritesSig().map(fav => fav.structureId);
-  }
-
-
-  // changePassword method is REMOVED from UserService.
-  // It will be handled by AuthService, involving an email flow from the backend.
 
   /**
    * Searches for users based on a query string (e.g., name or email).

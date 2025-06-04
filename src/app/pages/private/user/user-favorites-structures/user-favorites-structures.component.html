@@ -48,14 +48,14 @@
     [class.list-view]="viewMode() === 'list'"
     *ngIf="!isLoading() && favoritesCount() > 0">
 
-    @for (favorite of favoritesWithDetails(); track favorite.structure.id) {
+    @for (favorite of favoritesDataSig(); track favorite.structure.id) {
       <div class="favorite-item-wrapper">
-        <!-- Card structure réutilisée -->
         <app-structure-card
           [structure]="favorite.structure"
           [showActions]="true"
           [showFavoriteButton]="true"
           [highlightNewStructure]="isRecentlyAdded(favorite.addedAt)"
+          [isFavorite]="true"
           (viewDetails)="onViewStructureDetails($event)"
           (bookEvent)="onBookStructureEvents($event)"
           (favorite)="onToggleFavorite($event)"
@@ -84,14 +84,13 @@
       Ajouter d'autres favoris
     </button>
 
-    <button
-      mat-stroked-button
-      color="accent"
-      routerLink="/events"
-      [queryParams]="getEventsQueryParams()"
-      class="action-button">
-      <mat-icon>event</mat-icon>
-      Voir événements des favoris
-    </button>
+<!--    <button-->
+<!--      mat-stroked-button-->
+<!--      color="accent"-->
+<!--      routerLink="/events"-->
+<!--      class="action-button">-->
+<!--      <mat-icon>event</mat-icon>-->
+<!--      Voir événements des favoris-->
+<!--    </button>-->
   </div>
 </div>

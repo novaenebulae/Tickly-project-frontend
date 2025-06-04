@@ -72,8 +72,10 @@ export class FriendshipService {
    * @returns An Observable that completes when all data is loaded.
    */
   loadInitialFriendshipData(forceRefresh = false): Observable<void> {
-    // If not forcing refresh and data is already present, consider skipping.
-    // However, friendship data can change frequently, so fetching might be good.
+
+    if (!forceRefresh && this.friendsSig().length > 0 && this.pendingRequestsSig().length > 0) {
+      return of(undefined);
+    }
 
     return forkJoin({
       friends: this.friendshipApi.getFriendsList(),
@@ -84,7 +86,7 @@ export class FriendshipService {
         this.friendsSig.set(results.friends.map(f => this.mapApiToFriendModel(f)));
         this.pendingRequestsSig.set(results.pending.map(r => this.mapApiToReceivedFriendRequestModel(r)));
         this.sentRequestsSig.set(results.sent.map(s => this.mapApiToSentFriendRequestModel(s)));
-        this.notification.displayNotification("Données d'amitié à jour.", 'valid', undefined, 2000);
+        // this.notification.displayNotification("Données d'amitié à jour.", 'valid', undefined, 2000);
       }),
       map(() => undefined), // Convert to Observable<void>
       catchError(error => {
@@ -94,7 +96,7 @@ export class FriendshipService {
     );
   }
 
-  // --- Friend List Operations ---
+
   /**
    * Retrieves the list of current user's friends.
    * Uses cached data if available, otherwise fetches from API.

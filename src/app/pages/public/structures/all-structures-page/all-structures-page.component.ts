@@ -19,6 +19,7 @@ import { StructureSearchParams } from '../../../../core/models/structure/structu
 import { StructureFiltersComponent } from '../../../../shared/domain/structures/structure-filters/structure-filters.component';
 import { StructureCardComponent } from '../../../../shared/domain/structures/structure-card/structure-card.component';
 import { AuthService } from '../../../../core/services/domain/user/auth.service';
+import {UserFavoritesService} from '../../../../core/services/domain/user/user-favorites.service';
 
 // Interfaces pour les types utilisés localement
 interface StructureFilters {
@@ -58,6 +59,7 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private title = inject(Title);
   private router = inject(Router);
+  protected favoritesService = inject(UserFavoritesService);
 
   isUserLoggedIn = false;
 
@@ -246,10 +248,24 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.notificationService.displayNotification(
-      `${structure.name} ajouté aux favoris`,
-      'valid',
-      'Fermer'
-    );
+    if (!structure.id) {
+      this.notificationService.displayNotification(
+        'Impossible d\'ajouter cette structure aux favoris',
+        'error'
+      );
+      return;
+    }
+
+    // ✅ Utiliser le service des favoris pour vraiment ajouter/supprimer
+    this.favoritesService.toggleFavorite(structure.id).subscribe({
+      next: (isNowFavorite) => {
+        // Les notifications sont gérées par le service
+        console.log(`🔄 Structure ${structure.name} ${isNowFavorite ? 'ajoutée aux' : 'retirée des'} favoris`);
+      },
+      error: (error) => {
+        console.error('Erreur lors du toggle favori:', error);
+      }
+    });
   }
+
 }

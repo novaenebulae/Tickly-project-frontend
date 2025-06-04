@@ -29,8 +29,6 @@ import {CustomEventTitleFormatter} from '../../../../../../core/providers/event-
   imports: [
     CalendarModule,
     CommonModule,
-    MatCard,
-    MatCardContent,
     MatIcon,
     MatButton,
   ],

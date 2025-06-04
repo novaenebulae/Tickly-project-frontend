@@ -25,17 +25,16 @@ import { NavbarComponent } from '../navbar/navbar.component';
   styleUrl: './admin-layout.component.scss',
 })
 export class AdminLayoutComponent {
-  // ✅ Services injectés avec la nouvelle architecture
   private authService = inject(AuthService);
   private userService = inject(UserService);
 
-  // ✅ État du sidenav (conservé tel quel)
-  collapsed = signal(true);
+  collapsed = signal(false);
   sidenavWidth = computed(() => (this.collapsed() ? '70px' : '250px'));
 
-  // ✅ Signaux exposés des services
   readonly isLoggedIn = this.authService.isLoggedIn;
   readonly currentUser = this.authService.currentUser;
   readonly currentUserProfile = this.userService.currentUserProfileData;
+
+  readonly currentUserStructure = this.userService.getCurrentUserProfile();
 
 }

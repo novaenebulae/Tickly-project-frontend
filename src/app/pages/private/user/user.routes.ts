@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { UserTicketsPage } from './user-tickets-page/user-tickets-page.component';
 import {
   UserFavoritesStructuresComponent
-} from '../../../shared/domain/users/user-favorites-structures/user-favorites-structures.component';
+} from './user-favorites-structures/user-favorites-structures.component';
 
 /**
  * User private area routes configuration

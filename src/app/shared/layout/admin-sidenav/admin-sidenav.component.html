@@ -1,16 +1,21 @@
 <div class="sidenav-header">
-  <img
-    [src]="structureLogoUrl()"
-    [width]="organisationPicSize()"
-    [height]="organisationPicSize()"
-    [alt]="structureName()"
-  />
-  <div class="header-text" [class.hide-header-text]="sideNavCollapsed()">
-    <h2>{{ structureName() }}</h2>
-  </div>
+  @if (isLoading()) {
+    <div class="spinner-container" [class.collapsed-spinner]="sideNavCollapsed()">
+      <mat-spinner [diameter]="sideNavCollapsed() ? 32 : 48"></mat-spinner>
+    </div>
+  } @else {
+    <img
+      [src]="this.structureInfos()?.logoUrl ?? 'images/example_structure_logo.jpg'"
+      [width]="organisationPicSize()"
+      [height]="organisationPicSize()"
+    />
+    <div class="header-text" [class.hide-header-text]="sideNavCollapsed()">
+      <h2>{{ this.structureInfos()?.name }}</h2>
+    </div>
+  }
 </div>
 <mat-nav-list>
   @for (item of menuItems(); track $index) {
-    <app-menu-item [item]="item" [sideNavCollapsed]="sideNavCollapsed()" />
+  <app-menu-item [item]="item" [sideNavCollapsed]="sideNavCollapsed()" />
   }
 </mat-nav-list>
