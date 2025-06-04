@@ -26,6 +26,7 @@ import {mockUsers} from '../../../mocks/auth/data/user-data.mock';
 import { mockFriendships } from '../../../mocks/friendships/data/friendships-data.mock';
 import {UserModel} from '../../../models/user/user.model'; // Assuming FriendshipDataModel[]
 import { AuthService } from '../../domain/user/auth.service';
+import { FriendsData } from '../../domain/user/friendship.service';
 
 @Injectable({
   providedIn: 'root'
@@ -42,18 +43,25 @@ export class FriendshipApiMockService {
   }
 
   /**
-   * Mock implementation for getting the current user's friends list.
-   * @returns Observable of raw API friend DTOs (matching FriendModel structure).
+   * Mock implementation for getting all friends data (friends, pending requests, sent requests).
+   * @returns Observable of FriendsData.
    */
-  mockGetFriendsList(): Observable<FriendModel[]> {
-    this.apiConfig.logApiRequest('MOCK GET', 'friendships/friends', null);
+  mockGetFriendsData(): Observable<FriendsData> {
+    this.apiConfig.logApiRequest('MOCK GET', 'friendships/all', null);
+
     const friends: FriendModel[] = [];
+    const pendingRequests: ReceivedFriendRequestModel[] = [];
+    const sentRequests: SentFriendRequestModel[] = [];
+
     this.currentMockFriendships.forEach(fs => {
+      const currentUserId = this.getCurrentUserId();
+
+      // Friends (accepted status)
       if (fs.status === FriendshipStatus.ACCEPTED) {
         let friendUser;
-        if (fs.senderId === this.getCurrentUserId()) {
+        if (fs.senderId === currentUserId) {
           friendUser = mockUsers.find(u => u.id === fs.receiverId);
-        } else if (fs.receiverId === this.getCurrentUserId()) {
+        } else if (fs.receiverId === currentUserId) {
           friendUser = mockUsers.find(u => u.id === fs.senderId);
         }
 
@@ -68,8 +76,80 @@ export class FriendshipApiMockService {
           });
         }
       }
+
+      // Pending requests received
+      if (fs.receiverId === currentUserId && fs.status === FriendshipStatus.PENDING) {
+        const senderUser = mockUsers.find(u => u.id === fs.senderId);
+        if (senderUser) {
+          pendingRequests.push({
+            friendshipId: fs.id,
+            sender: {
+              id: senderUser.id,
+              firstName: senderUser.firstName,
+              lastName: senderUser.lastName,
+              email: senderUser.email,
+              avatarUrl: senderUser.avatarUrl
+            },
+            status: fs.status,
+            requestedAt: fs.createdAt
+          });
+        }
+      }
+
+      // Sent requests
+      if (fs.senderId === currentUserId && (fs.status === FriendshipStatus.PENDING || fs.status === FriendshipStatus.REJECTED)) {
+        const receiverUser = mockUsers.find(u => u.id === fs.receiverId);
+        if (receiverUser) {
+          sentRequests.push({
+            friendshipId: fs.id,
+            receiver: {
+              id: receiverUser.id,
+              firstName: receiverUser.firstName,
+              lastName: receiverUser.lastName,
+              email: receiverUser.email,
+              avatarUrl: receiverUser.avatarUrl
+            },
+            status: fs.status,
+            sentAt: fs.createdAt
+          });
+        }
+      }
     });
-    return this.apiConfig.createMockResponse(friends);
+
+    const friendsData: FriendsData = {
+      friends,
+      pendingRequests,
+      sentRequests
+    };
+
+    return this.apiConfig.createMockResponse(friendsData);
+  }
+
+  /**
+   * @deprecated Use mockGetFriendsData() instead
+   */
+  mockGetFriendsList(): Observable<FriendModel[]> {
+    return this.mockGetFriendsData().pipe(
+      map(data => data.friends)
+    );
+  }
+
+  /**
+   * @deprecated Use mockGetFriendsData() instead
+   */
+  mockGetPendingRequests(): Observable<ReceivedFriendRequestModel[]> {
+    return this.mockGetFriendsData().pipe(
+      map(data => data.pendingRequests)
+    );
+  }
+
+  /**
+   * @deprecated Use mockGetFriendsData() instead
+   */
+  mockGetSentRequests(): Observable<SentFriendRequestModel[]> {
+    return this.mockGetFriendsData().pipe(
+      map(data => data.sentRequests)
+    );
   }
 
   /**
@@ -116,64 +196,6 @@ export class FriendshipApiMockService {
   }
 
   /**
-   * Mock implementation for getting pending friend requests received by the current user.
-   * @returns Observable of raw API DTOs (matching ReceivedFriendRequestModel structure).
-   */
-  mockGetPendingRequests(): Observable<ReceivedFriendRequestModel[]> {
-    this.apiConfig.logApiRequest('MOCK GET', 'friendships/pending', null);
-    const requests: ReceivedFriendRequestModel[] = [];
-    this.currentMockFriendships.forEach(fs => {
-      if (fs.receiverId === this.getCurrentUserId() && fs.status === FriendshipStatus.PENDING) {
-        const senderUser = mockUsers.find(u => u.id === fs.senderId);
-        if (senderUser) {
-          requests.push({
-            friendshipId: fs.id,
-            sender: {
-              id: senderUser.id,
-              firstName: senderUser.firstName,
-              lastName: senderUser.lastName,
-              email: senderUser.email,
-              avatarUrl: senderUser.avatarUrl
-            },
-            status: fs.status,
-            requestedAt: fs.createdAt
-          });
-        }
-      }
-    });
-    return this.apiConfig.createMockResponse(requests);
-  }
-
-  /**
-   * Mock implementation for getting friend requests sent by the current user.
-   * @returns Observable of raw API DTOs (matching SentFriendRequestModel structure).
-   */
-  mockGetSentRequests(): Observable<SentFriendRequestModel[]> {
-    this.apiConfig.logApiRequest('MOCK GET', 'friendships/sent', null);
-    const requests: SentFriendRequestModel[] = [];
-    this.currentMockFriendships.forEach(fs => {
-      if (fs.senderId === this.getCurrentUserId() && (fs.status === FriendshipStatus.PENDING || fs.status === FriendshipStatus.REJECTED)) {
-        const receiverUser = mockUsers.find(u => u.id === fs.receiverId);
-        if (receiverUser) {
-          requests.push({
-            friendshipId: fs.id,
-            receiver: {
-              id: receiverUser.id,
-              firstName: receiverUser.firstName,
-              lastName: receiverUser.lastName,
-              email: receiverUser.email,
-              avatarUrl: receiverUser.avatarUrl
-            },
-            status: fs.status,
-            sentAt: fs.createdAt
-          });
-        }
-      }
-    });
-    return this.apiConfig.createMockResponse(requests);
-  }
-
-  /**
    * Mock implementation for updating a friendship status (accept, reject, block, cancel).
    * @param friendshipId - The ID of the friendship record.
    * @param dto - DTO containing the new status.
@@ -196,7 +218,6 @@ export class FriendshipApiMockService {
       return this.apiConfig.createMockError(403, 'Only the receiver can accept a pending request');
     }
 
-
     this.currentMockFriendships[friendshipIndex] = {
       ...friendship,
       status: dto.newStatus,
@@ -204,7 +225,6 @@ export class FriendshipApiMockService {
     };
     return this.apiConfig.createMockResponse(this.currentMockFriendships[friendshipIndex]);
   }
-
 
   /**
    * Mock implementation for removing/cancelling a friendship.
@@ -235,47 +255,33 @@ export class FriendshipApiMockService {
   mockSearchUsers(query: string): Observable<Partial<UserModel>[]> {
     this.apiConfig.logApiRequest('MOCK GET', 'users/search', { q: query });
     const searchTerm = query.toLowerCase();
-    const results = mockUsers.filter(u =>
-      u.id !== this.getCurrentUserId() && // Don't find self
-      (u.firstName.toLowerCase().includes(searchTerm) ||
-        u.lastName.toLowerCase().includes(searchTerm) ||
-        u.email.toLowerCase().includes(searchTerm))
-    ).map(u => ({ // Return a subset of user info as API might
-      id: u.id,
-      firstName: u.firstName,
-      lastName: u.lastName,
-      email: u.email,
-      avatarUrl: u.avatarUrl
-    }));
+    const results = mockUsers
+      .filter(user =>
+        user.firstName.toLowerCase().includes(searchTerm) ||
+        user.lastName.toLowerCase().includes(searchTerm) ||
+        user.email.toLowerCase().includes(searchTerm)
+      )
+      .slice(0, 10) // Limit results
+      .map(user => ({
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        avatarUrl: user.avatarUrl
+      }));
     return this.apiConfig.createMockResponse(results);
   }
 
   /**
    * Mock implementation for getting friends attending a specific event.
    * @param eventId - The ID of the event.
-   * @returns Observable of FriendParticipantDto array.
+   * @returns Observable of FriendParticipantDto[].
    */
   mockGetFriendsAttendingEvent(eventId: number): Observable<FriendParticipantDto[]> {
-    this.apiConfig.logApiRequest('MOCK GET', `friendships/events/${eventId}/attendees`, null);
-    // This mock needs more data: which events users are attending.
-    // For now, let's return a few mock friends as attending.
-    const friendsList = this.currentMockFriendships
-      .filter(fs => fs.status === FriendshipStatus.ACCEPTED && (fs.senderId === this.getCurrentUserId() || fs.receiverId === this.getCurrentUserId()))
-      .map(fs => fs.senderId === this.getCurrentUserId() ? fs.receiverId : fs.senderId);
-
-    const attendingFriends: FriendParticipantDto[] = [];
-    const friendsToPotentiallyAttend = mockUsers.filter(u => friendsList.includes(u.id));
-
-    // Simulate some friends attending
-    for (let i = 0; i < Math.min(friendsToPotentiallyAttend.length, 2); i++) { // Max 2 attending for mock
-      const friend = friendsToPotentiallyAttend[i];
-      attendingFriends.push({
-        userId: friend.id,
-        firstName: friend.firstName,
-        lastName: friend.lastName,
-        avatarUrl: friend.avatarUrl
-      });
-    }
-    return this.apiConfig.createMockResponse(attendingFriends);
+    this.apiConfig.logApiRequest('MOCK GET', `friendships/friends-attending-event/${eventId}`, null);
+    // This would require event participation mock data, which is out of scope for friendship models
+    // Returning an empty array for now, but in a real implementation, you'd cross-reference with event participation data
+    const friendsAttending: FriendParticipantDto[] = [];
+    return this.apiConfig.createMockResponse(friendsAttending);
   }
 }

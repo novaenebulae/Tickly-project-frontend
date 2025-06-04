@@ -19,28 +19,45 @@ import {UserRole} from '../../../models/user/user-role.enum';
 export class AuthApiMockService {
 
   private apiConfig = inject(ApiConfigService);
+  private payload = {};
+
+  constructor() {
+
+  }
+
 
   /**
    * Génère un token JWT valide pour les tests
    */
-  private generateValidMockToken(userId: number, userMail: string, needsStructureSetup: boolean, role: UserRole): string {
+  private generateValidMockToken(userId: number, userMail: string, role: UserRole, needsStructureSetup?: boolean, structureId?: number): string {
     // Créer un JWT simple mais valide pour les tests
     const header = {
       "alg": "HS256",
       "typ": "JWT"
     };
 
-    const payload = {
+    const baseUserPayload = {
       "sub": userMail.toString(),
       "role": role,
-      "needsStructureSetup": needsStructureSetup,
       "userId": userId,
       "iat": Math.floor(Date.now() / 1000),
       "exp": Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24h
     };
 
+    if (role == UserRole.STRUCTURE_ADMINISTRATOR) {
+
+      this.payload = {
+        ...baseUserPayload,
+        "structureId": structureId,
+        "needsStructureSetup": needsStructureSetup
+      }
+
+    } else {
+      this.payload = baseUserPayload
+    }
+
     const base64Header = btoa(JSON.stringify(header));
-    const base64Payload = btoa(JSON.stringify(payload));
+    const base64Payload = btoa(JSON.stringify(this.payload));
 
     // Pour un mock, on utilise une signature simple
     const signature = btoa(`mock-signature-${userId}-${role}`);
@@ -70,7 +87,7 @@ export class AuthApiMockService {
     }
 
     // Créer un token JWT valide
-    const validToken = this.generateValidMockToken(user.id, user.email, user.needsStructureSetup!, user.role,);
+    const validToken = this.generateValidMockToken(user.id, user.email, user.role, user.needsStructureSetup, user.structureId);
 
     // Create a mock response with a token and user details
     const mockResponse: AuthResponseDto = {
@@ -103,10 +120,10 @@ export class AuthApiMockService {
     }
 
     const newUserId = mockUsers.length + 1;
-    const newUserRole = UserRole.SPECTATOR;
+    const newUserRole = userRegistrationDto.createStructure ? UserRole.STRUCTURE_ADMINISTRATOR : UserRole.SPECTATOR;
 
     // Générer un token JWT valide pour le nouvel utilisateur
-    const validToken = this.generateValidMockToken(newUserId, newUserRole, false, newUserRole);
+    const validToken = this.generateValidMockToken(newUserId, userRegistrationDto.email,newUserRole, userRegistrationDto.createStructure);
 
     const mockResponse: AuthResponseDto = {
       token: validToken,

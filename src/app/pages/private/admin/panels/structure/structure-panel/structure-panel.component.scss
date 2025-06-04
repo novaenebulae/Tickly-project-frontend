@@ -1,82 +1,401 @@
-// Fichier: structure-panel.component.scss
+.structure-panel-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
 
-:host {
-  display: block; // Assure que le composant prend de la place
+  // 🎨 Variables de couleurs
+  --primary-color: #1976d2;
+  --accent-color: #f06292;
+  --warn-color: #f44336;
+  --success-color: #4caf50;
+  --zones-color: #ff9800;
+  --team-color: #9c27b0;
+  --events-color: #00bcd4;
+
+  // 📱 Responsive
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 }
 
-// Style commun pour les cartes de gestion
-.structure-card {
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; // Animation douce
-  border: 1px solid var(--mat-divider-color); // Bordure subtile
+// 🎨 Section En-tête
+.header-section {
+  margin-bottom: 32px;
 
-  // Styles pour l'en-tête avec icône avatar
-  .card-header-icon {
-    padding: 16px;
-    border-bottom: 1px solid var(--mat-divider-color);
+  .structure-overview-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px;
+    overflow: hidden;
 
-    // Style de l'avatar contenant l'icône
-    .mat-mdc-card-avatar {
-      color: var(--mat-card-header-text-color, black);
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
+    .structure-header {
       display: flex;
       align-items: center;
-      justify-content: center;
-      margin-right: 16px; // Espace entre avatar et titre
+      gap: 24px;
+      flex-wrap: wrap;
 
-      .header-icon {
-        font-size: 40px; // Taille de l'icône
-        width: 40px;
-        height: 40px;
+      @media (max-width: 768px) {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
       }
     }
 
-    // Ajustement du titre/sous-titre si nécessaire
-    .mat-mdc-card-header-text {
-      margin: 0; // Reset marge par défaut
+    .structure-avatar {
+      flex-shrink: 0;
+
+      .structure-logo {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .structure-icon-placeholder {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        mat-icon {
+          font-size: 40px;
+          width: 40px;
+          height: 40px;
+          color: rgba(255, 255, 255, 0.8);
+        }
+      }
+    }
+
+    .structure-info {
+      flex: 1;
+      min-width: 250px;
+
+      .structure-name {
+        margin: 0 0 8px 0;
+        font-size: 2rem;
+        font-weight: 500;
+        color: white;
+      }
+
+      .structure-address {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 16px 0;
+        color: rgba(255, 255, 255, 0.8);
+
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+
+      .status-chip {
+        font-weight: 500;
+
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+
+      .refresh-btn {
+        color: rgba(255, 255, 255, 0.8);
+
+        &:hover {
+          color: white;
+          background: rgba(255, 255, 255, 0.1);
+        }
+      }
+
+      button {
+        color: white;
+        border-color: rgba(255, 255, 255, 0.3);
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.5);
+        }
+      }
     }
   }
+}
 
-  mat-card-content {
-    padding: 16px; // Espacement interne du contenu
-    p { margin-bottom: 0.75rem; } // Espacement standard des paragraphes
+// 📊 Section Statistiques
+.stats-section {
+  margin-bottom: 32px;
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
   }
 
-  mat-card-actions {
-    padding: 8px 16px; // Espacement standard pour les actions
-    border-top: 1px solid var(--mat-divider-color); // Ligne de séparation au-dessus des actions
-    background-color: var(--mat-card-actions-background-color, transparent); // Fond optionnel pour les actions
+  .stat-card {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    &.zones-card {
+      border-left-color: var(--zones-color);
+
+      .zones-icon {
+        background: linear-gradient(45deg, #ff9800, #ffb74d);
+        color: white;
+      }
+    }
+
+    &.team-card {
+      border-left-color: var(--team-color);
+
+      .team-icon {
+        background: linear-gradient(45deg, #9c27b0, #ba68c8);
+        color: white;
+      }
+    }
+
+    &.events-card {
+      border-left-color: var(--events-color);
+
+      .events-icon {
+        background: linear-gradient(45deg, #00bcd4, #4dd0e1);
+        color: white;
+      }
+    }
+
+    .stat-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .stat-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+      }
+    }
+
+    .stat-details {
+      flex: 1;
+
+      .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1;
+        color: #333;
+      }
+
+      .stat-label {
+        font-size: 0.875rem;
+        color: #666;
+        margin-top: 4px;
+      }
+    }
+
+    .stat-action {
+      text-align: right;
+    }
+  }
+}
+
+// 🛠️ Section Actions
+.actions-section {
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
   }
 
-  // Effet de survol pour la carte entière
-  &.hover-shadow:hover {
-    transform: translateY(-3px); // Léger déplacement vers le haut
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1), 0 3px 6px rgba(0,0,0,0.08) !important; // Ombre plus prononcée
+  .action-card {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    &.info-card .info-avatar {
+      background: linear-gradient(45deg, #1976d2, #42a5f5);
+      color: white;
+    }
+
+    &.team-card .team-avatar {
+      background: linear-gradient(45deg, #9c27b0, #ba68c8);
+      color: white;
+    }
+
+    &.areas-card .areas-avatar {
+      background: linear-gradient(45deg, #ff9800, #ffb74d);
+      color: white;
+    }
+
+    &.events-management-card .events-avatar {
+      background: linear-gradient(45deg, #00bcd4, #4dd0e1);
+      color: white;
+    }
+
+    .action-header {
+      padding-bottom: 0;
+
+      .action-avatar {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+
+        mat-icon {
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+      }
+    }
+
+    mat-card-content {
+      flex: 1;
+      padding-top: 8px !important;
+
+      .action-description {
+        color: #666;
+        line-height: 1.5;
+        margin: 0;
+      }
+    }
+
+    mat-card-actions {
+      padding-top: 16px;
+      justify-content: flex-end;
+
+      button {
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+    }
   }
 }
 
-// Classes pour les fonds subtils des en-têtes de carte (basées sur les couleurs Material)
-// Vous pouvez les ajuster ou utiliser des variables CSS de votre thème si disponibles
-.bg-primary-subtle {
-  background-color: rgba(var(--palette-primary-rgb, 63, 81, 181), 0.1); // Bleu clair
-  color: var(--mat-primary-color); // Couleur de l'icône dans l'avatar
-}
-.bg-accent-subtle {
-  background-color: rgba(var(--palette-accent-rgb, 255, 64, 129), 0.1); // Rose/Cyan clair
-  color: var(--mat-accent-color);
-}
-.bg-warn-subtle {
-  background-color: rgba(var(--palette-warn-rgb, 244, 67, 54), 0.1); // Rouge/Orange clair
-  color: var(--mat-warn-color);
-}
-.bg-secondary-subtle { // Couleur "secondaire" ou grise
-  background-color: rgba(0, 0, 0, 0.04); // Gris très clair
-  color: var(--mat-secondary-text-color); // Gris pour l'icône
+// 🔄 État de chargement
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+
+  .loading-card {
+    border-radius: 12px;
+    min-width: 300px;
+
+    .loading-content {
+      text-align: center;
+      padding: 20px;
+
+      mat-progress-spinner {
+        margin: 0 auto 20px;
+      }
+
+      p {
+        margin: 0;
+        color: #666;
+      }
+    }
+  }
 }
 
-// Assurer que les colonnes flex prennent bien toute la hauteur
-// (Peut être nécessaire si `h-100` seul ne suffit pas)
-.row.g-4 > .d-flex {
-  align-items: stretch; // Force les enfants flex (la carte) à s'étirer
+// 🎨 Animations et transitions
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.structure-overview-card,
+.stat-card,
+.action-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.stat-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.stat-card:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.action-card:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.action-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.action-card:nth-child(4) {
+  animation-delay: 0.45s;
+}
+
+// 📱 Responsive design
+@media (max-width: 768px) {
+  .stats-grid,
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .structure-overview-card .structure-header {
+    .structure-info .structure-name {
+      font-size: 1.5rem;
+    }
+
+    .header-actions {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 }

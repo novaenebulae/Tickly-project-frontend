@@ -10,7 +10,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, tap, map } from 'rxjs/operators';
 
 import { ApiConfigService } from '../api-config.service';
 import { FriendshipApiMockService } from './friendship-api-mock.service';
@@ -22,6 +22,7 @@ import { FriendModel } from '../../../models/friendship/friend.model';
 import { ReceivedFriendRequestModel, SentFriendRequestModel } from '../../../models/friendship/friend-request.model';
 import { UserModel } from '../../../models/user/user.model'; // For search results
 import { FriendParticipantDto } from '../../../models/friendship/friend-participant.dto';
+import { FriendsData } from '../../domain/user/friendship.service';
 
 @Injectable({
   providedIn: 'root'
@@ -32,22 +33,49 @@ export class FriendshipApiService {
   private mockService = inject(FriendshipApiMockService);
 
   /**
-   * Retrieves the current user's list of friends.
-   * Expects an array of raw API DTOs that can be mapped to FriendModel.
+   * Retrieves all friends data (friends, pending requests, sent requests) in a single call.
+   * This is the primary endpoint that consolidates all friendship-related data.
    */
-  getFriendsList(): Observable<FriendModel[]> { // Type response to FriendModel[] as API should match
+  getFriendsData(): Observable<FriendsData> {
     const endpointContext = APP_CONFIG.api.endpoints.friendship.base;
 
     if (this.apiConfig.isMockEnabledForDomain('friendship')) {
-      return this.mockService.mockGetFriendsList();
+      return this.mockService.mockGetFriendsData();
     }
 
     this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
-    return this.http.get<FriendModel[]>(url, { headers }).pipe(
+    return this.http.get<FriendsData>(url, { headers }).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
-      catchError(error => this.handleFriendshipError(error, 'getFriendsList'))
+      catchError(error => this.handleFriendshipError(error, 'getFriendsData'))
+    );
+  }
+
+  /**
+   * @deprecated Use getFriendsData() instead and extract friends from the response
+   */
+  getFriendsList(): Observable<FriendModel[]> {
+    return this.getFriendsData().pipe(
+      map(data => data.friends)
+    );
+  }
+
+  /**
+   * @deprecated Use getFriendsData() instead and extract pendingRequests from the response
+   */
+  getPendingRequests(): Observable<ReceivedFriendRequestModel[]> {
+    return this.getFriendsData().pipe(
+      map(data => data.pendingRequests)
+    );
+  }
+
+  /**
+   * @deprecated Use getFriendsData() instead and extract sentRequests from the response
+   */
+  getSentRequests(): Observable<SentFriendRequestModel[]> {
+    return this.getFriendsData().pipe(
+      map(data => data.sentRequests)
     );
   }
 
@@ -56,7 +84,7 @@ export class FriendshipApiService {
    * @param dto - Data for sending the request (e.g., receiverId or receiverEmail).
    * Expects a raw API DTO representing the created friendship record.
    */
-  sendFriendRequest(dto: SendFriendRequestDto): Observable<FriendshipDataModel> { // API returns FriendshipDataModel
+  sendFriendRequest(dto: SendFriendRequestDto): Observable<FriendshipDataModel> {
     const endpointContext = APP_CONFIG.api.endpoints.friendship.requests;
 
     if (this.apiConfig.isMockEnabledForDomain('friendship')) {
@@ -73,50 +101,6 @@ export class FriendshipApiService {
   }
 
   /**
-   * Retrieves pending friend requests received by the current user.
-   * Expects an array of raw API DTOs that can be mapped to ReceivedFriendRequestModel.
-   */
-  getPendingRequests(): Observable<ReceivedFriendRequestModel[]> {
-    const endpointContext = `${APP_CONFIG.api.endpoints.friendship.requests}?status=pending&type=received`; // Example query params
-
-    if (this.apiConfig.isMockEnabledForDomain('friendship')) {
-      return this.mockService.mockGetPendingRequests();
-    }
-
-    this.apiConfig.logApiRequest('GET', endpointContext);
-    const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.friendship.requests);
-    const headers = this.apiConfig.createHeaders();
-    const params = new HttpParams().set('status', 'pending').set('type', 'received'); // Adjust as per your API
-
-    return this.http.get<ReceivedFriendRequestModel[]>(url, { headers, params }).pipe(
-      tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
-      catchError(error => this.handleFriendshipError(error, 'getPendingRequests'))
-    );
-  }
-
-  /**
-   * Retrieves friend requests sent by the current user.
-   * Expects an array of raw API DTOs that can be mapped to SentFriendRequestModel.
-   */
-  getSentRequests(): Observable<SentFriendRequestModel[]> {
-    const endpointContext = `${APP_CONFIG.api.endpoints.friendship.requests}?type=sent`; // Example query params
-
-    if (this.apiConfig.isMockEnabledForDomain('friendship')) {
-      return this.mockService.mockGetSentRequests();
-    }
-
-    this.apiConfig.logApiRequest('GET', endpointContext);
-    const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.friendship.requests);
-    const headers = this.apiConfig.createHeaders();
-    const params = new HttpParams().set('type', 'sent'); // Adjust as per your API
-
-    return this.http.get<SentFriendRequestModel[]>(url, { headers, params }).pipe(
-      tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
-      catchError(error => this.handleFriendshipError(error, 'getSentRequests'))
-    );
-  }
-
-  /**
    * Updates the status of a friendship (e.g., accept, reject, block).
    * @param friendshipId - The ID of the friendship record.
    * @param dto - DTO containing the new status.
@@ -124,17 +108,15 @@ export class FriendshipApiService {
    */
   updateFriendshipStatus(friendshipId: number, dto: UpdateFriendshipStatusDto): Observable<FriendshipDataModel> {
     const endpointContext = APP_CONFIG.api.endpoints.friendship.requestAction(friendshipId);
-    // API might use PUT for accept/reject/block and a different payload structure
-    // For simplicity, assuming PATCH or PUT with the same DTO. Adjust as needed.
 
     if (this.apiConfig.isMockEnabledForDomain('friendship')) {
       return this.mockService.mockUpdateFriendshipStatus(friendshipId, dto);
     }
 
-    this.apiConfig.logApiRequest('PUT', endpointContext, dto); // Or PATCH
+    this.apiConfig.logApiRequest('PUT', endpointContext, dto);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
-    return this.http.put<FriendshipDataModel>(url, dto, { headers }).pipe( // Or this.http.patch
+    return this.http.put<FriendshipDataModel>(url, dto, { headers }).pipe(
       tap(response => this.apiConfig.logApiResponse('PUT', endpointContext, response)),
       catchError(error => this.handleFriendshipError(error, `updateFriendshipStatus (${dto.newStatus})`))
     );
@@ -166,10 +148,9 @@ export class FriendshipApiService {
    * @param query - Search term (name or email).
    */
   searchUsers(query: string): Observable<Partial<UserModel>[]> {
-    // This endpoint might belong to a UserService more logically, but keeping as per original file.
-    const endpointContext = APP_CONFIG.api.endpoints.users.search; // Assuming a general user search endpoint
+    const endpointContext = APP_CONFIG.api.endpoints.users.search;
 
-    if (this.apiConfig.isMockEnabledForDomain('friendship')) { // or 'users' if user search is mocked under users domain
+    if (this.apiConfig.isMockEnabledForDomain('friendship')) {
       return this.mockService.mockSearchUsers(query);
     }
 
@@ -180,10 +161,9 @@ export class FriendshipApiService {
 
     return this.http.get<Partial<UserModel>[]>(url, { headers, params }).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
-      catchError(error => this.handleFriendshipError(error, 'searchUsers')) // Or a generic user search error
+      catchError(error => this.handleFriendshipError(error, 'searchUsers'))
     );
   }
-
 
   /**
    * Retrieves friends of the current user who are attending a specific event.
@@ -207,7 +187,6 @@ export class FriendshipApiService {
     );
   }
 
-
   /**
    * Handles errors from friendship API calls.
    * @param error - The HttpErrorResponse.
@@ -215,14 +194,14 @@ export class FriendshipApiService {
    */
   private handleFriendshipError(error: HttpErrorResponse, context: string): Observable<never> {
     this.apiConfig.logApiError('FRIENDSHIP-API', context, error);
-    let userMessage = 'Une erreur est survenue concernant les relations d\'amitié.'; // Message en français
+    let userMessage = 'Une erreur est survenue concernant les relations d\'amitié.';
     if (error.status === 404) {
       userMessage = 'Utilisateur ou relation non trouvé(e).';
     } else if (error.status === 403) {
       userMessage = 'Action non autorisée.';
     } else if (error.status === 400) {
       userMessage = 'Données invalides pour la requête d\'amitié.';
-    } else if (error.status === 409) { // Conflict
+    } else if (error.status === 409) {
       userMessage = error.error?.message || 'Cette relation existe déjà ou est en conflit avec un état existant.';
     }
     return throwError(() => ({

@@ -19,7 +19,7 @@ import { LoginCredentials, AuthResponseDto, JwtPayload } from '../../../models/a
 import { UserRegistrationDto } from '../../../models/user/user.model';
 import { UserRole } from '../../../models/user/user-role.enum';
 import { UserModel } from '../../../models/user/user.model';
-import {UserService} from './user.service'; // For refreshCurrentUserDataFromUpdatedProfile
+import { Location } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +28,7 @@ export class AuthService {
   private authApi = inject(AuthApiService);
   private notification = inject(NotificationService);
   private router = inject(Router);
+  private location = inject(Location);
 
   // --- User State Signals ---
   private currentUserSig: WritableSignal<JwtPayload | null> = signal(null);
@@ -314,10 +315,8 @@ export class AuthService {
   private navigateAfterLogin(decodedToken: JwtPayload): void {
     if (decodedToken.needsStructureSetup) {
       this.router.navigate(['/structure/create']); // Or your structure setup route
-    } else if (decodedToken.role === UserRole.STRUCTURE_ADMINISTRATOR || decodedToken.role === UserRole.RESERVATION_SERVICE || decodedToken.role === UserRole.ORGANIZATION_SERVICE) {
-      this.router.navigate(['/admin/dashboard']); // Or your admin dashboard route
     } else {
-      this.router.navigate(['/dashboard']); // Default dashboard for regular users
+      this.location.back();
     }
   }
 

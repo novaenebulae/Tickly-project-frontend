@@ -1,150 +1,227 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, computed, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router'; // Import RouterModule pour routerLink
-import { Subscription, forkJoin, of, throwError } from 'rxjs'; // forkJoin pour charger plusieurs infos
-import { catchError, finalize, tap } from 'rxjs/operators';
+import { Router, RouterModule } from '@angular/router';
+import { Subject, combineLatest } from 'rxjs';
+import { takeUntil, map } from 'rxjs/operators';
 
-// Import des modules Angular Material utilisés dans le template HTML (à venir)
+// Angular Material
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import {MatTooltipModule} from '@angular/material/tooltip';
-import {StructureService} from '../../../../../../core/services/domain/structure/structure.service';
-import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service'; // Pour l'indicateur de chargement
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatChipsModule } from '@angular/material/chips';
 
-// --- Interfaces (à définir ou importer de fichiers partagés) ---
-interface StructureInfo {
-  id: number;
-  name: string;
-  address?: string; // Optionnel
-  city?: string;    // Optionnel
-  zipCode?: string; // Optionnel
-  publicUrl?: string; // Optionnel: URL de la page publique
-  logoUrl?: string;  // Optionnel: URL du logo
-}
+// Services
+import { StructureService } from '../../../../../../core/services/domain/structure/structure.service';
+import { UserStructureService } from '../../../../../../core/services/domain/user-structure/user-structure.service';
+import { NotificationService } from '../../../../../../core/services/domain/utilities/notification.service';
 
-// --- Services (Simulés ici, à remplacer par vos vrais services) ---
-// import { StructureService } from 'src/app/core/services/structure.service';
-// import { TeamService } from 'src/app/core/services/team.service';
-// import { ZoneService } from 'src/app/core/services/zone.service';
-
-// Simulation de services
-const mockStructureService = {
-  getCurrentStructureInfo: () => of<StructureInfo>({
-    id: 1,
-    name: 'Le Phare Éclectique',
-    city: 'Métropole Fictive',
-    zipCode: '57000',
-    publicUrl: 'https://exemple.com/le-phare', // URL simulée
-    logoUrl: 'assets/images/logo-placeholder.png' // Logo simulé
-  }).pipe(tap(() => console.log('Structure Info Loaded (Mock)')))
-};
-const mockTeamService = {
-  getTeamMemberCount: () => of(8).pipe(tap(() => console.log('Team Count Loaded (Mock)'))) // 8 membres simulés
-};
-const mockZoneService = {
-  getZoneCount: () => of(6).pipe(tap(() => console.log('Zone Count Loaded (Mock)'))) // 6 zones simulées
-  // Simuler une erreur possible:
-  // getZoneCount: () => throwError(() => new Error('Failed to load zones count')).pipe(delay(500))
-};
+// Models
+import { StructureModel } from '../../../../../../core/models/structure/structure.model';
+import { StructureAreaModel } from '../../../../../../core/models/structure/structure-area.model';
 
 @Component({
-  selector: 'app-structure-panel', // Sélecteur du composant
-  standalone: true,                // Composant autonome
-  imports: [                       // Modules requis par le composant et son template
+  selector: 'app-structure-panel',
+  standalone: true,
+  imports: [
     CommonModule,
-    RouterModule, // Pour [routerLink]
+    RouterModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatBadgeModule,
+    MatChipsModule
   ],
-  templateUrl: './structure-panel.component.html', // Fichier HTML associé
-  styleUrls: ['./structure-panel.component.scss'],   // Fichier SCSS associé
+  templateUrl: './structure-panel.component.html',
+  styleUrls: ['./structure-panel.component.scss']
 })
 export class StructurePanelComponent implements OnInit, OnDestroy {
-
-  // --- Injection des services ---
   private router = inject(Router);
-  private cdRef = inject(ChangeDetectorRef); // Pour marquer les changements avec OnPush
-  private structureService = inject(StructureService); // inject(StructureService);
+  private structureService = inject(StructureService);
   private userStructureService = inject(UserStructureService);
+  private notification = inject(NotificationService);
+  private destroy$ = new Subject<void>();
 
-  // --- Propriétés pour le Template ---
-  structureInfo = this.userStructureService.userStructure;
-  teamMemberCount: number | null = null;    // Compteur membres
-  zoneCount: number | null = null;          // Compteur zones
-  isLoading: boolean = true;                // Indicateur de chargement initial
-  errorLoading: string | null = null;       // Message d'erreur
-  private dataSubscription: Subscription | null = null; // Pour gérer la désinscription
+  // ✅ Utilisation des signaux des services
+  private readonly userStructure = this.userStructureService.userStructure;
+  protected userStructureData = this.userStructureService.userStructure();
 
+  protected readonly isLoadingStructure = this.userStructureService.isLoading;
+  protected readonly hasStructure = this.userStructureService.hasStructure;
+  protected readonly structureAreas = this.structureService.currentStructureAreas;
 
-  // --- Cycle de vie ---
+  // ✅ Signaux locaux pour les statistiques
+  private teamCountSig = signal<number>(0);
+  private eventCountSig = signal<number>(0);
+
+  // ✅ Computed properties pour l'UI
+  protected readonly teamCount = computed(() => this.teamCountSig());
+  protected readonly eventCount = computed(() => this.eventCountSig());
+  protected readonly areaCount = computed(() => this.structureAreas().length);
+
+  protected readonly structureStatus = computed(() => {
+    const structure = this.userStructure();
+    if (!structure) return 'no-structure';
+
+    const areas = this.structureAreas().length;
+    const team = this.teamCount();
+
+    if (areas === 0) return 'needs-setup';
+    if (team <= 1) return 'needs-team';
+    return 'ready';
+  });
+
+  protected readonly statusConfig = computed(() => {
+    const status = this.structureStatus();
+    switch (status) {
+      case 'no-structure':
+        return {
+          label: 'Aucune structure',
+          color: 'warn',
+          icon: 'error_outline',
+          description: 'Vous devez créer une structure'
+        };
+      case 'needs-setup':
+        return {
+          label: 'Configuration requise',
+          color: 'accent',
+          icon: 'build',
+          description: 'Ajoutez des zones à votre structure'
+        };
+      case 'needs-team':
+        return {
+          label: 'Équipe incomplète',
+          color: 'primary',
+          icon: 'group_add',
+          description: 'Invitez des membres à votre équipe'
+        };
+      case 'ready':
+        return {
+          label: 'Opérationnelle',
+          color: 'primary',
+          icon: 'check_circle',
+          description: 'Votre structure est prête'
+        };
+      default:
+        return { label: 'Inconnu', color: 'warn', icon: 'help', description: '' };
+    }
+  });
+
   ngOnInit(): void {
-    this.loadInitialData(); // Lance le chargement des données au démarrage
+    this.loadStructureData();
+    this.loadStatistics();
   }
 
   ngOnDestroy(): void {
-    this.dataSubscription?.unsubscribe(); // Nettoie l'abonnement à la destruction
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  // --- Chargement des Données ---
-  loadInitialData(): void {
-    this.isLoading = true;
-    this.errorLoading = null;
-    this.cdRef.markForCheck(); // Met à jour l'UI pour montrer le chargement
+  /**
+   * ✅ Charge les données de la structure utilisateur
+   */
+  private loadStructureData(): void {
+    // Surveiller les changements de structure pour charger les areas
+    this.userStructureData = this.userStructure()
+  }
 
-    // Utilise forkJoin pour lancer plusieurs appels en parallèle
-    this.dataSubscription = forkJoin({
-      info: this.structureService.getCurrentStructureInfo(),
-      teamCount: this.teamService.getTeamMemberCount(),
-      zoneCount: this.zoneService.getZoneCount()
-    }).pipe(
-        // finalize s'exécute toujours, succès ou erreur
-        finalize(() => {
-          this.isLoading = false; // Arrête le chargement
-          this.cdRef.markForCheck(); // Met à jour l'UI
-        }),
-        // catchError intercepte les erreurs des appels précédents
-        catchError(error => {
-          console.error("Erreur lors du chargement des données initiales:", error);
-          this.errorLoading = "Impossible de charger toutes les informations de la structure.";
-          // Retourne un Observable vide ou une valeur par défaut pour ne pas bloquer 'subscribe'
-          return of(null);
-        })
-    ).subscribe(results => {
-      // Si catchError retourne null, on ne fait rien ici
-      if (results) {
-        this.structureInfo = results.info;
-        this.teamMemberCount = results.teamCount;
-        this.zoneCount = results.zoneCount;
-        console.log("Données initiales chargées:", results);
+  /**
+   * ✅ Charge les statistiques (simulées pour le moment)
+   */
+  private loadStatistics(): void {
+    // TODO: Remplacer par de vrais services quand ils seront disponibles
+
+    // Simulation du nombre de membres d'équipe
+    setTimeout(() => {
+      this.teamCountSig.set(Math.floor(Math.random() * 10) + 1);
+    }, 800);
+
+    // Simulation du nombre d'événements
+    setTimeout(() => {
+      this.eventCountSig.set(Math.floor(Math.random() * 25) + 5);
+    }, 1200);
+  }
+
+  /**
+   * ✅ Rafraîchit toutes les données
+   */
+  refreshData(): void {
+    this.userStructureService.refreshUserStructure().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: () => {
+        this.loadStatistics();
+        this.notification.displayNotification('Données mises à jour', 'valid');
+      },
+      error: (error) => {
+        this.notification.displayNotification('Erreur lors de la mise à jour', 'error');
       }
-      // Marquer pour la détection de changement car les données ont été mises à jour
-      this.cdRef.markForCheck();
     });
   }
 
-  // --- Méthodes d'Action (appelées depuis le HTML) ---
-
-  // Navigue vers la page d'édition des informations de la structure
-  navigateToEditInfo(): void {
-    // Définissez la route '/admin/structure/edit' ou ouvrez une modale
-    this.router.navigate(['/admin/structure/edit'])
-    // Exemple: this.router.navigate(['/admin/structure/edit']);
-    // Ou: this.dialog.open(EditStructureInfoDialogComponent, { data: this.structureInfo });
+  /**
+   * ✅ Navigation vers l'édition de structure
+   */
+  navigateToEdit(): void {
+    this.router.navigate(['/admin/structure/edit']);
   }
 
-  // Méthode pour ouvrir la page publique (déjà gérée par <a> dans le HTML mais pourrait avoir une logique ici si besoin)
+  /**
+   * ✅ Navigation vers la gestion d'équipe
+   */
+  navigateToTeam(): void {
+    this.router.navigate(['/admin/structure/team']);
+  }
+
+  /**
+   * ✅ Navigation vers la gestion des zones
+   */
+  navigateToAreas(): void {
+    this.router.navigate(['/admin/structure/areas']);
+  }
+
+  /**
+   * ✅ Navigation vers les événements
+   */
+  navigateToEvents(): void {
+    this.router.navigate(['/admin/events']);
+  }
+
+  /**
+   * ✅ Ouvre la page publique de la structure
+   */
   openPublicPage(): void {
-    if (this.structureInfo?.publicUrl) {
-      window.open(this.structureInfo.publicUrl, '_blank');
-    } else {
-      console.warn("Aucune URL publique définie pour cette structure.");
-      // Afficher une notification à l'utilisateur ?
+    const structure = this.userStructure();
+    if (structure?.id) {
+      // TODO: Remplacer par l'URL réelle de la page publique
+      const publicUrl = `/structures/${structure.id}`;
+      window.open(publicUrl, '_blank');
     }
   }
 
+  /**
+   * ✅ Obtient la couleur en fonction du nombre
+   */
+  getCountColor(count: number, thresholds: { low: number; medium: number }): string {
+    if (count === 0) return 'warn';
+    if (count <= thresholds.low) return 'accent';
+    if (count <= thresholds.medium) return 'primary';
+    return 'primary';
+  }
+
+  /**
+   * ✅ Formate l'adresse de la structure
+   */
+  getFormattedAddress(): string {
+    const structure = this.userStructure();
+    if (!structure?.address) return 'Adresse non définie';
+
+    const { street, city, zipCode, country } = structure.address;
+    const parts = [street, `${zipCode} ${city}`, country].filter(Boolean);
+    return parts.join(', ');
+  }
 }

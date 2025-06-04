@@ -180,7 +180,7 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
   removeFriend(friend: FriendModel): void {
     this.isPerformingAction.set(true);
 
-    this.friendshipService.cancelFriendship(friend.friendshipId).subscribe({
+    this.friendshipService.removeFriend(friend.friendshipId).subscribe({
       next: () => {
         this.isPerformingAction.set(false);
       },

@@ -105,17 +105,6 @@ export class UserFavoritesStructuresComponent implements OnInit {
   }
 
   /**
-   * Vérifie si une structure a été ajoutée récemment (dernières 24h).
-   * @param addedDate - Date d'ajout aux favoris.
-   * @returns True si ajoutée récemment.
-   */
-  isRecentlyAdded(addedDate: Date): boolean {
-    const now = new Date();
-    const twentyFourHoursAgo = new Date(now.getTime() - (24 * 60 * 60 * 1000));
-    return new Date(addedDate) > twentyFourHoursAgo;
-  }
-
-  /**
    * Formate la date d'ajout en favoris.
    * @param date - Date d'ajout.
    * @returns Date formatée.

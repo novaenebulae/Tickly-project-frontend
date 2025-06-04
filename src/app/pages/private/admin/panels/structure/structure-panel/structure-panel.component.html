@@ -1,135 +1,267 @@
-<div class="container-fluid py-4 structure-panel-page">
+<div class="structure-panel-container">
 
-  <mat-card class="mat-elevation-z2 mb-4">
-    <mat-card-content
-      class="d-flex justify-content-between align-items-start flex-wrap p-4"
-    >
-      <h1 class="mat-headline-6">Votre Structure</h1>
-      <h4 class="w-70 align-self-center mat-headline-1">
-        <span>{{ structureInfo?.name || 'votre structure' }}</span>
-      </h4>
-    </mat-card-content>
-  </mat-card>
+  <!-- 🎨 En-tête avec informations principales -->
+  <section class="header-section">
+    <div class="header-card">
+      <mat-card class="structure-overview-card">
+        <mat-card-content>
+          <div class="structure-header">
+            <!-- Logo/Avatar de la structure -->
+            <div class="structure-avatar">
+              @if (userStructureData?.logoUrl) {
+                <img [src]="userStructureData!.logoUrl" [alt]="userStructureData!.name" class="structure-logo">
+              } @else {
+                <div class="structure-icon-placeholder">
+                  <mat-icon>business</mat-icon>
+                </div>
+              }
+            </div>
 
-  <!-- Indicateur de Chargement Initial -->
-  @if (isLoading) {
-    <div class="text-center my-5 py-5">
-      <mat-progress-spinner mode="indeterminate" diameter="60"></mat-progress-spinner>
-      <p class="mt-3 text-muted">Chargement des informations...</p>
+            <!-- Informations principales -->
+            <div class="structure-info">
+              <h1 class="structure-name">
+                {{ userStructureData?.name || 'Ma Structure' }}
+              </h1>
+              <p class="structure-address">
+                <mat-icon>location_on</mat-icon>
+                {{ getFormattedAddress() }}
+              </p>
+
+              <!-- Statut de la structure -->
+              <mat-chip
+                [color]="statusConfig().color"
+                class="status-chip">
+                <mat-icon matChipAvatar>{{ statusConfig().icon }}</mat-icon>
+                {{ statusConfig().label }}
+              </mat-chip>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="header-actions">
+              <button
+                mat-icon-button
+                (click)="refreshData()"
+                matTooltip="Actualiser les données"
+                class="refresh-btn">
+                <mat-icon>refresh</mat-icon>
+              </button>
+
+              <button
+                mat-stroked-button
+                color="primary"
+                (click)="openPublicPage()"
+                matTooltip="Voir la page publique">
+                <mat-icon>visibility</mat-icon>
+                Page publique
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
-  }
+  </section>
 
-  <!-- Message d'Erreur de Chargement -->
-  @if (errorLoading && !isLoading) {
-    <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
-      <mat-icon color="warn">error_outline</mat-icon>
-      {{ errorLoading }}
-      <button mat-icon-button (click)="loadInitialData()" class="ms-auto" matTooltip="Réessayer">
-        <mat-icon>refresh</mat-icon>
-      </button>
-    </div>
-  }
+  <!-- 📊 Statistiques rapides -->
+  <section class="stats-section">
+    <div class="stats-grid">
 
-  <!-- Contenu Principal (Cartes de Gestion) - Affiché si pas d'erreur et chargement terminé -->
-  @if (!isLoading && !errorLoading) {
-    <div class="row g-4"> <!-- g-4 pour plus d'espacement entre les cartes -->
+      <!-- Stat: Zones -->
+      <mat-card class="stat-card zones-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon zones-icon">
+              <mat-icon>map</mat-icon>
+            </div>
+            <div class="stat-details">
+              <div class="stat-number">{{ areaCount() }}</div>
+              <div class="stat-label">Zone{{ areaCount() !== 1 ? 's' : '' }}</div>
+            </div>
+          </div>
+          @if (areaCount() === 0) {
+            <div class="stat-action">
+              <button
+                mat-stroked-button
+                color="accent"
+                size="small"
+                (click)="navigateToAreas()">
+                Créer des zones
+              </button>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
 
-      <!-- Carte: Informations Générales -->
-      <div class="col-12 col-md-6  d-flex">
-        <mat-card class="w-100 h-100 d-flex flex-column mat-elevation-z2 hover-shadow structure-card pb-3">
-          <mat-card-header class="card-header-icon bg-primary-subtle">
-            <div mat-card-avatar><mat-icon class="header-icon">storefront</mat-icon></div>
-            <mat-card-title class="fs-2">Informations</mat-card-title>
-            <mat-card-subtitle>Détails de la structure</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content class="flex-grow-1">
-            <p><strong>Nom:</strong> {{ structureInfo?.name || 'N/A' }}</p>
-            <p><strong>Lieu:</strong> {{ structureInfo?.city || 'N/A' }} {{ structureInfo?.zipCode || '' }}</p>
-            <p class="text-muted small mt-3">Modifiez le nom, le logo, l'adresse et les contacts.</p>
-          </mat-card-content>
-          <mat-card-actions class="mt-auto justify-content-end">
-            <!-- Bouton ouvrant potentiellement une modale ou naviguant -->
-            <button mat-flat-button color="primary" (click)="navigateToEditInfo()">
-              <mat-icon>edit</mat-icon> Modifier les infos
+      <!-- Stat: Équipe -->
+      <mat-card class="stat-card team-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon team-icon">
+              <mat-icon>group</mat-icon>
+            </div>
+            <div class="stat-details">
+              <div class="stat-number">{{ teamCount() }}</div>
+              <div class="stat-label">Membre{{ teamCount() !== 1 ? 's' : '' }}</div>
+            </div>
+          </div>
+          @if (teamCount() <= 1) {
+            <div class="stat-action">
+              <button
+                mat-stroked-button
+                color="primary"
+                size="small"
+                (click)="navigateToTeam()">
+                Inviter des membres
+              </button>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Stat: Événements -->
+      <mat-card class="stat-card events-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon events-icon">
+              <mat-icon>event</mat-icon>
+            </div>
+            <div class="stat-details">
+              <div class="stat-number">{{ eventCount() }}</div>
+              <div class="stat-label">Événement{{ eventCount() !== 1 ? 's' : '' }}</div>
+            </div>
+          </div>
+          <div class="stat-action">
+            <button
+              mat-stroked-button
+              color="accent"
+              size="small"
+              (click)="navigateToEvents()">
+              Voir tout
             </button>
-          </mat-card-actions>
-        </mat-card>
-      </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
 
-      <!-- Carte: Gestion de l'Équipe -->
-      <div class="col-12 col-md-6  d-flex">
-        <mat-card class="w-100 h-100 d-flex flex-column mat-elevation-z2 hover-shadow structure-card pb-3">
-          <mat-card-header class="card-header-icon bg-accent-subtle">
-            <div mat-card-avatar><mat-icon class="header-icon">group</mat-icon></div>
-            <mat-card-title class="fs-2">Équipe</mat-card-title>
-            <mat-card-subtitle>Gestion des membres</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content class="flex-grow-1">
-            <!-- Affiche le compteur de membres -->
-            <p class="fs-5 fw-bold">{{ teamMemberCount ?? '-' }}
-              <span class="fs-6 fw-normal text-muted">membre{{ (teamMemberCount ?? 0) !== 1 ? 's' : '' }} actif{{ (teamMemberCount ?? 0) !== 1 ? 's' : '' }}</span>
-            </p>
-            <p class="text-muted small mt-3">Invitez de nouveaux membres, gérez les rôles et les accès.</p>
-          </mat-card-content>
-          <mat-card-actions class="mt-auto justify-content-end">
-            <!-- Lien vers la sous-section /admin/structure/team -->
-            <a mat-flat-button color="accent" routerLink="team">
-              <mat-icon>settings</mat-icon> Gérer l'équipe
-            </a>
-          </mat-card-actions>
-        </mat-card>
-      </div>
+    </div>
+  </section>
 
-      <!-- Carte: Gestion des Zones -->
-      <div class="col-12 col-md-6  d-flex">
-        <mat-card class="w-100 h-100 d-flex flex-column mat-elevation-z2 hover-shadow structure-card pb-3">
-          <mat-card-header class="card-header-icon bg-warn-subtle">
-            <div mat-card-avatar><mat-icon class="header-icon">map</mat-icon></div>
-            <mat-card-title class="fs-2">Zones</mat-card-title>
-            <mat-card-subtitle>Espaces de la structure</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content class="flex-grow-1">
-            <!-- Affiche le compteur de zones -->
-            <p class="fs-5 fw-bold">{{ zoneCount ?? '-' }}
-              <span class="fs-6 fw-normal text-muted">zone{{ (zoneCount ?? 0) !== 1 ? 's' : '' }} définie{{ (zoneCount ?? 0) !== 1 ? 's' : '' }}</span>
-            </p>
-            <p class="text-muted small mt-3">Définissez les scènes, bars, gradins utilisables pour vos événements.</p>
-          </mat-card-content>
-          <mat-card-actions class="mt-auto justify-content-end">
-            <!-- Lien vers la sous-section /admin/structure/zones -->
-            <a mat-flat-button color="warn" routerLink="areas">
-              <mat-icon>settings</mat-icon> Gérer les zones
-            </a>
-          </mat-card-actions>
-        </mat-card>
-      </div>
+  <!-- 🛠️ Actions principales -->
+  <section class="actions-section">
+    <div class="actions-grid">
 
-      <!-- Carte: Page Publique (Optionnelle) -->
-      @if (structureInfo?.publicUrl) {
-        <div class="col-12 col-md-6  d-flex">
-          <mat-card class="w-100 h-100 d-flex flex-column mat-elevation-z2 hover-shadow structure-card pb-3">
-            <mat-card-header class="card-header-icon bg-secondary-subtle">
-              <div mat-card-avatar><mat-icon class="header-icon">public</mat-icon></div>
-              <mat-card-title class="fs-2">Page Publique</mat-card-title>
-              <mat-card-subtitle>Votre vitrine en ligne</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content class="flex-grow-1">
-              <p class="text-muted small mt-3">Accédez à la page de votre structure telle qu'elle apparaît aux visiteurs.</p>
-              <!-- Optionnel: petit aperçu ou juste le lien -->
-              <a [href]="structureInfo!.publicUrl" target="_blank" class="d-block text-truncate small mt-2">
-                {{ structureInfo!.publicUrl }}
-              </a>
-            </mat-card-content>
-            <mat-card-actions class="mt-auto justify-content-end">
-              <!-- Lien externe direct -->
-              <a mat-stroked-button color="secondary" [href]="structureInfo!.publicUrl" target="_blank">
-                <mat-icon>visibility</mat-icon> Voir la page
-              </a>
-            </mat-card-actions>
-          </mat-card>
-        </div>
-      }
+      <!-- Action: Informations -->
+      <mat-card class="action-card info-card">
+        <mat-card-header class="action-header">
+          <div mat-card-avatar class="action-avatar info-avatar">
+            <mat-icon>edit</mat-icon>
+          </div>
+          <mat-card-title>Informations</mat-card-title>
+          <mat-card-subtitle>Modifier les détails de votre structure</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="action-description">
+            Mettez à jour le nom, l'adresse, les contacts et les informations générales de votre structure.
+          </p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="navigateToEdit()">
+            <mat-icon>edit</mat-icon>
+            Modifier
+          </button>
+        </mat-card-actions>
+      </mat-card>
 
+      <!-- Action: Gestion équipe -->
+      <mat-card class="action-card team-card">
+        <mat-card-header class="action-header">
+          <div mat-card-avatar class="action-avatar team-avatar">
+            <mat-icon>group</mat-icon>
+          </div>
+          <mat-card-title>Équipe</mat-card-title>
+          <mat-card-subtitle>Gérer les membres et leurs rôles</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="action-description">
+            Invitez de nouveaux membres, assignez des rôles et gérez les permissions d'accès.
+          </p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="navigateToTeam()">
+            <mat-icon>settings</mat-icon>
+            Gérer l'équipe
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Action: Zones et espaces -->
+      <mat-card class="action-card areas-card">
+        <mat-card-header class="action-header">
+          <div mat-card-avatar class="action-avatar areas-avatar">
+            <mat-icon>map</mat-icon>
+          </div>
+          <mat-card-title>Zones & Espaces</mat-card-title>
+          <mat-card-subtitle>Configurer les espaces physiques</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="action-description">
+            Définissez les différentes zones de votre structure : scènes, bars, gradins, etc.
+          </p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button
+            mat-flat-button
+            color="accent"
+            (click)="navigateToAreas()">
+            <mat-icon>settings</mat-icon>
+            Configurer les zones
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+      <!-- Action: Événements -->
+      <mat-card class="action-card events-management-card">
+        <mat-card-header class="action-header">
+          <div mat-card-avatar class="action-avatar events-avatar">
+            <mat-icon>event</mat-icon>
+          </div>
+          <mat-card-title>Événements</mat-card-title>
+          <mat-card-subtitle>Créer et gérer vos événements</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="action-description">
+            Créez de nouveaux événements, gérez les réservations et suivez les statistiques.
+          </p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button
+            mat-flat-button
+            color="accent"
+            (click)="navigateToEvents()">
+            <mat-icon>add</mat-icon>
+            Gérer les événements
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+    </div>
+  </section>
+
+  <!-- 🔄 État de chargement -->
+  @if (isLoadingStructure()) {
+    <div class="loading-overlay">
+      <mat-card class="loading-card">
+        <mat-card-content>
+          <div class="loading-content">
+            <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+            <p>Chargement des informations de votre structure...</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
   }
 

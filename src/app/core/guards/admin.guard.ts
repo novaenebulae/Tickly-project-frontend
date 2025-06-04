@@ -2,13 +2,10 @@ import {inject} from '@angular/core';
 import {CanActivateFn, Router, UrlTree} from '@angular/router';
 import {AuthService} from '../services/domain/user/auth.service';
 import {NotificationService} from '../services/domain/utilities/notification.service';
-import {UserService} from '../services/domain/user/user.service';
-import {UserModel} from '../models/user/user.model';
 import {UserRole} from '../models/user/user-role.enum';
 
 export const AdminGuard: CanActivateFn = (state): boolean | UrlTree => {
   const authService = inject(AuthService);
-  const userService = inject(UserService);
   const notification = inject(NotificationService);
   const router = inject(Router);
   const targetUrl = state.url.toString();
@@ -25,15 +22,28 @@ export const AdminGuard: CanActivateFn = (state): boolean | UrlTree => {
     return router.createUrlTree(['']);
   }
 
-  // Récupérer le profil utilisateur courant
-  const currentUser = userService.currentUserProfileData();
+  // Récupérer les données utilisateur depuis le token JWT (disponibles immédiatement)
+  const currentUser = authService.currentUser();
+  const needsStructureSetup = authService.needsStructureSetup();
+  const userStructureId = authService.userStructureId();
+
+  console.log('AdminGuard: Current user data:', {
+    userId: currentUser?.userId,
+    role: currentUser?.role,
+    needsStructureSetup,
+    userStructureId
+  });
 
   // Vérifie si l'utilisateur a besoin de configurer sa structure et redirige vers la page appropriée
-  if (currentUser?.needsStructureSetup && !targetUrl.includes('/create-structure')) {
+  if (needsStructureSetup && !targetUrl.includes('/create-structure')) {
     console.log('AdminGuard: User needs to set up structure. Redirecting to /create-structure.');
     return router.createUrlTree(['/create-structure']);
-  } else if (!currentUser?.structureId) {
+  } else if (!userStructureId) {
     console.log('AdminGuard: User is not associated with a structure. Redirecting to home.');
+    notification.displayNotification(
+      'Vous devez être associé à une structure pour accéder à l\'administration.',
+      'warning'
+    );
     return router.createUrlTree(['']);
   }
 
@@ -41,5 +51,3 @@ export const AdminGuard: CanActivateFn = (state): boolean | UrlTree => {
   console.log('AdminGuard: Access GRANTED.');
   return true;
 };
-
-

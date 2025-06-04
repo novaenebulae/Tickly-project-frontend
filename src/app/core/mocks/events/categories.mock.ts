@@ -1,19 +1,24 @@
 // src/app/core/mocks/events/categories.mock.ts
 
 import { EventCategoryModel } from '../../models/event/event-category.model';
+import {allMockEvents} from './data/event-data.mock';
 
 /**
  * Liste des catégories d'événements mockées pour le développement
  */
-export const mockCategories: EventCategoryModel[] = [
-  { id: 1, name: 'Music' },
-  { id: 2, name: 'Theater' },
-  { id: 3, name: 'Sport' },
-  { id: 4, name: 'Conference' },
-  { id: 5, name: 'Exhibition' },
-  { id: 6, name: 'Festival' },
-  { id: 7, name: 'Other' }
-];
+// La méthode Set ne fonctionne pas avec des objets car elle compare les références, pas les valeurs
+// Cette méthode utilise un Map pour dédupliquer par ID de catégorie
+export const mockCategories: EventCategoryModel[] = Array.from(
+  // Créer un Map temporaire avec l'ID comme clé pour éliminer les doublons
+  allMockEvents
+    .reduce((map, event) => {
+      if (event.category && event.category.id) {
+        map.set(event.category.id, event.category);
+      }
+      return map;
+    }, new Map<number, EventCategoryModel>())
+    .values()
+);
 
 /**
  * Map des catégories par ID pour faciliter la recherche
