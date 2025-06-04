@@ -34,12 +34,12 @@ export class StructureApiService {
    */
   getStructures(params: StructureSearchParams = {}): Observable<any[]> {
     const endpointContext = APP_CONFIG.api.endpoints.structures.base;
-    this.apiConfig.logApiRequest('GET', endpointContext, params);
 
     if (this.apiConfig.isMockEnabledForDomain('structures')) {
       return this.mockService.mockGetStructures(params);
     }
 
+    this.apiConfig.logApiRequest('GET', endpointContext, params);
     const httpParams = this.apiConfig.createHttpParams(params); // createHttpParams handles undefined/null values
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
@@ -58,12 +58,12 @@ export class StructureApiService {
    */
   getStructureById(id: number): Observable<any> {
     const endpointContext = APP_CONFIG.api.endpoints.structures.byId(id);
-    this.apiConfig.logApiRequest('GET', endpointContext);
 
     if (this.apiConfig.isMockEnabledForDomain('structures')) {
       return this.mockService.mockGetStructureById(id);
     }
 
+    this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     // No specific query params needed here if stats are included by default
@@ -141,12 +141,12 @@ export class StructureApiService {
    */
   getStructureTypes(): Observable<any[]> {
     const endpointContext = APP_CONFIG.api.endpoints.structures.types;
-    this.apiConfig.logApiRequest('GET', endpointContext);
 
     if (this.apiConfig.isMockEnabledForDomain('structures')) {
       return this.mockService.mockGetStructureTypes();
     }
 
+    this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.get<any[]>(url, { headers }).pipe(
@@ -162,12 +162,12 @@ export class StructureApiService {
    */
   getAreas(structureId: number): Observable<any[]> {
     const endpointContext = APP_CONFIG.api.endpoints.structures.areas(structureId);
-    this.apiConfig.logApiRequest('GET', endpointContext);
 
     if (this.apiConfig.isMockEnabledForDomain('structures')) {
       return this.mockService.mockGetAreas(structureId);
     }
 
+    this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.get<any[]>(url, { headers }).pipe(

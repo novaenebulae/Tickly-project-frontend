@@ -45,7 +45,7 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
   });
 
   // Filtres
-  currentFilters = signal<EventSearchParams>({});
+  currentFilters = signal<EventSearchParams>({sortBy: 'date', sortDirection: 'asc'});
 
   // Subject pour gérer la désinscription aux observables
   private destroy$ = new Subject<void>();
@@ -79,7 +79,6 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
           this.events.set(events);
           this.totalItems.set(events.length);
           this.isLoading.set(false);
-          console.log(events.length);
         },
         error: (error) => {
           console.error('Erreur lors du chargement des événements:', error);
@@ -98,7 +97,6 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
    */
   onFiltersChanged(filters: EventSearchParams): void {
     this.currentFilters.set(filters);
-    console.log(this.currentFilters());
     this.currentPage.set(1); // Revenir à la première page quand on change les filtres
     this.loadEvents(); // Recharger les événements avec les nouveaux filtres
   }

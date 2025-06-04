@@ -1,4 +1,4 @@
-<!-- src/app/pages/public/event-details-page/event-details-page.component.html -->
+ <!-- src/app/pages/public/event-details-page/event-details-page.component.html -->
 
 <div class="event-details-page">
   <!-- État de chargement -->
@@ -74,9 +74,12 @@
 
       <!-- Section des événements similaires -->
       <section id="similar" class="section similar-section" *ngIf="similarEvents().length > 0">
-        <app-similar-events-section
-          [event]="event()">
-        </app-similar-events-section>
+        <app-events-carousel
+          [events]="similarEvents()"
+          [cardsPerPage]="3"
+          [autoSlide]="true"
+          [slideInterval]="5000">
+        </app-events-carousel>
       </section>
     </div>
 

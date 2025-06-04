@@ -62,7 +62,7 @@ interface FilterState {
 export class EventFiltersComponent implements OnInit, OnDestroy {
   @Output() filtersChanged = new EventEmitter<FilterState>();
   @Input() initialFilters: Partial<FilterState> = {};
-  @Input() showFilters: boolean = true; // Nouveau Input pour contrôler l'affichage
+  @Input() showFilters: boolean = true;
 
   filtersForm!: FormGroup;
   isAdvancedFilterOpen = false;
@@ -84,19 +84,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
     { value: 'price_desc', viewValue: 'Prix (décroissant)' }
   ];
 
-  // Map pour convertir les noms de catégories en IDs (simulé, à remplacer par vraies données)
-  private categoryMap: {[key: string]: number} = {
-    'Concert': 1,
-    'Festival': 2,
-    'Théâtre': 3,
-    'Danse': 4,
-    'Exposition': 5,
-    'Cinéma': 6,
-    'Sport': 7,
-    'Conférence': 8,
-    'Atelier': 9
-  };
-
   constructor(private fb: FormBuilder) {}
 
   /**
@@ -105,7 +92,7 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initForm();
     this.listenToFormChanges();
-    this.applyInitialFilters();
+    // this.applyInitialFilters();
   }
 
   /**
@@ -150,47 +137,47 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Applique les filtres initiaux si fournis
-   */
-  private applyInitialFilters(): void {
-    if (this.initialFilters) {
-      // Gérer les catégories spécifiquement
-      if (this.initialFilters.category) {
-        // C'est un tableau d'objets EventCategoryModel
-        this.selectedCategories = this.initialFilters.category;
-      }
-      // Mettre à jour le contrôle du formulaire
-      this.filtersForm.get('selectedCategories')?.setValue(this.selectedCategories);
-    }
-
-    // Appliquer les dates si présentes
-    if (this.initialFilters.startDate || this.initialFilters.endDate) {
-      const dateRangeControl = this.filtersForm.get('dateRange');
-      if (dateRangeControl) {
-        dateRangeControl.patchValue({
-          startDate: this.initialFilters.startDate || null,
-          endDate: this.initialFilters.endDate || null
-        });
-      }
-    }
-
-    // Appliquer la recherche si présente
-    if (this.initialFilters.query) {
-      this.filtersForm.get('searchQuery')?.setValue(this.initialFilters.query);
-    }
-
-    // Appliquer le lieu si présent
-    if (this.initialFilters.location) {
-      this.filtersForm.get('location')?.setValue(this.initialFilters.location);
-    }
-
-    // Appliquer le tri si présent
-    if (this.initialFilters.sortBy && this.initialFilters.sortDirection) {
-      const sortValue = `${this.initialFilters.sortBy}_${this.initialFilters.sortDirection}`;
-      this.filtersForm.get('sortBy')?.setValue(sortValue);
-    }
-  }
+  // /**
+  //  * Applique les filtres initiaux si fournis
+  //  */
+  // private applyInitialFilters(): void {
+  //   if (this.initialFilters) {
+  //     // Gérer les catégories spécifiquement
+  //     if (this.initialFilters.category) {
+  //       // C'est un tableau d'objets EventCategoryModel
+  //       this.selectedCategories = this.initialFilters.category;
+  //     }
+  //     // Mettre à jour le contrôle du formulaire
+  //     this.filtersForm.get('selectedCategories')?.setValue(this.selectedCategories);
+  //   }
+  //
+  //   // Appliquer les dates si présentes
+  //   if (this.initialFilters.startDate || this.initialFilters.endDate) {
+  //     const dateRangeControl = this.filtersForm.get('dateRange');
+  //     if (dateRangeControl) {
+  //       dateRangeControl.patchValue({
+  //         startDate: this.initialFilters.startDate || null,
+  //         endDate: this.initialFilters.endDate || null
+  //       });
+  //     }
+  //   }
+  //
+  //   // Appliquer la recherche si présente
+  //   if (this.initialFilters.query) {
+  //     this.filtersForm.get('searchQuery')?.setValue(this.initialFilters.query);
+  //   }
+  //
+  //   // Appliquer le lieu si présent
+  //   if (this.initialFilters.location) {
+  //     this.filtersForm.get('location')?.setValue(this.initialFilters.location);
+  //   }
+  //
+  //   // Appliquer le tri si présent
+  //   if (this.initialFilters.sortBy && this.initialFilters.sortDirection) {
+  //     const sortValue = `${this.initialFilters.sortBy}_${this.initialFilters.sortDirection}`;
+  //     this.filtersForm.get('sortBy')?.setValue(sortValue);
+  //   }
+  // }
 
   /**
    * Bascule l'état d'ouverture/fermeture du panneau de filtres avancés

@@ -30,11 +30,11 @@ export class EventApiService {
    * @param params - Search and filter parameters.
    */
   getEvents(params: EventSearchParams = {}): Observable<any[]> {
-    this.apiConfig.logApiRequest('GET', 'events', params);
     if (this.apiConfig.isMockEnabledForDomain('events')) {
       return this.mockService.mockGetEvents(params);
     }
 
+    this.apiConfig.logApiRequest('GET', 'events', params);
     const httpParams = this.convertToHttpParams(params);
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base);
     const headers = this.apiConfig.createHeaders();
@@ -50,11 +50,11 @@ export class EventApiService {
    * @param params - Search parameters including the search term.
    */
   searchEvents(params: EventSearchParams): Observable<any[]> {
-    this.apiConfig.logApiRequest('GET', 'search-events', params);
     if (this.apiConfig.isMockEnabledForDomain('events')) {
       return this.mockService.mockSearchEvents(params);
     }
 
+    this.apiConfig.logApiRequest('GET', 'search-events', params);
     const httpParams = this.convertToHttpParams(params);
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.search);
     const headers = this.apiConfig.createHeaders();
@@ -70,11 +70,11 @@ export class EventApiService {
    * @param id - The ID of the event to retrieve.
    */
   getEventById(id: number): Observable<any> {
-    this.apiConfig.logApiRequest('GET', `event/${id}`);
     if (this.apiConfig.isMockEnabledForDomain('events')) {
       return this.mockService.mockGetEventById(id);
     }
 
+    this.apiConfig.logApiRequest('GET', `event/${id}`);
     const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base)}/${id}`;
     const headers = this.apiConfig.createHeaders();
     return this.http.get<any>(url, { headers }).pipe(
@@ -90,11 +90,11 @@ export class EventApiService {
    *                      Should contain `categoryId` and appropriate `audienceZones`.
    */
   createEvent(eventApiDto: any): Observable<any> {
-    this.apiConfig.logApiRequest('POST', 'create-event', eventApiDto);
     if (this.apiConfig.isMockEnabledForDomain('events')) {
       return this.mockService.mockCreateEvent(eventApiDto);
     }
 
+    this.apiConfig.logApiRequest('POST', 'create-event', eventApiDto);
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base);
     const headers = this.apiConfig.createHeaders();
     return this.http.post<any>(url, eventApiDto, { headers }).pipe(
@@ -110,11 +110,11 @@ export class EventApiService {
    * @param eventApiDto - The partial raw API DTO with updated data.
    */
   updateEvent(id: number, eventApiDto: Partial<any>): Observable<any> {
-    this.apiConfig.logApiRequest('PUT', `update-event/${id}`, eventApiDto);
     if (this.apiConfig.isMockEnabledForDomain('events')) {
       return this.mockService.mockUpdateEvent(id, eventApiDto);
     }
 
+    this.apiConfig.logApiRequest('PUT', `update-event/${id}`, eventApiDto);
     const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base)}/${id}`;
     const headers = this.apiConfig.createHeaders();
     return this.http.put<any>(url, eventApiDto, { headers }).pipe(
@@ -128,11 +128,11 @@ export class EventApiService {
    * @param id - The ID of the event to delete.
    */
   deleteEvent(id: number): Observable<void> {
-    this.apiConfig.logApiRequest('DELETE', `delete-event/${id}`);
     if (this.apiConfig.isMockEnabledForDomain('events')) {
       return this.mockService.mockDeleteEvent(id);
     }
 
+    this.apiConfig.logApiRequest('DELETE', `delete-event/${id}`);
     const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base)}/${id}`;
     const headers = this.apiConfig.createHeaders();
     return this.http.delete<void>(url, { headers }).pipe(
@@ -146,11 +146,11 @@ export class EventApiService {
    * Returns raw API category DTOs (e.g., array of {id: number, name: string}).
    */
   getEventCategories(): Observable<any[]> {
-    this.apiConfig.logApiRequest('GET', 'event-categories');
     if (this.apiConfig.isMockEnabledForDomain('events')) { // Or a specific 'categories' domain
       return this.mockService.mockGetEventCategories();
     }
 
+    this.apiConfig.logApiRequest('GET', 'event-categories');
     const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base)}/categories`; // Or a dedicated categories endpoint
     const headers = this.apiConfig.createHeaders();
     return this.http.get<any[]>(url, { headers }).pipe(
@@ -165,11 +165,11 @@ export class EventApiService {
    * @param status - The new status to set.
    */
   updateEventStatus(id: number, status: EventStatus): Observable<any> {
-    this.apiConfig.logApiRequest('PATCH', `update-event-status/${id}`, { status });
     if (this.apiConfig.isMockEnabledForDomain('events')) {
       return this.mockService.mockUpdateEventStatus(id, status);
     }
 
+    this.apiConfig.logApiRequest('PATCH', `update-event-status/${id}`, { status });
     const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base)}/${id}/status`;
     const headers = this.apiConfig.createHeaders();
     return this.http.patch<any>(url, { status }, { headers }).pipe(

@@ -43,12 +43,12 @@ export class AuthApiService {
    * @returns An Observable of AuthResponseDto.
    */
   login(credentials: LoginCredentials): Observable<AuthResponseDto> {
-    this.apiConfig.logApiRequest('POST', 'login', credentials);
 
     if (this.apiConfig.isMockEnabledForDomain('auth')) {
       return this.mockService.mockLogin(credentials);
     }
 
+    this.apiConfig.logApiRequest('POST', 'login', credentials);
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.auth.login);
     const headers = this.apiConfig.createHeaders();
     return this.http.post<AuthResponseDto>(url, credentials, { headers }).pipe(
@@ -63,12 +63,12 @@ export class AuthApiService {
    * @returns An Observable of AuthResponseDto.
    */
   register(userRegistrationDto: UserRegistrationDto): Observable<AuthResponseDto> {
-    this.apiConfig.logApiRequest('POST', 'register', userRegistrationDto);
 
     if (this.apiConfig.isMockEnabledForDomain('auth')) {
       return this.mockService.mockRegister(userRegistrationDto);
     }
 
+    this.apiConfig.logApiRequest('POST', 'register', userRegistrationDto);
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.auth.register);
     const headers = this.apiConfig.createHeaders();
     return this.http.post<AuthResponseDto>(url, userRegistrationDto, { headers }).pipe(

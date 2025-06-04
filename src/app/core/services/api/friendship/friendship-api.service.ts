@@ -37,12 +37,12 @@ export class FriendshipApiService {
    */
   getFriendsList(): Observable<FriendModel[]> { // Type response to FriendModel[] as API should match
     const endpointContext = APP_CONFIG.api.endpoints.friendship.base;
-    this.apiConfig.logApiRequest('GET', endpointContext);
 
     if (this.apiConfig.isMockEnabledForDomain('friendship')) {
       return this.mockService.mockGetFriendsList();
     }
 
+    this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.get<FriendModel[]>(url, { headers }).pipe(
@@ -58,12 +58,12 @@ export class FriendshipApiService {
    */
   sendFriendRequest(dto: SendFriendRequestDto): Observable<FriendshipDataModel> { // API returns FriendshipDataModel
     const endpointContext = APP_CONFIG.api.endpoints.friendship.requests;
-    this.apiConfig.logApiRequest('POST', endpointContext, dto);
 
     if (this.apiConfig.isMockEnabledForDomain('friendship')) {
       return this.mockService.mockSendFriendRequest(dto);
     }
 
+    this.apiConfig.logApiRequest('POST', endpointContext, dto);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.post<FriendshipDataModel>(url, dto, { headers }).pipe(
@@ -78,12 +78,12 @@ export class FriendshipApiService {
    */
   getPendingRequests(): Observable<ReceivedFriendRequestModel[]> {
     const endpointContext = `${APP_CONFIG.api.endpoints.friendship.requests}?status=pending&type=received`; // Example query params
-    this.apiConfig.logApiRequest('GET', endpointContext);
 
     if (this.apiConfig.isMockEnabledForDomain('friendship')) {
       return this.mockService.mockGetPendingRequests();
     }
 
+    this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.friendship.requests);
     const headers = this.apiConfig.createHeaders();
     const params = new HttpParams().set('status', 'pending').set('type', 'received'); // Adjust as per your API
@@ -100,12 +100,12 @@ export class FriendshipApiService {
    */
   getSentRequests(): Observable<SentFriendRequestModel[]> {
     const endpointContext = `${APP_CONFIG.api.endpoints.friendship.requests}?type=sent`; // Example query params
-    this.apiConfig.logApiRequest('GET', endpointContext);
 
     if (this.apiConfig.isMockEnabledForDomain('friendship')) {
       return this.mockService.mockGetSentRequests();
     }
 
+    this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.friendship.requests);
     const headers = this.apiConfig.createHeaders();
     const params = new HttpParams().set('type', 'sent'); // Adjust as per your API
@@ -126,12 +126,12 @@ export class FriendshipApiService {
     const endpointContext = APP_CONFIG.api.endpoints.friendship.requestAction(friendshipId);
     // API might use PUT for accept/reject/block and a different payload structure
     // For simplicity, assuming PATCH or PUT with the same DTO. Adjust as needed.
-    this.apiConfig.logApiRequest('PUT', endpointContext, dto); // Or PATCH
 
     if (this.apiConfig.isMockEnabledForDomain('friendship')) {
       return this.mockService.mockUpdateFriendshipStatus(friendshipId, dto);
     }
 
+    this.apiConfig.logApiRequest('PUT', endpointContext, dto); // Or PATCH
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.put<FriendshipDataModel>(url, dto, { headers }).pipe( // Or this.http.patch
@@ -146,12 +146,12 @@ export class FriendshipApiService {
    */
   removeFriendship(friendshipId: number): Observable<void> {
     const endpointContext = APP_CONFIG.api.endpoints.friendship.requestAction(friendshipId);
-    this.apiConfig.logApiRequest('DELETE', endpointContext);
 
     if (this.apiConfig.isMockEnabledForDomain('friendship')) {
       return this.mockService.mockRemoveFriendship(friendshipId);
     }
 
+    this.apiConfig.logApiRequest('DELETE', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.delete<void>(url, { headers }).pipe(
@@ -168,12 +168,12 @@ export class FriendshipApiService {
   searchUsers(query: string): Observable<Partial<UserModel>[]> {
     // This endpoint might belong to a UserService more logically, but keeping as per original file.
     const endpointContext = APP_CONFIG.api.endpoints.users.search; // Assuming a general user search endpoint
-    this.apiConfig.logApiRequest('GET', endpointContext, { q: query });
 
     if (this.apiConfig.isMockEnabledForDomain('friendship')) { // or 'users' if user search is mocked under users domain
       return this.mockService.mockSearchUsers(query);
     }
 
+    this.apiConfig.logApiRequest('GET', endpointContext, { q: query });
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     const params = new HttpParams().set('q', query);
@@ -192,12 +192,12 @@ export class FriendshipApiService {
    */
   getFriendsAttendingEvent(eventId: number): Observable<FriendParticipantDto[]> {
     const endpointContext = APP_CONFIG.api.endpoints.friendship.friendsAttendingEvent(eventId);
-    this.apiConfig.logApiRequest('GET', endpointContext);
 
     if (this.apiConfig.isMockEnabledForDomain('friendship')) {
       return this.mockService.mockGetFriendsAttendingEvent(eventId);
     }
 
+    this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
 

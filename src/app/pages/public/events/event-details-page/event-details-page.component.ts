@@ -28,6 +28,7 @@ import { SimilarEventsSectionComponent } from '../../../../shared/domain/events/
 import {MatIcon} from '@angular/material/icon';
 import {MatButton} from '@angular/material/button';
 import {tap} from 'rxjs/operators';
+import {EventsCarouselComponent} from '../../../../shared/domain/events/events-carousel/events-carousel.component';
 
 @Component({
   selector: 'app-event-details-page',
@@ -40,10 +41,10 @@ import {tap} from 'rxjs/operators';
     EventInfoSectionComponent,
     EventGallerySectionComponent,
     EventSocialSectionComponent,
-    SimilarEventsSectionComponent,
     MatIcon,
     EventDescriptionSectionComponent,
     MatButton,
+    EventsCarouselComponent,
   ],
   templateUrl: './event-details-page.component.html',
   styleUrls: ['./event-details-page.component.scss']

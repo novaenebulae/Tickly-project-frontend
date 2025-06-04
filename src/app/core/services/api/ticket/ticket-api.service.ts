@@ -35,12 +35,12 @@ export class TicketApiService {
    */
   createReservation(reservationDto: ReservationRequestDto): Observable<ReservationConfirmationModel> {
     const endpointContext = APP_CONFIG.api.endpoints.ticketing.reservations;
-    this.apiConfig.logApiRequest('POST', endpointContext, reservationDto);
 
     if (this.apiConfig.isMockEnabledForDomain('ticketing')) {
       return this.mockService.mockCreateReservation(reservationDto);
     }
 
+    this.apiConfig.logApiRequest('POST', endpointContext, reservationDto);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.post<ReservationConfirmationModel>(url, reservationDto, { headers }).pipe(
@@ -56,12 +56,12 @@ export class TicketApiService {
    */
   getMyTickets(): Observable<TicketModel[]> {
     const endpointContext = APP_CONFIG.api.endpoints.ticketing.myTickets;
-    this.apiConfig.logApiRequest('GET', endpointContext);
 
     if (this.apiConfig.isMockEnabledForDomain('ticketing')) {
       return this.mockService.mockGetMyTickets();
     }
 
+    this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.get<TicketModel[]>(url, { headers }).pipe(
@@ -78,12 +78,12 @@ export class TicketApiService {
    */
   getTicketById(ticketId: string): Observable<TicketModel> {
     const endpointContext = APP_CONFIG.api.endpoints.ticketing.ticketById(ticketId);
-    this.apiConfig.logApiRequest('GET', endpointContext);
 
     if (this.apiConfig.isMockEnabledForDomain('ticketing')) {
       return this.mockService.mockGetTicketById(ticketId);
     }
 
+    this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.get<TicketModel>(url, { headers }).pipe(
@@ -104,12 +104,12 @@ export class TicketApiService {
     // Adjust the endpoint and method as per your API design.
     const validateEndpoint = APP_CONFIG.api.endpoints.ticketing.validateTicket || `ticketing/tickets/${ticketId}/validate`;
     const endpointContext = validateEndpoint; // For logging
-    this.apiConfig.logApiRequest('POST', endpointContext, { ticketId }); // Or empty body
 
     if (this.apiConfig.isMockEnabledForDomain('ticketing')) {
       return this.mockService.mockValidateTicket(ticketId);
     }
 
+    this.apiConfig.logApiRequest('POST', endpointContext, { ticketId }); // Or empty body
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     // The body for validation might be empty or contain specific validation parameters

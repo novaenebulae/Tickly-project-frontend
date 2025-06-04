@@ -32,12 +32,12 @@ export class UserApiService {
    */
   getCurrentUserProfile(): Observable<UserModel> { // Changed return type
     const endpointContext = APP_CONFIG.api.endpoints.users.profile;
-    this.apiConfig.logApiRequest('GET', endpointContext);
 
     if (this.apiConfig.isMockEnabledForDomain('users')) {
       return this.mockService.mockGetCurrentUserProfile();
     }
 
+    this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.get<UserModel>(url, { headers }).pipe(
@@ -54,12 +54,12 @@ export class UserApiService {
    */
   getUserProfileById(userId: number): Observable<UserModel> { // Changed return type
     const endpointContext = APP_CONFIG.api.endpoints.users.byId(userId);
-    this.apiConfig.logApiRequest('GET', endpointContext);
 
     if (this.apiConfig.isMockEnabledForDomain('users')) {
       return this.mockService.mockGetUserProfileById(userId);
     }
 
+    this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.get<UserModel>(url, { headers }).pipe(
@@ -76,12 +76,12 @@ export class UserApiService {
    */
   updateCurrentUserProfile(profileUpdateDto: UserProfileUpdateDto): Observable<UserModel> { // Changed return type
     const endpointContext = APP_CONFIG.api.endpoints.users.updateProfile; // e.g., 'users/me'
-    this.apiConfig.logApiRequest('PUT', endpointContext, profileUpdateDto);
 
     if (this.apiConfig.isMockEnabledForDomain('users')) {
       return this.mockService.mockUpdateCurrentUserProfile(profileUpdateDto);
     }
 
+    this.apiConfig.logApiRequest('PUT', endpointContext, profileUpdateDto);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.put<UserModel>(url, profileUpdateDto, { headers }).pipe(
@@ -98,12 +98,12 @@ export class UserApiService {
    */
   searchUsers(query: string): Observable<Partial<UserModel>[]> {
     const endpointContext = APP_CONFIG.api.endpoints.users.search;
-    this.apiConfig.logApiRequest('GET', endpointContext, { q: query });
 
     if (this.apiConfig.isMockEnabledForDomain('users')) {
       return this.mockService.mockSearchUsers(query);
     }
 
+    this.apiConfig.logApiRequest('GET', endpointContext, { q: query });
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     const params = new HttpParams().set('q', query); // Assuming API expects 'q' for query
@@ -120,12 +120,12 @@ export class UserApiService {
    */
   getUserFavoriteStructures(): Observable<UserFavoriteStructureModel[]> {
     const endpointContext = 'users/favorites'; // Assuming endpoint like 'users/me/favorites'
-    this.apiConfig.logApiRequest('GET', endpointContext);
 
     if (this.apiConfig.isMockEnabledForDomain('users')) {
       return this.mockService.mockGetUserFavoriteStructures();
     }
 
+    this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.get<UserFavoriteStructureModel[]>(url, { headers }).pipe(
@@ -142,12 +142,12 @@ export class UserApiService {
   addStructureToFavorites(structureId: number): Observable<UserFavoriteStructureModel> {
     const endpointContext = 'users/favorites';
     const favoriteDto: FavoriteStructureDto = { structureId };
-    this.apiConfig.logApiRequest('POST', endpointContext, favoriteDto);
 
     if (this.apiConfig.isMockEnabledForDomain('users')) {
       return this.mockService.mockAddStructureToFavorites(structureId);
     }
 
+    this.apiConfig.logApiRequest('POST', endpointContext, favoriteDto);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.post<UserFavoriteStructureModel>(url, favoriteDto, { headers }).pipe(
@@ -163,12 +163,12 @@ export class UserApiService {
    */
   removeStructureFromFavorites(structureId: number): Observable<void> {
     const endpointContext = `users/favorites/${structureId}`;
-    this.apiConfig.logApiRequest('DELETE', endpointContext);
 
     if (this.apiConfig.isMockEnabledForDomain('users')) {
       return this.mockService.mockRemoveStructureFromFavorites(structureId);
     }
 
+    this.apiConfig.logApiRequest('DELETE', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.delete<void>(url, { headers }).pipe(

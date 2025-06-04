@@ -75,7 +75,6 @@ export class EventsDisplayComponent implements OnInit {
   }
 
   onFiltersChanged(filters: any): void {
-    console.log('Filtres reçus dans events-display:', filters);
     this.filtersChanged.emit(filters);
   }
 

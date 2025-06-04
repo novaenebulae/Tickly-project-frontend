@@ -9,7 +9,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import {MatTooltipModule} from '@angular/material/tooltip'; // Pour l'indicateur de chargement
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {StructureService} from '../../../../../../core/services/domain/structure/structure.service';
+import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service'; // Pour l'indicateur de chargement
 
 // --- Interfaces (à définir ou importer de fichiers partagés) ---
 interface StructureInfo {
@@ -67,18 +69,17 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
   // --- Injection des services ---
   private router = inject(Router);
   private cdRef = inject(ChangeDetectorRef); // Pour marquer les changements avec OnPush
-  // Remplacez les mocks par vos vrais services injectés
-  private structureService = mockStructureService; // inject(StructureService);
-  private teamService = mockTeamService;       // inject(TeamService);
-  private zoneService = mockZoneService;         // inject(ZoneService);
+  private structureService = inject(StructureService); // inject(StructureService);
+  private userStructureService = inject(UserStructureService);
 
   // --- Propriétés pour le Template ---
-  structureInfo: StructureInfo | null = null; // Informations de la structure
+  structureInfo = this.userStructureService.userStructure;
   teamMemberCount: number | null = null;    // Compteur membres
   zoneCount: number | null = null;          // Compteur zones
   isLoading: boolean = true;                // Indicateur de chargement initial
   errorLoading: string | null = null;       // Message d'erreur
   private dataSubscription: Subscription | null = null; // Pour gérer la désinscription
+
 
   // --- Cycle de vie ---
   ngOnInit(): void {

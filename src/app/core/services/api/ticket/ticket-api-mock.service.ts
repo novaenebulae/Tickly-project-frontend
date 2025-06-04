@@ -129,8 +129,6 @@ export class TicketApiMockService {
       ticket => ticket.bookedByUserId === currentUserId
     );
 
-    console.log(`🎫 Mock: Récupération des billets pour l'utilisateur ID ${currentUserId}`);
-    console.log(`🎫 Total billets trouvés: ${userTickets.length}`, userTickets);
 
     return this.apiConfig.createMockResponse(userTickets);
   }
