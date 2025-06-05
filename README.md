@@ -176,3 +176,135 @@ ChartConfiguration = {
 - Dashboard complet avec charts multiples
 - Analyses comparatives inter-événements
 - Exports et rapports détaillés
+
+### **1. Composants Charts (Graphiques)**
+**Base commune** :
+- `base-chart.component.ts` - Composant de base avec Chart.js
+- `chart-loading.component.ts` - Skeleton loader pour graphiques
+- `chart-error.component.ts` - Affichage d'erreur
+
+**Graphiques spécialisés** :
+- `line-chart.component.ts` - Courbes temporelles (fill rate, attendance)
+- `bar-chart.component.ts` - Barres (événements par mois)
+- `doughnut-chart.component.ts` - Camemberts (répartition par catégorie)
+- `area-chart.component.ts` - Aires empilées (comparaisons)
+- `mixed-chart.component.ts` - Graphiques mixtes (barres + lignes)
+
+### 📈 **2. Composants Widgets**
+**KPI Cards** :
+- `kpi-card.component.ts` - Carte KPI avec tendance
+- `kpi-grid.component.ts` - Grille de KPIs
+- `comparison-card.component.ts` - Carte de comparaison
+
+**Stats Cards** :
+- `event-stats-card.component.ts` - Carte stats événement
+- `structure-stats-card.component.ts` - Carte stats structure
+- `performance-widget.component.ts` - Widget performance
+
+**Insights** :
+- `audience-insights.component.ts` - Insights audience
+- `growth-trends.component.ts` - Tendances de croissance
+- `alerts-widget.component.ts` - Widget alertes
+
+### 🎛️ **3. Composants Dashboards**
+**Dashboards complets** :
+- `event-dashboard.component.ts` - Dashboard événement complet
+- `structure-dashboard.component.ts` - Dashboard structure complet
+- `global-dashboard.component.ts` - Dashboard global admin
+
+**Sections spécialisées** :
+- `performance-section.component.ts` - Section performance
+- `analytics-section.component.ts` - Section analytics
+- `overview-section.component.ts` - Section overview
+
+### 🔍 **4. Composants Filters**
+- `stats-timeframe-filter.component.ts` - Sélecteur période
+- `stats-granularity-filter.component.ts` - Sélecteur granularité
+- `event-filter.component.ts` - Filtres événements
+- `category-filter.component.ts` - Filtres catégories
+- `advanced-filters.component.ts` - Filtres avancés
+
+### 📤 **5. Composants Exports**
+- `export-button.component.ts` - Bouton export avec menu
+- `export-modal.component.ts` - Modal configuration export
+- `download-progress.component.ts` - Progression téléchargement
+
+### 🎯 **6. Composants Indicators**
+- `status-indicator.component.ts` - Indicateur statut
+- `trend-indicator.component.ts` - Indicateur tendance
+- `threshold-indicator.component.ts` - Indicateur seuil
+- `progress-ring.component.ts` - Anneau de progression
+
+### 📱 **7. Composants Layout/Container**
+- `stats-page-layout.component.ts` - Layout page stats
+- `stats-grid.component.ts` - Grille responsive
+- `stats-tabs.component.ts` - Onglets stats
+
+## 🎯 **Stratégie de Développement**
+### **Phase 1 : Fondations (Priorité 1)**
+1. **Base Chart Component** - Infrastructure graphiques
+2. **KPI Card** - Affichage métriques de base
+3. **Stats Page Layout** - Structure des pages
+
+### **Phase 2 : Graphiques (Priorité 1)**
+1. **Line Chart** - Pour les courbes temporelles
+2. **Bar Chart** - Pour les histogrammes
+3. **Doughnut Chart** - Pour les répartitions
+
+### **Phase 3 : Widgets (Priorité 2)**
+1. **Event Stats Card** - Carte statistiques événement
+2. **Performance Widget** - Widget performance
+3. **Audience Insights** - Insights audience
+
+### **Phase 4 : Dashboards (Priorité 2)**
+1. **Event Dashboard** - Dashboard événement
+2. **Structure Dashboard** - Dashboard structure
+
+### **Phase 5 : Fonctionnalités Avancées (Priorité 3)**
+1. **Filters** - Système de filtrage
+2. **Exports** - Export des données
+3. **Comparisons** - Composants de comparaison
+
+## 🔧 **Composants Communs Requis**
+### **Interfaces TypeScript** :
+``` typescript
+interface ChartConfig {
+  type: 'line' | 'bar' | 'doughnut' | 'area' | 'mixed';
+  data: any;
+  options?: any;
+  loading?: boolean;
+  error?: string;
+}
+
+interface KPIData {
+  label: string;
+  value: number;
+  unit?: string;
+  trend?: TrendData;
+  color?: string;
+  icon?: string;
+}
+
+interface TrendData {
+  direction: 'up' | 'down' | 'stable';
+  percentage: number;
+  period: string;
+}
+```
+### **Services Utilitaires** :
+- `ChartService` - Gestion configuration Chart.js
+- `StatsFormatterService` - Formatage des données
+- `ExportService` - Gestion des exports
+
+## 🎨 **Design System**
+### **Couleurs Stats** (basées sur app-config) :
+- **Primary** : `#3B82F6` - Données principales
+- **Success** : `#10B981` - Tendances positives
+- **Warning** : `#F59E0B` - Alertes moyennes
+- **Danger** : `#EF4444` - Alertes critiques
+- **Info** : `#06B6D4` - Informations
+
+### **Spacing & Layout** :
+- **Grid** : 12 colonnes responsive
+- **Gaps** : 16px, 24px, 32px
+- **Cards** : Border radius 8px, ombre légère

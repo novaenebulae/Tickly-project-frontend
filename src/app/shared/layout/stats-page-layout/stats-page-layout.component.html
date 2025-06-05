@@ -1,0 +1,184 @@
+<div class="stats-page-layout" [class.fullscreen]="isFullscreen()">
+
+  <!-- Header Section -->
+  <div class="stats-header">
+    <div class="header-content">
+
+      <!-- Title Section -->
+      <div class="title-section">
+        <div class="breadcrumbs" *ngIf="breadcrumbs.length > 0">
+          <span *ngFor="let crumb of breadcrumbs; let last = last" class="breadcrumb">
+            {{ crumb }}
+            <mat-icon *ngIf="!last" class="breadcrumb-separator">chevron_right</mat-icon>
+          </span>
+        </div>
+
+        <h1 class="page-title">{{ title }}</h1>
+        <p class="page-subtitle" *ngIf="subtitle">{{ subtitle }}</p>
+
+        <!-- Last Updated Info -->
+        <div class="update-info" *ngIf="lastUpdated">
+          <mat-icon class="update-icon">schedule</mat-icon>
+          <span class="update-text">{{ getTimeSinceUpdate() }}</span>
+        </div>
+      </div>
+
+      <!-- Actions Section -->
+      <div class="actions-section">
+
+        <!-- Refresh Button -->
+        <button
+          mat-icon-button
+          *ngIf="showRefresh"
+          (click)="onRefresh()"
+          [disabled]="loading.isLoading"
+          matTooltip="Actualiser"
+          class="action-button">
+          <mat-icon [class.spinning]="loading.isLoading">refresh</mat-icon>
+        </button>
+
+        <!-- Export Menu -->
+        <button
+          mat-icon-button
+          *ngIf="showExport"
+          [matMenuTriggerFor]="exportMenu"
+          matTooltip="Exporter"
+          class="action-button">
+          <mat-icon>download</mat-icon>
+        </button>
+        <mat-menu #exportMenu="matMenu">
+          <button mat-menu-item (click)="onExport('pdf')">
+            <mat-icon>picture_as_pdf</mat-icon>
+            <span>Exporter en PDF</span>
+          </button>
+          <button mat-menu-item (click)="onExport('excel')">
+            <mat-icon>table_chart</mat-icon>
+            <span>Exporter en Excel</span>
+          </button>
+          <button mat-menu-item (click)="onExport('csv')">
+            <mat-icon>description</mat-icon>
+            <span>Exporter en CSV</span>
+          </button>
+        </mat-menu>
+
+        <!-- Fullscreen Button -->
+        <button
+          mat-icon-button
+          *ngIf="showFullscreen"
+          (click)="onToggleFullscreen()"
+          [matTooltip]="isFullscreen() ? 'Quitter le plein écran' : 'Plein écran'"
+          class="action-button">
+          <mat-icon>{{ isFullscreen() ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+        </button>
+
+        <!-- Settings Button -->
+        <button
+          mat-icon-button
+          *ngIf="showSettings"
+          (click)="onSettings()"
+          matTooltip="Paramètres"
+          class="action-button">
+          <mat-icon>settings</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <mat-progress-bar
+      *ngIf="loading.isLoading"
+      mode="indeterminate"
+      class="loading-bar">
+    </mat-progress-bar>
+  </div>
+
+  <!-- Tabs Section -->
+  <div class="tabs-section" *ngIf="shouldShowTabs()">
+    <mat-tab-group
+      [selectedIndex]="tabs.findIndex(tab => tab.id === activeTab)"
+      (selectedTabChange)="onTabChange(tabs[$event.index].id)"
+      class="stats-tabs">
+      <mat-tab *ngFor="let tab of tabs" [label]="tab.label">
+        <ng-template mat-tab-label>
+          <mat-icon *ngIf="tab.icon" class="tab-icon">{{ tab.icon }}</mat-icon>
+          <span>{{ tab.label }}</span>
+          <span *ngIf="tab.badge" class="tab-badge">{{ tab.badge }}</span>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section" *ngIf="shouldShowFilters()">
+    <div class="filters-container">
+      <h3 class="filters-title">Filtres</h3>
+      <div class="filters-grid">
+        <!-- TODO: Ajouter les composants de filtre ici -->
+        <div *ngFor="let filter of filters" class="filter-item">
+          <span class="filter-label">{{ filter.label }}</span>
+          <!-- Les composants de filtre seront créés plus tard -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Section -->
+  <div class="content-section">
+
+    <!-- Loading State -->
+    <div *ngIf="loading.isLoading && !hasContent()" class="loading-state">
+      <div class="loading-content">
+        <mat-icon class="loading-icon spinning">hourglass_empty</mat-icon>
+        <h3>Chargement des statistiques...</h3>
+        <p *ngIf="loading.message">{{ loading.message }}</p>
+        <mat-progress-bar
+          *ngIf="loading.progress"
+          mode="determinate"
+          [value]="loading.progress">
+        </mat-progress-bar>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error.hasError" class="error-state">
+      <div class="error-content">
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <h3>Erreur de chargement</h3>
+        <p>{{ error.message || 'Une erreur est survenue lors du chargement des statistiques.' }}</p>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="onRefresh()"
+          *ngIf="error.recoverable !== false">
+          <mat-icon>refresh</mat-icon>
+          Réessayer
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="hasContent()" class="main-content">
+      <ng-content></ng-content>
+    </div>
+  </div>
+
+  <!-- Footer Section -->
+  <div class="footer-section" *ngIf="hasContent()">
+    <div class="footer-content">
+      <div class="footer-info">
+        <span *ngIf="lastUpdated">
+          Dernière mise à jour : {{ lastUpdated | date:'dd/MM/yyyy à HH:mm' }}
+        </span>
+      </div>
+      <div class="footer-actions">
+        <button
+          mat-button
+          *ngIf="autoRefresh"
+          (click)="onRefresh()"
+          class="auto-refresh-indicator">
+          <mat-icon class="refresh-icon">autorenew</mat-icon>
+          <span>Actualisation auto.</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
