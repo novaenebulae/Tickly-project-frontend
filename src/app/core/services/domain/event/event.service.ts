@@ -44,6 +44,11 @@ export class EventService {
   private homePageEventsSig: WritableSignal<EventModel[]> = signal([]);
   public readonly homePageEvents = computed(() => this.homePageEventsSig());
 
+  private structureEventsSig: WritableSignal<EventModel[]> = signal([]);
+  public readonly structureEvents = computed(() => this.structureEventsSig());
+
+
+
   // Cache for event details (Map: eventId -> EventModel)
   private eventDetailsCache = new Map<number, EventModel>();
 
@@ -244,6 +249,8 @@ export class EventService {
       })
     );
   }
+
+
 
   getStructureFeaturedEvents(structureId: number, count = APP_CONFIG.events.defaultFeaturedCount) {
     return this.eventApi.getFeaturedEvents(count, structureId).pipe(

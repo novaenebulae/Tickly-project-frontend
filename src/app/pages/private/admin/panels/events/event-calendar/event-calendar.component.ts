@@ -1,4 +1,4 @@
-import {Component, ElementRef, inject, OnInit, Renderer2, ViewEncapsulation} from '@angular/core';
+import {Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, Renderer2, ViewEncapsulation} from '@angular/core';
 import 'zone.js';
 import {
   CalendarDateFormatter, CalendarDayViewBeforeRenderEvent,
@@ -8,7 +8,7 @@ import {
   CalendarView, CalendarWeekViewBeforeRenderEvent,
   DAYS_OF_WEEK,
 } from 'angular-calendar';
-import {Subject} from 'rxjs';
+import {Subject, Subscription} from 'rxjs';
 import {CommonModule} from '@angular/common';
 import {isSameDay, isSameMonth} from 'date-fns';
 import {CustomDateFormatter} from '../../../../../../core/providers/date-formatter.provider';
@@ -22,6 +22,10 @@ import {MatCard, MatCardContent} from '@angular/material/card';
 import {MatButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {CustomEventTitleFormatter} from '../../../../../../core/providers/event-title-formatter.provider';
+import {StructureService} from '../../../../../../core/services/domain/structure/structure.service';
+import {EventService} from '../../../../../../core/services/domain/event/event.service';
+import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service';
+import {EventModel} from '../../../../../../core/models/event/event.model';
 
 @Component({
   selector: 'app-event-calendar',
@@ -45,9 +49,35 @@ import {CustomEventTitleFormatter} from '../../../../../../core/providers/event-
     },
   ],
 })
-export class EventCalendarComponent implements OnInit {
+export class EventCalendarComponent implements OnInit, OnDestroy {
 
   router = inject(Router);
+  eventService = inject(EventService);
+  userStructureService = inject(UserStructureService);
+
+  // État de chargement
+  isLoading: boolean = false;
+  error: string | null = null;
+
+  // Signal d'événements de la structure
+  private readonly structureEventsSig = this.userStructureService.userStructureEvents;
+
+  // Couleurs par type d'événement
+  private eventColorMap: { [key: string]: { primary: string, secondary: string } } = {
+    'concert': { primary: '#dc3545', secondary: '#f8d7da' }, // Rouge pour concerts
+    'exposition': { primary: '#fd7e14', secondary: '#fff3cd' }, // Orange pour expos/culture
+    'théâtre': { primary: '#0d6efd', secondary: '#cfe2ff' }, // Bleu pour théâtre/spectacle
+    'atelier': { primary: '#198754', secondary: '#d1e7dd' }, // Vert pour ateliers
+    'conférence': { primary: '#198754', secondary: '#d1e7dd' }, // Vert pour conférences
+    'cinéma': { primary: '#6f42c1', secondary: '#e0cffc' }, // Violet pour cinéma/projections
+    'festival': { primary: '#ffc107', secondary: '#fff3cd' }, // Jaune pour festivals
+    'sport': { primary: '#0dcaf0', secondary: '#cff4fc' }, // Cyan pour sports
+    'danse': { primary: '#0d6efd', secondary: '#cfe2ff' }, // Bleu pour danse
+    'default': { primary: '#6c757d', secondary: '#e9ecef' } // Gris pour par défaut
+  };
+
+  // Subscriptions pour le nettoyage
+  private subscriptions: Subscription[] = [];
 
   actions: CalendarEventAction[] = [
     {
@@ -93,154 +123,104 @@ export class EventCalendarComponent implements OnInit {
   hourSegmentHeight = 30;
 
 
-
   constructor(private dialog: MatDialog,
               private elRef: ElementRef,
               private renderer: Renderer2) {
+    // Initialiser un tableau d'événements vide
+    this.events = [];
 
-    // Liste d'événements fictifs pour peupler le calendrier
-    this.events = [
-      // --- Semaine Précédente ---
-      {
-        title: 'Concert Rock: Les Amplifiés',
-        start: new Date("2025-05-02T20:30:00"), // Vendredi soir dernier
-        end: new Date("2025-05-02T23:00:00"),
-        actions: this.actions,
-        color: {primary: '#dc3545', secondary: '#f8d7da'}, // Rouge pour concerts
-        meta: {
-          type: 'Concert',
-          artists: ['Les Amplifiés', 'Première Partie: Echoes'],
-          description: 'Soirée rock pour bien commencer le week-end.',
-          location: 'Salle Le Transistor'
-        }
-      },
-      {
-        title: 'Expo Art Numérique',
-        start: new Date("2025-05-03T10:00:00"), // Samedi dernier (journée)
-        end: new Date("2025-05-04T18:00:00"),   // Samedi et Dimanche
-        allDay: false, // Ou true si vous préférez l'afficher comme tel
-        actions: this.actions,
-        color: {primary: '#fd7e14', secondary: '#fff3cd'}, // Orange pour expos/culture
-        meta: {
-          type: 'Exposition',
-          artists: ['Collectif Pixels', 'Artiste Invité: K. Lemet'],
-          description: 'Immersion dans les nouvelles formes d\'art digital.',
-          location: 'Centre d\'Art Contemporain'
-        }
-      },
-      {
-        title: 'Théâtre: "Le Songe"',
-        start: new Date("2025-05-04T16:00:00"), // Dimanche dernier après-midi
-        end: new Date("2025-05-04T18:30:00"),
-        actions: this.actions,
-        color: {primary: '#0d6efd', secondary: '#cfe2ff'}, // Bleu pour théâtre/spectacle
-        meta: {
-          type: 'Théâtre',
-          artists: ['Compagnie Les Rêveurs'],
-          description: 'Adaptation moderne d\'une pièce classique.',
-          location: 'Théâtre de la Ville'
-        }
-      },
-
-      // --- Semaine Actuelle (autour du 5 Mai) ---
-      {
-        title: 'Atelier Écriture Créative',
-        start: new Date("2025-05-05T14:00:00"), // Aujourd'hui (Lundi) après-midi
-        end: new Date("2025-05-05T16:30:00"),
-        actions: this.actions,
-        color: {primary: '#198754', secondary: '#d1e7dd'}, // Vert pour ateliers/conférences
-        meta: {
-          type: 'Atelier',
-          artists: ['Animateur: Jean Dupont'],
-          description: 'Libérez votre imagination et explorez l\'écriture.',
-          location: 'Médiathèque Centrale'
-        }
-      },
-      {
-        title: 'Projection Film Indé',
-        start: new Date("2025-05-06T20:00:00"), // Mardi soir
-        end: new Date("2025-05-06T22:15:00"),
-        actions: this.actions,
-        color: {primary: '#6f42c1', secondary: '#e0cffc'}, // Violet pour cinéma/projections
-        meta: {
-          type: 'Cinéma',
-          artists: ['Réalisateur: Sophie Martin'],
-          description: 'Découverte d\'un nouveau talent du cinéma indépendant.',
-          location: 'Cinéma Le Studio'
-        }
-      },
-      {
-        title: 'Concert Jazz Manouche',
-        start: new Date("2025-05-07T21:00:00"), // Mercredi soir
-        end: new Date("2025-05-07T23:30:00"),
-        actions: this.actions,
-        color: {primary: '#dc3545', secondary: '#f8d7da'}, // Rouge
-        meta: {
-          type: 'Concert',
-          artists: ['Gypsy Swing Trio'],
-          description: 'Ambiance chaleureuse au rythme du jazz manouche.',
-          location: 'Le Caveau du Swing'
-        }
-      },
-      {
-        title: 'Festival "Goût du Monde" - Jour 1',
-        start: new Date("2025-05-09T18:00:00"), // Vendredi soir prochain
-        end: new Date("2025-05-09T23:59:00"), // Se termine à minuit
-        actions: this.actions,
-        color: {primary: '#ffc107', secondary: '#fff3cd'}, // Jaune pour festivals
-        meta: {
-          type: 'Festival',
-          artists: ['Cuisine du Monde', 'Groupe Musique du Monde'],
-          description: 'Ouverture du festival culinaire et musical.',
-          location: 'Parc Central'
-        }
-      },
-      {
-        title: 'Match de Basket Local',
-        start: new Date("2025-05-10T15:00:00"), // Samedi prochain après-midi
-        end: new Date("2025-05-10T17:00:00"),
-        actions: this.actions,
-        color: {primary: '#0dcaf0', secondary: '#cff4fc'}, // Cyan pour sports/autres
-        meta: {
-          type: 'Sport',
-          artists: ['Équipe A vs Équipe B'], // On peut utiliser 'artists' pour les équipes/participants
-          description: 'Match important pour le championnat local.',
-          location: 'Gymnase Municipal'
-        }
-      },
-      {
-        title: 'Spectacle de Danse Contemporaine',
-        start: new Date("2025-05-11T20:00:00"), // Dimanche prochain soir
-        end: new Date("2025-05-11T21:30:00"),
-        actions: this.actions,
-        color: {primary: '#0d6efd', secondary: '#cfe2ff'}, // Bleu
-        meta: {
-          type: 'Danse',
-          artists: ['Compagnie Corpus'],
-          description: 'Exploration du mouvement et de l\'expression corporelle.',
-          location: 'Espace Culturel Ravel'
-        }
-      },
-
-      // --- Semaine Suivante ---
-      {
-        title: 'Conférence: Le Futur du Web',
-        start: new Date("2025-05-13T18:30:00"), // Mardi suivant
-        end: new Date("2025-05-13T20:00:00"),
-        actions: this.actions,
-        color: {primary: '#198754', secondary: '#d1e7dd'}, // Vert
-        meta: {
-          type: 'Conférence',
-          artists: ['Intervenant: Dr. Alice Moreau'],
-          description: 'Tendances et innovations technologiques pour le web de demain.',
-          location: 'Campus Numérique'
-        }
-      }]
-
+    // Effect pour observer les changements dans les événements de la structure
+    effect(() => {
+      const structureEvents = this.structureEventsSig();
+      if (structureEvents && structureEvents.length > 0) {
+        this.updateCalendarEvents(structureEvents);
+      }
+    });
   }
 
   ngOnInit(): void {
+    this.loadEvents();
     this.applyGapCorrectionClass(3, 9);
+  }
+
+  ngOnDestroy(): void {
+    // Nettoyer les souscriptions
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  /**
+   * Charge les événements de la structure de l'utilisateur
+   * @param forceRefresh Force le rechargement depuis l'API
+   */
+  loadEvents(forceRefresh: boolean = false): void {
+    this.isLoading = true;
+    this.error = null;
+
+    const sub = this.userStructureService.getUserStructureEvents(forceRefresh).subscribe({
+      next: (events) => {
+        this.updateCalendarEvents(events);
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des événements:', error);
+        this.error = "Impossible de charger les événements";
+        this.isLoading = false;
+      }
+    });
+
+    this.subscriptions.push(sub);
+  }
+
+  /**
+   * Transforme les événements du modèle de données en événements de calendrier
+   * @param events Liste des événements à transformer
+   */
+  updateCalendarEvents(events: EventModel[]): void {
+    this.events = events.map(event => {
+      // Déterminer le type d'événement et sa couleur
+      const eventType = event.category?.name?.toLowerCase() || 'default';
+      const color = this.getColorForEventType(eventType);
+
+      // Créer un événement de calendrier
+      return {
+        title: event.name,
+        start: event.startDate,
+        end: event.endDate,
+        allDay: ((event.startDate.getDay() !== event.endDate.getDay())),
+        actions: this.actions,
+        color: color,
+        meta: {
+          id: event.id,
+          type: event.category?.name || 'Non catégorisé',
+          // artists: event. || [],
+          description: event.shortDescription || event.fullDescription || '',
+          location: event.address || ''
+        }
+      } as CalendarEvent;
+    });
+
+    // Appliquer les classes CSS pour la correction de l'espacement
+    this.applyGapCorrectionClass(3, 9);
+
+    // Rafraîchir l'affichage du calendrier
+    this.refresh.next();
+  }
+
+  /**
+   * Détermine la couleur à utiliser pour un type d'événement
+   * @param eventType Type d'événement
+   * @returns Objet de couleur pour le calendrier
+   */
+  getColorForEventType(eventType: string): { primary: string, secondary: string } {
+    // Rechercher une correspondance dans la map de couleurs
+    for (const [type, color] of Object.entries(this.eventColorMap)) {
+      if (eventType.includes(type)) {
+        return color;
+      }
+    }
+
+    // Couleur par défaut si aucune correspondance
+    return this.eventColorMap['default'];
   }
 
   setView(view: CalendarView) {
@@ -264,20 +244,34 @@ export class EventCalendarComponent implements OnInit {
   }
 
   handleEvent(action: string, event: CalendarEvent): void {
-    // Créez les données à passer
+    // Extraire l'ID de l'événement des métadonnées
+    const eventId = event.meta?.id;
+
+    if (action === 'Edited' && eventId) {
+      // Rediriger vers la page d'édition de l'événement
+      this.router.navigate(['/admin/events', eventId, 'edit']);
+      return;
+    } else if (action === 'View' && eventId) {
+      // Rediriger vers la page de détails de l'événement
+      this.router.navigate(['/admin/events/details', eventId]);
+      return;
+    }
+
+    // Fallback: ouvrir la modale avec les informations de l'événement
     const dialogData: EventDialogData = {event, action};
 
-    // Ouvrez la modale MatDialog
     this.dialog.open(EventDetailDialogComponent, {
-      width: 'lg', // Ou 'lg' si vous préférez la taille Bootstrap
-      // ou size: 'lg' n'existe pas directement, utilisez width/height
-      data: dialogData // Passez les données via la propriété 'data'
-      // Autres options MatDialogConfig si nécessaire : disableClose, etc.
+      width: '600px',
+      data: dialogData
     });
   }
 
   addEvent(): void {
     this.router.navigateByUrl('admin/events/create');
+  }
+
+  refreshEvents(): void {
+    this.loadEvents(true);
   }
 
   beforeViewRender(

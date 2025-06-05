@@ -48,6 +48,15 @@ $border-radius: 6px; // Coins arrondis pour un look moderne
   min-width: 180px; // Empêche de devenir trop petit
 }
 
+/* Animation pour le bouton de rafraîchissement */
+button mat-icon:hover {
+  transition: transform 0.3s ease;
+}
+
+button:active mat-icon {
+  transform: rotate(180deg);
+}
+
 // Style général des boutons de navigation
 #cal-buttons button {
   padding: 0.6rem 1.2rem;
@@ -79,6 +88,13 @@ $border-radius: 6px; // Coins arrondis pour un look moderne
 }
 
 // --- Overrides spécifiques pour les vues angular-calendar ---
+
+.cal-time-events {
+  max-height: calc(70vh - 60px) !important;
+  overflow: scroll !important;
+  overflow-x: hidden !important;
+  width: calc(100% + 16px);
+}
 
 // Vue Mois
 .cal-month-view {
@@ -296,6 +312,10 @@ mwl-calendar-week-view {
 
     // Optionnel: Ajouter une transition pour un effet plus doux
     // transition: transform 0.2s ease-in-out;
+  }
+
+  .cal-all-day-events .cal-event {
+    transform: translateY(calc(0px - var(--event-gap-height))) !important;
   }
 }
 

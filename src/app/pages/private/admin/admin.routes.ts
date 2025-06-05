@@ -67,7 +67,7 @@ export const adminRoutes: Routes = [
         title: 'Calendrier des événements | Administration'
       },
       {
-        path: 'event/details',
+        path: 'event/details/:id',
         component: EventDetailsPanelComponent,
         title: 'Détails d\'événement | Administration'
       },

@@ -10,6 +10,8 @@ import {StructureModel} from '../../../models/structure/structure.model';
 import {Observable, of} from 'rxjs';
 import {catchError, tap} from 'rxjs/operators';
 import {StructureAreaModel} from '../../../models/structure/structure-area.model';
+import {EventModel} from '../../../models/event/event.model';
+import {EventService} from '../event/event.service';
 
 
 /**
@@ -22,12 +24,16 @@ import {StructureAreaModel} from '../../../models/structure/structure-area.model
 export class UserStructureService {
   private userService = inject(UserService);
   private structureService = inject(StructureService);
+  private eventService = inject(EventService);
   private authService = inject(AuthService);
   private notification = inject(NotificationService);
 
   // Signal pour la structure de l'utilisateur
   private userStructureSig: WritableSignal<StructureModel | null | undefined> = signal(undefined);
   public readonly userStructure = computed(() => this.userStructureSig());
+
+  private userStructureEventsSig: WritableSignal<EventModel[]> = signal([]);
+  public readonly userStructureEvents = computed(() => this.userStructureEventsSig());
 
   // Signal pour l'état de chargement
   private isLoadingSig: WritableSignal<boolean> = signal(false);
@@ -57,6 +63,7 @@ export class UserStructureService {
           const currentStructure = this.userStructureSig();
           if (!currentStructure || currentStructure.id !== userProfile.structureId) {
             this.loadUserStructure().subscribe();
+            this.getUserStructureEvents().subscribe();
           }
         });
       } else {
@@ -66,6 +73,34 @@ export class UserStructureService {
         });
       }
     });
+  }
+
+  /**
+   * Gets events for the structure associated with the current user.
+   * @param forceRefresh - If true, forces a refresh from the API.
+   * @returns Observable of EventModel[] or empty array if no structure ID is associated.
+   */
+  getUserStructureEvents(forceRefresh = false): Observable<EventModel[]> {
+    const userStructureId = this.authService.userStructureId();
+    if (!userStructureId) {
+      return of([]);
+    }
+
+    if (!forceRefresh && this.userStructureEventsSig().length > 0) {
+      return of(this.userStructureEventsSig());
+    }
+
+    return this.eventService.getEventsByStructure(userStructureId).pipe(
+      tap(events => this.userStructureEventsSig.set(events)),
+      catchError(error => {
+        // this.handleError('Impossible de récupérer les événements de votre structure.', error);
+        return of([]);
+      })
+    );
+  }
+
+  private refreshStructureEvents(force = true): Observable<EventModel[]> {
+    return this.getUserStructureEvents(force);
   }
 
   /**

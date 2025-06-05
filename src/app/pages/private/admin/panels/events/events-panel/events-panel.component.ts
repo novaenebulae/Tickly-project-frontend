@@ -1,13 +1,12 @@
 import { Component, OnInit, inject, OnDestroy, ChangeDetectorRef, LOCALE_ID } from '@angular/core';
 import { CommonModule, DatePipe, registerLocaleData } from '@angular/common';
-import localeFr from '@angular/common/locales/fr'; // Import French locale data
-import { FormsModule } from '@angular/forms'; // Requis pour [(ngModel)]
-import { Router } from '@angular/router';
+import localeFr from '@angular/common/locales/fr';
+import { FormsModule } from '@angular/forms';
+import {Router, RouterLink} from '@angular/router';
 import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 
-// Importation des Modules Angular Material nécessaires
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+// Angular Material imports
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
@@ -15,281 +14,414 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatCheckboxModule } from '@angular/material/checkbox'; // Pour les filtres de statut
-import { MatChipsModule } from '@angular/material/chips'; // Pour l'affichage du statut
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar'; // Pour notifications simples
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; // Pour l'indicateur de chargement
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatExpansionModule } from '@angular/material/expansion';
 
-// --- Interfaces et Types ---
-type EventStatus = 'DRAFT' | 'PUBLISHED' | 'ONGOING' | 'PAST' | 'CANCELLED';
+// Services
+import { EventService } from '../../../../../../core/services/domain/event/event.service';
+import { CategoryService } from '../../../../../../core/services/domain/event/category.service';
+import { AuthService } from '../../../../../../core/services/domain/user/auth.service';
+import { UserStructureService } from '../../../../../../core/services/domain/user-structure/user-structure.service';
 
-interface Event {
-  id: number;
-  title: string;
-  type: string;
-  location: string;
-  date: Date;
-  endDate?: Date;
-  participantsCount: number;
-  maxCapacity?: number;
-  status: EventStatus;
-  imageUrl?: string;
-  webPageUrl?: string;
-}
+// Models
+import { EventModel, EventStatus } from '../../../../../../core/models/event/event.model';
+import { EventCategoryModel } from '../../../../../../core/models/event/event-category.model';
+import { EventSearchParams } from '../../../../../../core/models/event/event-search-params.model';
 
-interface GroupedEvent {
-  date: Date;
-  dateString: string; // Clé 'YYYY-MM-DD' pour le suivi et groupement
-  events: Event[];
-}
-
-// Enregistrer la locale FR globalement (peut aussi être fait dans AppModule/bootstrapApplication)
 registerLocaleData(localeFr);
+
+interface FilterStatus {
+  [key: string]: boolean;
+}
 
 @Component({
   selector: 'app-events-panel',
-  standalone: true, // Composant autonome
+  standalone: true,
   imports: [
     CommonModule,
-    FormsModule, // Nécessaire pour [(ngModel)]
-    // Modules Material
-    MatSlideToggleModule, MatButtonModule, MatIconModule, MatCardModule, MatFormFieldModule,
-    MatInputModule, MatSelectModule, MatMenuModule, MatCheckboxModule, MatChipsModule,
-    MatTooltipModule, MatSnackBarModule, MatProgressSpinnerModule,
-    // Note: MatPaginatorModule et MatSortModule ne sont pas importés car MatTable n'est pas utilisé ici
-    DatePipe // Déjà inclus dans CommonModule généralement, mais peut être explicite
+    FormsModule,
+    MatButtonModule, MatIconModule, MatCardModule,
+    MatFormFieldModule, MatInputModule, MatSelectModule, MatMenuModule,
+    MatCheckboxModule, MatChipsModule, MatTooltipModule, MatSnackBarModule,
+    MatProgressSpinnerModule, MatBadgeModule, MatDividerModule, MatPaginatorModule,
+    MatExpansionModule, RouterLink,
   ],
   templateUrl: './events-panel.component.html',
-  styleUrls: ['./events-panel.component.scss'], // Correction: styleUrls
+  styleUrls: ['./events-panel.component.scss'],
   providers: [
-    DatePipe, // Fournir DatePipe si nécessaire
-    { provide: LOCALE_ID, useValue: 'fr-FR' } // Définir la locale pour les pipes
+    DatePipe,
+    { provide: LOCALE_ID, useValue: 'fr-FR' }
   ]
 })
 export class EventsPanelComponent implements OnInit, OnDestroy {
 
-  // --- Injections de Services ---
+  // Services
+  private eventService = inject(EventService);
+  private categoryService = inject(CategoryService);
+  private authService = inject(AuthService);
+  private userStructureService = inject(UserStructureService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private datePipe = inject(DatePipe);
   private cdRef = inject(ChangeDetectorRef);
-  // private eventService = inject(EventService); // À décommenter quand vous aurez le service
 
-  // --- États de l'Interface Utilisateur ---
-  isListView: boolean = true; // Vue liste activée par défaut
-  isLoading: boolean = false; // Indicateur de chargement
-  error: string | null = null; // Message d'erreur potentiel
-  defaultImage: string = 'images/no-image.jpg'; // Image par défaut
+  // UI State
+  isLoading: boolean = false;
+  error: string | null = null;
+  defaultImage: string = 'images/no-image.jpg';
+  filtersExpanded: boolean = false;
 
-  // --- Données des Événements ---
-  private allEvents: Event[] = []; // Liste complète originale
-  filteredEvents: Event[] = [];       // Liste après filtres et recherche (pour le compteur)
-  groupedEvents: GroupedEvent[] = []; // Liste groupée par date pour l'affichage
+  // Data
+  private allEvents: EventModel[] = [];
+  filteredEvents: EventModel[] = [];
+  paginatedEvents: EventModel[] = [];
+  categories: EventCategoryModel[] = [];
 
-  // --- États des Contrôles de Filtre/Tri/Recherche ---
-  sortOption: string = 'dateAsc'; // Option de tri par défaut
-  searchTerm: string = ''; // Terme de recherche
+  // Pagination
+  pageSize: number = 10;
+  currentPage: number = 0;
+  totalItems: number = 0;
+  pageSizeOptions: number[] = [5, 10, 20, 50];
 
-  // Objet pour gérer l'état des filtres par statut
-  filterStatus: { [key in EventStatus]: boolean } = {
-    DRAFT: false,      // Caché par défaut
-    PUBLISHED: true,   // Affiché par défaut
-    ONGOING: true,    // Affiché par défaut
-    PAST: false,       // Caché par défaut
-    CANCELLED: false   // Caché par défaut
+  // Filters and Search
+  sortOption: string = 'startDate_asc';
+  searchTerm: string = '';
+  selectedCategoryIds: number[] = [];
+  dateRangeStart: string = '';
+  dateRangeEnd: string = '';
+
+  filterStatus: FilterStatus = {
+    'draft': false,
+    'published': true,
+    'pending_approval': false,
+    'cancelled': false,
+    'completed': false
   };
 
-  // Pour gérer le debounce de la recherche
+  // Statistics
+  totalEvents: number = 0;
+  publishedEvents: number = 0;
+  draftEvents: number = 0;
+  upcomingEvents: number = 0;
+
+  // Structure events signal subscription
+  private structureEventsSubscription: Subscription | null = null;
+
+  // Search debounce
   private searchSubject = new Subject<string>();
   private searchSubscription: Subscription | null = null;
+  private subscriptions: Subscription[] = [];
 
-  // --- Constructeur (peut rester vide si injections faites avec inject()) ---
   constructor() {}
 
-  // --- Initialisation et Nettoyage ---
   ngOnInit(): void {
-    this.loadEvents(); // Charger les données au démarrage
-    this.setupSearchDebounce(); // Configurer le debounce
+    this.setupSearchDebounce();
+    this.loadCategories();
+    this.loadEvents();
   }
 
   ngOnDestroy(): void {
-    this.searchSubscription?.unsubscribe(); // Nettoyer l'abonnement
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.searchSubscription?.unsubscribe();
+    this.structureEventsSubscription?.unsubscribe();
   }
 
-  // --- Chargement des Données ---
-  loadEvents(): void {
+  // === Data Loading ===
+
+  loadCategories(): void {
+    const categoriesSub = this.categoryService.loadCategories().subscribe({
+      next: (categories) => {
+        this.categories = categories;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des catégories:', error);
+      }
+    });
+    this.subscriptions.push(categoriesSub);
+  }
+
+  loadEvents(forceRefresh: boolean = false): void {
     this.isLoading = true;
     this.error = null;
-    console.log("Chargement des événements...");
-    // Remplacer par l'appel à votre service d'événements
-    // this.eventService.getAllEvents().subscribe({ ... })
-    setTimeout(() => { // Simulation d'un délai réseau
-      try {
-        this.allEvents = this.getMockEvents(); // Récupère les données mockées
-        this.processEvents(); // Applique filtres/tri/groupement initiaux
+
+    // Annuler la souscription précédente si elle existe
+    if (this.structureEventsSubscription) {
+      this.structureEventsSubscription.unsubscribe();
+      this.structureEventsSubscription = null;
+    }
+
+    // S'abonner au signal des événements de la structure
+    this.structureEventsSubscription = this.userStructureService.getUserStructureEvents(forceRefresh).subscribe({
+      next: (events) => {
+        this.allEvents = events;
+        this.calculateStatistics();
+        this.processEvents();
         this.isLoading = false;
-      } catch (e) {
-        console.error("Erreur lors de la simulation du chargement:", e);
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des événements:', error);
         this.error = "Erreur lors du chargement des événements.";
         this.isLoading = false;
       }
-    }, 1000);
+    });
+
+    this.subscriptions.push(this.structureEventsSubscription);
   }
 
-  // --- Gestion Filtre / Tri / Recherche / Groupement ---
+  // === Statistics ===
 
-  // Met en place le debounce pour la barre de recherche
+  calculateStatistics(): void {
+    this.totalEvents = this.allEvents.length;
+    this.publishedEvents = this.allEvents.filter(e => e.status === 'published').length;
+    this.draftEvents = this.allEvents.filter(e => e.status === 'draft').length;
+    this.upcomingEvents = this.allEvents.filter(e =>
+      e.status === 'published' && new Date(e.startDate) > new Date()
+    ).length;
+  }
+
+  // === Search and Filtering ===
+
   setupSearchDebounce(): void {
     this.searchSubscription = this.searchSubject
       .pipe(
-        debounceTime(400),         // Attendre 400ms après la dernière frappe
-        distinctUntilChanged()      // Ne traiter que si le terme a changé
+        debounceTime(400),
+        distinctUntilChanged()
       )
       .subscribe(() => {
-        this.processEvents();       // Lancer le traitement après le délai
-        this.cdRef.markForCheck(); // Marquer pour la détection de changement si besoin
+        this.processEvents();
+        this.cdRef.markForCheck();
       });
   }
 
-  // Appelé à chaque modification de l'input de recherche
   onSearchTermChange(): void {
-    this.searchSubject.next(this.searchTerm || ''); // Envoyer la valeur actuelle au Subject
+    this.searchSubject.next(this.searchTerm || '');
   }
 
-  // Efface le terme de recherche et relance le traitement
   clearSearch(): void {
     this.searchTerm = '';
-    // Pas besoin d'appeler onSearchTermChange car processEvents est appelé
     this.processEvents();
   }
 
-  // Fonction principale pour filtrer, trier et grouper les événements
-  processEvents(): void {
-    let events = [...this.allEvents]; // Travailler sur une copie
+  onCategoryChange(): void {
+    this.processEvents();
+  }
 
-    // 1. Filtrage par Statut
-    const activeStatusFilters = (Object.keys(this.filterStatus) as EventStatus[])
-      .filter(status => this.filterStatus[status]);
+  onDateRangeChange(): void {
+    this.processEvents();
+  }
+
+  onStatusFilterChange(): void {
+    this.processEvents();
+  }
+
+  clearAllFilters(): void {
+    this.searchTerm = '';
+    this.selectedCategoryIds = [];
+    this.dateRangeStart = '';
+    this.dateRangeEnd = '';
+
+    this.filterStatus = {
+      'draft': false,
+      'published': true,
+      'pending_approval': false,
+      'cancelled': false,
+      'completed': false
+    };
+
+    this.processEvents();
+  }
+
+  // === Event Processing ===
+
+  processEvents(): void {
+    let events = [...this.allEvents];
+
+    const activeStatusFilters = Object.keys(this.filterStatus)
+      .filter(status => this.filterStatus[status]) as EventStatus[];
 
     if (activeStatusFilters.length > 0) {
-      // Garder seulement les événements dont le statut est dans les filtres actifs
       events = events.filter(event => activeStatusFilters.includes(event.status));
     } else {
-      // Si aucun filtre de statut n'est actif, n'afficher aucun événement
       events = [];
     }
 
-    // 2. Recherche par terme (si un terme est saisi)
     if (this.searchTerm) {
       const lowerSearchTerm = this.searchTerm.toLowerCase().trim();
       events = events.filter(event =>
-        event.title.toLowerCase().includes(lowerSearchTerm) ||
-        event.type.toLowerCase().includes(lowerSearchTerm) ||
-        event.location.toLowerCase().includes(lowerSearchTerm)
+        event.name.toLowerCase().includes(lowerSearchTerm) ||
+        event.shortDescription?.toLowerCase().includes(lowerSearchTerm) ||
+        event.fullDescription.toLowerCase().includes(lowerSearchTerm) ||
+        event.category?.name.toLowerCase().includes(lowerSearchTerm)
       );
     }
 
-    // 3. Tri selon l'option sélectionnée
-    switch (this.sortOption) {
-      case 'dateDesc': events.sort((a, b) => b.date.getTime() - a.date.getTime()); break;
-      case 'nameAsc': events.sort((a, b) => a.title.localeCompare(b.title)); break;
-      case 'nameDesc': events.sort((a, b) => b.title.localeCompare(a.title)); break;
-      case 'dateAsc': default: events.sort((a, b) => a.date.getTime() - b.date.getTime()); break;
+    if (this.selectedCategoryIds.length > 0) {
+      events = events.filter(event =>
+        event.category && this.selectedCategoryIds.includes(event.category.id)
+      );
     }
 
-    // Stocker les événements filtrés/triés (pour le compteur)
+    if (this.dateRangeStart) {
+      const startDate = new Date(this.dateRangeStart);
+      events = events.filter(event => new Date(event.startDate) >= startDate);
+    }
+
+    if (this.dateRangeEnd) {
+      const endDate = new Date(this.dateRangeEnd);
+      events = events.filter(event => new Date(event.startDate) <= endDate);
+    }
+
+    this.sortEvents(events);
+
     this.filteredEvents = events;
+    this.totalItems = events.length;
 
-    // 4. Groupement par date pour l'affichage
-    this.groupedEvents = this.groupEventsByDate(events);
-
-    // Forcer la détection de changement si les données sont mises à jour hors zone Angular (rare ici)
-    // this.cdRef.markForCheck();
+    this.currentPage = 0;
+    this.updatePaginatedEvents();
   }
 
-  // Fonction pour grouper les événements par jour
-  groupEventsByDate(events: Event[]): GroupedEvent[] {
-    if (!events || events.length === 0) return [];
+  sortEvents(events: EventModel[]): void {
+    const [field, direction] = this.sortOption.split('_');
 
-    const groups = new Map<string, GroupedEvent>();
-    events.forEach(event => {
-      const dateKey = this.datePipe.transform(event.date, 'yyyy-MM-dd') || 'invalid-date';
-      if (!groups.has(dateKey)) {
-        const groupDate = new Date(event.date);
-        groupDate.setHours(0, 0, 0, 0);
-        groups.set(dateKey, { date: groupDate, dateString: dateKey, events: [] });
+    events.sort((a, b) => {
+      let valueA: any;
+      let valueB: any;
+
+      switch (field) {
+        case 'name':
+          valueA = a.name.toLowerCase();
+          valueB = b.name.toLowerCase();
+          break;
+        case 'startDate':
+          valueA = new Date(a.startDate).getTime();
+          valueB = new Date(b.startDate).getTime();
+          break;
+        case 'category':
+          valueA = a.category?.name.toLowerCase() || '';
+          valueB = b.category?.name.toLowerCase() || '';
+          break;
+        case 'status':
+          valueA = a.status;
+          valueB = b.status;
+          break;
+        default:
+          return 0;
       }
-      groups.get(dateKey)!.events.push(event);
+
+      if (valueA < valueB) return direction === 'asc' ? -1 : 1;
+      if (valueA > valueB) return direction === 'asc' ? 1 : -1;
+      return 0;
     });
-
-    return Array.from(groups.values()).sort((a, b) => a.date.getTime() - b.date.getTime());
   }
 
-  // Réinitialise tous les filtres et la recherche à leur état par défaut
-  resetFilters(): void {
-    this.filterStatus = { DRAFT: false, PUBLISHED: true, ONGOING: true, PAST: false, CANCELLED: false };
-    this.sortOption = 'dateAsc';
-    this.searchTerm = '';
-    this.clearSearch(); // Assure que le filtre est appliqué
+  // === Pagination ===
+
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.updatePaginatedEvents();
   }
 
-  // --- Méthodes pour les Actions des Événements (Placeholders) ---
-  onAddEvent(): void { this.router.navigate(['/admin/events/create']); }
-
-  showParticipants(event: Event): void {
-    this.router.navigate(['/admin/event/details'], { fragment: 'participants' });
+  private updatePaginatedEvents(): void {
+    const startIndex = this.currentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedEvents = this.filteredEvents.slice(startIndex, endIndex);
   }
 
-  showEvent(event: Event): void {
-    this.router.navigate(['/admin/event/details']);
-  }
+  // === UI Helpers ===
 
-  showStats(event: Event): void {
-    this.router.navigate(['/admin/event/details#stats']);
-  }
-
-  openEventPage(event: Event): void {
-    if (event.webPageUrl) { window.open(event.webPageUrl, '_blank'); }
-    else { this.snackBar.open(`Aucune page web pour ${event.title}`, 'OK', { duration: 3000 }); }
-  }
-  editEvent(event: Event): void { this.snackBar.open(`Modifier: ${event.title} (Non implémenté)`, 'OK', { duration: 2000 }); /* this.router.navigate(['/admin/events/edit', event.id]); */ }
-  duplicateEvent(event: Event): void { this.snackBar.open(`Dupliquer: ${event.title} (Non implémenté)`, 'OK', { duration: 2000 }); }
-  cancelEvent(event: Event): void { this.snackBar.open(`Annuler: ${event.title} (Non implémenté)`, 'OK', { duration: 2000 }); /* Ajouter confirmation dialog */ }
-
-  // --- Fonctions Helper pour l'Affichage ---
   getStatusColor(status: EventStatus): 'primary' | 'accent' | 'warn' | undefined {
     switch (status) {
-      case 'PUBLISHED': return 'primary';
-      case 'ONGOING': return 'accent';
-      case 'CANCELLED': return 'warn';
-      case 'PAST': case 'DRAFT': default: return undefined; // Gris par défaut
+      case 'published': return 'primary';
+      case 'draft': return 'accent';
+      case 'cancelled': return 'warn';
+      case 'completed': return undefined;
+      case 'pending_approval': return 'accent';
+      default: return undefined;
     }
   }
-  getStatusText(status: EventStatus): string {
+
+  getStatusText(status: string): string {
     switch (status) {
-      case 'DRAFT': return 'Brouillon'; case 'PUBLISHED': return 'Publié';
-      case 'ONGOING': return 'En cours'; case 'PAST': return 'Passé';
-      case 'CANCELLED': return 'Annulé'; default: return status;
+      case 'published': return 'Publié';
+      case 'draft': return 'Brouillon';
+      case 'cancelled': return 'Annulé';
+      case 'completed': return 'Terminé';
+      case 'pending_approval': return 'En attente';
+      default: return status;
     }
   }
 
-  // --- Données Mockées (Pour test) ---
-  getMockEvents(): Event[] {
-    const today = new Date();
-    const tomorrow = new Date(new Date().setDate(today.getDate() + 1));
-    const nextWeek = new Date(new Date().setDate(today.getDate() + 7));
-    const yesterday = new Date(new Date().setDate(today.getDate() - 1));
-    const lastWeek = new Date(new Date().setDate(today.getDate() - 7));
+  getStatusIcon(status: string): string {
+    switch (status) {
+      case 'published': return 'check_circle';
+      case 'draft': return 'edit';
+      case 'cancelled': return 'cancel';
+      case 'completed': return 'done_all';
+      case 'pending_approval': return 'schedule';
+      default: return 'help';
+    }
+  }
 
-    return [
-      { id: 1, title: 'Concert Rock Hivernal', type: 'Concert', location: 'Grande Scène', date: new Date(tomorrow.setHours(20, 0, 0, 0)), participantsCount: 150, maxCapacity: 500, status: 'PUBLISHED', imageUrl: 'https://picsum.photos/seed/a/200', webPageUrl: '#' },
-      { id: 2, title: 'Conférence Tech IA', type: 'Conférence', location: 'Salle Conf A', date: new Date(new Date().setHours(14, 0, 0, 0)), endDate: new Date(new Date().setHours(17, 30, 0, 0)), participantsCount: 85, maxCapacity: 100, status: 'ONGOING', imageUrl: 'https://picsum.photos/seed/b/200', webPageUrl: '#' },
-      { id: 3, title: 'Marché de Noël Artisanal', type: 'Marché', location: 'Place Centrale', date: new Date(yesterday.setHours(10, 0, 0, 0)), endDate: new Date(yesterday.setHours(18, 0, 0, 0)), participantsCount: 320, status: 'PAST', imageUrl: 'https://picsum.photos/seed/c/200' },
-      { id: 4, title: 'Atelier Yoga Débutant', type: 'Atelier', location: 'Studio Zen', date: new Date(nextWeek.setHours(9, 30, 0, 0)), participantsCount: 12, maxCapacity: 20, status: 'PUBLISHED' },
-      { id: 5, title: 'Projection Film "Avenir"', type: 'Cinéma', location: 'Salle B', date: new Date(tomorrow.setHours(19, 0, 0, 0)), participantsCount: 45, maxCapacity: 60, status: 'PUBLISHED', imageUrl: 'https://picsum.photos/seed/d/200' },
-      { id: 6, title: 'Festival Gastronomique (Annulé)', type: 'Festival', location: 'Parc Ouest', date: new Date(lastWeek.setHours(11, 0, 0, 0)), participantsCount: 0, status: 'CANCELLED' },
-      { id: 7, title: 'Réunion Préparatoire Gala', type: 'Réunion', location: 'Bureau Admin', date: new Date(new Date().setHours(10, 0, 0, 0)), participantsCount: 5, status: 'DRAFT' },
-    ].sort((a, b) => a.date.getTime() - b.date.getTime()) as Event[];
+  formatEventDuration(event: EventModel): string {
+    const start = new Date(event.startDate);
+    const end = new Date(event.endDate);
+
+    const startStr = this.datePipe.transform(start, 'dd/MM HH:mm');
+    const endStr = this.datePipe.transform(end, 'HH:mm');
+
+    return `${startStr} - ${endStr}`;
+  }
+
+  // === Event Actions ===
+
+  onAddEvent(): void {
+    this.router.navigate(['/admin/events/create']);
+  }
+
+  refreshEvents(): void {
+    this.loadEvents(true);
+  }
+
+  showEventDetails(event: EventModel): void {
+    this.router.navigate(['/admin/events/details', event.id]);
+  }
+
+  editEvent(event: EventModel): void {
+    this.router.navigate(['/admin/events', event.id, 'edit']);
+  }
+
+  deleteEvent(event: EventModel): void {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer l'événement "${event.name}" ?`)) {
+      const deleteSub = this.eventService.deleteEvent(event.id!).subscribe({
+        next: (success) => {
+          if (success) {
+            // Forcer le rafraîchissement des événements après suppression
+            this.loadEvents(true);
+            this.snackBar.open('Événement supprimé avec succès', 'Fermer', {
+              duration: 3000
+            });
+          }
+        },
+        error: (error) => {
+          console.error('Erreur lors de la suppression:', error);
+          this.snackBar.open('Erreur lors de la suppression', 'Fermer', {
+            duration: 3000
+          });
+        }
+      });
+      this.subscriptions.push(deleteSub);
+    }
+  }
+
+  openEventPage(event: EventModel): void {
+    this.router.navigate(['/events', event.id]);
   }
 }

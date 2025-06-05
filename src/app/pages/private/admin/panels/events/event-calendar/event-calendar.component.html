@@ -36,6 +36,13 @@
           (viewDateChange)="closeOpenMonthViewDay()">
           Next
         </button>
+          <button
+            class="btn btn-light"
+            (click)="refreshEvents()"
+            title="Rafraîchir les événements"
+          >
+            <mat-icon>refresh</mat-icon>
+          </button>
       </div>
       <div id="cal-date-field">
         {{ viewDate | calendarDate:(view + 'ViewTitle'):locale }}
@@ -89,4 +96,16 @@
       }
     }
   </div>
+</div>
+
+<div *ngIf="isLoading" class="text-center my-3">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Chargement...</span>
+  </div>
+  <p class="mt-2">Chargement des événements...</p>
+</div>
+
+<div *ngIf="error" class="alert alert-danger my-3">
+  {{ error }}
+  <button type="button" class="btn-close float-end" (click)="error = null"></button>
 </div>

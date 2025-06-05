@@ -1,283 +1,398 @@
-<div class="container-fluid py-3 events-panel-page">
+<div class="container-fluid py-4 events-panel-page">
 
-  <mat-card class="mat-elevation-z2 mb-4">
-    <mat-card-content
-      class="d-flex justify-content-between align-items-start flex-wrap gap-3 p-4"
-    >
-      <div class="d-flex-column">
-        <h1 class="mat-headline-3 mb-1">Tous les événements</h1>
-        <p class="mat-body-3 text-muted w-70 mt-1">
-          Liste des événements créés pour la structure
-        </p>
-      </div>
-      <div class="d-flex align-items-center gap-3">
-        <!-- Liaison à isListView -->
-        <mat-slide-toggle color="primary" [(ngModel)]="isListView" aria-label="Basculer en vue liste">
-          Affichage en liste
-        </mat-slide-toggle>
-        <!-- Appel à onAddEvent -->
-        <button mat-raised-button color="primary" (click)="onAddEvent()">
-          <mat-icon>add</mat-icon>
-          Ajouter un événement
-        </button>
-      </div>
-
-      <!-- Barre de filtres et recherche -->
-      <div class="mat-elevation-z2 container-fluid mt-3">
-        <div class="d-flex flex-wrap gap-3 align-items-center">
-          <!-- Bouton Filtres avec Menu -->
-          <button mat-stroked-button class="bg-light-subtle filter-button" [matMenuTriggerFor]="filterMenu"
-                  color="primary">
-            Filtres par Statut
-            <mat-icon>filter_list</mat-icon>
-          </button>
-          <!-- Sélecteur de Tri (liaison à sortOption, appel processEvents) -->
-          <mat-form-field appearance="outline" class="filter-select bg-light-subtle" subscriptSizing="dynamic">
-            <mat-label>Trier par</mat-label>
-            <mat-select [(ngModel)]="sortOption" (selectionChange)="processEvents()">
-              <mat-option value="dateAsc">Date (Prochain en premier)</mat-option>
-              <mat-option value="dateDesc">Date (Plus récent en premier)</mat-option>
-              <mat-option value="nameAsc">Nom (A-Z)</mat-option>
-              <mat-option value="nameDesc">Nom (Z-A)</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-
-          <!-- Champ de Recherche (liaison à searchTerm, appel onSearchTermChange, réf #filterInput) -->
-          <mat-form-field appearance="outline" class="flex-grow-1 min-w-200 bg-light-subtle" subscriptSizing="dynamic">
-            <mat-label>Rechercher un événement...</mat-label>
-            <mat-icon matPrefix class="icon-muted me-2">search</mat-icon>
-            <input matInput type="search" [(ngModel)]="searchTerm" (input)="onSearchTermChange()"
-                   placeholder="Nom, type, lieu..." #filterInput>
-            <!-- Bouton effacer (condition searchTerm, appel clearSearch) -->
-            @if (searchTerm) {
-              <button matSuffix mat-icon-button aria-label="Effacer la recherche" (click)="clearSearch()">
-                <mat-icon>close</mat-icon>
-              </button>
-            }
-          </mat-form-field>
-
-          <!-- Menu contenant les Checkboxes de filtre (liaison à filterStatus.STATUS, appel processEvents) -->
-          <mat-menu #filterMenu="matMenu" class="filter-status-menu bg-light-subtle">
-            <mat-checkbox class="mat-menu-item" [(ngModel)]="filterStatus.PUBLISHED" (ngModelChange)="processEvents()">
-              Publiés
-            </mat-checkbox>
-            <mat-checkbox class="mat-menu-item" [(ngModel)]="filterStatus.ONGOING" (ngModelChange)="processEvents()">En
-              cours
-            </mat-checkbox>
-            <mat-checkbox class="mat-menu-item" [(ngModel)]="filterStatus.PAST" (ngModelChange)="processEvents()">
-              Passés
-            </mat-checkbox>
-            <mat-checkbox class="mat-menu-item" [(ngModel)]="filterStatus.DRAFT" (ngModelChange)="processEvents()">
-              Brouillons
-            </mat-checkbox>
-            <mat-checkbox class="mat-menu-item" [(ngModel)]="filterStatus.CANCELLED" (ngModelChange)="processEvents()">
-              Annulés
-            </mat-checkbox>
-          </mat-menu>
+  <!-- Header Section -->
+  <mat-card class="header-card mb-4">
+    <mat-card-content class="p-4">
+      <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+        <div class="header-info">
+          <h1 class="mat-h1 mb-2">Gestion des événements</h1>
+          <p class="text-muted mb-0">
+            Gérez tous les événements de votre structure
+          </p>
         </div>
-        <!-- Compteur de résultats (utilise filteredEvents.length) -->
-        <div class="ms-auto fw-medium text-muted justify-content-end mt-3 w-100 d-flex">
-          {{ filteredEvents.length }} résultat{{ filteredEvents.length !== 1 ? 's' : '' }}
+        <div class="d-flex align-items-center gap-3">
+          <button
+            mat-icon-button
+            (click)="refreshEvents()"
+            matTooltip="Rafraîchir la liste"
+            class="refresh-button">
+            <mat-icon>refresh</mat-icon>
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="onAddEvent()"
+            class="btn-create">
+            <mat-icon>add</mat-icon>
+            Créer un événement
+          </button>
+        </div>
+      </div>
+
+      <!-- Statistics Row -->
+      <div class="row g-3 stats-row">
+        <div class="col-xl-3 col-md-6">
+          <div class="stat-card stat-primary">
+            <div class="stat-content">
+              <div class="stat-icon">
+                <mat-icon>event</mat-icon>
+              </div>
+              <div class="stat-details">
+                <div class="stat-number">{{ totalEvents }}</div>
+                <div class="stat-label">Total des événements</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="stat-card stat-success">
+            <div class="stat-content">
+              <div class="stat-icon">
+                <mat-icon>check_circle</mat-icon>
+              </div>
+              <div class="stat-details">
+                <div class="stat-number">{{ publishedEvents }}</div>
+                <div class="stat-label">Événements publiés</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="stat-card stat-warning">
+            <div class="stat-content">
+              <div class="stat-icon">
+                <mat-icon>edit</mat-icon>
+              </div>
+              <div class="stat-details">
+                <div class="stat-number">{{ draftEvents }}</div>
+                <div class="stat-label">Brouillons</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+          <div class="stat-card stat-info">
+            <div class="stat-content">
+              <div class="stat-icon">
+                <mat-icon>schedule</mat-icon>
+              </div>
+              <div class="stat-details">
+                <div class="stat-number">{{ upcomingEvents }}</div>
+                <div class="stat-label">À venir</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </mat-card-content>
   </mat-card>
 
-  <!-- Indicateur de chargement (condition isLoading) -->
+  <!-- Filters Section - Collapsible -->
+  <mat-card class="filters-card mb-4">
+    <mat-expansion-panel [expanded]="filtersExpanded" hideToggle>
+      <mat-expansion-panel-header (click)="filtersExpanded = !filtersExpanded">
+        <mat-panel-title>
+          <div class="d-flex align-items-center gap-2">
+            <mat-icon>filter_list</mat-icon>
+            <span class="filters-btn-text">Filtres et recherche</span>
+            @if (!filtersExpanded && (searchTerm || selectedCategoryIds.length > 0 || dateRangeStart || dateRangeEnd)) {
+              <mat-chip class="active-filters-chip">
+                Filtres actifs
+              </mat-chip>
+            }
+          </div>
+        </mat-panel-title>
+        <mat-panel-description>
+          <div class="d-flex gap-3">
+            <!-- Quick Search when collapsed -->
+<!--            @if (!filtersExpanded) {-->
+<!--              <mat-form-field appearance="outline" class="quick-search" (click)="$event.stopPropagation()">-->
+<!--                <mat-icon matPrefix>search</mat-icon>-->
+<!--                <input-->
+<!--                  matInput-->
+<!--                  placeholder="Recherche rapide..."-->
+<!--                  [(ngModel)]="searchTerm"-->
+<!--                  (input)="onSearchTermChange()">-->
+<!--              </mat-form-field>-->
+<!--            }-->
+            <mat-icon>{{ filtersExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </div>
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="filters-content p-4">
+        <div class="row g-3 align-items-end mb-2">
+          <!-- Search -->
+          <div class="col-md-4">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Rechercher...</mat-label>
+              <mat-icon matPrefix>search</mat-icon>
+              <input
+                matInput
+                type="search"
+                [(ngModel)]="searchTerm"
+                (input)="onSearchTermChange()"
+                placeholder="Nom, description...">
+              @if (searchTerm) {
+                <button matSuffix mat-icon-button (click)="clearSearch()" aria-label="Effacer">
+                  <mat-icon>close</mat-icon>
+                </button>
+              }
+            </mat-form-field>
+          </div>
+
+          <!-- Category Filter -->
+          <div class="col-md-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Catégories</mat-label>
+              <mat-select
+                multiple
+                [(ngModel)]="selectedCategoryIds"
+                (selectionChange)="onCategoryChange()">
+                @for (category of categories; track category.id) {
+                  <mat-option [value]="category.id">{{ category.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Date Range -->
+          <div class="col-md-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Date début</mat-label>
+              <input
+                matInput
+                type="date"
+                [(ngModel)]="dateRangeStart"
+                (change)="onDateRangeChange()">
+            </mat-form-field>
+          </div>
+          <div class="col-md-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Date fin</mat-label>
+              <input
+                matInput
+                type="date"
+                [(ngModel)]="dateRangeEnd"
+                (change)="onDateRangeChange()">
+            </mat-form-field>
+          </div>
+
+          <!-- Sort -->
+          <div class="col-md-2">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Trier par</mat-label>
+              <mat-select [(ngModel)]="sortOption" (selectionChange)="processEvents()">
+                <mat-option value="startDate_asc">Date (Plus ancien)</mat-option>
+                <mat-option value="startDate_desc">Date (Plus récent)</mat-option>
+                <mat-option value="name_asc">Nom (A-Z)</mat-option>
+                <mat-option value="name_desc">Nom (Z-A)</mat-option>
+                <mat-option value="status_asc">Statut</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Status Filters -->
+        <div class="status-filters mb-4">
+          <div class="d-flex flex-wrap align-items-center gap-3">
+            <span class="fw-medium text-muted">Statuts :</span>
+            @for (status of ['published', 'draft', 'pending_approval', 'cancelled', 'completed']; track status) {
+              <mat-checkbox
+                [(ngModel)]="filterStatus[status]"
+                (ngModelChange)="onStatusFilterChange()"
+                class="status-checkbox">
+                <div class="d-flex align-items-center gap-1">
+                  <mat-icon class="small-icon">{{ getStatusIcon(status) }}</mat-icon>
+                  <span>{{ getStatusText(status) }}</span>
+                </div>
+              </mat-checkbox>
+            }
+          </div>
+        </div>
+
+        <!-- Results info and clear filters -->
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+          <span class="text-muted">
+            <strong>{{ totalItems }}</strong> résultat{{ totalItems !== 1 ? 's' : '' }} trouvé{{ totalItems !== 1 ? 's' : '' }}
+          </span>
+          <button
+            mat-stroked-button
+            color="primary"
+            (click)="clearAllFilters()"
+            class="d-flex align-items-center gap-1">
+            <mat-icon>clear_all</mat-icon>
+            Réinitialiser
+          </button>
+        </div>
+      </div>
+    </mat-expansion-panel>
+  </mat-card>
+
+  <!-- Loading -->
   @if (isLoading) {
-    <div class="text-center my-5 d-flex flex-column align-items-center justify-content-center">
-      <mat-progress-spinner mode="indeterminate" diameter="100"></mat-progress-spinner>
-      <p class="mt-5 text-muted">Chargement des événements...</p>
+    <div class="text-center py-5">
+      <mat-progress-spinner
+        mode="indeterminate"
+        diameter="60"
+        class="mx-auto">
+      </mat-progress-spinner>
+      <p class="mt-3 text-muted">Chargement des événements...</p>
     </div>
   }
 
-  <!-- Message si erreur (condition error) -->
+  <!-- Error -->
   @if (error) {
-    <mat-card class="mat-elevation-z0 border border-danger text-danger p-3 my-4">
-      <mat-card-content class="d-flex align-items-center gap-2">
-        <mat-icon>error_outline</mat-icon>
-        <span>{{ error }}</span>
-      </mat-card-content>
-    </mat-card>
+    <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+      <mat-icon>error_outline</mat-icon>
+      <span class="flex-grow-1">{{ error }}</span>
+      <button mat-button color="primary" (click)="loadEvents()">
+        <mat-icon>refresh</mat-icon>
+        Réessayer
+      </button>
+    </div>
   }
 
-  <!-- Affichage des événements (condition !isLoading && !error) -->
+  <!-- Events Display -->
   @if (!isLoading && !error) {
-    <!-- Boucle sur les groupes de dates (variable groupedEvents, track dateString) -->
-    @for (group of groupedEvents; track group.dateString) {
-      <h3 class="mat-subheader mt-4 mb-2 event-group-header">{{ group.date | date:'EEEE d MMMM yyyy' | titlecase }}</h3>
-
-      <!-- Conteneur pour la VUE LISTE (condition isListView) -->
-      @if (isListView) {
-        <div class="list-view">
-          <!-- Boucle sur les événements du groupe (variable event, track event.id) -->
-          @for (event of group.events; track $index) {
-            <mat-card class="mb-3 event-card list-card mat-elevation-z1 hover-shadow">
-              <mat-card-content class="p-0">
-                <div class="d-flex flex-column flex-md-row align-items-stretch">
-                  <!-- Colonne Image (utilise event.imageUrl, defaultImage) -->
-                  <div class="list-image-container">
-                    <img [src]="event.imageUrl ? event.imageUrl : defaultImage" alt="Image {{ event.title }}"
-                         class="event-image">
-                  </div>
-                  <!-- Colonne Infos Principales -->
-                  <div class="flex-grow-1 p-3 d-flex flex-column">
-                    <h4 class="mat-title mb-1 event-title">{{ event.title }}</h4>
-                    <div class="event-info d-flex flex-wrap gap-x-3 gap-y-1 text-muted mat-body-2 mb-2">
-                      <span><mat-icon class="icon-sm">event</mat-icon>
-                        {{ event.date | date:'dd/MM/yy HH:mm' }}</span>
-                      <span><mat-icon class="icon-sm">place</mat-icon>
-                        {{ event.location }}</span>
-                      <span><mat-icon class="icon-sm">category</mat-icon>
-                        {{ event.type }}</span>
-                    </div>
-                    <div class="mt-auto d-flex justify-content-between align-items-center">
-                      <!-- Statut (appelle getStatusColor, getStatusText) -->
-                      <mat-chip-listbox class="event-status">
-                        <mat-chip [color]="getStatusColor(event.status)" density="-2" selected disabled>
-                          {{ getStatusText(event.status) }}
-                        </mat-chip>
-                      </mat-chip-listbox>
-                    </div>
-                  </div>
-                  <!-- Colonne Actions -->
-                  <div class="event-actions d-flex align-items-center p-3 border-start-md">
-                    <button mat-icon-button color="primary" matTooltip="Afficher les détails"
-                            (click)="showEvent(event)" aria-label="Afficher les détails">
-                      <mat-icon>visibility</mat-icon>
-                    </button>
-                    <!-- Appels showParticipants, showStats, openEventPage -->
-                    <button mat-icon-button color="primary" matTooltip="Afficher les participants"
-                            (click)="showParticipants(event)" aria-label="Afficher les participants">
-                      <mat-icon>people</mat-icon>
-                    </button>
-                    <button mat-icon-button color="primary" matTooltip="Afficher les statistiques"
-                            (click)="showStats(event)" aria-label="Afficher les statistiques">
-                      <mat-icon>bar_chart</mat-icon>
-                    </button>
-                    <button mat-icon-button color="primary" matTooltip="Voir la page web" (click)="openEventPage(event)"
-                            [disabled]="!event.webPageUrl" aria-label="Voir la page web">
-                      <mat-icon>public</mat-icon>
-                    </button>
-                    <!-- Menu Actions CRUD (appelle editEvent, duplicateEvent, cancelEvent) -->
-                    <button mat-icon-button [matMenuTriggerFor]="actionsMenu" matTooltip="Plus d'actions"
-                            aria-label="Plus d'actions">
-                      <mat-icon>more_vert</mat-icon>
-                    </button>
-                    <mat-menu #actionsMenu="matMenu">
-                      <button mat-menu-item (click)="editEvent(event)">
-                        <mat-icon>edit</mat-icon>
-                        Modifier
-                      </button>
-                      <button mat-menu-item (click)="duplicateEvent(event)">
-                        <mat-icon>content_copy</mat-icon>
-                        Dupliquer
-                      </button>
-                      <!-- Condition pour Annuler -->
-                      @if (event.status !== 'PAST' && event.status !== 'CANCELLED') {
-                        <button mat-menu-item (click)="cancelEvent(event)">
-                          <mat-icon color="warn">cancel</mat-icon>
-                          Annuler
-                        </button>
-                      }
-                    </mat-menu>
+    @if (totalItems === 0) {
+      <!-- Empty State -->
+      <mat-card class="empty-state-card">
+        <mat-card-content class="text-center py-5">
+          <mat-icon class="empty-icon mb-3">event_busy</mat-icon>
+          <h3 class="mat-h3 mb-3">Aucun événement trouvé</h3>
+          <p class="text-muted mb-4">
+            @if (searchTerm || selectedCategoryIds.length > 0 || dateRangeStart || dateRangeEnd) {
+              Aucun événement ne correspond à vos critères de recherche.
+            } @else {
+              Vous n'avez pas encore créé d'événement.
+            }
+          </p>
+          <button mat-raised-button color="primary" (click)="onAddEvent()" class="btn-create">
+            <mat-icon>add</mat-icon>
+            Créer votre premier événement
+          </button>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <!-- Events List -->
+      <mat-card class="events-list-card">
+        <!-- Events List -->
+        <div class="events-list">
+          @for (event of paginatedEvents; track event.id) {
+            <div class="event-item">
+              <div class="event-content">
+                <!-- Event Image -->
+                <div class="event-image">
+                  <img
+                    [src]="event.mainPhotoUrl || defaultImage"
+                    [alt]="'Image ' + event.name"
+                    class="event-thumbnail">
+                  <div class="status-badge">
+                    <mat-chip [color]="getStatusColor(event.status)" class="status-chip">
+                      <mat-icon matChipAvatar>{{ getStatusIcon(event.status) }}</mat-icon>
+                      {{ getStatusText(event.status) }}
+                    </mat-chip>
                   </div>
                 </div>
-              </mat-card-content>
-            </mat-card>
-          }
-        </div>
-      } @else {
-        <!-- Conteneur pour la VUE GRILLE -->
-        <div class="grid-view row g-3">
-          @for (event of group.events; track $index) {
-            <div class="col-12 col-md-6 col-lg-4 col-xl-3 d-flex">
-              <mat-card class="event-card grid-card mat-elevation-z1 hover-shadow w-100 pb-2">
-                <img mat-card-image [src]="event.imageUrl ? event.imageUrl : defaultImage" alt="Image {{ event.title }}"
-                     class="grid-event-image">
-                <mat-card-header>
-                  <mat-card-title class="mat-title mb-0">{{ event.title }}</mat-card-title>
-                  <mat-card-subtitle>
-                    <mat-icon class="icon-sm">event</mat-icon>
-                    {{ event.date | date:'dd/MM/yy HH:mm' }}
-                  </mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content class="d-flex flex-column flex-grow-1">
-                  <div class="event-info d-flex flex-column gap-1 text-muted mat-body-2 mb-auto">
-                    <span><mat-icon class="icon-sm">place</mat-icon>
-                      {{ event.location }}</span>
-                    <span><mat-icon class="icon-sm">category</mat-icon>
-                      {{ event.type }}</span>
+
+                <!-- Event Details -->
+                <div class="event-details">
+                  <div class="event-header">
+                    <h3 class="event-title">{{ event.name }}</h3>
+                    @if (event.isFeaturedEvent) {
+                      <mat-icon class="featured-icon" matTooltip="Événement mis en avant">star</mat-icon>
+                    }
                   </div>
-                </mat-card-content>
 
-                <mat-card-actions class="grid-actions justify-content-end">
+                  <div class="event-meta">
+                    <div class="meta-item">
+                      <mat-icon class="meta-icon">schedule</mat-icon>
+                      <span>{{ formatEventDuration(event) }}</span>
+                    </div>
+                    <div class="meta-item">
+                      <mat-icon class="meta-icon">place</mat-icon>
+                      <span>{{ event.address?.city || 'Lieu non défini' }}</span>
+                    </div>
+                    @if (event.category) {
+                      <div class="meta-item">
+                        <mat-icon class="meta-icon">category</mat-icon>
+                        <span>{{ event.category.name }}</span>
+                      </div>
+                    }
+                    @if (event.isFreeEvent) {
+                      <div class="meta-item free-event">
+                        <mat-icon class="meta-icon">money_off</mat-icon>
+                        <span>Gratuit</span>
+                      </div>
+                    }
+                  </div>
 
-                    <!-- Statut (appelle getStatusColor, getStatusText) -->
-                    <mat-chip-listbox class="event-status mt-2 w-50 align-self-start">
-                      <mat-chip [color]="getStatusColor(event.status)" density="-2" selected disabled>
-                        {{ getStatusText(event.status) }}
-                      </mat-chip>
-                    </mat-chip-listbox>
+                  @if (event.shortDescription) {
+                    <p class="event-description">{{ event.shortDescription }}</p>
+                  }
+                </div>
 
-                <!-- Actions carte grille (appelle showParticipants, etc.) -->
-                  <button mat-icon-button color="primary" matTooltip="Afficher les détails"
-                          (click)="showEvent(event)" aria-label="Afficher les détails">
-                    <mat-icon>visibility</mat-icon>
-                  </button>
-                  <button mat-icon-button color="primary" matTooltip="Afficher les participants"
-                          (click)="showParticipants(event)" aria-label="Afficher les participants">
-                    <mat-icon>people</mat-icon>
-                  </button>
-                  <button mat-icon-button color="primary" matTooltip="Afficher les statistiques"
-                          (click)="showStats(event)" aria-label="Afficher les statistiques">
-                    <mat-icon>bar_chart</mat-icon>
-                  </button>
-                  <button mat-icon-button color="primary" matTooltip="Voir la page web" (click)="openEventPage(event)"
-                          [disabled]="!event.webPageUrl" aria-label="Voir la page web">
-                    <mat-icon>public</mat-icon>
-                  </button>
-                  <button mat-icon-button [matMenuTriggerFor]="actionsMenuGrid" matTooltip="Plus d'actions"
-                          aria-label="Plus d'actions">
-                    <mat-icon>more_vert</mat-icon>
-                  </button>
-                  <mat-menu #actionsMenuGrid="matMenu">
-                    <button mat-menu-item (click)="editEvent(event)">
+                <!-- Event Actions -->
+                <div class="event-actions">
+                  <div class="action-buttons">
+                    <button
+                      mat-raised-button
+                      color="primary"
+                      [routerLink]="['/admin/event/details', event.id]"
+                      class="action-btn primary-action">
+                      <mat-icon>visibility</mat-icon>
+                      Détails
+                    </button>
+                    <button
+                      mat-raised-button
+                      (click)="editEvent(event)"
+                      class="action-btn secondary-action">
                       <mat-icon>edit</mat-icon>
                       Modifier
                     </button>
-                    <button mat-menu-item (click)="duplicateEvent(event)">
-                      <mat-icon>content_copy</mat-icon>
-                      Dupliquer
-                    </button>
-                    @if (event.status !== 'PAST' && event.status !== 'CANCELLED') {
-                      <button mat-menu-item (click)="cancelEvent(event)">
-                        <mat-icon color="warn">cancel</mat-icon>
-                        Annuler
-                      </button>
-                    }
-                  </mat-menu>
-                </mat-card-actions>
+                  </div>
 
-            </mat-card>
+                  <div class="more-actions">
+                    <button
+                      mat-icon-button
+                      [matMenuTriggerFor]="actionsMenu"
+                      matTooltip="Plus d'actions"
+                      class="more-btn">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+
+                    <mat-menu #actionsMenu="matMenu">
+                      <button mat-menu-item (click)="openEventPage(event)">
+                        <mat-icon>open_in_new</mat-icon>
+                        <span>Page publique</span>
+                      </button>
+                      <mat-divider></mat-divider>
+                      <button mat-menu-item (click)="deleteEvent(event)" class="delete-action">
+                        <mat-icon>delete</mat-icon>
+                        <span>Supprimer</span>
+                      </button>
+                    </mat-menu>
+                  </div>
+                </div>
+              </div>
             </div>
           }
         </div>
-      }
-    } @empty {
-      <!-- Message si aucun événement (condition !isLoading && !error) -->
-      @if (!isLoading && !error) {
-        <mat-card class="mat-elevation-z0 border text-muted p-3 my-4 text-center">
-          <mat-card-content>
-            <mat-icon class="large-icon">sentiment_dissatisfied</mat-icon>
-            <p class="mt-2">Aucun événement ne correspond à vos critères actuels.</p>
-            <!-- Bouton Réinitialiser (appelle resetFilters) -->
-            <button mat-stroked-button (click)="resetFilters()">Réinitialiser les filtres</button>
-          </mat-card-content>
-        </mat-card>
-      }
+
+        <!-- Pagination -->
+        <div class="pagination-wrapper">
+          <mat-paginator
+            [length]="totalItems"
+            [pageSize]="pageSize"
+            [pageIndex]="currentPage"
+            [pageSizeOptions]="pageSizeOptions"
+            (page)="onPageChange($event)"
+            [showFirstLastButtons]="true"
+            aria-label="Sélectionnez une page">
+          </mat-paginator>
+        </div>
+      </mat-card>
     }
   }
-
 </div>
