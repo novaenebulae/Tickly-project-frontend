@@ -288,12 +288,7 @@
                     [src]="event.mainPhotoUrl || defaultImage"
                     [alt]="'Image ' + event.name"
                     class="event-thumbnail">
-                  <div class="status-badge">
-                    <mat-chip [color]="getStatusColor(event.status)" class="status-chip">
-                      <mat-icon matChipAvatar>{{ getStatusIcon(event.status) }}</mat-icon>
-                      {{ getStatusText(event.status) }}
-                    </mat-chip>
-                  </div>
+
                 </div>
 
                 <!-- Event Details -->
@@ -310,10 +305,6 @@
                       <mat-icon class="meta-icon">schedule</mat-icon>
                       <span>{{ formatEventDuration(event) }}</span>
                     </div>
-                    <div class="meta-item">
-                      <mat-icon class="meta-icon">place</mat-icon>
-                      <span>{{ event.address?.city || 'Lieu non défini' }}</span>
-                    </div>
                     @if (event.category) {
                       <div class="meta-item">
                         <mat-icon class="meta-icon">category</mat-icon>
@@ -326,6 +317,12 @@
                         <span>Gratuit</span>
                       </div>
                     }
+                    <div class="status-badge">
+                      <mat-chip [color]="getStatusColor(event.status)" class="status-chip">
+                        <mat-icon matChipAvatar>{{ getStatusIcon(event.status) }}</mat-icon>
+                        {{ getStatusText(event.status) }}
+                      </mat-chip>
+                    </div>
                   </div>
 
                   @if (event.shortDescription) {
