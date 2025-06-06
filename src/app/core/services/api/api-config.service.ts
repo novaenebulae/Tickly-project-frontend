@@ -82,7 +82,7 @@ export class ApiConfigService {
    * Checks if mocks are enabled for a specific domain.
    * @param domain - The functional domain (auth, events, structures).
    */
-  isMockEnabledForDomain(domain: 'auth' | 'events' | 'structures' | 'ticketing' | 'friendship'| 'users' | 'stats'): boolean {
+  isMockEnabledForDomain(domain: 'auth' | 'events' | 'structures' | 'ticketing' | 'friendship'| 'users' ): boolean {
     return this.isMockEnabled && APP_CONFIG.mock[domain];
   }
 
