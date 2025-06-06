@@ -17,7 +17,11 @@ import { MatCardModule } from '@angular/material/card';
 import { Subscription } from 'rxjs';
 
 // Importer les dialogues (adapter les chemins)
-import { TeamDetailDialogComponent, TeamDialogResult, TeamDialogData} from './team-detail-dialog/team-detail-dialog.component'; // Renommé
+import {
+  TeamDetailDialogComponent,
+  TeamDialogData,
+  TeamDialogResult
+} from './team-detail-dialog/team-detail-dialog.component'; // Renommé
 import { ConfirmationDialogComponent, ConfirmationDialogData} from '../../../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
 
 // Interfaces

@@ -1,303 +1,324 @@
-<div class="container-lg pt-4 edit-structure-page"> <!-- Container large pour le contenu -->
-
-  <mat-card class="mat-elevation-z2 mb-4">
-    <mat-card-content
-      class="d-flex flex-column justify-content-between align-items-start flex-wrap p-4"
-    >
-        <h1 class="mat-headline-3 mb-1">Édition des Informations de la Structure</h1>
-        <p class="mat-body-3 text-muted w-70 mt-1">
-          Modifiez ou mettez à jour les informations liées à votre structure.
-        </p>
-    </mat-card-content>
-  </mat-card>
-
-    <!-- Indicateur de Chargement Global -->
-    @if (isLoading) {
-        <div class="loading-overlay">
-            <mat-progress-spinner mode="indeterminate" diameter="60"></mat-progress-spinner>
-        </div>
-    }
-
-    <!-- Formulaire Principal -->
-    <form [formGroup]="structureForm" (ngSubmit)="onSubmit()">
-
-        <div class="row justify-content-center">
-            <div class="col-lg-12 col-xl-12"> <!-- Colonne principale pour les cartes -->
-
-                <!-- Carte 1: Identité & Visuels -->
-                <mat-card class="mb-4 mat-elevation-z2 form-section-card">
-                    <mat-card-header class="section-header bg-primary-subtle align-items-center">
-                        <mat-icon mat-card-avatar class="header-icon mb-0">badge</mat-icon>
-                        <mat-card-title class="fs-3">Identité Visuelle</mat-card-title>
-                        <mat-card-subtitle>Nom, type, description et images</mat-card-subtitle>
-                    </mat-card-header>
-                    <mat-card-content class="p-4">
-                        <div class="col g-4">
-                            <!-- Colonne Infos Texte -->
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <mat-form-field appearance="outline" class="w-100 mb-3" subscriptSizing="dynamic">
-                                        <mat-label>Nom de la Structure</mat-label>
-                                        <input matInput formControlName="name" required>
-                                        @if (structureForm.get('name')?.hasError('required') && structureForm.get('name')?.touched) {
-                                            <mat-error>Le nom est obligatoire.</mat-error>
-                                        }
-                                    </mat-form-field>
-
-                                    <mat-form-field appearance="outline" class="w-100 mb-3" subscriptSizing="dynamic">
-                                        <mat-label>Type de Structure</mat-label>
-                                        <mat-select formControlName="structureTypeId" required>
-                                            <!-- Exemple de types, à charger dynamiquement -->
-                                            @for (type of availableStructureTypes; track type.id) {
-                                                <mat-option [value]="type.id">{{ type.name }}</mat-option>
-                                            }
-                                        </mat-select>
-                                        @if (structureForm.get('structureTypeId')?.hasError('required') && structureForm.get('structureTypeId')?.touched) {
-                                            <mat-error>Le type est obligatoire.</mat-error>
-                                        }
-                                    </mat-form-field>
-                                </div>
-                                <div class="col-md-6">
-                                    <mat-form-field appearance="outline" class="w-100 h-100 pb-3"
-                                                    subscriptSizing="dynamic">
-                                        <mat-label>Description / Slogan</mat-label>
-                                        <textarea matInput formControlName="description" matTextareaAutosize
-                                                  matAutosizeMinRows="3"
-                                                  placeholder="Décrivez brièvement votre structure..."></textarea>
-                                    </mat-form-field>
-                                </div>
-
-                            </div>
-
-                            <!-- Colonne Visuels (Logo & Couverture) -->
-                            <div class="row">
-                                <!-- Section Logo -->
-                                <div class="mb-4 image-upload-section col-md-6">
-                                    <h3 class="mat-subheader mb-2">Logo</h3>
-                                    <div class="d-flex flex-column align-items-left gap-3">
-                                        <div class="logo-preview mat-elevation-z4">
-                                            <img [src]="logoPreviewUrl || structureInfo?.logoUrl || defaultImage"
-                                                 alt="Aperçu du logo">
-                                        </div>
-                                        @if (selectedLogoFile) {
-                                            <div class="text-muted small text-truncate mt-1 text-end px-3"
-                                                 matTooltip="{{ selectedLogoFile.name }}">
-                                                {{ selectedLogoFile.name }}
-                                            </div>
-                                        } @else if (structureInfo?.logoUrl) {
-                                            <div class="text-muted small mt-1 text-end px-3">Logo actuel appliqué.</div>
-                                        } @else {
-                                            <div class="text-muted small mt-1 px-3 text-end">Aucun logo sélectionné.</div>
-                                        }
-                                        <div class="d-flex align-items-center gap-2">
-
-                                            <input type="file" #logoInput hidden
-                                                   accept="image/png, image/jpeg, image/webp, image/svg+xml"
-                                                   (change)="onLogoSelected($event)">
-                                            <button type="button" mat-stroked-button color="primary"
-                                                    (click)="logoInput.click()"
-                                                    class="flex-grow-1">
-                                                <mat-icon>upload</mat-icon>
-                                                Choisir un logo
-                                            </button>
-                                            @if (logoPreviewUrl || structureInfo?.logoUrl) {
-                                                <button type="button" mat-icon-button color="warn"
-                                                        (click)="removeLogo()"
-                                                        matTooltip="Supprimer le logo actuel/sélectionné">
-                                                    <mat-icon>delete_outline</mat-icon>
-                                                </button>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Section Couverture -->
-                                <div class="image-upload-section col-md-6">
-                                    <h3 class="mat-subheader mb-2">Photo de Couverture</h3>
-                                    <div class="d-flex flex-column align-items-left gap-3">
-                                        <div class="cover-preview mat-elevation-z4">
-                                            <img [src]="coverPreviewUrl || structureInfo?.coverUrl || defaultImage"
-                                                 alt="Aperçu de la couverture">
-                                        </div>
-                                        <input type="file" #coverInput hidden accept="image/png, image/jpeg, image/webp"
-                                               (change)="onCoverSelected($event)">
-                                        @if (selectedCoverFile) {
-                                            <div class="text-muted small text-truncate mt-1 px-3 text-end"
-                                                 matTooltip="{{ selectedCoverFile.name }}">
-                                                {{ selectedCoverFile.name }}
-                                            </div>
-                                        } @else if (structureInfo?.coverUrl) {
-                                            <div class="text-muted small mt-1 px-3 text-end">Couverture actuelle appliquée.</div>
-                                        } @else {
-                                            <div class="text-muted small mt-1 px-3 text-end">Aucune couverture sélectionnée.</div>
-                                        }
-                                        <div class="d-flex align-items-center gap-2">
-                                            <button type="button" mat-stroked-button color="primary"
-                                                    (click)="coverInput.click()"
-                                                    class="flex-grow-1">
-                                                <mat-icon>upload</mat-icon>
-                                                Choisir une couverture
-                                            </button>
-                                            @if (coverPreviewUrl || structureInfo?.coverUrl) {
-                                                <button type="button" mat-icon-button color="warn"
-                                                        (click)="removeCover()"
-                                                        matTooltip="Supprimer la couverture actuelle/sélectionnée">
-                                                    <mat-icon>delete_outline</mat-icon>
-                                                </button>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </mat-card-content>
-                </mat-card>
-
-                <!-- Carte 2: Localisation -->
-                <mat-card class="mb-4 mat-elevation-z2 form-section-card">
-                    <mat-card-header class="section-header bg-accent-subtle align-items-center">
-                        <mat-icon mat-card-avatar class="header-icon mb-0">location_on</mat-icon>
-                        <mat-card-title class="fs-3">Adresse & Localisation</mat-card-title>
-                    </mat-card-header>
-                    <mat-card-content class="p-4">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-                                    <mat-label>Adresse (Ligne 1)</mat-label>
-                                    <input matInput formControlName="addressLine1" required>
-                                    @if (structureForm.get('addressLine1')?.hasError('required') && structureForm.get('addressLine1')?.touched) {
-                                        <mat-error>L'adresse est obligatoire.</mat-error>
-                                    }
-                                </mat-form-field>
-                            </div>
-                            <div class="col-12">
-                                <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-                                    <mat-label>Adresse (Ligne 2 - Optionnel)</mat-label>
-                                    <input matInput formControlName="addressLine2">
-                                </mat-form-field>
-                            </div>
-                            <div class="col-md-4">
-                                <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-                                    <mat-label>Code Postal</mat-label>
-                                    <input matInput formControlName="zipCode" required>
-                                    @if (structureForm.get('zipCode')?.hasError('required') && structureForm.get('zipCode')?.touched) {
-                                        <mat-error>Code postal obligatoire.</mat-error>
-                                    }
-                                </mat-form-field>
-                            </div>
-                            <div class="col-md-4">
-                                <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-                                    <mat-label>Ville</mat-label>
-                                    <input matInput formControlName="city" required>
-                                    @if (structureForm.get('city')?.hasError('required') && structureForm.get('city')?.touched) {
-                                        <mat-error>Ville obligatoire.</mat-error>
-                                    }
-                                </mat-form-field>
-                            </div>
-                            <div class="col-md-4">
-                                <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-                                    <mat-label>Pays</mat-label>
-                                    <input matInput formControlName="country" required>
-                                    <!-- Ou utiliser un mat-select -->
-                                    @if (structureForm.get('country')?.hasError('required') && structureForm.get('country')?.touched) {
-                                        <mat-error>Pays obligatoire.</mat-error>
-                                    }
-                                </mat-form-field>
-                            </div>
-                        </div>
-                    </mat-card-content>
-                </mat-card>
-
-                <!-- Carte 3: Contact & Liens -->
-                <mat-card class="mb-4 mat-elevation-z2 form-section-card">
-                    <mat-card-header class="section-header bg-warn-subtle align-items-center">
-                        <mat-icon mat-card-avatar class="header-icon mb-0">contact_page</mat-icon>
-                        <mat-card-title class="fs-3">Contact & Présence en ligne</mat-card-title>
-                    </mat-card-header>
-                    <mat-card-content class="p-4">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-                                    <mat-label>Téléphone Principal</mat-label>
-                                    <input matInput type="tel" formControlName="phone" placeholder="+33 X XX XX XX XX">
-                                    <mat-icon matPrefix class="icon-muted me-2">phone</mat-icon>
-                                </mat-form-field>
-                            </div>
-                            <div class="col-md-6">
-                                <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-                                    <mat-label>Email Public</mat-label>
-                                    <input matInput type="email" formControlName="publicEmail"
-                                           placeholder="contact@exemple.com">
-                                    <mat-icon matPrefix class="icon-muted me-2">email</mat-icon>
-                                    @if (structureForm.get('publicEmail')?.hasError('email') && structureForm.get('publicEmail')?.touched) {
-                                        <mat-error>Format d'email invalide.</mat-error>
-                                    }
-                                </mat-form-field>
-                            </div>
-                            <div class="col-12">
-                                <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-                                    <mat-label>Site Web</mat-label>
-                                    <input matInput type="url" formControlName="websiteUrl"
-                                           placeholder="https://www.votresite.com">
-                                    <mat-icon matPrefix class="icon-muted me-2">language</mat-icon>
-                                </mat-form-field>
-                            </div>
-                            <!-- Section Réseaux Sociaux -->
-                            <div class="col-12"><h3 class="mat-subheader mb-0 mt-2">Réseaux Sociaux (Optionnel)</h3>
-                            </div>
-                            <div class="col-md-6">
-                                <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-                                    <mat-label>Lien Facebook</mat-label>
-                                    <span matPrefix class="social-icon-prefix">
-                    <img src="logos/facebook.svg" alt="" class="social-icon">
-
-                  </span>
-                                    <input matInput formControlName="facebookUrl"
-                                           placeholder="https://facebook.com/votrepage">
-                                </mat-form-field>
-                            </div>
-                            <div class="col-md-6">
-                                <mat-form-field appearance="outline" class="w-100" subscriptSizing="dynamic">
-                                    <mat-label>Lien Instagram</mat-label>
-                                    <span matPrefix class="social-icon-prefix">
-                          <img src="logos/instagram.svg" alt="" class="social-icon">
-                      </span>
-                                    <input matInput formControlName="instagramUrl"
-                                           placeholder="https://instagram.com/votrecompte">
-                                </mat-form-field>
-                            </div>
-                            <!-- Ajouter d'autres réseaux si besoin (Twitter/X, LinkedIn...) -->
-                        </div>
-                    </mat-card-content>
-                </mat-card>
-
+<div class="structure-edit-container">
+  <!-- En-tête avec breadcrumb et actions -->
+  <div class="header-section">
+    <mat-card class="header-card">
+      <mat-card-content>
+        <div class="header-content">
+          <div class="breadcrumb-section">
+            <button mat-icon-button (click)="goBack()" class="back-button">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+            <div class="breadcrumb">
+              <span class="breadcrumb-item">Administration</span>
+              <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+              <span class="breadcrumb-item">Structure</span>
+              <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+              <span class="breadcrumb-item current">Édition</span>
             </div>
-        </div>
+          </div>
 
-        <!-- Barre d'Actions Fixe -->
-        <div class="action-bar">
-            <div class="container-lg pb-3"> <!-- Correspond au container de la page -->
-                <div class="row">
-                    <div class="d-flex justify-content-end gap-2 align-items-center">
-                        <!-- Colonne correspondante -->
-                        <button type="button" mat-stroked-button (click)="onCancel()" class="bg-white">Annuler</button>
-                        <button type="submit" mat-flat-button color="primary" class="align-items-center d-flex"
-                                [disabled]="structureForm.invalid || isSaving">
-                            <ng-container>
-                                @if (isSaving) {
-                                    <mat-progress-spinner diameter="20" mode="indeterminate"
-                                                          class="d-inline-block me-2"></mat-progress-spinner>
-                                    <span>Sauvegarde...</span>
-                                } @else {
-                                    <mat-icon>save</mat-icon>
-                                    <span class="button_label mx-2">Enregistrer</span>
-                                }
-                            </ng-container>
-                        </button>
-                    </div>
+          <div class="header-info">
+            <h1 class="page-title">
+              <mat-icon class="title-icon">business</mat-icon>
+              Modifier les informations de la structure
+            </h1>
+            <p class="page-subtitle">
+              Gérez les informations générales, l'adresse et la présence en ligne de votre structure
+            </p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Indicateur de chargement global -->
+  <div *ngIf="isLoading() || isStructureLoading()" class="loading-section">
+    <mat-card class="loading-card">
+      <mat-card-content class="loading-content">
+        <mat-progress-spinner mode="indeterminate" diameter="40" color="primary"></mat-progress-spinner>
+        <p>Chargement des informations de la structure...</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="errorLoading() && !isLoading() && !isStructureLoading()" class="error-section">
+    <mat-card class="error-card">
+      <mat-card-content class="error-content">
+        <mat-icon class="error-icon">error</mat-icon>
+        <h3>Erreur de chargement</h3>
+        <p>{{ errorLoading() }}</p>
+        <button mat-raised-button color="primary" (click)="loadInitialData()">
+          <mat-icon>refresh</mat-icon>
+          Réessayer
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Formulaire d'édition -->
+  <div *ngIf="!isLoading() && !isStructureLoading() && currentStructure() && !errorLoading()" class="form-section">
+    <form [formGroup]="structureForm" (ngSubmit)="onSave()">
+
+      <!-- Section A: Informations générales -->
+      <mat-card class="form-card general-info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="section-icon">info</mat-icon>
+            Informations générales
+          </mat-card-title>
+          <mat-card-subtitle>
+            Nom, types et description de votre structure
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nom de la structure *</mat-label>
+              <input matInput formControlName="name" placeholder="Nom de votre structure">
+              <mat-icon matSuffix>business</mat-icon>
+              <mat-error>{{ getFieldErrorMessage('name') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Types de structure *</mat-label>
+              <mat-select formControlName="typeIds" multiple>
+                <mat-option
+                  *ngFor="let type of structureTypes()"
+                  [value]="type.id">
+                  {{ type.name }}
+                </mat-option>
+              </mat-select>
+              <mat-hint>Vous pouvez sélectionner plusieurs types</mat-hint>
+              <mat-error>{{ getFieldErrorMessage('typeIds') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Description</mat-label>
+              <textarea
+                matInput
+                formControlName="description"
+                rows="4"
+                placeholder="Décrivez votre structure, ses activités...">
+              </textarea>
+              <mat-hint>Maximum 1000 caractères</mat-hint>
+              <mat-error>{{ getFieldErrorMessage('description') }}</mat-error>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Section B: Adresse -->
+      <mat-card class="form-card address-card" formGroupName="address">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="section-icon">location_on</mat-icon>
+            Adresse
+          </mat-card-title>
+          <mat-card-subtitle>
+            Localisation physique de votre structure
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Pays *</mat-label>
+              <input matInput formControlName="country" placeholder="France">
+              <mat-icon matSuffix>public</mat-icon>
+              <mat-error>{{ getFieldErrorMessage('address.country') }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Ville *</mat-label>
+              <input matInput formControlName="city" placeholder="Paris">
+              <mat-icon matSuffix>location_city</mat-icon>
+              <mat-error>{{ getFieldErrorMessage('address.city') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="three-quarter-width">
+              <mat-label>Rue *</mat-label>
+              <input matInput formControlName="street" placeholder="123 Rue de la République">
+              <mat-icon matSuffix>home</mat-icon>
+              <mat-error>{{ getFieldErrorMessage('address.street') }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="quarter-width">
+              <mat-label>Code postal</mat-label>
+              <input matInput formControlName="zipCode" placeholder="75001">
+              <mat-error>{{ getFieldErrorMessage('address.zipCode') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Complément d'adresse</mat-label>
+              <input matInput formControlName="number" placeholder="Bâtiment A, Étage 2...">
+              <mat-icon matSuffix>info</mat-icon>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Section C: Contact -->
+      <mat-card class="form-card contact-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="section-icon">contact_phone</mat-icon>
+            Informations de contact
+          </mat-card-title>
+          <mat-card-subtitle>
+            Moyens de contacter votre structure
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Téléphone</mat-label>
+              <input matInput formControlName="phone" placeholder="+33 1 23 45 67 89">
+              <mat-icon matSuffix>phone</mat-icon>
+              <mat-error>{{ getFieldErrorMessage('phone') }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Email</mat-label>
+              <input matInput type="email" formControlName="email" placeholder="contact@structure.com">
+              <mat-icon matSuffix>email</mat-icon>
+              <mat-error>{{ getFieldErrorMessage('email') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Site web</mat-label>
+              <input matInput formControlName="websiteUrl" placeholder="https://www.structure.com">
+              <mat-icon matSuffix>language</mat-icon>
+              <mat-error>{{ getFieldErrorMessage('websiteUrl') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- URLs sociales -->
+          <div class="socials-section">
+            <h4>Réseaux sociaux</h4>
+            <div formArrayName="socialsUrl">
+              <div *ngFor="let social of socialsUrlArray.controls; let i = index" class="social-url-row">
+                <mat-form-field appearance="outline" class="social-url-field">
+                  <mat-label>URL réseau social {{ i + 1 }}</mat-label>
+                  <input matInput [formControlName]="i" placeholder="https://www.facebook.com/structure">
+                  <mat-icon matSuffix>share</mat-icon>
+                </mat-form-field>
+                <button type="button" mat-icon-button color="warn" (click)="removeSocialUrl(i)" class="remove-social-btn">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+            <button type="button" mat-stroked-button (click)="addSocialUrl()" class="add-social-btn">
+              <mat-icon>add</mat-icon>
+              Ajouter un réseau social
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Section D: Médias -->
+      <mat-card class="form-card media-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="section-icon">image</mat-icon>
+            Images et médias
+          </mat-card-title>
+          <mat-card-subtitle>
+            Logo et image de couverture de votre structure
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <div class="media-row">
+            <div class="media-item">
+              <h4>Logo</h4>
+              <p class="media-description">
+                Image principale de votre structure (recommandé: carré, 400x400px)
+              </p>
+
+              <div class="image-upload-section">
+                <div class="image-preview" *ngIf="logoPreviewUrl">
+                  <img [src]="logoPreviewUrl" alt="Aperçu du logo" class="preview-image">
+                  <button type="button" mat-icon-button color="warn" (click)="removeImage('logo')" class="remove-image-btn">
+                    <mat-icon>delete</mat-icon>
+                  </button>
                 </div>
+
+                <div class="upload-controls">
+                  <input type="file" #logoInput (change)="onLogoFileSelected($event)" accept="image/*" style="display: none;">
+                  <button type="button" mat-stroked-button (click)="logoInput.click()">
+                    <mat-icon>upload</mat-icon>
+                    {{ logoPreviewUrl ? 'Changer' : 'Ajouter' }} le logo
+                  </button>
+                </div>
+              </div>
             </div>
-        </div>
+
+            <div class="media-item">
+              <h4>Image de couverture</h4>
+              <p class="media-description">
+                Image d'arrière-plan pour votre structure (recommandé: 1920x600px)
+              </p>
+
+              <div class="image-upload-section">
+                <div class="image-preview" *ngIf="coverPreviewUrl">
+                  <img [src]="coverPreviewUrl" alt="Aperçu de la couverture" class="preview-image cover-preview">
+                  <button type="button" mat-icon-button color="warn" (click)="removeImage('cover')" class="remove-image-btn">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+
+                <div class="upload-controls">
+                  <input type="file" #coverInput (change)="onCoverFileSelected($event)" accept="image/*" style="display: none;">
+                  <button type="button" mat-stroked-button (click)="coverInput.click()">
+                    <mat-icon>upload</mat-icon>
+                    {{ coverPreviewUrl ? 'Changer' : 'Ajouter' }} l'image de couverture
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Actions du formulaire -->
+      <div class="form-actions">
+        <mat-card class="actions-card">
+          <mat-card-content>
+            <div class="actions-row">
+              <button type="button" mat-stroked-button (click)="onCancel()" [disabled]="isSaving()">
+                <mat-icon>cancel</mat-icon>
+                Annuler
+              </button>
+
+              <div class="save-actions">
+                <button
+                  type="submit"
+                  mat-raised-button
+                  color="primary"
+                  [disabled]="!isFormValid || isSaving()">
+                  <mat-icon *ngIf="!isSaving()">save</mat-icon>
+                  <mat-progress-spinner *ngIf="isSaving()" diameter="20"></mat-progress-spinner>
+                  {{ isSaving() ? 'Sauvegarde...' : 'Sauvegarder les modifications' }}
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
 
     </form>
+  </div>
 </div>

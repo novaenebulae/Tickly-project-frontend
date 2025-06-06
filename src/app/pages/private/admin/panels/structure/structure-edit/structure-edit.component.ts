@@ -1,10 +1,10 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import {Subscription, of, throwError, Observable, forkJoin, switchMap} from 'rxjs';
-import { finalize, catchError, delay, tap } from 'rxjs/operators';
-import { Location } from '@angular/common'; // Pour le bouton Annuler/Retour
+import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Subscription, Observable, of } from 'rxjs';
+import { finalize, catchError, tap } from 'rxjs/operators';
+import { Location } from '@angular/common';
 
 // Importation des Modules Angular Material
 import { MatCardModule } from '@angular/material/card';
@@ -16,77 +16,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-// Importez MatTextareaAutosize si vous l'utilisez (souvent via TextFieldModule)
+import { MatChipsModule } from '@angular/material/chips';
 import { TextFieldModule } from '@angular/cdk/text-field';
 
-
-// --- Interfaces (Ajustez selon votre modèle de données réel) ---
-interface StructureInfo {
-  id: number;
-  name: string;
-  structureTypeId: number | null;
-  description?: string;
-  logoUrl?: string | null;   // Peut être null si supprimé
-  coverUrl?: string | null; // Peut être null si supprimé
-  addressLine1?: string;
-  addressLine2?: string;
-  zipCode?: string;
-  city?: string;
-  country?: string;
-  phone?: string;
-  publicEmail?: string;
-  websiteUrl?: string;
-  facebookUrl?: string;
-  instagramUrl?: string;
-  // Ajoutez d'autres champs si nécessaire (Twitter/X, LinkedIn...)
-}
-
-interface StructureType {
-  id: number;
-  name: string;
-}
-
-// --- Services (Simulés, remplacez par vos vrais services) ---
-// import { StructureService } from 'src/app/core/services/structure.service';
-// import { FileUploadService } from 'src/app/core/services/file-upload.service'; // Si vous avez un service dédié
-
-// Mocks
-const mockStructureService = {
-  getStructureInfo: (id: number) => of<StructureInfo>({
-    id: 1, name: 'Le Phare Éclectique', structureTypeId: 2,
-    description: 'Un lieu unique pour des expériences culturelles variées.',
-    logoUrl: '', coverUrl: '',
-    addressLine1: '123 Rue des Lumières', addressLine2: '', zipCode: '57000', city: 'Métropole Fictive', country: 'France',
-    phone: '+33 1 23 45 67 89', publicEmail: 'contact@lephare.example', websiteUrl: 'https://lephare.example',
-    facebookUrl: 'https://facebook.com/lephare', instagramUrl: 'https://instagram.com/lephare'
-  }).pipe(delay(800), tap(() => console.log('Mock: Structure Info Loaded'))),
-
-  updateStructureInfo: (id: number, data: Partial<StructureInfo>) => {
-    console.log('Mock: Update Structure Info Payload:', data);
-    // Simuler une erreur occasionnelle
-    if (Math.random() < 0.1) {
-      return throwError(() => new Error('Erreur serveur simulée')).pipe(delay(1200));
-    }
-    // Retourne les données mises à jour (ici juste un écho partiel)
-    return of<Partial<StructureInfo>>({ ...data, id: id }).pipe(delay(1200), tap(() => console.log('Mock: Structure Info Updated')));
-  },
-
-  getAvailableStructureTypes: () => of<StructureType[]>([
-    { id: 1, name: 'Salle de concert' }, { id: 2, name: 'Théâtre' }, { id: 3, name: 'Centre de conférence' },
-    { id: 4, name: 'Espace polyvalent' }, { id: 5, name: 'Bar / Club' }, { id: 99, name: 'Autre' }
-  ]).pipe(delay(300), tap(() => console.log('Mock: Structure Types Loaded')))
-};
-
-// Simulation simple pour FileUploadService
-const mockFileUploadService = {
-  // Simule l'upload et retourne une URL fictive
-  uploadFile: (file: File, type: 'logo' | 'cover') => {
-    console.log(`Mock: Uploading ${type}: ${file.name}`);
-    const randomId = Math.random().toString(36).substring(7);
-    return of(`assets/uploads/${type}-${randomId}.${file.name.split('.').pop()}`).pipe(delay(1500));
-  }
-};
-
+import { StructureService } from '../../../../../../core/services/domain/structure/structure.service';
+import { UserStructureService } from '../../../../../../core/services/domain/user-structure/user-structure.service';
+import { NotificationService } from '../../../../../../core/services/domain/utilities/notification.service';
+import { StructureModel, StructureUpdateDto } from '../../../../../../core/models/structure/structure.model';
+import { StructureTypeModel } from '../../../../../../core/models/structure/structure-type.model';
+import { StructureAddressModel } from '../../../../../../core/models/structure/structure-address.model';
 
 @Component({
   selector: 'app-structure-edit',
@@ -94,30 +32,38 @@ const mockFileUploadService = {
   imports: [
     CommonModule, ReactiveFormsModule, MatCardModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatTooltipModule, MatSnackBarModule, TextFieldModule // Pour matTextareaAutosize
+    MatTooltipModule, MatSnackBarModule, MatChipsModule, TextFieldModule
   ],
   templateUrl: './structure-edit.component.html',
   styleUrls: ['./structure-edit.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StructureEditComponent implements OnInit, OnDestroy {
 
   // --- Injections ---
   private fb = inject(FormBuilder);
   private router = inject(Router);
-  private location = inject(Location); // Pour le bouton Annuler/Retour
+  private location = inject(Location);
   private cdRef = inject(ChangeDetectorRef);
   private snackBar = inject(MatSnackBar);
-  // Remplacer par vrais services
-  private structureService = mockStructureService;
-  private fileUploadService = mockFileUploadService;
+  private structureService = inject(StructureService);
+  private userStructureService = inject(UserStructureService);
+  private notificationService = inject(NotificationService);
 
-  // --- État du Composant ---
+  // --- Signals pour la gestion d'état ---
+  private isLoadingSig = signal(false);
+  private isSavingSig = signal(false);
+  private errorLoadingSig = signal<string | null>(null);
+
+  // Signals pour les données
+  public readonly isLoading = computed(() => this.isLoadingSig());
+  public readonly isSaving = computed(() => this.isSavingSig());
+  public readonly errorLoading = computed(() => this.errorLoadingSig());
+  public readonly currentStructure = this.userStructureService.userStructure;
+  public readonly structureTypes = this.structureService.structureTypes;
+
+  // État du formulaire
   structureForm: FormGroup;
-  structureInfo: StructureInfo | null = null; // Infos actuelles chargées
-  availableStructureTypes: StructureType[] = []; // Pour le select
-  isLoading: boolean = true; // Chargement initial des données
-  isSaving: boolean = false; // Sauvegarde en cours
-  errorLoading: string | null = null;
 
   // Gestion des fichiers et aperçus
   logoPreviewUrl: string | null = null;
@@ -130,231 +76,294 @@ export class StructureEditComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
 
   constructor() {
-    // Initialisation du formulaire (vide au début)
-    this.structureForm = this.fb.group({
-      name: ['', Validators.required],
-      structureTypeId: [null, Validators.required],
-      description: [''],
-      addressLine1: ['', Validators.required],
-      addressLine2: [''],
-      zipCode: ['', Validators.required],
-      city: ['', Validators.required],
-      country: ['', Validators.required],
-      phone: [''],
-      publicEmail: ['', Validators.email], // Validation email
-      websiteUrl: ['', Validators.pattern(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/)], // Validation URL simple
-      facebookUrl: ['', Validators.pattern(/^(https?:\/\/)?(www\.)?facebook\.com\/[\w.-]+\/?$/)],
-      instagramUrl: ['', Validators.pattern(/^(https?:\/\/)?(www\.)?instagram\.com\/[\w.-]+\/?$/)],
-      // Ajouter d'autres réseaux si besoin
-    });
+    this.structureForm = this.createStructureForm();
   }
 
   ngOnInit(): void {
-    this.loadInitialData(); // Charger types et infos structure
+    this.loadInitialData();
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.unsubscribe(); // Nettoyer les abonnements
+    this.subscriptions.unsubscribe();
   }
 
-  // --- Chargement des Données Initiales ---
-  loadInitialData(): void {
-    this.isLoading = true;
-    this.errorLoading = null;
-    this.cdRef.markForCheck();
-
-    const structureId = 1; // TODO: Obtenir l'ID de la structure actuelle (ex: depuis la route ou un service)
-
-    // Charger les types de structure ET les informations actuelles en parallèle
-    const loadSub = forkJoin({
-      types: this.structureService.getAvailableStructureTypes(),
-      info: this.structureService.getStructureInfo(structureId)
-    }).pipe(
-      finalize(() => {
-        this.isLoading = false;
-        this.cdRef.markForCheck();
+  // --- Création du formulaire ---
+  private createStructureForm(): FormGroup {
+    return this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      typeIds: [[], Validators.required], // Array d'IDs pour les types
+      description: [''],
+      address: this.fb.group({
+        country: ['', Validators.required],
+        city: ['', Validators.required],
+        street: ['', Validators.required],
+        number: [''],
+        zipCode: ['']
       }),
-      catchError(err => {
-        console.error("Erreur chargement données initiales:", err);
-        this.errorLoading = "Impossible de charger les informations de la structure.";
-        return throwError(() => err); // Propage l'erreur
-      })
-    ).subscribe(results => {
-      this.availableStructureTypes = results.types;
-      this.structureInfo = results.info;
-      this.patchForm(); // Remplir le formulaire avec les données chargées
+      phone: [''],
+      email: ['', Validators.email],
+      websiteUrl: ['', this.urlValidator()],
+      socialsUrl: this.fb.array([]), // FormArray pour les URLs sociales
+      logoUrl: [''],
+      coverUrl: ['']
     });
-    this.subscriptions.add(loadSub);
   }
 
-  // Remplir le formulaire avec les données de structureInfo
-  patchForm(): void {
-    if (this.structureInfo) {
-      this.structureForm.patchValue({
-        name: this.structureInfo.name,
-        structureTypeId: this.structureInfo.structureTypeId,
-        description: this.structureInfo.description,
-        addressLine1: this.structureInfo.addressLine1,
-        addressLine2: this.structureInfo.addressLine2,
-        zipCode: this.structureInfo.zipCode,
-        city: this.structureInfo.city,
-        country: this.structureInfo.country,
-        phone: this.structureInfo.phone,
-        publicEmail: this.structureInfo.publicEmail,
-        websiteUrl: this.structureInfo.websiteUrl,
-        facebookUrl: this.structureInfo.facebookUrl,
-        instagramUrl: this.structureInfo.instagramUrl,
-      });
-      // Important: Marquer comme non modifié après patch initial
-      this.structureForm.markAsPristine();
-      this.cdRef.markForCheck(); // Mettre à jour la vue
-    }
+  // --- Getters pour accéder aux contrôles du formulaire ---
+  get socialsUrlArray(): FormArray {
+    return this.structureForm.get('socialsUrl') as FormArray;
   }
 
-  // --- Gestion des Uploads d'Images ---
-  onLogoSelected(event: Event): void {
-    const element = event.currentTarget as HTMLInputElement;
-    const file = element.files?.[0];
-    if (file) {
-      this.selectedLogoFile = file;
-      // Générer l'aperçu
-      const reader = new FileReader();
-      reader.onload = e => {
-        this.logoPreviewUrl = reader.result as string;
-        this.cdRef.markForCheck(); // Mettre à jour l'aperçu
-      };
-      reader.readAsDataURL(file);
-    }
-    element.value = ''; // Permet de resélectionner le même fichier
+  get addressGroup(): FormGroup {
+    return this.structureForm.get('address') as FormGroup;
   }
 
-  removeLogo(): void {
-    this.selectedLogoFile = null;
-    this.logoPreviewUrl = null;
-    // Indiquer que le logo doit être supprimé côté serveur si un logo existait
-    // (On pourrait ajouter un flag au formulaire ou une méthode dédiée)
-    console.log("TODO: Marquer le logo pour suppression côté serveur si nécessaire");
-    this.structureForm.markAsDirty(); // Marquer comme modifié
-    this.cdRef.markForCheck();
-  }
+  // --- Chargement des données initiales ---
+  protected loadInitialData(): void {
+    this.isLoadingSig.set(true);
+    this.errorLoadingSig.set(null);
 
-  onCoverSelected(event: Event): void {
-    const element = event.currentTarget as HTMLInputElement;
-    const file = element.files?.[0];
-    if (file) {
-      this.selectedCoverFile = file;
-      const reader = new FileReader();
-      reader.onload = e => {
-        this.coverPreviewUrl = reader.result as string;
-        this.cdRef.markForCheck();
-      };
-      reader.readAsDataURL(file);
-    }
-    element.value = '';
-  }
+    // Récupérer la structure utilisateur depuis le signal
+    const userStructure = this.currentStructure();
 
-  removeCover(): void {
-    this.selectedCoverFile = null;
-    this.coverPreviewUrl = null;
-    console.log("TODO: Marquer la couverture pour suppression côté serveur si nécessaire");
-    this.structureForm.markAsDirty();
-    this.cdRef.markForCheck();
-  }
-
-  // --- Actions du Formulaire ---
-  onSubmit(): void {
-    if (this.structureForm.invalid || this.isSaving) {
-      this.structureForm.markAllAsTouched(); // Affiche les erreurs si soumission invalide
-      return;
-    }
-    if (this.structureForm.pristine && !this.selectedLogoFile && !this.selectedCoverFile) {
-      this.snackBar.open("Aucune modification détectée.", "OK", { duration: 3000 });
-      return; // Rien à sauvegarder
-    }
-
-    this.isSaving = true;
-    this.cdRef.markForCheck();
-
-    const structureId = this.structureInfo?.id; // Récupère l'ID
-    if (!structureId) {
-      console.error("ID de structure manquant !");
-      this.isSaving = false;
+    if (userStructure) {
+      this.populateForm(userStructure);
+      this.setupImagePreviews(userStructure);
+      this.isLoadingSig.set(false);
       this.cdRef.markForCheck();
+    } else if (userStructure === null) {
+      this.errorLoadingSig.set('Aucune structure associée à votre compte.');
+      this.isLoadingSig.set(false);
+      this.cdRef.markForCheck();
+    } else {
+      // userStructure === undefined, donc en cours de chargement
+      // Attendre un peu et vérifier à nouveau
+      setTimeout(() => {
+        const structure = this.currentStructure();
+        if (structure) {
+          this.populateForm(structure);
+          this.setupImagePreviews(structure);
+        } else if (structure === null) {
+          this.errorLoadingSig.set('Aucune structure associée à votre compte.');
+        }
+        this.isLoadingSig.set(false);
+        this.cdRef.markForCheck();
+      }, 1000);
+    }
+  }
+
+  // --- Population du formulaire avec les données existantes ---
+  private populateForm(structure: StructureModel): void {
+    // Types - extraire les IDs
+    const typeIds = structure.types?.map(type => type.id) || [];
+
+    // URLs sociales
+    this.populateSocialsArray(structure.socialsUrl || []);
+
+    this.structureForm.patchValue({
+      name: structure.name,
+      typeIds: typeIds,
+      description: structure.description || '',
+      address: {
+        country: structure.address.country,
+        city: structure.address.city,
+        street: structure.address.street,
+        number: structure.address.number || '',
+        zipCode: structure.address.zipCode || ''
+      },
+      phone: structure.phone || '',
+      email: structure.email || '',
+      websiteUrl: structure.websiteUrl || '',
+      logoUrl: structure.logoUrl || '',
+      coverUrl: structure.coverUrl || ''
+    });
+  }
+
+  // --- Gestion des URLs sociales ---
+  private populateSocialsArray(socialsUrl: string[]): void {
+    this.socialsUrlArray.clear();
+    socialsUrl.forEach(url => {
+      this.socialsUrlArray.push(this.fb.control(url, this.urlValidator()));
+    });
+  }
+
+  addSocialUrl(): void {
+    this.socialsUrlArray.push(this.fb.control('', this.urlValidator()));
+  }
+
+  removeSocialUrl(index: number): void {
+    this.socialsUrlArray.removeAt(index);
+  }
+
+  // --- Configuration des aperçus d'images ---
+  private setupImagePreviews(structure: StructureModel): void {
+    this.logoPreviewUrl = structure.logoUrl || null;
+    this.coverPreviewUrl = structure.coverUrl || null;
+  }
+
+  // --- Gestion des fichiers ---
+  onLogoFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.selectedLogoFile = input.files[0];
+      this.previewFile(input.files[0], 'logo');
+    }
+  }
+
+  onCoverFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.selectedCoverFile = input.files[0];
+      this.previewFile(input.files[0], 'cover');
+    }
+  }
+
+  private previewFile(file: File, type: 'logo' | 'cover'): void {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (type === 'logo') {
+        this.logoPreviewUrl = e.target?.result as string;
+      } else {
+        this.coverPreviewUrl = e.target?.result as string;
+      }
+      this.cdRef.markForCheck();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeImage(type: 'logo' | 'cover'): void {
+    if (type === 'logo') {
+      this.logoPreviewUrl = null;
+      this.selectedLogoFile = null;
+      this.structureForm.patchValue({ logoUrl: '' });
+    } else {
+      this.coverPreviewUrl = null;
+      this.selectedCoverFile = null;
+      this.structureForm.patchValue({ coverUrl: '' });
+    }
+  }
+
+  // --- Sauvegarde ---
+  onSubmit(): void {
+    const currentStructure = this.currentStructure();
+
+    if (this.structureForm.invalid || !currentStructure) {
+      this.markFormGroupTouched(this.structureForm);
       return;
     }
 
-    // 1. Gérer les uploads d'images (simulation simple)
-    // Normalement, on uploaderait d'abord, puis on mettrait à jour les infos avec les URL retournées
-    const uploadObservables: { logo?: Observable<string>, cover?: Observable<string> } = {};
-    if (this.selectedLogoFile) {
-      uploadObservables.logo = this.fileUploadService.uploadFile(this.selectedLogoFile, 'logo');
-    }
-    if (this.selectedCoverFile) {
-      uploadObservables.cover = this.fileUploadService.uploadFile(this.selectedCoverFile, 'cover');
-    }
+    this.isSavingSig.set(true);
+    const formValue = this.structureForm.value;
 
-    // Simule l'attente des uploads (ici, juste des observables de strings)
-    const uploadsComplete$ = Object.keys(uploadObservables).length > 0
-      ? forkJoin(uploadObservables)
-      : of({}); // Observable vide si pas d'uploads
+    // Construire l'objet de mise à jour
+    const updateData: StructureUpdateDto = {
+      name: formValue.name,
+      typeIds: formValue.typeIds,
+      description: formValue.description,
+      address: formValue.address as StructureAddressModel,
+      phone: formValue.phone,
+      email: formValue.email,
+      websiteUrl: formValue.websiteUrl,
+      socialsUrl: this.socialsUrlArray.value.filter((url: string) => url.trim()),
+      logoUrl: formValue.logoUrl,
+      coverUrl: formValue.coverUrl
+    };
 
-    const saveSub = uploadsComplete$.pipe(
-      catchError(uploadError => {
-        console.error("Erreur lors de l'upload:", uploadError);
-        this.snackBar.open("Erreur lors de l'upload d'une image.", "Réessayer", { duration: 5000 });
-        return throwError(() => uploadError); // Arrête le flux
-      }),
-      // Après les uploads (ou s'il n'y en avait pas)
-      switchMap((uploadedUrls: { logo?: string, cover?: string }) => {
-        // 2. Préparer les données de mise à jour de la structure
-        const updatedData: Partial<StructureInfo> = {
-          ...this.structureForm.value, // Prend toutes les valeurs du formulaire
-          // Ecrase avec les nouvelles URL si uploadées
-          ...(uploadedUrls.logo && { logoUrl: uploadedUrls.logo }),
-          ...(uploadedUrls.cover && { coverUrl: uploadedUrls.cover }),
-          // TODO: Gérer la suppression d'image (envoyer null ou un flag spécifique)
-          // if (this.logoWasRemoved) updatedData.logoUrl = null;
-          // if (this.coverWasRemoved) updatedData.coverUrl = null;
-        };
-
-        // 3. Appeler le service pour mettre à jour les infos
-        return this.structureService.updateStructureInfo(structureId, updatedData);
-      }),
-      finalize(() => {
-        this.isSaving = false; // Arrêter l'indicateur de sauvegarde
-        this.cdRef.markForCheck(); // Mettre à jour l'UI
+    this.subscriptions.add(
+      this.structureService.updateStructure(currentStructure.id!, updateData).pipe(
+        finalize(() => {
+          this.isSavingSig.set(false);
+          this.cdRef.markForCheck();
+        })
+      ).subscribe({
+        next: (updatedStructure) => {
+          if (updatedStructure) {
+            this.notificationService.displayNotification(
+              'Structure mise à jour avec succès !',
+              'valid'
+            );
+            // Rafraîchir la structure utilisateur
+            this.userStructureService.refreshUserStructure().subscribe();
+          }
+        },
+        error: (error) => {
+          console.error('Erreur lors de la mise à jour:', error);
+        }
       })
-    ).subscribe({
-      next: (updatedInfo) => {
-        console.log("Structure mise à jour avec succès:", updatedInfo);
-        this.structureInfo = { ...this.structureInfo, ...updatedInfo } as StructureInfo; // Mettre à jour les infos locales
-        this.structureForm.markAsPristine(); // Marquer comme non modifié
-        this.selectedLogoFile = null; // Réinitialiser les fichiers sélectionnés
-        this.selectedCoverFile = null;
-        // Garder les previewUrl ou les mettre à jour avec updatedInfo.logo/coverUrl ?
-        // this.logoPreviewUrl = updatedInfo.logoUrl ?? null;
-        // this.coverPreviewUrl = updatedInfo.coverUrl ?? null;
-        this.snackBar.open("Informations de la structure mises à jour !", "OK", { duration: 3000 });
-        // Optionnel: Naviguer en arrière ou rester sur la page
-        // this.location.back();
-      },
-      error: (err) => {
-        console.error("Erreur lors de la sauvegarde:", err);
-        this.snackBar.open("Erreur lors de la sauvegarde des informations.", "Fermer", { duration: 5000 });
-      }
-    });
-    this.subscriptions.add(saveSub);
+    );
   }
 
-  // Annuler les modifications et retourner en arrière
-  onCancel(): void {
-    // Si le formulaire a été modifié, demander confirmation ? (Optionnel)
-    if (this.structureForm.dirty) {
-      if (confirm("Des modifications n'ont pas été enregistrées. Voulez-vous vraiment quitter ?")) {
-        this.location.back(); // Utilise le service Location pour revenir en arrière
-      }
-    } else {
-      this.location.back();
+  // --- Méthodes pour les erreurs de validation ---
+  getFieldErrorMessage(fieldName: string): string {
+    const control = this.structureForm.get(fieldName);
+    if (!control || !control.errors || !control.touched) {
+      return '';
     }
+
+    if (control.errors['required']) {
+      return 'Ce champ est requis';
+    }
+    if (control.errors['minlength']) {
+      return `Minimum ${control.errors['minlength'].requiredLength} caractères`;
+    }
+    if (control.errors['email']) {
+      return 'Format d\'email invalide';
+    }
+    if (control.errors['invalidUrl']) {
+      return 'URL invalide';
+    }
+
+    return 'Champ invalide';
+  }
+
+  // --- Utilitaires ---
+  private markFormGroupTouched(formGroup: FormGroup): void {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      } else {
+        control?.markAsTouched();
+      }
+    });
+  }
+
+  private urlValidator() {
+    return (control: any) => {
+      if (!control.value) return null;
+      const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+      return urlPattern.test(control.value) ? null : { invalidUrl: true };
+    };
+  }
+
+  // --- Actions de navigation ---
+  onCancel(): void {
+    this.location.back();
+  }
+
+  goBack(): void {
+    this.location.back();
+  }
+
+  goToStructurePanel(): void {
+    this.router.navigate(['/admin/structure']);
+  }
+
+  // --- Getters pour le template ---
+  get isFormValid(): boolean {
+    return this.structureForm.valid;
+  }
+
+  get hasStructureData(): boolean {
+    return !!this.currentStructure();
+  }
+
+  // Méthodes helper pour le template
+  isStructureLoading(): boolean {
+    return this.userStructureService.isLoading();
+  }
+
+  onSave(): void {
+    this.onSubmit();
   }
 }
