@@ -12,6 +12,7 @@ import {catchError, tap} from 'rxjs/operators';
 import {StructureAreaModel} from '../../../models/structure/structure-area.model';
 import {EventModel} from '../../../models/event/event.model';
 import {EventService} from '../event/event.service';
+import {UserRole} from '../../../models/user/user-role.enum';
 
 
 /**
@@ -168,6 +169,50 @@ export class UserStructureService {
     const userStructure = this.userStructureSig();
     return userStructure?.id === structureId;
   }
+
+
+  // /**
+  //  * Relie un utilisateur à une structure avec un rôle spécifique.
+  //  * @param email - L'email de l'utilisateur à relier
+  //  * @param role - Le nouveau rôle à assigner à l'utilisateur
+  //  * @returns Observable du résultat de l'opération
+  //  */
+  // linkUserToStructure(email: string, role: UserRole): Observable<any> {
+  //   const userProfile = this.userService.currentUserProfileData();
+  //
+  //   if (!userProfile?.structureId) {
+  //     this.notification.displayNotification(
+  //       'Aucune structure associée à votre compte.',
+  //       'error'
+  //     );
+  //     return of(null);
+  //   }
+  //
+  //   // Création du DTO pour l'API
+  //   const linkUserDto = {
+  //     email: email,
+  //     role: role,
+  //     structureId: userProfile.structureId
+  //   };
+  //
+  //   // Appel à l'API via le UserApiService pour relier l'utilisateur
+  //   return this.userService.linkUserToStructure(linkUserDto).pipe(
+  //     tap(result => {
+  //       if (result) {
+  //         this.notification.displayNotification(
+  //           'Utilisateur relié à la structure avec succès !',
+  //           'valid'
+  //         );
+  //         // Optionnel : rafraîchir les données de la structure si nécessaire
+  //         this.loadUserStructure(true).subscribe();
+  //       }
+  //     }),
+  //     catchError(error => {
+  //       this.notification.displayNotification('Impossible de relier l\'utilisateur à la structure.', 'error');
+  //       return of(null);
+  //     })
+  //   );
+  // }
 
 
 }

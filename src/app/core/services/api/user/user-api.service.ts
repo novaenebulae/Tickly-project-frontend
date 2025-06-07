@@ -16,6 +16,7 @@ import { APP_CONFIG } from '../../../config/app-config';
 import { UserModel } from '../../../models/user/user.model';
 import { UserProfileUpdateDto } from '../../../models/user/user-profile-update.dto';
 import {FavoriteStructureDto, UserFavoriteStructureModel} from '../../../models/user/user-favorite-structure.model';
+import {Role, TeamMember} from '../../../models/user/team-member.model';
 
 @Injectable({
   providedIn: 'root'
@@ -208,6 +209,7 @@ export class UserApiService {
       map(response => response?.isFavorite ?? false)
     );
   }
+
 
 
   /**

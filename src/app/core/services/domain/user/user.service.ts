@@ -17,6 +17,7 @@ import {NotificationService} from '../utilities/notification.service';
 import {UserModel} from '../../../models/user/user.model';
 import {UserProfileUpdateDto} from '../../../models/user/user-profile-update.dto';
 import {UserFavoriteStructureModel} from '../../../models/user/user-favorite-structure.model';
+import {UserRole} from '../../../models/user/user-role.enum';
 
 // ChangePasswordDto is removed as this logic will be in AuthService
 
@@ -233,6 +234,29 @@ export class UserService {
       })
     );
   }
+
+  // /**
+  //  * Relie un utilisateur à une structure avec un rôle spécifique.
+  //  * @param linkUserDto - DTO contenant email, rôle et ID de structure
+  //  * @returns Observable du résultat de l'opération
+  //  */
+  // linkUserToStructure(linkUserDto: { email: string, role: UserRole, structureId: number }): Observable<any> {
+  //   return this.userApi.linkUserToStructure(linkUserDto).pipe(
+  //     tap(result => {
+  //       if (result) {
+  //         // Optionnel : mettre à jour le cache si nécessaire
+  //         console.log('Utilisateur relié avec succès:', result);
+  //       }
+  //     }),
+  //     catchError(error => {
+  //       this.notification.displayNotification(
+  //         error.message || "Impossible de relier l'utilisateur à la structure.",
+  //         'error'
+  //       );
+  //       return of(undefined);
+  //     })
+  //   );
+  // }
 
   /**
    * Generates a placeholder avatar URL based on the user's initials with caching.

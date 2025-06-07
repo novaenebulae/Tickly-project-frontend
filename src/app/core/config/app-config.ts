@@ -48,6 +48,13 @@ interface AppConfig {
         requestAction: (friendshipId: number | string) => string; // PUT/DELETE for accept/reject/cancel/block
         friendsAttendingEvent: (eventId: number | string) => string; // GET friends for an event
       };
+      team: {
+        structure: (structureId: number | string) => string; // e.g., `team/structure/${structureId}`
+        roles: string;                                       // e.g., 'team/roles'
+        invite: string;                                      // e.g., 'team/invite'
+        member: (memberId: number | string) => string;      // e.g., `team/member/${memberId}`
+        myRole: string;                                      // e.g., 'team/me/role'
+      };
       ticketing: {
         reservations: string;  // POST to create a new reservation (batch of tickets)
         myTickets: string;     // GET tickets for the current user
@@ -66,6 +73,7 @@ interface AppConfig {
     structures: boolean;
     users: boolean;
     friendship: boolean;
+    team: boolean;
     ticketing: boolean;
   };
   auth: {
@@ -134,6 +142,13 @@ export const APP_CONFIG: AppConfig = {
         updateProfile: 'users/me',
         search: 'users/search',
       },
+      team: {
+        structure: (structureId: number | string) => `team/structure/${structureId}`,
+        roles: 'team/roles',
+        invite: 'team/invite',
+        member: (memberId: number | string) => `team/member/${memberId}`,
+        myRole: 'team/me/role'
+      },
       friendship: {
         base: 'friendships', // GET list of FriendModel
         requests: 'friendships/requests', // GET list of FriendRequestModel, POST SendFriendRequestDto
@@ -157,7 +172,8 @@ export const APP_CONFIG: AppConfig = {
     structures: true,
     users: true,
     friendship: true,
-    ticketing: true
+    ticketing: true,
+    team: true,
   },
 
   auth: {

@@ -15,6 +15,9 @@ import { UserProfileUpdateDto } from '../../../models/user/user-profile-update.d
 import { mockUsers } from '../../../mocks/auth/data/user-data.mock';
 import {AuthService} from '../../domain/user/auth.service';
 import {UserFavoriteStructureModel} from '../../../models/user/user-favorite-structure.model';
+import {UserRole} from '../../../models/user/user-role.enum';
+import {getRoleIdByKey, mockTeamMembersStructure3} from '../../../mocks/auth/data/team-data.mock';
+import {availableRoles, Role, TeamMember} from '../../../models/user/team-member.model';
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +28,7 @@ export class UserApiMockService {
 
   // In-memory store for mock users (make a copy to allow modifications)
   private currentMockUsers: UserModel[] = JSON.parse(JSON.stringify(mockUsers));
+  private mockTeamMembers: TeamMember[] = JSON.parse(JSON.stringify(mockTeamMembersStructure3));
   private readonly currentUserId = this.authService.currentUser()?.userId;
 
   // Mock favorites storage
@@ -235,5 +239,6 @@ export class UserApiMockService {
 
     return this.apiConfig.createMockResponse(isFavorite);
   }
+
 
 }
