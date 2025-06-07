@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ZoneEditDialogComponent } from './zone-edit-dialog.component';
+import { AreasManagementComponent } from './areas-management.component';
 
-describe('ZoneEditDialogComponent', () => {
-  let component: ZoneEditDialogComponent;
-  let fixture: ComponentFixture<ZoneEditDialogComponent>;
+describe('AreasManagementComponent', () => {
+  let component: AreasManagementComponent;
+  let fixture: ComponentFixture<AreasManagementComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ZoneEditDialogComponent]
+      imports: [AreasManagementComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ZoneEditDialogComponent);
+    fixture = TestBed.createComponent(AreasManagementComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

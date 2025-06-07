@@ -13,7 +13,7 @@ import { EventDetailsPanelComponent } from './panels/events/event-details-panel/
 import { StructurePanelComponent } from './panels/structure/structure-panel/structure-panel.component';
 import { StructureEditComponent } from './panels/structure/structure-edit/structure-edit.component';
 import { TeamManagementComponent } from './panels/structure/team-management/team-management.component';
-import { AreaManagementComponent } from './panels/structure/zone-management/area-management.component';
+import { AreasManagementComponent } from './panels/structure/areas-management/areas-management.component';
 
 /**
  * Admin area routes configuration
@@ -90,7 +90,7 @@ export const adminRoutes: Routes = [
       },
       {
         path: 'structure/areas',
-        component: AreaManagementComponent,
+        component: AreasManagementComponent,
         title: 'Gestion des zones | Administration'
       }
     ]

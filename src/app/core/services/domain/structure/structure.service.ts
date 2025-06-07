@@ -27,7 +27,12 @@ import { StructureSearchParams } from '../../../models/structure/structure-searc
 
 // Other Domain Services
 import { NotificationService } from '../utilities/notification.service';
-import { AuthService } from '../user/auth.service'; // For token updates and user context
+import { AuthService } from '../user/auth.service';
+import {
+  AudienceZoneCreationDto,
+  AudienceZoneUpdateDto,
+  EventAudienceZone
+} from '../../../models/event/event-audience-zone.model'; // For token updates and user context
 
 @Injectable({
   providedIn: 'root'
@@ -50,6 +55,9 @@ export class StructureService {
   // Cache for the areas of the currently selected/managed structure
   private currentStructureAreasSig: WritableSignal<StructureAreaModel[]> = signal([]);
   public readonly currentStructureAreas = computed(() => this.currentStructureAreasSig());
+
+  private currentAreaAudienceZonesSig: WritableSignal<EventAudienceZone[]> = signal([]);
+  public readonly currentAreaAudienceZones = computed(() => this.currentAreaAudienceZonesSig());
 
   constructor() {
     // Preload structure types on service initialization
@@ -284,84 +292,211 @@ export class StructureService {
     );
   }
 
+
   /**
-   * Creates a new physical area within a structure.
-   * Updates the area cache for the current structure if applicable.
-   * @param structureId - The ID of the structure.
-   * @param areaCreationData - The DTO for creating the area.
-   * @returns An Observable of the created `StructureAreaModel` or `undefined` on error.
+   * Crée une nouvelle area pour la structure courante
    */
-  createArea(structureId: number, areaCreationData: AreaCreationDto): Observable<StructureAreaModel | undefined> {
-    // StructureApiService expects 'any', AreaCreationDto is suitable.
-    return this.structureApi.createArea(structureId, areaCreationData).pipe(
-      map(apiArea => apiArea ? this.mapApiToAreaModel(apiArea) : undefined),
-      tap(newArea => {
-        if (newArea && this.currentStructureDetailsSig()?.id === structureId) {
+  createArea(areaData: AreaCreationDto): Observable<StructureAreaModel | undefined> {
+    const currentStructureId = this.currentStructureDetailsSig()?.id;
+    if (!currentStructureId) {
+      this.notification.displayNotification('Aucune structure sélectionnée', 'error');
+      return of(undefined);
+    }
+
+    return this.structureApi.createArea(currentStructureId, areaData).pipe(
+      tap(createdArea => {
+        if (createdArea) {
           const currentAreas = this.currentStructureAreasSig();
-          this.currentStructureAreasSig.set([...currentAreas, newArea]);
+          this.currentStructureAreasSig.set([...currentAreas, createdArea]);
+          this.notification.displayNotification('Espace créé avec succès !', 'valid');
         }
-        this.notification.displayNotification('Zone créée avec succès.', 'valid');
       }),
+
       catchError(error => {
-        this.handleError('Impossible de créer la zone.', error);
+        this.handleError('Impossible de créer l\'espace.', error);
         return of(undefined);
       })
     );
   }
 
   /**
-   * Updates an existing physical area within a structure.
-   * Updates the area cache for the current structure if applicable.
-   * @param structureId - The ID of the structure.
-   * @param areaId - The ID of the area to update.
-   * @param areaUpdateData - The DTO containing fields to update.
-   * @returns An Observable of the updated `StructureAreaModel` or `undefined` on error.
+   * Met à jour une area existante
    */
-  updateArea(structureId: number, areaId: number, areaUpdateData: AreaUpdateDto): Observable<StructureAreaModel | undefined> {
-    // StructureApiService expects Partial<any>, AreaUpdateDto is suitable.
-    return this.structureApi.updateArea(structureId, areaId, areaUpdateData).pipe(
-      map(apiArea => apiArea ? this.mapApiToAreaModel(apiArea) : undefined),
+  updateArea(areaId: number, areaData: AreaUpdateDto): Observable<StructureAreaModel | undefined> {
+    const currentStructureId = this.currentStructureDetailsSig()?.id;
+    if (!currentStructureId) {
+      this.notification.displayNotification('Aucune structure sélectionnée', 'error');
+      return of(undefined);
+    }
+
+    return this.structureApi.updateArea(currentStructureId, areaId, areaData).pipe(
       tap(updatedArea => {
-        if (updatedArea && this.currentStructureDetailsSig()?.id === structureId) {
-          const areas = this.currentStructureAreasSig();
-          const updatedAreas = areas.map(area =>
+        if (updatedArea) {
+          const currentAreas = this.currentStructureAreasSig();
+          const updatedAreas = currentAreas.map(area =>
             area.id === areaId ? updatedArea : area
           );
           this.currentStructureAreasSig.set(updatedAreas);
+          this.notification.displayNotification('Espace modifié avec succès !', 'valid');
         }
-        this.notification.displayNotification('Zone mise à jour avec succès.', 'valid');
       }),
       catchError(error => {
-        this.handleError('Impossible de mettre à jour la zone.', error);
+        this.handleError('Impossible de modifier l\'espace.', error);
         return of(undefined);
       })
     );
   }
 
   /**
-   * Deletes a physical area from a structure.
-   * Updates the area cache for the current structure if applicable.
-   * @param structureId - The ID of the structure.
-   * @param areaId - The ID of the area to delete.
-   * @returns An Observable<boolean> indicating success (true) or failure (false).
+   * Supprime une area
    */
-  deleteArea(structureId: number, areaId: number): Observable<boolean> {
-    return this.structureApi.deleteArea(structureId, areaId).pipe(
-      map(() => true),
+  deleteArea(areaId: number): Observable<boolean> {
+    const currentStructureId = this.currentStructureDetailsSig()?.id;
+    if (!currentStructureId) {
+      this.notification.displayNotification('Aucune structure sélectionnée', 'error');
+      return of(false);
+    }
+
+    return this.structureApi.deleteArea(currentStructureId, areaId).pipe(
       tap(() => {
-        if (this.currentStructureDetailsSig()?.id === structureId) {
-          const areas = this.currentStructureAreasSig();
-          const filteredAreas = areas.filter(area => area.id !== areaId);
-          this.currentStructureAreasSig.set(filteredAreas);
-        }
-        this.notification.displayNotification('Zone supprimée avec succès.', 'valid');
+        // Retirer l'area du cache
+        const currentAreas = this.currentStructureAreasSig();
+        const filteredAreas = currentAreas.filter(area => area.id !== areaId);
+        this.currentStructureAreasSig.set(filteredAreas);
+        this.notification.displayNotification('Espace supprimé avec succès !', 'valid');
       }),
+      map(() => true),
       catchError(error => {
-        this.handleError('Impossible de supprimer la zone.', error);
+        this.handleError('Impossible de supprimer l\'espace.', error);
         return of(false);
       })
     );
   }
+
+/**
+ * Loads audience zones for a specific area
+ */
+loadAreaAudienceZones(areaId: number, forceRefresh = false): Observable<EventAudienceZone[]> {
+  if (!forceRefresh) {
+  const cached = this.currentAreaAudienceZonesSig();
+  if (cached.length > 0 && cached[0]?.areaId === areaId) {
+    return of(cached);
+  }
+}
+
+const currentStructureId = this.currentStructureDetailsSig()?.id;
+if (!currentStructureId) {
+  return of([]);
+}
+
+return this.structureApi.getAreaAudienceZones(currentStructureId, areaId).pipe(
+  map((apiZones: any[]) => apiZones.map(zone => this.mapApiToAudienceZoneModel(zone))),
+  tap(zones => this.currentAreaAudienceZonesSig.set(zones)),
+  catchError(error => {
+    this.handleError('Impossible de charger les zones d\'audience.', error);
+    return of([]);
+  })
+);
+}
+
+/**
+ * Creates a new audience zone for an area
+ */
+createAudienceZone(areaId: number, zoneData: AudienceZoneCreationDto): Observable<EventAudienceZone | undefined> {
+  const currentStructureId = this.currentStructureDetailsSig()?.id;
+  if (!currentStructureId) {
+  this.notification.displayNotification('Aucune structure sélectionnée', 'error');
+  return of(undefined);
+}
+
+return this.structureApi.createAreaAudienceZone(currentStructureId, areaId, zoneData).pipe(
+  map(apiZone => apiZone ? this.mapApiToAudienceZoneModel(apiZone) : undefined),
+  tap(createdZone => {
+    if (createdZone) {
+      const currentZones = this.currentAreaAudienceZonesSig();
+      this.currentAreaAudienceZonesSig.set([...currentZones, createdZone]);
+      this.notification.displayNotification('Zone d\'audience créée avec succès !', 'valid');
+    }
+  }),
+  catchError(error => {
+    this.handleError('Impossible de créer la zone d\'audience.', error);
+    return of(undefined);
+  })
+);
+}
+
+/**
+ * Updates an existing audience zone
+ */
+updateAudienceZone(areaId: number, zoneId: number, zoneData: AudienceZoneUpdateDto): Observable<EventAudienceZone | undefined> {
+  const currentStructureId = this.currentStructureDetailsSig()?.id;
+  if (!currentStructureId) {
+  this.notification.displayNotification('Aucune structure sélectionnée', 'error');
+  return of(undefined);
+}
+
+return this.structureApi.updateAreaAudienceZone(currentStructureId, areaId, zoneId, zoneData).pipe(
+  map(apiZone => apiZone ? this.mapApiToAudienceZoneModel(apiZone) : undefined),
+  tap(updatedZone => {
+    if (updatedZone) {
+      const currentZones = this.currentAreaAudienceZonesSig();
+      const updatedZones = currentZones.map(zone =>
+        zone.id === zoneId ? updatedZone : zone
+      );
+      this.currentAreaAudienceZonesSig.set(updatedZones);
+      this.notification.displayNotification('Zone d\'audience modifiée avec succès !', 'valid');
+    }
+  }),
+  catchError(error => {
+    this.handleError('Impossible de modifier la zone d\'audience.', error);
+    return of(undefined);
+  })
+);
+}
+
+/**
+ * Deletes an audience zone
+ */
+deleteAudienceZone(areaId: number, zoneId: number): Observable<boolean> {
+  const currentStructureId = this.currentStructureDetailsSig()?.id;
+  if (!currentStructureId) {
+  this.notification.displayNotification('Aucune structure sélectionnée', 'error');
+  return of(false);
+}
+
+return this.structureApi.deleteAreaAudienceZone(currentStructureId, areaId, zoneId).pipe(
+  tap(() => {
+    const currentZones = this.currentAreaAudienceZonesSig();
+    const filteredZones = currentZones.filter(zone => zone.id !== zoneId);
+    this.currentAreaAudienceZonesSig.set(filteredZones);
+    this.notification.displayNotification('Zone d\'audience supprimée avec succès !', 'valid');
+  }),
+  map(() => true),
+  catchError(error => {
+    this.handleError('Impossible de supprimer la zone d\'audience.', error);
+    return of(false);
+  })
+);
+}
+
+/**
+ * Clears the audience zones cache
+ */
+clearAudienceZonesCache(): void {
+  this.currentAreaAudienceZonesSig.set([]);
+}
+
+// Méthode de transformation privée
+private mapApiToAudienceZoneModel(apiZone: any): EventAudienceZone {
+  return {
+    id: apiZone.id,
+    name: apiZone.name,
+    areaId: apiZone.areaId,
+    maxCapacity: apiZone.maxCapacity,
+    isActive: apiZone.isActive,
+    seatingType: apiZone.seatingType,
+  };
+}
 
   // --- Utility Methods ---
 

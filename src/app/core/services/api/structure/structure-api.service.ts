@@ -176,53 +176,48 @@ export class StructureApiService {
     );
   }
 
+// Ajouter ces méthodes au StructureApiService existant
+
   /**
-   * Creates a new physical area within a structure.
-   * @param structureId - The ID of the structure.
-   * @param areaApiDto - DTO for creating the area (raw API format).
+   * Crée une nouvelle area pour une structure
    */
-  createArea(structureId: number, areaApiDto: any): Observable<any> {
+  createArea(structureId: number, areaData: any): Observable<any> {
     const endpointContext = APP_CONFIG.api.endpoints.structures.areas(structureId);
-    this.apiConfig.logApiRequest('POST', endpointContext, areaApiDto);
+    this.apiConfig.logApiRequest('POST', endpointContext, areaData);
 
     if (this.apiConfig.isMockEnabledForDomain('structures')) {
-      return this.mockService.mockCreateArea(structureId, areaApiDto);
+      return this.mockService.mockCreateArea(structureId, areaData);
     }
 
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
-    return this.http.post<any>(url, areaApiDto, { headers }).pipe(
+    return this.http.post<any>(url, areaData, { headers }).pipe(
       tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),
       catchError(error => this.handleStructureError(error, 'createArea'))
     );
   }
 
   /**
-   * Updates an existing physical area within a structure.
-   * @param structureId - The ID of the structure.
-   * @param areaId - The ID of the area to update.
-   * @param areaApiDto - Partial DTO with fields to update (raw API format).
+   * Met à jour une area existante
    */
-  updateArea(structureId: number, areaId: number, areaApiDto: Partial<any>): Observable<any> {
+  updateArea(structureId: number, areaId: number, areaData: any): Observable<any> {
     const endpointContext = APP_CONFIG.api.endpoints.structures.areaById(structureId, areaId);
-    this.apiConfig.logApiRequest('PUT', endpointContext, areaApiDto);
+    this.apiConfig.logApiRequest('PUT', endpointContext, areaData);
 
     if (this.apiConfig.isMockEnabledForDomain('structures')) {
-      return this.mockService.mockUpdateArea(structureId, areaId, areaApiDto);
+      return this.mockService.mockUpdateArea(structureId, areaId, areaData);
     }
 
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
-    return this.http.put<any>(url, areaApiDto, { headers }).pipe(
+    return this.http.put<any>(url, areaData, { headers }).pipe(
       tap(response => this.apiConfig.logApiResponse('PUT', endpointContext, response)),
       catchError(error => this.handleStructureError(error, 'updateArea'))
     );
   }
 
   /**
-   * Deletes a physical area from a structure.
-   * @param structureId - The ID of the structure.
-   * @param areaId - The ID of the area to delete.
+   * Supprime une area
    */
   deleteArea(structureId: number, areaId: number): Observable<void> {
     const endpointContext = APP_CONFIG.api.endpoints.structures.areaById(structureId, areaId);
@@ -235,8 +230,85 @@ export class StructureApiService {
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
     return this.http.delete<void>(url, { headers }).pipe(
-      tap(() => this.apiConfig.logApiResponse('DELETE', endpointContext, 'Deletion successful')),
+      tap(() => this.apiConfig.logApiResponse('DELETE', endpointContext, 'Area deleted')),
       catchError(error => this.handleStructureError(error, 'deleteArea'))
+    );
+  }
+
+
+  /**
+   * Retrieves audience zones for a specific area
+   */
+  getAreaAudienceZones(structureId: number, areaId: number): Observable<any[]> {
+    const endpointContext = `${APP_CONFIG.api.endpoints.structures.areaById(structureId, areaId)}/audience-zones`;
+    this.apiConfig.logApiRequest('GET', endpointContext);
+
+    if (this.apiConfig.isMockEnabledForDomain('structures')) {
+      return this.mockService.mockGetAreaAudienceZones(structureId, areaId);
+    }
+
+    const url = this.apiConfig.getUrl(endpointContext);
+    const headers = this.apiConfig.createHeaders();
+    return this.http.get<any[]>(url, { headers }).pipe(
+      tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
+      catchError(error => this.handleStructureError(error, 'getAreaAudienceZones'))
+    );
+  }
+
+  /**
+   * Creates a new audience zone for an area
+   */
+  createAreaAudienceZone(structureId: number, areaId: number, zoneData: any): Observable<any> {
+    const endpointContext = `${APP_CONFIG.api.endpoints.structures.areaById(structureId, areaId)}/audience-zones`;
+    this.apiConfig.logApiRequest('POST', endpointContext, zoneData);
+
+    if (this.apiConfig.isMockEnabledForDomain('structures')) {
+      return this.mockService.mockCreateAreaAudienceZone(structureId, areaId, zoneData);
+    }
+
+    const url = this.apiConfig.getUrl(endpointContext);
+    const headers = this.apiConfig.createHeaders();
+    return this.http.post<any>(url, zoneData, { headers }).pipe(
+      tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),
+      catchError(error => this.handleStructureError(error, 'createAreaAudienceZone'))
+    );
+  }
+
+  /**
+   * Updates an existing audience zone
+   */
+  updateAreaAudienceZone(structureId: number, areaId: number, zoneId: number, zoneData: any): Observable<any> {
+    const endpointContext = `${APP_CONFIG.api.endpoints.structures.areaById(structureId, areaId)}/audience-zones/${zoneId}`;
+    this.apiConfig.logApiRequest('PUT', endpointContext, zoneData);
+
+    if (this.apiConfig.isMockEnabledForDomain('structures')) {
+      return this.mockService.mockUpdateAreaAudienceZone(structureId, areaId, zoneId, zoneData);
+    }
+
+    const url = this.apiConfig.getUrl(endpointContext);
+    const headers = this.apiConfig.createHeaders();
+    return this.http.put<any>(url, zoneData, { headers }).pipe(
+      tap(response => this.apiConfig.logApiResponse('PUT', endpointContext, response)),
+      catchError(error => this.handleStructureError(error, 'updateAreaAudienceZone'))
+    );
+  }
+
+  /**
+   * Deletes an audience zone
+   */
+  deleteAreaAudienceZone(structureId: number, areaId: number, zoneId: number): Observable<void> {
+    const endpointContext = `${APP_CONFIG.api.endpoints.structures.areaById(structureId, areaId)}/audience-zones/${zoneId}`;
+    this.apiConfig.logApiRequest('DELETE', endpointContext);
+
+    if (this.apiConfig.isMockEnabledForDomain('structures')) {
+      return this.mockService.mockDeleteAreaAudienceZone(structureId, areaId, zoneId);
+    }
+
+    const url = this.apiConfig.getUrl(endpointContext);
+    const headers = this.apiConfig.createHeaders();
+    return this.http.delete<void>(url, { headers }).pipe(
+      tap(() => this.apiConfig.logApiResponse('DELETE', endpointContext, 'Audience zone deleted')),
+      catchError(error => this.handleStructureError(error, 'deleteAreaAudienceZone'))
     );
   }
 

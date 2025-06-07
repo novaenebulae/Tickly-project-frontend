@@ -15,8 +15,13 @@ import { StructureAreaModel } from '../../../models/structure/structure-area.mod
 
 // Import des données de mock
 import { mockStructureTypes } from '../../../mocks/structures/data/structure-data.mock';
-import { mockAreas } from '../../../mocks/structures/data/areas-data.mock';
+import {getAllMockAudienceZones, mockAreas} from '../../../mocks/structures/data/areas-data.mock';
 import { mockStructures } from '../../../mocks/structures/data/structure-data.mock';
+import {
+  AudienceZoneCreationDto,
+  AudienceZoneUpdateDto,
+  EventAudienceZone
+} from '../../../models/event/event-audience-zone.model';
 
 @Injectable({
   providedIn: 'root'
@@ -27,6 +32,7 @@ export class StructureApiMockService {
   // In-memory store for mocks to reflect changes
   private currentMockStructures: any[] = JSON.parse(JSON.stringify(mockStructures));
   private currentMockAreas: StructureAreaModel[] = JSON.parse(JSON.stringify(mockAreas));
+  private currentMockAudienceZones: EventAudienceZone[] = getAllMockAudienceZones();
 
   /**
    * Mock implementation for retrieving structures with filtering and pagination
@@ -291,5 +297,75 @@ export class StructureApiMockService {
 
     this.currentMockAreas.splice(index, 1);
     return this.apiConfig.createMockResponse(undefined as void);
+  }
+
+  /**
+   * Mock implementation for retrieving audience zones for a specific area
+   */
+  mockGetAreaAudienceZones(structureId: number, areaId: number): Observable<EventAudienceZone[]> {
+    this.apiConfig.logApiRequest('MOCK GET', `structures/${structureId}/areas/${areaId}/audience-zones`, null);
+
+    const zonesForArea = this.currentMockAudienceZones.filter(zone => zone.areaId === areaId);
+    return this.apiConfig.createMockResponse(zonesForArea);
+  }
+
+  /**
+   * Mock implementation for creating a new audience zone for an area
+   */
+  mockCreateAreaAudienceZone(structureId: number, areaId: number, zoneData: AudienceZoneCreationDto): Observable<EventAudienceZone> {
+    this.apiConfig.logApiRequest('MOCK POST', `structures/${structureId}/areas/${areaId}/audience-zones`, zoneData);
+
+    if (!zoneData.name || !zoneData.maxCapacity || zoneData.maxCapacity < 1) {
+      return this.apiConfig.createMockError(400, 'Mock: Name and valid maxCapacity are required for audience zone creation');
+    }
+
+    const newId = Math.max(0, ...this.currentMockAudienceZones.map(z => z.id || 0)) + 1;
+
+    const newZone: EventAudienceZone = {
+      id: newId,
+      name: zoneData.name,
+      areaId: areaId,
+      maxCapacity: zoneData.maxCapacity,
+      isActive: zoneData.isActive,
+      seatingType: zoneData.seatingType
+    };
+
+    this.currentMockAudienceZones.push(newZone);
+    return this.apiConfig.createMockResponse(newZone);
+  }
+
+  /**
+   * Mock implementation for updating an existing audience zone
+   */
+  mockUpdateAreaAudienceZone(structureId: number, areaId: number, zoneId: number, zoneData: AudienceZoneUpdateDto): Observable<EventAudienceZone | undefined> {
+    this.apiConfig.logApiRequest('MOCK PUT', `structures/${structureId}/areas/${areaId}/audience-zones/${zoneId}`, zoneData);
+
+    const index = this.currentMockAudienceZones.findIndex(z => z.id === zoneId && z.areaId === areaId);
+    if (index === -1) {
+      return this.apiConfig.createMockError(404, 'Mock Audience Zone not found for update');
+    }
+
+    const updatedZone: EventAudienceZone = {
+      ...this.currentMockAudienceZones[index],
+      ...zoneData
+    };
+
+    this.currentMockAudienceZones[index] = updatedZone;
+    return this.apiConfig.createMockResponse(updatedZone);
+  }
+
+  /**
+   * Mock implementation for deleting an audience zone
+   */
+  mockDeleteAreaAudienceZone(structureId: number, areaId: number, zoneId: number): Observable<void> {
+    this.apiConfig.logApiRequest('MOCK DELETE', `structures/${structureId}/areas/${areaId}/audience-zones/${zoneId}`, null);
+
+    const index = this.currentMockAreas.findIndex(z => z.id === zoneId && z.id === areaId);
+    if (index === -1) {
+      return this.apiConfig.createMockError(404, 'Mock Audience Zone not found for deletion');
+    }
+
+    this.currentMockAudienceZones.splice(index, 1);
+    return this.apiConfig.createMockResponse(undefined);
   }
 }

@@ -1,0 +1,297 @@
+<div class="areas-management-container">
+  <!-- Header -->
+  <div class="management-header">
+    <h2>Gestion des Espaces et Zones d'Audience</h2>
+    @if (currentStructure(); as structure) {
+      <p class="structure-info">
+        <strong>Structure :</strong> {{ structure.name }}
+      </p>
+    }
+  </div>
+
+  <div class="management-content">
+    <!-- Areas Panel -->
+    <div class="areas-panel">
+      <div class="panel-header">
+        <h3>Espaces Physiques</h3>
+        <button
+          class="btn btn-primary btn-sm"
+          (click)="onShowCreateAreaForm()">
+          <mat-icon>add</mat-icon> Ajouter un Espace
+        </button>
+      </div>
+
+      <div class="areas-list">
+        @if (areas().length === 0) {
+          <div class="empty-state">
+            <p>Aucun espace défini pour cette structure.</p>
+          </div>
+        }
+
+        @for (area of areas(); track area.id) {
+          <div class="area-card"
+               [class.selected]="selectedArea()?.id === area.id"
+               (click)="onSelectArea(area)">
+            <div class="area-info">
+              <h4>{{ area.name }}</h4>
+              <p class="area-details">
+                <span class="capacity">
+                  <mat-icon class="mr-1">people</mat-icon>
+                   {{ area.maxCapacity }} places
+                </span>
+                <span class="status" [class.active]="area.isActive" [class.inactive]="!area.isActive">
+                  {{ area.isActive ? 'Actif' : 'Inactif' }}
+                </span>
+              </p>
+              @if (area.description) {
+                <p class="area-description">{{ area.description }}</p>
+              }
+            </div>
+            <div class="area-actions">
+              <button
+                class="btn btn-outline-primary btn-sm"
+                (click)="onEditArea(area); $event.stopPropagation()">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                class="btn btn-outline-danger btn-sm"
+                (click)="onDeleteArea(area); $event.stopPropagation()">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Audience Zones Panel -->
+    <div class="audience-zones-panel">
+      <div class="panel-header">
+        <h3>Zones d'Audience</h3>
+        @if (selectedArea()) {
+          <button
+            class="btn btn-primary btn-sm"
+            (click)="onShowCreateAudienceZoneForm()">
+            <mat-icon>add</mat-icon>Ajouter une Zone
+          </button>
+        }
+      </div>
+
+      @if (!selectedArea()) {
+        <div class="empty-state">
+          <p>Sélectionnez un espace pour voir ses zones d'audience.</p>
+        </div>
+      } @else {
+        <div class="selected-area-info">
+          <h4>{{ selectedArea()!.name }}</h4>
+          <p>Capacité maximale : {{ selectedArea()!.maxCapacity }} places</p>
+        </div>
+
+        <div class="audience-zones-list">
+          @if (audienceZones().length === 0) {
+            <div class="empty-state">
+              <p>Aucune zone d'audience définie pour cet espace.</p>
+            </div>
+          }
+
+          @for (zone of audienceZones(); track zone.id) {
+            <div class="zone-card">
+              <div class="zone-info">
+                <h5>{{ zone.name }}</h5>
+                <div class="zone-details">
+                  <span class="capacity">
+                    <mat-icon>people</mat-icon> {{ zone.maxCapacity }} places
+                  </span>
+                  <span class="seating-type">
+                    <mat-icon>chair</mat-icon> {{ getSeatingTypeLabel(zone.seatingType) }}
+                  </span>
+                  <span class="status" [class.active]="zone.isActive" [class.inactive]="!zone.isActive">
+                    {{ zone.isActive ? 'Actif' : 'Inactif' }}
+                  </span>
+                </div>
+              </div>
+              <div class="zone-actions">
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  (click)="onEditAudienceZone(zone)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button
+                  class="btn btn-outline-danger btn-sm"
+                  (click)="onDeleteAudienceZone(zone)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Area Form Modal -->
+  @if (showAreaForm()) {
+    <div class="modal-backdrop" (click)="onCancelAreaForm()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h4>{{ editingArea() ? 'Modifier' : 'Créer' }} un Espace</h4>
+          <button class="btn-close" (click)="onCancelAreaForm()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="areaForm" (ngSubmit)="onSaveArea()">
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="areaName">Nom de l'espace *</label>
+              <input
+                id="areaName"
+                type="text"
+                class="form-control"
+                formControlName="name"
+                placeholder="Ex: Grande Scène, Hall A, Salle de Conférence">
+              @if (areaForm.get('name')?.invalid && areaForm.get('name')?.touched) {
+                <div class="invalid-feedback">
+                  Le nom est requis (minimum 2 caractères).
+                </div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="areaCapacity">Capacité maximale *</label>
+              <input
+                id="areaCapacity"
+                type="number"
+                min="1"
+                class="form-control"
+                formControlName="maxCapacity"
+                placeholder="Nombre maximum de personnes">
+              @if (areaForm.get('maxCapacity')?.invalid && areaForm.get('maxCapacity')?.touched) {
+                <div class="invalid-feedback">
+                  La capacité doit être d'au moins 1 personne.
+                </div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="areaDescription">Description</label>
+              <textarea
+                id="areaDescription"
+                class="form-control"
+                formControlName="description"
+                rows="3"
+                placeholder="Description optionnelle de l'espace"></textarea>
+            </div>
+
+            <div class="form-check">
+              <input
+                id="areaActive"
+                type="checkbox"
+                class="form-check-input"
+                formControlName="isActive">
+              <label class="form-check-label" for="areaActive">
+                Espace actif
+              </label>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="onCancelAreaForm()">
+              Annuler
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="!isAreaFormValid()">
+              {{ editingArea() ? 'Modifier' : 'Créer' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Audience Zone Form Modal -->
+  @if (showAudienceZoneForm()) {
+    <div class="modal-backdrop" (click)="onCancelAudienceZoneForm()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h4>{{ editingAudienceZone() ? 'Modifier' : 'Créer' }} une Zone d'Audience</h4>
+          <button class="btn-close" (click)="onCancelAudienceZoneForm()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="audienceZoneForm" (ngSubmit)="onSaveAudienceZone()">
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="zoneName">Nom de la zone *</label>
+              <input
+                id="zoneName"
+                type="text"
+                class="form-control"
+                formControlName="name"
+                placeholder="Ex: Fosse Or, Balcon Droite, Zone VIP">
+              @if (audienceZoneForm.get('name')?.invalid && audienceZoneForm.get('name')?.touched) {
+                <div class="invalid-feedback">
+                  Le nom est requis (minimum 2 caractères).
+                </div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="zoneCapacity">Capacité maximale *</label>
+              <input
+                id="zoneCapacity"
+                type="number"
+                min="1"
+                class="form-control"
+                formControlName="maxCapacity"
+                placeholder="Nombre maximum de personnes">
+              @if (audienceZoneForm.get('maxCapacity')?.invalid && audienceZoneForm.get('maxCapacity')?.touched) {
+                <div class="invalid-feedback">
+                  La capacité doit être d'au moins 1 personne.
+                </div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="seatingType">Type de placement *</label>
+              <select
+                id="seatingType"
+                class="form-control"
+                formControlName="seatingType">
+                @for (option of seatingTypeOptions; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-check">
+              <input
+                id="zoneActive"
+                type="checkbox"
+                class="form-check-input"
+                formControlName="isActive">
+              <label class="form-check-label" for="zoneActive">
+                Zone active
+              </label>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="onCancelAudienceZoneForm()">
+              Annuler
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="!isAudienceZoneFormValid()">
+              {{ editingAudienceZone() ? 'Modifier' : 'Créer' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

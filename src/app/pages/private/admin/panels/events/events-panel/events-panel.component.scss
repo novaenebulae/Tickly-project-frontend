@@ -1,5 +1,4 @@
 .events-panel-page {
-  background-color: #f8f9fa;
   min-height: 100vh;
 }
 
@@ -191,8 +190,13 @@
 }
 
 .events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: none;
+
   .event-item {
-    border-bottom: 1px solid #e9ecef;
+    //border-bottom: 1px solid #e9ecef;
     transition: all 0.2s ease;
 
     &:hover {
@@ -211,6 +215,7 @@
     padding: 20px;
     gap: 20px;
     min-height: 120px;
+    background: #f8f9fa;
 
     @media (max-width: 768px) {
       flex-direction: column;

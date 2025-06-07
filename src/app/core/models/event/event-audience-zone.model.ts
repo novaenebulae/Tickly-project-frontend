@@ -65,7 +65,19 @@ export interface EventAudienceZone {
    */
   seatingType: SeatingType;
 
+
   // ticketPrice: number; // Removed - no price management
   // rowCount?: number; // Removed - no seat numbering
   // seatsPerRow?: number; // Removed - no seat numbering
 }
+
+/**
+ * DTO for creating a new audience zone template.
+ */
+export type AudienceZoneCreationDto = Omit<EventAudienceZone, 'id'>;
+
+/**
+ * DTO for updating an existing audience zone template.
+ */
+export type AudienceZoneUpdateDto = Partial<Omit<EventAudienceZone, 'id' | 'areaId'>>;
+
