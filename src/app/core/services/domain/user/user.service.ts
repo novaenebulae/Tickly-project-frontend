@@ -235,6 +235,14 @@ export class UserService {
     );
   }
 
+   getAvatarUrl(userId: number): string {
+    const user = this.getUserFromCache(userId);
+    if (user?.avatarUrl) {
+      return user.avatarUrl;
+    }
+    return this.generateAvatarUrl(user?.firstName, user?.lastName);
+  }
+
   // /**
   //  * Relie un utilisateur à une structure avec un rôle spécifique.
   //  * @param linkUserDto - DTO contenant email, rôle et ID de structure
@@ -265,7 +273,11 @@ export class UserService {
    * @param size - The desired size of the avatar image in pixels (default: 128).
    * @returns A URL string for the placeholder avatar image.
    */
-  generateAvatarUrl(firstName?: string, lastName?: string, size: number = 128): string {
+  generateAvatarUrl(firstName ?: string, lastName ?: string, size
+                    :
+                    number = 128
+  ):
+    string {
     // ✅ Création d'une clé de cache unique
     const cacheKey = `${firstName || ''}-${lastName || ''}-${size}`;
 
@@ -311,24 +323,13 @@ export class UserService {
     return avatarUrl;
   }
 
-
-  private hslToHex(h: number, s: number, l: number): string {
-    s /= 100;
-    l /= 100;
-    const k = (n: number) => (n + h / 30) % 12;
-    const a = s * Math.min(l, 1 - l);
-    const f = (n: number) =>
-      l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-    const toHex = (x: number) => Math.round(x * 255).toString(16).padStart(2, '0');
-    return `${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
-  }
-
-
   /**
    * Clears the currently active user profile from the service's state.
    * This might be called when a user navigates away from a specific profile page.
    */
-  clearActiveUserProfile(): void {
+  clearActiveUserProfile()
+    :
+    void {
     this.activeUserProfileSig.set(undefined);
   }
 
@@ -337,7 +338,30 @@ export class UserService {
    * @param userId - The ID of the user.
    * @returns The cached `UserModel` or `undefined` if not found in the cache.
    */
-  getUserFromCache(userId: number): UserModel | undefined {
+  getUserFromCache(userId
+                   :
+                   number
+  ):
+    UserModel | undefined {
     return this.userProfilesCache.value.get(userId);
+  }
+
+  private hslToHex(h
+                   :
+                   number, s
+                   :
+                   number, l
+                   :
+                   number
+  ):
+    string {
+    s /= 100;
+    l /= 100;
+    const k = (n: number) => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number) =>
+      l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    const toHex = (x: number) => Math.round(x * 255).toString(16).padStart(2, '0');
+    return `${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
   }
 }

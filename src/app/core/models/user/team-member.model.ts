@@ -43,6 +43,7 @@ export interface TeamMember {
   structureId: number;
   firstName: string | null; // Peut être null pour les invitations en attente
   lastName: string | null; // Peut être null pour les invitations en attente
+  avatarUrl?: string;
   email: string;
   role: Role; // Objet Role complet, pas juste l'ID
   status: TeamMemberStatus;

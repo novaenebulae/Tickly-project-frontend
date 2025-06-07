@@ -1,1 +1,390 @@
-<p>team-management works!</p>
+<div class="team-management-container">
+
+  <!-- 🎨 En-tête -->
+  <section class="header-section">
+    <div class="header-actions">
+      <button
+        mat-icon-button
+        (click)="navigateBack()"
+        matTooltip="Retour à la gestion de structure"
+        class="back-btn">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+
+      <div class="header-content">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">group</mat-icon>
+          Gestion de l'équipe
+        </h1>
+        <p class="page-subtitle">
+          Gérez les membres de votre équipe et leurs rôles
+        </p>
+      </div>
+
+      <div class="header-buttons">
+        <button
+          mat-icon-button
+          (click)="refreshData()"
+          matTooltip="Actualiser"
+          class="refresh-btn">
+          <mat-icon>refresh</mat-icon>
+        </button>
+
+        @if (canManageTeam()) {
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="toggleInviteForm()"
+            [disabled]="isInviting()">
+            <mat-icon>person_add</mat-icon>
+            Inviter un membre
+          </button>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- 📊 Statistiques -->
+  <section class="stats-section">
+    <div class="stats-grid">
+
+      <!-- Total membres -->
+      <mat-card class="stat-card total-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon total-icon">
+              <mat-icon>group</mat-icon>
+            </div>
+            <div class="stat-details">
+              <div class="stat-number">{{ teamMembers().length }}</div>
+              <div class="stat-label">Membre{{ teamMembers().length !== 1 ? 's' : '' }} total</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Membres actifs -->
+      <mat-card
+        class="stat-card active-card clickable"
+        (click)="setViewMode('active')"
+        [class.selected]="viewMode() === 'active'">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon active-icon">
+              <mat-icon>check_circle</mat-icon>
+            </div>
+            <div class="stat-details">
+              <div class="stat-number">{{ activeMembers().length }}</div>
+              <div class="stat-label">Actif{{ activeMembers().length !== 1 ? 's' : '' }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Invitations en attente -->
+      <mat-card
+        class="stat-card pending-card clickable"
+        (click)="setViewMode('pending')"
+        [class.selected]="viewMode() === 'pending'">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon pending-icon">
+              <mat-icon [matBadge]="pendingMembers().length > 0 ? pendingMembers().length : null"
+                        matBadgeColor="accent">schedule</mat-icon>
+            </div>
+            <div class="stat-details">
+              <div class="stat-number">{{ pendingMembers().length }}</div>
+              <div class="stat-label">En attente</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Membres inactifs -->
+      <mat-card
+        class="stat-card inactive-card clickable"
+        (click)="setViewMode('inactive')"
+        [class.selected]="viewMode() === 'inactive'">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon inactive-icon">
+              <mat-icon>cancel</mat-icon>
+            </div>
+            <div class="stat-details">
+              <div class="stat-number">{{ inactiveMembers().length }}</div>
+              <div class="stat-label">Inactif{{ inactiveMembers().length !== 1 ? 's' : '' }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+  </section>
+
+  <!-- 📝 Formulaire d'invitation -->
+  @if (showInviteForm()) {
+    <section class="invite-section">
+      <mat-card class="invite-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>person_add</mat-icon>
+            Inviter un nouveau membre
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="inviteForm" (ngSubmit)="sendInvitation()" class="invite-form">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="email-field">
+                <mat-label>Adresse email</mat-label>
+                <input matInput
+                       type="email"
+                       formControlName="email"
+                       placeholder="nom@exemple.com">
+                <mat-icon matSuffix>email</mat-icon>
+                @if (inviteForm.get('email')?.hasError('required')) {
+                  <mat-error>L'email est requis</mat-error>
+                }
+                @if (inviteForm.get('email')?.hasError('email')) {
+                  <mat-error>Format d'email invalide</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="role-field">
+                <mat-label>Rôle</mat-label>
+                <mat-select formControlName="roleId">
+                  @for (role of availableRoles(); track role.id) {
+                    <mat-option [value]="role.id">{{ role.name }}</mat-option>
+                  }
+                </mat-select>
+                <mat-icon matSuffix>badge</mat-icon>
+                @if (inviteForm.get('roleId')?.hasError('required')) {
+                  <mat-error>Le rôle est requis</mat-error>
+                }
+              </mat-form-field>
+
+            <div class="form-actions">
+              <button
+                type="submit"
+                mat-raised-button
+                color="primary"
+                [disabled]="inviteForm.invalid || isInviting()">
+                @if (isInviting()) {
+                  <mat-spinner diameter="20"></mat-spinner>
+                } @else {
+                  <mat-icon>send</mat-icon>
+                }
+                Inviter
+              </button>
+              <button
+                type="button"
+                mat-stroked-button
+                (click)="toggleInviteForm()">
+                Annuler
+              </button>
+            </div>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </section>
+  }
+
+  <!-- 🎛️ Filtres et actions -->
+  <section class="filters-section">
+    <div class="filters-bar">
+      <div class="view-filters">
+        <button
+          mat-stroked-button
+          [color]="viewMode() === 'all' ? 'primary' : ''"
+          (click)="setViewMode('all')">
+          Tous ({{ teamMembers().length }})
+        </button>
+        <button
+          mat-stroked-button
+          [color]="viewMode() === 'active' ? 'primary' : ''"
+          (click)="setViewMode('active')">
+          Actifs ({{ activeMembers().length }})
+        </button>
+        <button
+          mat-stroked-button
+          [color]="viewMode() === 'pending' ? 'primary' : ''"
+          (click)="setViewMode('pending')">
+          En attente ({{ pendingMembers().length }})
+        </button>
+        <button
+          mat-stroked-button
+          [color]="viewMode() === 'inactive' ? 'primary' : ''"
+          (click)="setViewMode('inactive')">
+          Inactifs ({{ inactiveMembers().length }})
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 📋 Liste des membres -->
+  <section class="members-section">
+    @if (isLoading()) {
+      <div class="loading-container">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Chargement des membres...</p>
+      </div>
+    } @else if (filteredMembers().length === 0) {
+      <mat-card class="empty-state">
+        <mat-card-content>
+          <div class="empty-content">
+            <mat-icon class="empty-icon">group_off</mat-icon>
+            <h3>Aucun membre trouvé</h3>
+            @switch (viewMode()) {
+              @case ('active') {
+                <p>Aucun membre actif dans l'équipe.</p>
+              }
+              @case ('pending') {
+                <p>Aucune invitation en attente.</p>
+              }
+              @case ('inactive') {
+                <p>Aucun membre inactif.</p>
+              }
+              @default {
+                <p>Votre équipe est vide. Commencez par inviter des membres !</p>
+              }
+            }
+            @if (canManageTeam() && viewMode() === 'all') {
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="toggleInviteForm()">
+                <mat-icon>person_add</mat-icon>
+                Inviter le premier membre
+              </button>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <mat-card class="members-table-card">
+        <table mat-table [dataSource]="filteredMembers()" class="members-table">
+
+          <!-- Colonne Membre -->
+          <ng-container matColumnDef="member">
+            <th mat-header-cell *matHeaderCellDef>Membre</th>
+            <td mat-cell *matCellDef="let member" class="member-cell">
+              <div class="member-info">
+                <div class="member-avatar">
+                  <img [src]="{{member.avatarUrl}}" alt="">
+                </div>
+                <div class="member-details">
+                  <div class="member-name">{{ getMemberDisplayName(member) }}</div>
+                  <div class="member-email">{{ member.email }}</div>
+                  @if (member.position) {
+                    <div class="member-position">{{ member.position }}</div>
+                  }
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Rôle -->
+          <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef>Rôle</th>
+            <td mat-cell *matCellDef="let member" class="role-cell">
+              @if (canEditMember(member)) {
+                <mat-form-field appearance="outline" class="role-select">
+                  <mat-select
+                    [value]="member.role.id"
+                    (selectionChange)="updateMemberRole(member, $event.value)"
+                    [disabled]="isUpdating()">
+                    @for (role of availableRoles(); track role.id) {
+                      <mat-option [value]="role.id">{{ role.name }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              } @else {
+                <mat-chip class="role-chip">{{ member.role.name }}</mat-chip>
+              }
+            </td>
+          </ng-container>
+
+          <!-- Colonne Statut -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Statut</th>
+            <td mat-cell *matCellDef="let member" class="status-cell">
+              <mat-chip
+                [color]="getStatusColor(member.status)"
+                class="status-chip">
+                <mat-icon matChipAvatar>{{ getStatusIcon(member.status) }}</mat-icon>
+                @switch (member.status) {
+                  @case (TeamMemberStatus.ACTIVE) { Actif }
+                  @case (TeamMemberStatus.PENDING) { En attente }
+                  @case (TeamMemberStatus.INACTIVE) { Inactif }
+                }
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Dernière activité -->
+          <ng-container matColumnDef="lastActivity">
+            <th mat-header-cell *matHeaderCellDef>Dernière activité</th>
+            <td mat-cell *matCellDef="let member" class="activity-cell">
+              <div class="activity-info">
+                <span class="activity-date">{{ formatLastActivity(member.lastActivity) }}</span>
+                @if (member.status === TeamMemberStatus.PENDING && member.invitedAt) {
+                  <span class="invited-date">Invité le {{ member.invitedAt | date:'dd/MM/yyyy' }}</span>
+                }
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Colonne Actions -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let member" class="actions-cell">
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="memberMenu"
+                matTooltip="Actions">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+
+              <mat-menu #memberMenu="matMenu">
+                @if (member.status === TeamMemberStatus.PENDING) {
+                  <button mat-menu-item (click)="resendInvitation(member)">
+                    <mat-icon>send</mat-icon>
+                    <span>Renvoyer l'invitation</span>
+                  </button>
+                }
+
+                @if (canEditMember(member) && member.status === TeamMemberStatus.ACTIVE) {
+                  <button mat-menu-item (click)="updateMemberStatus(member, TeamMemberStatus.INACTIVE)">
+                    <mat-icon>pause_circle</mat-icon>
+                    <span>Désactiver</span>
+                  </button>
+                }
+
+                @if (canEditMember(member) && member.status === TeamMemberStatus.INACTIVE) {
+                  <button mat-menu-item (click)="updateMemberStatus(member, TeamMemberStatus.ACTIVE)">
+                    <mat-icon>play_circle</mat-icon>
+                    <span>Réactiver</span>
+                  </button>
+                }
+
+                <mat-divider></mat-divider>
+
+                @if (canRemoveMember(member)) {
+                  <button mat-menu-item (click)="removeMember(member)" class="danger-action">
+                    <mat-icon>delete</mat-icon>
+                    <span>Supprimer</span>
+                  </button>
+                }
+              </mat-menu>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="member-row"></tr>
+
+        </table>
+      </mat-card>
+    }
+  </section>
+
+</div>
