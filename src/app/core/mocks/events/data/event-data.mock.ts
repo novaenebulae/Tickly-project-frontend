@@ -1,5 +1,6 @@
 import {SeatingType} from '../../../models/event/event-audience-zone.model';
 import {MockApiEventDto} from '../events.mock';
+import {EventStatus} from '../../../models/event/event.model';
 
 // Helper pour générer des dates futures relatives
 const addDays = (date: Date, days: number): Date => {
@@ -64,7 +65,7 @@ export const allMockEvents: MockApiEventDto[] = [
     links: ['https://www.rockenseine.com/'],
     mainPhotoUrl: `https://picsum.photos/seed/event1/800/400`,
     eventPhotoUrls: [`https://picsum.photos/seed/event1_gallery1/600/350`, `https://picsum.photos/seed/event1_gallery2/600/350`],
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -60).toISOString(),
     updatedAt: addDays(today, -10).toISOString(),
   },
@@ -111,7 +112,7 @@ export const allMockEvents: MockApiEventDto[] = [
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event2/800/400`,
     eventPhotoUrls: [],
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -90).toISOString(),
     updatedAt: addDays(today, -5).toISOString(),
   },
@@ -149,7 +150,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event3/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -120).toISOString(),
   },
   {
@@ -189,7 +190,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event4/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -30).toISOString(),
   },
   {
@@ -226,7 +227,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event5/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -45).toISOString(),
   },
   {
@@ -257,7 +258,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event6/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -50).toISOString(),
   },
   {
@@ -294,7 +295,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event7/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -20).toISOString(),
   },
   {
@@ -331,7 +332,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event8/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -10).toISOString(),
   },
   {
@@ -368,7 +369,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event9/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -40).toISOString(),
   },
   {
@@ -398,7 +399,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event10/800/400`,
-    status: 'cancelled',
+    status: EventStatus.CANCELLED,
     createdAt: addDays(today, -60).toISOString(),
     updatedAt: addDays(today, -1).toISOString(),
   },
@@ -436,7 +437,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event11/800/400`,
-    status: 'completed',
+    status: EventStatus.COMPLETED,
     createdAt: addDays(today, -100).toISOString(),
     updatedAt: addDays(today, -37).toISOString(),
   },
@@ -483,7 +484,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event12/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -70).toISOString(),
   },
   {
@@ -529,7 +530,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event13/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -90).toISOString(),
   },
   {
@@ -566,7 +567,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event14/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -50).toISOString(),
   },
   {
@@ -594,7 +595,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event15/800/400`,
-    status: 'draft',
+    status: EventStatus.DRAFT,
     createdAt: addDays(today, -5).toISOString(),
   },
   {
@@ -631,7 +632,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event16/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -35).toISOString(),
   },
   {
@@ -676,7 +677,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event17/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -150).toISOString(),
   },
   {
@@ -713,7 +714,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event18/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -25).toISOString(),
   },
   {
@@ -751,7 +752,7 @@ export const allMockEvents: MockApiEventDto[] = [
     isFeaturedEvent: true,
     links: ['https://www.ted.com/tedx'],
     mainPhotoUrl: `https://picsum.photos/seed/event19/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -60).toISOString(),
   },
   {
@@ -796,7 +797,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event20/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -42).toISOString(),
   },
   {
@@ -833,7 +834,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event21/800/400`,
-    status: 'completed',
+    status: EventStatus.COMPLETED,
     createdAt: addDays(today, -200).toISOString(),
     updatedAt: addDays(today, -139).toISOString(),
   },
@@ -862,7 +863,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event22_draft/800/400`,
-    status: 'draft',
+    status: EventStatus.DRAFT,
     createdAt: addDays(today, -1).toISOString(),
   },
   {
@@ -899,7 +900,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event23_pending/800/400`,
-    status: 'pending_approval',
+    status: EventStatus.PENDING_APPROVAL,
     createdAt: addDays(today, -3).toISOString(),
   },
   {
@@ -945,7 +946,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event24/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -20).toISOString(),
   },
   {
@@ -982,7 +983,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event25/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -15).toISOString(),
   },
   {
@@ -1028,7 +1029,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event26/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -80).toISOString(),
   },
   {
@@ -1065,7 +1066,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event27/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -28).toISOString(),
   },
   {
@@ -1103,7 +1104,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event28/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -18).toISOString(),
   },
   {
@@ -1149,7 +1150,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event29/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -30).toISOString(),
   },
 
@@ -1193,7 +1194,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event29/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -30).toISOString(),
   },
 // --- Événement 29 (déjà fourni) ---
@@ -1229,7 +1230,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event30/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -75).toISOString(),
   },
 
@@ -1268,7 +1269,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event31/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -22).toISOString(),
   },
 // --- Événement 32 (Marché aux Puces) ---
@@ -1311,7 +1312,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event32/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -65).toISOString(),
   },
 // --- Événement 33 (Concert Jazz Manouche) ---
@@ -1346,7 +1347,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event33/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -48).toISOString(),
   },
 // --- Événement 34 (Salon du Bien-Être) ---
@@ -1389,7 +1390,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event34/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -100).toISOString(),
   },
 // --- Événement 35 (Tournoi de Jeux de Société) ---
@@ -1432,7 +1433,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event35/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -55).toISOString(),
   },
 // --- Événement 36 (Spectacle de Cirque Moderne) ---
@@ -1475,7 +1476,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event36/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -30).toISOString(),
   },
 // --- Événement 37 (Festival du Film Court) ---
@@ -1518,7 +1519,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event37/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -60).toISOString(),
   },
 // --- Événement 38 (Atelier DIY Cosmétiques Naturels) ---
@@ -1553,7 +1554,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event38/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -32).toISOString(),
   },
 // --- Événement 39 (Salon du Manga et de la Culture Japonaise) ---
@@ -1596,7 +1597,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event39/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -90).toISOString(),
   },
 // --- Événement 40 (Concert Rock en Plein Air - Annulé Récemment) ---
@@ -1631,7 +1632,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false, // Ne plus afficher
     isFeaturedEvent: false, // Ne plus mettre en avant
     mainPhotoUrl: `https://picsum.photos/seed/event40_cancelled/800/400`,
-    status: 'cancelled',
+    status: EventStatus.CANCELLED,
     createdAt: addDays(today, -50).toISOString(),
     updatedAt: addDays(today, -1).toISOString(), // Mis à jour pour l'annulation
   },
@@ -1661,7 +1662,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event41/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -60).toISOString(),
   },
 // --- Événement 42 (Conférence Scientifique - Astronomie) ---
@@ -1704,7 +1705,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event42/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -80).toISOString(),
   },
 // --- Événement 43 (Sport - Marathon) ---
@@ -1747,7 +1748,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event43/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -120).toISOString(),
   },
 // --- Événement 44 (Exposition de Sculptures en Plein Air) ---
@@ -1782,7 +1783,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event44/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -5).toISOString(),
   },
 // --- Événement 45 (Festival de Théâtre Amateur) ---
@@ -1817,7 +1818,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event45/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -60).toISOString(),
   },
 // --- Événement 46 (Atelier de Réparation Vélo - "Repair Café") ---
@@ -1852,7 +1853,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event46/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -15).toISOString(),
   },
 // --- Événement 47 (Concert Électro-Swing) ---
@@ -1895,7 +1896,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event47/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -53).toISOString(),
   },
 // --- Événement 48 (Festival Gastronomique - Food Trucks) ---
@@ -1938,7 +1939,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event48/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -33).toISOString(),
   },
 // --- Événement 49 (Pièce de Théâtre Enfant) ---
@@ -1973,7 +1974,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: false,
     isFeaturedEvent: false,
     mainPhotoUrl: `https://picsum.photos/seed/event49/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -44).toISOString(),
   },
 // --- Événement 50 (Exposition d'Art Abstrait - Vernissage) ---
@@ -2008,7 +2009,7 @@ export const allMockEvents: MockApiEventDto[] = [
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: `https://picsum.photos/seed/event50/800/400`,
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -10).toISOString(),
   },
 // --- Événement 51 (Festival de Musique du Monde - Clôture) ---
@@ -2053,7 +2054,7 @@ export const allMockEvents: MockApiEventDto[] = [
     links: ['http://horizons-sonores-festival.com'],
     mainPhotoUrl: `https://picsum.photos/seed/event51/800/400`,
     eventPhotoUrls: [`https://picsum.photos/seed/event51_galleryA/600/350`, `https://picsum.photos/seed/event51_galleryB/600/350`],
-    status: 'published',
+    status: EventStatus.PUBLISHED,
     createdAt: addDays(today, -110).toISOString(),
     updatedAt: addDays(today, -10).toISOString(),
   }

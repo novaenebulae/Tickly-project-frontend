@@ -6,12 +6,12 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject, signal, computed, WritableSignal } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { map, tap, catchError, switchMap } from 'rxjs/operators';
+import {Injectable, inject, signal, computed, WritableSignal} from '@angular/core';
+import {Observable, of} from 'rxjs';
+import {map, tap, catchError, switchMap} from 'rxjs/operators';
 
 // API Service
-import { StructureApiService } from '../../api/structure/structure-api.service';
+import {StructureApiService} from '../../api/structure/structure-api.service';
 
 // Models and DTOs
 import {
@@ -20,14 +20,14 @@ import {
   StructureUpdateDto,
   StructureCreationResponseDto
 } from '../../../models/structure/structure.model';
-import { StructureTypeModel } from '../../../models/structure/structure-type.model';
-import { StructureAreaModel, AreaCreationDto, AreaUpdateDto } from '../../../models/structure/structure-area.model';
-import { StructureAddressModel } from '../../../models/structure/structure-address.model';
-import { StructureSearchParams } from '../../../models/structure/structure-search-params.model';
+import {StructureTypeModel} from '../../../models/structure/structure-type.model';
+import {StructureAreaModel, AreaCreationDto, AreaUpdateDto} from '../../../models/structure/structure-area.model';
+import {StructureAddressModel} from '../../../models/structure/structure-address.model';
+import {StructureSearchParams} from '../../../models/structure/structure-search-params.model';
 
 // Other Domain Services
-import { NotificationService } from '../utilities/notification.service';
-import { AuthService } from '../user/auth.service';
+import {NotificationService} from '../utilities/notification.service';
+import {AuthService} from '../user/auth.service';
 import {
   AudienceZoneCreationDto,
   AudienceZoneUpdateDto,
@@ -58,6 +58,9 @@ export class StructureService {
 
   private currentAreaAudienceZonesSig: WritableSignal<EventAudienceZone[]> = signal([]);
   public readonly currentAreaAudienceZones = computed(() => this.currentAreaAudienceZonesSig());
+
+  private currentStructureAudienceZonesSig: WritableSignal<EventAudienceZone[]> = signal([]);
+  public readonly currentStructureAudienceZones = computed(() => this.currentStructureAudienceZonesSig());
 
   constructor() {
     // Preload structure types on service initialization
@@ -373,130 +376,161 @@ export class StructureService {
     );
   }
 
-/**
- * Loads audience zones for a specific area
- */
-loadAreaAudienceZones(areaId: number, forceRefresh = false): Observable<EventAudienceZone[]> {
-  if (!forceRefresh) {
-  const cached = this.currentAreaAudienceZonesSig();
-  if (cached.length > 0 && cached[0]?.areaId === areaId) {
-    return of(cached);
+  loadAllAudienceZones(forceRefresh = false): Observable<EventAudienceZone[]> {
+    if (!forceRefresh) {
+      const cached = this.currentStructureAudienceZonesSig();
+      if (cached.length > 0) {
+        return of(cached);
+      }
+    }
+
+    const currentStructureId = this.currentStructureDetailsSig()?.id;
+
+    if (!currentStructureId) {
+      return of([]);
+    }
+
+    let allAudienceZones: EventAudienceZone[] = [];
+
+    this.currentStructureAreas().forEach((area) =>
+      this.structureApi.getAreaAudienceZones(currentStructureId, area.id).pipe(
+        map((apiZones: any[]) => apiZones.map(zone => this.mapApiToAudienceZoneModel(zone))),
+        tap(zones => allAudienceZones.push(...zones)),
+        catchError(error => {
+          this.handleError('Impossible de charger les zones d\'audience.', error);
+          return of([]);
+        })
+      )
+    );
+
+    this.currentStructureAudienceZonesSig.set(allAudienceZones);
+    return of(allAudienceZones);
   }
-}
 
-const currentStructureId = this.currentStructureDetailsSig()?.id;
-if (!currentStructureId) {
-  return of([]);
-}
-
-return this.structureApi.getAreaAudienceZones(currentStructureId, areaId).pipe(
-  map((apiZones: any[]) => apiZones.map(zone => this.mapApiToAudienceZoneModel(zone))),
-  tap(zones => this.currentAreaAudienceZonesSig.set(zones)),
-  catchError(error => {
-    this.handleError('Impossible de charger les zones d\'audience.', error);
-    return of([]);
-  })
-);
-}
-
-/**
- * Creates a new audience zone for an area
- */
-createAudienceZone(areaId: number, zoneData: AudienceZoneCreationDto): Observable<EventAudienceZone | undefined> {
-  const currentStructureId = this.currentStructureDetailsSig()?.id;
-  if (!currentStructureId) {
-  this.notification.displayNotification('Aucune structure sélectionnée', 'error');
-  return of(undefined);
-}
-
-return this.structureApi.createAreaAudienceZone(currentStructureId, areaId, zoneData).pipe(
-  map(apiZone => apiZone ? this.mapApiToAudienceZoneModel(apiZone) : undefined),
-  tap(createdZone => {
-    if (createdZone) {
-      const currentZones = this.currentAreaAudienceZonesSig();
-      this.currentAreaAudienceZonesSig.set([...currentZones, createdZone]);
-      this.notification.displayNotification('Zone d\'audience créée avec succès !', 'valid');
+  /**
+   * Loads audience zones for a specific area
+   */
+  loadAreaAudienceZones(areaId: number, forceRefresh = false): Observable<EventAudienceZone[]> {
+    if (!forceRefresh) {
+      const cached = this.currentAreaAudienceZonesSig();
+      if (cached.length > 0 && cached[0]?.areaId === areaId) {
+        return of(cached);
+      }
     }
-  }),
-  catchError(error => {
-    this.handleError('Impossible de créer la zone d\'audience.', error);
-    return of(undefined);
-  })
-);
-}
 
-/**
- * Updates an existing audience zone
- */
-updateAudienceZone(areaId: number, zoneId: number, zoneData: AudienceZoneUpdateDto): Observable<EventAudienceZone | undefined> {
-  const currentStructureId = this.currentStructureDetailsSig()?.id;
-  if (!currentStructureId) {
-  this.notification.displayNotification('Aucune structure sélectionnée', 'error');
-  return of(undefined);
-}
-
-return this.structureApi.updateAreaAudienceZone(currentStructureId, areaId, zoneId, zoneData).pipe(
-  map(apiZone => apiZone ? this.mapApiToAudienceZoneModel(apiZone) : undefined),
-  tap(updatedZone => {
-    if (updatedZone) {
-      const currentZones = this.currentAreaAudienceZonesSig();
-      const updatedZones = currentZones.map(zone =>
-        zone.id === zoneId ? updatedZone : zone
-      );
-      this.currentAreaAudienceZonesSig.set(updatedZones);
-      this.notification.displayNotification('Zone d\'audience modifiée avec succès !', 'valid');
+    const currentStructureId = this.currentStructureDetailsSig()?.id;
+    if (!currentStructureId) {
+      return of([]);
     }
-  }),
-  catchError(error => {
-    this.handleError('Impossible de modifier la zone d\'audience.', error);
-    return of(undefined);
-  })
-);
-}
 
-/**
- * Deletes an audience zone
- */
-deleteAudienceZone(areaId: number, zoneId: number): Observable<boolean> {
-  const currentStructureId = this.currentStructureDetailsSig()?.id;
-  if (!currentStructureId) {
-  this.notification.displayNotification('Aucune structure sélectionnée', 'error');
-  return of(false);
-}
+    return this.structureApi.getAreaAudienceZones(currentStructureId, areaId).pipe(
+      map((apiZones: any[]) => apiZones.map(zone => this.mapApiToAudienceZoneModel(zone))),
+      tap(zones => this.currentAreaAudienceZonesSig.set(zones)),
+      catchError(error => {
+        this.handleError('Impossible de charger les zones d\'audience.', error);
+        return of([]);
+      })
+    );
+  }
 
-return this.structureApi.deleteAreaAudienceZone(currentStructureId, areaId, zoneId).pipe(
-  tap(() => {
-    const currentZones = this.currentAreaAudienceZonesSig();
-    const filteredZones = currentZones.filter(zone => zone.id !== zoneId);
-    this.currentAreaAudienceZonesSig.set(filteredZones);
-    this.notification.displayNotification('Zone d\'audience supprimée avec succès !', 'valid');
-  }),
-  map(() => true),
-  catchError(error => {
-    this.handleError('Impossible de supprimer la zone d\'audience.', error);
-    return of(false);
-  })
-);
-}
+  /**
+   * Creates a new audience zone for an area
+   */
+  createAudienceZone(areaId: number, zoneData: AudienceZoneCreationDto): Observable<EventAudienceZone | undefined> {
+    const currentStructureId = this.currentStructureDetailsSig()?.id;
+    if (!currentStructureId) {
+      this.notification.displayNotification('Aucune structure sélectionnée', 'error');
+      return of(undefined);
+    }
 
-/**
- * Clears the audience zones cache
- */
-clearAudienceZonesCache(): void {
-  this.currentAreaAudienceZonesSig.set([]);
-}
+    return this.structureApi.createAreaAudienceZone(currentStructureId, areaId, zoneData).pipe(
+      map(apiZone => apiZone ? this.mapApiToAudienceZoneModel(apiZone) : undefined),
+      tap(createdZone => {
+        if (createdZone) {
+          const currentZones = this.currentAreaAudienceZonesSig();
+          this.currentAreaAudienceZonesSig.set([...currentZones, createdZone]);
+          this.notification.displayNotification('Zone d\'audience créée avec succès !', 'valid');
+        }
+      }),
+      catchError(error => {
+        this.handleError('Impossible de créer la zone d\'audience.', error);
+        return of(undefined);
+      })
+    );
+  }
+
+  /**
+   * Updates an existing audience zone
+   */
+  updateAudienceZone(areaId: number, zoneId: number, zoneData: AudienceZoneUpdateDto): Observable<EventAudienceZone | undefined> {
+    const currentStructureId = this.currentStructureDetailsSig()?.id;
+    if (!currentStructureId) {
+      this.notification.displayNotification('Aucune structure sélectionnée', 'error');
+      return of(undefined);
+    }
+
+    return this.structureApi.updateAreaAudienceZone(currentStructureId, areaId, zoneId, zoneData).pipe(
+      map(apiZone => apiZone ? this.mapApiToAudienceZoneModel(apiZone) : undefined),
+      tap(updatedZone => {
+        if (updatedZone) {
+          const currentZones = this.currentAreaAudienceZonesSig();
+          const updatedZones = currentZones.map(zone =>
+            zone.id === zoneId ? updatedZone : zone
+          );
+          this.currentAreaAudienceZonesSig.set(updatedZones);
+          this.notification.displayNotification('Zone d\'audience modifiée avec succès !', 'valid');
+        }
+      }),
+      catchError(error => {
+        this.handleError('Impossible de modifier la zone d\'audience.', error);
+        return of(undefined);
+      })
+    );
+  }
+
+  /**
+   * Deletes an audience zone
+   */
+  deleteAudienceZone(areaId: number, zoneId: number): Observable<boolean> {
+    const currentStructureId = this.currentStructureDetailsSig()?.id;
+    if (!currentStructureId) {
+      this.notification.displayNotification('Aucune structure sélectionnée', 'error');
+      return of(false);
+    }
+
+    return this.structureApi.deleteAreaAudienceZone(currentStructureId, areaId, zoneId).pipe(
+      tap(() => {
+        const currentZones = this.currentAreaAudienceZonesSig();
+        const filteredZones = currentZones.filter(zone => zone.id !== zoneId);
+        this.currentAreaAudienceZonesSig.set(filteredZones);
+        this.notification.displayNotification('Zone d\'audience supprimée avec succès !', 'valid');
+      }),
+      map(() => true),
+      catchError(error => {
+        this.handleError('Impossible de supprimer la zone d\'audience.', error);
+        return of(false);
+      })
+    );
+  }
+
+  /**
+   * Clears the audience zones cache
+   */
+  clearAudienceZonesCache(): void {
+    this.currentAreaAudienceZonesSig.set([]);
+  }
 
 // Méthode de transformation privée
-private mapApiToAudienceZoneModel(apiZone: any): EventAudienceZone {
-  return {
-    id: apiZone.id,
-    name: apiZone.name,
-    areaId: apiZone.areaId,
-    maxCapacity: apiZone.maxCapacity,
-    isActive: apiZone.isActive,
-    seatingType: apiZone.seatingType,
-  };
-}
+  private mapApiToAudienceZoneModel(apiZone: any): EventAudienceZone {
+    return {
+      id: apiZone.id,
+      name: apiZone.name,
+      areaId: apiZone.areaId,
+      maxCapacity: apiZone.maxCapacity,
+      isActive: apiZone.isActive,
+      seatingType: apiZone.seatingType,
+    };
+  }
 
   // --- Utility Methods ---
 

@@ -110,17 +110,20 @@ export class EventService {
    * Creates a new event.
    * Prepares the API DTO from `EventDataDto`.
    * @param eventData - The `EventDataDto` for creating the event.
+   * @param forceRefresh - If true, forces a refresh of the relevant lists after creation.
    * @returns An Observable of the created `EventModel` or `undefined` on error.
    */
-  createEvent(eventData: EventDataDto): Observable<EventModel | undefined> {
+  createEvent(eventData: EventDataDto, forceRefresh: boolean = true): Observable<EventModel | undefined> {
     const apiEventData = this.mapEventDataDtoToApiDto(eventData);
-    return this.eventApi.createEvent(apiEventData).pipe(
+    return this.eventApi.createEvent(apiEventData, forceRefresh).pipe(
       map(apiEvent => this.mapApiEventToEventModel(apiEvent)),
       tap(newEvent => {
         if (newEvent) {
           this.notification.displayNotification('Événement créé avec succès !', 'valid');
           this.eventDetailsCache.set(newEvent.id!, newEvent); // Cache the new event
-          this.refreshRelevantCachedLists(newEvent);
+          if (forceRefresh) {
+            this.refreshRelevantCachedLists(newEvent);
+          }
         }
       }),
       catchError(error => {
@@ -134,16 +137,19 @@ export class EventService {
    * Updates an existing event.
    * @param eventId - The ID of the event to update.
    * @param eventUpdateData - Partial `EventDataDto` with fields to update.
+   * @param forceRefresh - If true, forces a refresh of the relevant lists after update.
    * @returns An Observable of the updated `EventModel` or `undefined` on error.
    */
-  updateEvent(eventId: number, eventUpdateData: Partial<EventDataDto>): Observable<EventModel | undefined> {
+  updateEvent(eventId: number, eventUpdateData: Partial<EventDataDto>, forceRefresh: boolean = true): Observable<EventModel | undefined> {
     const apiEventData = this.mapEventDataDtoToApiDto(eventUpdateData, eventId);
-    return this.eventApi.updateEvent(eventId, apiEventData).pipe(
+    return this.eventApi.updateEvent(eventId, apiEventData, forceRefresh).pipe(
       map(apiEvent => this.mapApiEventToEventModel(apiEvent)),
       tap(updatedEvent => {
         if (updatedEvent) {
           this.eventDetailsCache.set(eventId, updatedEvent);
-          this.refreshRelevantCachedLists(updatedEvent);
+          if (forceRefresh) {
+            this.refreshRelevantCachedLists(updatedEvent);
+          }
           this.notification.displayNotification('Événement mis à jour avec succès.', 'valid');
         }
       }),
@@ -220,6 +226,29 @@ export class EventService {
         return of([]);
       })
     );
+  }
+
+
+  /**
+   * Rafraîchit la liste des événements mis en avant
+   * @param forceRefresh - Force le rechargement depuis l'API
+   */
+  refreshFeaturedEvents(forceRefresh = false, count = APP_CONFIG.events.defaultFeaturedCount): Observable<EventModel[]> {
+    return this.getFeaturedEvents(forceRefresh, count);
+  }
+
+  /**
+   * Rafraîchit la liste des événements d'une structure
+   * @param structureId - ID de la structure
+   * @param forceRefresh - Force le rechargement depuis l'API
+   */
+  refreshStructureEvents(structureId: number, forceRefresh = false): Observable<EventModel[]> {
+    if (forceRefresh) {
+      return this.getEventsByStructure(structureId).pipe(
+        tap(events => this.structureEventsSig.set(events))
+      );
+    }
+    return of(this.structureEventsSig());
   }
 
   getHomePageEvents(forceRefresh = false, count = APP_CONFIG.events.defaultHomeCount): Observable<EventModel[]> {
@@ -310,9 +339,6 @@ export class EventService {
     return this.getHomePageEvents(force);
   }
 
-  private refreshFeaturedEvents(force = true): Observable<EventModel[]> {
-    return this.getFeaturedEvents(force);
-  }
 
   /**
    * Refreshes cached lists (homepage, featured) if the provided event might affect them.

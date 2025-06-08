@@ -395,7 +395,7 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
   }
 
   editEvent(event: EventModel): void {
-    this.router.navigate(['/admin/events', event.id, 'edit']);
+    this.router.navigate(['/admin/event', event.id, 'edit']);
   }
 
   deleteEvent(event: EventModel): void {

@@ -1,0 +1,523 @@
+<div class="event-form-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>
+      <mat-icon>event</mat-icon>
+      {{ pageTitle() }}
+    </h1>
+    <div class="progress-bar">
+      <mat-progress-bar mode="determinate" [value]="formProgress()"></mat-progress-bar>
+      <span class="progress-text">{{ currentStep() + 1 }}/4</span>
+    </div>
+  </div>
+
+  <!-- Loading spinner -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Chargement de l'événement...</p>
+    </div>
+  } @else {
+    <!-- Stepper Navigation -->
+    <div class="stepper-nav">
+      <div class="step"
+           [class.active]="currentStep() === 0"
+           [class.completed]="formValiditySig()[0]"
+           (click)="goToStep(0)">
+        <div class="step-icon">
+          <mat-icon>info</mat-icon>
+        </div>
+        <span>Informations générales</span>
+      </div>
+
+      <div class="step"
+           [class.active]="currentStep() === 1"
+           [class.completed]="formValiditySig()[1]"
+           (click)="goToStep(1)">
+        <div class="step-icon">
+          <mat-icon>location_on</mat-icon>
+        </div>
+        <span>Lieu et espaces</span>
+      </div>
+
+      <div class="step"
+           [class.active]="currentStep() === 2"
+           [class.completed]="formValiditySig()[2]"
+           (click)="goToStep(2)">
+        <div class="step-icon">
+          <mat-icon>photo</mat-icon>
+        </div>
+        <span>Médias</span>
+      </div>
+
+      <div class="step"
+           [class.active]="currentStep() === 3"
+           [class.completed]="formValiditySig()[3]"
+           (click)="goToStep(3)">
+        <div class="step-icon">
+          <mat-icon>settings</mat-icon>
+        </div>
+        <span>Configuration</span>
+      </div>
+    </div>
+
+    <!-- Form Content -->
+    <div class="form-content">
+      <!-- Step 1: General Information -->
+      @if (currentStep() === 0) {
+        <form [formGroup]="generalInfoForm" class="step-form">
+          <h2>Informations générales</h2>
+
+          <!-- Basic Info -->
+          <div class="form-section">
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Nom de l'événement</mat-label>
+                <input matInput formControlName="name" required>
+                <mat-error *ngIf="generalInfoForm.get('name')?.invalid">
+                  {{ getFormErrorMessage(generalInfoForm, 'name') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Catégorie</mat-label>
+                <mat-select formControlName="categoryId" required>
+                  @for (category of categories(); track category.id) {
+                    <mat-option [value]="category.id">{{ category.name }}</mat-option>
+                  }
+                </mat-select>
+                <mat-error *ngIf="generalInfoForm.get('categoryId')?.invalid">
+                  La catégorie est obligatoire
+                </mat-error>
+              </mat-form-field>
+
+              <mat-checkbox formControlName="isFreeEvent" class="half-width free-event-checkbox">
+                Événement gratuit
+              </mat-checkbox>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Description courte</mat-label>
+                <input matInput formControlName="shortDescription" maxlength="200">
+                <mat-hint>Description succincte pour l'aperçu (max 200 caractères)</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Description complète</mat-label>
+                <textarea matInput formControlName="fullDescription" rows="4" required></textarea>
+                <mat-error *ngIf="generalInfoForm.get('fullDescription')?.invalid">
+                  {{ getFormErrorMessage(generalInfoForm, 'fullDescription') }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Tags section -->
+            <div class="tags-section">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Mots-clés (séparés par des virgules)</mat-label>
+                <input matInput formControlName="tagsInput" placeholder="ex: concert, musique, rock">
+                <mat-icon matSuffix>local_offer</mat-icon>
+                <mat-hint>Entrez vos mots-clés séparés par des virgules</mat-hint>
+              </mat-form-field>
+
+              @if (parsedTags().length > 0) {
+                <div class="tags-preview">
+                  @for (tag of parsedTags(); track tag) {
+                    <div class="tag-chip">{{ tag }}</div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Dates section -->
+          <div class="dates-section">
+            <h3>
+              <mat-icon>schedule</mat-icon>
+              Dates et horaires
+            </h3>
+
+            <div class="form-row">
+              <div class="date-time-picker half-width">
+                <label for="startDate">Date de début</label>
+                <input type="date" id="startDate" formControlName="startDatePart" required>
+                @if (generalInfoForm.get('startDatePart')?.invalid && (generalInfoForm.get('startDatePart')?.dirty || generalInfoForm.get('startDatePart')?.touched)) {
+                  <div class="validation-error">La date de début est obligatoire</div>
+                }
+              </div>
+
+              <div class="date-time-picker half-width">
+                <label for="startTime">Heure de début</label>
+                <input type="time" id="startTime" formControlName="startTimePart" required>
+                @if (generalInfoForm.get('startTimePart')?.invalid && (generalInfoForm.get('startTimePart')?.dirty || generalInfoForm.get('startTimePart')?.touched)) {
+                  <div class="validation-error">L'heure de début est obligatoire</div>
+                }
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="date-time-picker half-width">
+                <label for="endDate">Date de fin</label>
+                <input type="date" id="endDate" formControlName="endDatePart" required>
+                @if (generalInfoForm.get('endDatePart')?.invalid && (generalInfoForm.get('endDatePart')?.dirty || generalInfoForm.get('endDatePart')?.touched)) {
+                  <div class="validation-error">La date de fin est obligatoire</div>
+                }
+              </div>
+
+              <div class="date-time-picker half-width">
+                <label for="endTime">Heure de fin</label>
+                <input type="time" id="endTime" formControlName="endTimePart" required>
+                @if (generalInfoForm.get('endTimePart')?.invalid && (generalInfoForm.get('endTimePart')?.dirty || generalInfoForm.get('endTimePart')?.touched)) {
+                  <div class="validation-error">L'heure de fin est obligatoire</div>
+                }
+              </div>
+            </div>
+
+            @if (generalInfoForm.hasError('dateRange')) {
+              <div class="date-range-error">
+                <mat-icon>error</mat-icon>
+                La date de fin doit être postérieure à la date de début
+              </div>
+            }
+            @if (generalInfoForm.hasError('pastEvent')) {
+              <div class="date-range-error">
+                <mat-icon>error</mat-icon>
+                La date de début doit être dans le futur
+              </div>
+            }
+          </div>
+        </form>
+      }
+
+      <!-- Step 2: Location and Areas -->
+      @if (currentStep() === 1) {
+        <form [formGroup]="locationForm" class="step-form">
+          <h2>Lieu et espaces</h2>
+
+          <!-- Address -->
+          <div class="form-section" formGroupName="address">
+            <h3>
+              <mat-icon>location_on</mat-icon>
+              Adresse
+            </h3>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Rue</mat-label>
+                <input matInput formControlName="street" [disabled]="true">
+                <mat-hint>Adresse définie au niveau de la structure</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Code postal</mat-label>
+                <input matInput [disabled]="true" formControlName="postalCode">
+                <mat-hint>Défini au niveau de la structure</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Ville</mat-label>
+                <input matInput formControlName="city" [disabled]="true">
+                <mat-hint>Définie au niveau de la structure</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Pays</mat-label>
+                <input matInput formControlName="country" [disabled]="true">
+                <mat-hint>Défini au niveau de la structure</mat-hint>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>
+              <mat-icon>event_seat</mat-icon>
+              Configuration du placement
+            </h3>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Type de placement par défaut</mat-label>
+                <mat-select formControlName="defaultSeatingType" required>
+                  @for (option of seatingTypeOptions; track option.value) {
+                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Areas and Zones Selection -->
+          <div class="form-section">
+            <h3>
+              <mat-icon>domain</mat-icon>
+              Sélection des espaces et zones
+            </h3>
+
+            <app-event-areas-zones-selection
+              [structureId]="userStructureId()!"
+              [defaultSeatingType]="locationForm.get('defaultSeatingType')?.value"
+              (selectionChange)="onAreaZoneSelectionChange($event)">
+            </app-event-areas-zones-selection>
+          </div>
+        </form>
+      }
+
+      <!-- Step 3: Media -->
+      @if (currentStep() === 2) {
+        <form [formGroup]="mediaForm" class="step-form">
+          <h2>Médias et contenu</h2>
+
+          <!-- Main Photo -->
+          <div class="form-section">
+            <h3>
+              <mat-icon>photo_camera</mat-icon>
+              Photo principale
+            </h3>
+
+            <div class="photo-upload">
+              @if (previewMainPhoto()) {
+                <div class="photo-preview">
+                  <img [src]="previewMainPhoto()" alt="Photo principale">
+                  <div class="photo-actions">
+                    <button type="button" mat-icon-button color="primary" (click)="triggerMainPhotoUpload()">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button type="button" mat-icon-button color="warn" (click)="removeMainPhoto()">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              } @else {
+                <div class="photo-placeholder" (click)="triggerMainPhotoUpload()">
+                  <mat-icon>add_photo_alternate</mat-icon>
+                  <span>Ajouter une photo principale</span>
+                </div>
+              }
+
+              <input #mainPhotoInput type="file" accept="image/*" (change)="onMainPhotoSelected($event)" hidden>
+            </div>
+          </div>
+
+          <!-- Additional Photos -->
+          <div class="form-section">
+            <h3>
+              <mat-icon>photo_library</mat-icon>
+              Photos supplémentaires
+            </h3>
+
+            <div class="photos-grid">
+              @for (photo of additionalPhotosPreview(); track $index) {
+                <div class="photo-item">
+                  <img [src]="photo" alt="Photo {{ $index + 1 }}">
+                  <div class="photo-actions">
+                    <button type="button" mat-icon-button color="warn" (click)="removePhoto($index)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              }
+
+              <div class="add-photo-button" (click)="triggerAdditionalPhotoUpload()">
+                <mat-icon>add</mat-icon>
+                <span>Ajouter</span>
+              </div>
+            </div>
+
+            <input #additionalPhotoInput type="file" accept="image/*" multiple (change)="onAdditionalPhotosSelected($event)" hidden>
+          </div>
+
+          <!-- Event Actors -->
+          <div class="form-section">
+            <h3>
+              <mat-icon>people</mat-icon>
+              Intervenants/Artistes
+            </h3>
+
+            <div formArrayName="eventActors">
+              @for (actor of eventActorsFormArray.controls; track $index) {
+                <div [formGroupName]="$index" class="actor-form">
+                  <div class="actor-photo">
+                    @if (actorPhotosPreview()[$index]) {
+                      <img [src]="actorPhotosPreview()[$index]" alt="Photo de l'intervenant">
+                    } @else {
+                      <div class="photo-placeholder-small">
+                        <mat-icon>person</mat-icon>
+                      </div>
+                    }
+                    <button type="button" mat-icon-button (click)="changeActorPhoto($index)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  </div>
+
+                  <div class="actor-info">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Nom</mat-label>
+                      <input matInput formControlName="name" required>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Rôle/Fonction</mat-label>
+                      <input matInput formControlName="role" required>
+                    </mat-form-field>
+                  </div>
+
+                  <button type="button" mat-icon-button color="warn" (click)="removeEventActor($index)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+
+            <button type="button" mat-stroked-button (click)="addEventActor()">
+              <mat-icon>add</mat-icon>
+              Ajouter un intervenant
+            </button>
+
+            <input #actorPhotoInput type="file" accept="image/*" (change)="onActorPhotoSelected($event)" hidden>
+          </div>
+
+          <!-- External Links -->
+          <div class="form-section">
+            <h3>
+              <mat-icon>link</mat-icon>
+              Liens externes
+            </h3>
+
+            <div formArrayName="links">
+              @for (link of linksFormArray.controls; track $index) {
+                <div class="link-input">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Lien {{ $index + 1 }}</mat-label>
+                    <input matInput [formControlName]="$index" placeholder="https://...">
+                    <mat-icon matSuffix>link</mat-icon>
+                  </mat-form-field>
+                  <button type="button" mat-icon-button color="warn" (click)="removeExternalLink($index)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+
+            <button type="button" mat-stroked-button (click)="addExternalLink()">
+              <mat-icon>add</mat-icon>
+              Ajouter un lien
+            </button>
+          </div>
+        </form>
+      }
+
+      <!-- Step 4: Configuration -->
+      @if (currentStep() === 3) {
+        <form [formGroup]="configForm" class="step-form">
+          <h2>Configuration et publication</h2>
+
+          <div class="form-section">
+            <h3>
+              <mat-icon>visibility</mat-icon>
+              Visibilité
+            </h3>
+
+            <div class="config-options">
+              <mat-checkbox formControlName="displayOnHomepage">
+                Afficher sur la page d'accueil
+              </mat-checkbox>
+
+              <mat-checkbox formControlName="isFeaturedEvent">
+                Événement mis en avant
+              </mat-checkbox>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>
+              <mat-icon>publish</mat-icon>
+              Statut de publication
+            </h3>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Statut</mat-label>
+              <mat-select formControlName="status" required>
+                @for (option of eventStatusOptions; track option.value) {
+                  <mat-option [value]="option.value">
+                    <mat-icon [fontIcon]="getStatusIcon(option.value)"></mat-icon>
+                    {{ option.label }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- Summary -->
+          <div class="form-section summary-section">
+            <h3>
+              <mat-icon>summarize</mat-icon>
+              Résumé
+            </h3>
+
+            <mat-card class="summary-card">
+              <mat-card-content>
+                <div class="summary-item">
+                  <strong>Événement:</strong> {{ generalInfoForm.get('name')?.value || 'Non défini' }}
+                </div>
+                <div class="summary-item">
+                  <strong>Dates:</strong> {{ formatDateRange() }}
+                </div>
+                <div class="summary-item">
+                  <strong>Lieu:</strong> {{ formatAddress() }}
+                </div>
+                <div class="summary-item">
+                  <strong>Espaces sélectionnés:</strong> {{ getSelectedAreasCount() }} espaces, {{ getSelectedZonesCount() }} zones
+                </div>
+                <div class="summary-item">
+                  <strong>Mots-clés:</strong> {{ parsedTags().join(', ') || 'Aucun' }}
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </form>
+      }
+    </div>
+
+    <!-- Navigation buttons -->
+    <div class="form-actions">
+      <button type="button" mat-button (click)="onCancel()">
+        Annuler
+      </button>
+
+      <div class="navigation-buttons">
+        @if (currentStep() > 0) {
+          <button type="button" mat-stroked-button (click)="previousStep()">
+            <mat-icon>arrow_back</mat-icon>
+            Précédent
+          </button>
+        }
+
+        @if (!isLastStep()) {
+          <button type="button" mat-flat-button color="primary"
+                  (click)="nextStep()">
+            Suivant
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        } @else {
+          <button type="button" mat-flat-button color="primary"
+                  [disabled]="!canProceed() || isSubmitting()"
+                  (click)="onSubmitEvent()">
+            @if (isSubmitting()) {
+              <mat-spinner diameter="20"></mat-spinner>
+            }
+            {{ submitButtonText() }}
+          </button>
+        }
+      </div>
+    </div>
+  }
+</div>

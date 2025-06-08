@@ -15,6 +15,8 @@ import {
   getMockEventById,
   getFilteredEvents,
   getNextEventId,
+  addMockEvent,
+  updateMockEvent
 } from '../../../mocks/events/events.mock';
 import { mockCategories } from '../../../mocks/events/categories.mock';
 import { allMockEvents } from '../../../mocks/events/data/event-data.mock';
@@ -74,7 +76,12 @@ export class EventApiMockService {
       tags: eventApiDto.tags,
       startDate: eventApiDto.startDate,
       endDate: eventApiDto.endDate,
-      address: eventApiDto.address,
+      address: eventApiDto.address || {
+        street: '',
+        city: '',
+        zipCode: '',
+        country: 'France'
+      },
       structureId: eventApiDto.structureId,
       areas: eventApiDto.areas,
       isFreeEvent: eventApiDto.isFreeEvent,
@@ -94,11 +101,14 @@ export class EventApiMockService {
       links: eventApiDto.links,
       mainPhotoUrl: eventApiDto.mainPhotoUrl,
       eventPhotoUrls: eventApiDto.eventPhotoUrls,
-      status: 'draft',
+      status: EventStatus.DRAFT,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    // No need to delete eventApiDto.categoryId from the response as it wasn't part of newApiEventResponse structure
+
+    // Important : ajouter l'événement à la liste des événements mockés
+    addMockEvent(newApiEventResponse);
+
     return this.apiConfig.createMockResponse(newApiEventResponse);
   }
 
@@ -141,6 +151,9 @@ export class EventApiMockService {
       }));
     }
 
+    // Important : mettre à jour l'événement dans la liste des événements mockés
+    updateMockEvent(id, updatedApiEventDto);
+
     return this.apiConfig.createMockResponse(updatedApiEventDto);
   }
 
@@ -150,6 +163,13 @@ export class EventApiMockService {
     if (!existingEvent) {
       return this.apiConfig.createMockError(404, 'Mock Event not found for deletion');
     }
+
+    // Supprimer l'événement de la liste des événements mockés
+    const index = allMockEvents.findIndex(event => event.id === id);
+    if (index !== -1) {
+      allMockEvents.splice(index, 1);
+    }
+
     return this.apiConfig.createMockResponse(undefined as void);
   }
 
@@ -170,6 +190,10 @@ export class EventApiMockService {
       status: status,
       updatedAt: new Date().toISOString()
     };
+
+    // Important : mettre à jour le statut de l'événement dans la liste des événements mockés
+    updateMockEvent(id, { status, updatedAt: new Date().toISOString() });
+
     return this.apiConfig.createMockResponse(updatedApiEventDto);
   }
 }

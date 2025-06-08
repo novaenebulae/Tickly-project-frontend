@@ -88,8 +88,9 @@ export class EventApiService {
    * Expects a raw API DTO for the event.
    * @param eventApiDto - The raw API DTO representing the event to create.
    *                      Should contain `categoryId` and appropriate `audienceZones`.
+   * @param forceRefresh - If true, the UI should refresh the event list after creation
    */
-  createEvent(eventApiDto: any): Observable<any> {
+  createEvent(eventApiDto: any, forceRefresh: boolean = true): Observable<any> {
     if (this.apiConfig.isMockEnabledForDomain('events')) {
       return this.mockService.mockCreateEvent(eventApiDto);
     }
@@ -108,8 +109,9 @@ export class EventApiService {
    * Expects a partial raw API DTO with fields to update.
    * @param id - The ID of the event to update.
    * @param eventApiDto - The partial raw API DTO with updated data.
+   * @param forceRefresh - If true, the UI should refresh the event list after update
    */
-  updateEvent(id: number, eventApiDto: Partial<any>): Observable<any> {
+  updateEvent(id: number, eventApiDto: Partial<any>, forceRefresh: boolean = true): Observable<any> {
     if (this.apiConfig.isMockEnabledForDomain('events')) {
       return this.mockService.mockUpdateEvent(id, eventApiDto);
     }
@@ -184,7 +186,7 @@ export class EventApiService {
    */
   getHomePageEvents(count: number = APP_CONFIG.events.defaultHomeCount): Observable<any[]> {
     const params: EventSearchParams = {
-      status: 'published',
+      status: EventStatus.PUBLISHED,
       displayOnHomepage: true,
       sortBy: 'startDate',
       sortDirection: 'asc',
@@ -203,7 +205,7 @@ export class EventApiService {
     const params: EventSearchParams = {
       structureId: structureId,
       isFeaturedEvent: true, // Using the renamed model property
-      status: 'published',
+      status: EventStatus.PUBLISHED,
       sortBy: 'startDate',
       sortDirection: 'asc',
       pageSize: count,
@@ -220,7 +222,7 @@ export class EventApiService {
     return this.getEvents({
       ...params,
       startDate: params.startDate || new Date(),
-      status: 'published',
+      status: EventStatus.PUBLISHED,
       sortBy: 'startDate',
       sortDirection: 'asc'
     });

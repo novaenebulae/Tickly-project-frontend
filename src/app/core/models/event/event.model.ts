@@ -12,12 +12,20 @@ import { StructureAreaModel } from '../structure/structure-area.model'; // Using
 /**
  * Defines the possible statuses of an event.
  */
-export type EventStatus =
-  | 'draft'     // Event is being prepared, not yet visible to the public.
-  | 'published' // Event is live and visible.
-  | 'pending_approval' // Event is awaiting approval from an admin/moderator.
-  | 'cancelled' // Event has been cancelled.
-  | 'completed'; // Event has finished.
+// export type EventStatus =
+//   | 'draft'     // Event is being prepared, not yet visible to the public.
+//   | 'published' // Event is live and visible.
+//   | 'pending_approval' // Event is awaiting approval from an admin/moderator.
+//   | 'cancelled' // Event has been cancelled.
+//   | 'completed'; // Event has finished.
+
+export enum EventStatus {
+  DRAFT = 'draft',
+  PUBLISHED = 'published',
+  PENDING_APPROVAL = 'pending_approval',
+  CANCELLED = 'cancelled',
+  COMPLETED = 'completed'
+}
 
 /**
  * Represents an event in the application.
@@ -115,6 +123,8 @@ export interface EventModel {
    */
   links?: string[];
 
+  eventActors?: EventActor[];
+
   /**
    * URL of the main promotional photo or poster for the event.
    */
@@ -141,6 +151,13 @@ export interface EventModel {
    * Managed by the backend.
    */
   updatedAt?: Date;
+}
+
+export interface EventActor {
+  id: number;
+  name: string;
+  role: string;
+  photoUrl: string;
 }
 
 /**
@@ -174,9 +191,9 @@ export interface EventDataDto {
   audienceZones: (Omit<EventAudienceZone, 'id'> | EventAudienceZone)[]; // Allows new and existing zones for update
   displayOnHomepage?: boolean;
   isFeaturedEvent?: boolean;
+  eventActors?: EventActor[];
   links?: string[];
   mainPhotoUrl?: string;
   eventPhotoUrls?: string[];
   status?: EventStatus; // Status might be updatable separately or along with other fields
-  // Removed 'genre' as 'tags' is more generic. If 'genre' is distinct, it can be re-added.
 }

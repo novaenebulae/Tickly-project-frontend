@@ -5,7 +5,6 @@ import { StatsComponent } from './panels/stats/stats.component';
 
 // Event management components
 import { EventsPanelComponent } from './panels/events/events-panel/events-panel.component';
-import { EventCreationComponent } from './panels/events/event-creation/event-creation.component';
 import { EventCalendarComponent } from './panels/events/event-calendar/event-calendar.component';
 import { EventDetailsPanelComponent } from './panels/events/event-details-panel/event-details-panel.component';
 
@@ -14,6 +13,7 @@ import { StructurePanelComponent } from './panels/structure/structure-panel/stru
 import { StructureEditComponent } from './panels/structure/structure-edit/structure-edit.component';
 import { TeamManagementComponent } from './panels/structure/team-management/team-management.component';
 import { AreasManagementComponent } from './panels/structure/areas-management/areas-management.component';
+import {EventFormComponent} from './panels/events/event-form/event-form.component';
 
 /**
  * Admin area routes configuration
@@ -58,7 +58,7 @@ export const adminRoutes: Routes = [
       },
       {
         path: 'events/create',
-        component: EventCreationComponent,
+        component: EventFormComponent,
         title: 'Créer un événement | Administration'
       },
       {
@@ -70,6 +70,11 @@ export const adminRoutes: Routes = [
         path: 'event/details/:id',
         component: EventDetailsPanelComponent,
         title: 'Détails d\'événement | Administration'
+      },
+      {
+        path: 'event/:id/edit',
+        component: EventFormComponent,
+        title: 'Édition d\'un événement | Administration'
       },
 
       // Structure Management

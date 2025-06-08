@@ -80,6 +80,49 @@ export function getMockEventById(id: number): MockApiEventDto | undefined {
   return allMockEvents.find(event => event.id === id);
 }
 
+/**
+ * Ajoute un nouvel événement à la liste des événements mockés
+ * @param event L'événement à ajouter
+ */
+export function addMockEvent(event: {
+  id: number;
+  name: any;
+  category: { id: any; name: string };
+  shortDescription: any;
+  fullDescription: any;
+  tags: any;
+  startDate: any;
+  endDate: any;
+  address: any;
+  structureId: any;
+  areas: any;
+  isFreeEvent: any;
+  defaultSeatingType: any;
+  audienceZones: { id: number; name: any; areaId: any; maxCapacity: any; isActive: any; seatingType: any }[];
+  displayOnHomepage: any;
+  isFeaturedEvent: any;
+  links: any;
+  mainPhotoUrl: any;
+  eventPhotoUrls: any;
+  status: EventStatus;
+  createdAt: string;
+  updatedAt: string
+}): void {
+  allMockEvents.push(event);
+}
+
+/**
+ * Met à jour un événement existant dans la liste des événements mockés
+ * @param id L'ID de l'événement à mettre à jour
+ * @param updatedEvent Les nouvelles données de l'événement
+ */
+export function updateMockEvent(id: number, updatedEvent: Partial<MockApiEventDto>): void {
+  const index = allMockEvents.findIndex(event => event.id === id);
+  if (index !== -1) {
+    allMockEvents[index] = { ...allMockEvents[index], ...updatedEvent };
+  }
+}
+
 // Modifiez la signature de getFilteredEvents
 export function getFilteredEvents(allEvents: MockApiEventDto[], filters: Partial<MockEventFilters>): MockApiEventDto[] {
   let results = [...allEvents];

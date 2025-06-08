@@ -22,24 +22,30 @@ import { EventModel } from '../../../../core/models/event/event.model';
 export class EventDescriptionSectionComponent {
   @Input() event?: EventModel | null;
 
-  // Données placeholder pour les acteurs de l'événement
-  eventActors = [
-    {
-      name: 'Marie Dupont',
-      role: 'Artiste principale',
-      image: 'https://randomuser.me/api/portraits/women/12.jpg'
-    },
-    {
-      name: 'Jean Martin',
-      role: 'Invité spécial',
-      image: 'https://randomuser.me/api/portraits/men/32.jpg'
-    },
-    {
-      name: 'Sophie Leblanc',
-      role: 'Conférencière',
-      image: 'https://randomuser.me/api/portraits/women/24.jpg'
+  // Getter pour récupérer les acteurs de l'événement ou les placeholders
+  get eventActors() {
+    if (this.event?.eventActors && this.event.eventActors.length > 0) {
+      return this.event.eventActors;
     }
-  ];
+    // Données placeholder pour les acteurs de l'événement si aucun acteur n'est défini
+    return [
+      {
+        name: 'Marie Dupont',
+        role: 'Artiste principale',
+        photoUrl: 'https://randomuser.me/api/portraits/women/12.jpg'
+      },
+      {
+        name: 'Jean Martin',
+        role: 'Invité spécial',
+        photoUrl: 'https://randomuser.me/api/portraits/men/32.jpg'
+      },
+      {
+        name: 'Sophie Leblanc',
+        role: 'Conférencière',
+        photoUrl: 'https://randomuser.me/api/portraits/women/24.jpg'
+      }
+    ];
+  }
 
   // Description placeholder
   placeholderDescription = `
