@@ -59,7 +59,7 @@ export const publicRoutes: Routes = [
           {
             path: '',
             component: AllStructuresPageComponent,
-            title: 'Organisations | Tickly'
+            title: 'Structures | Tickly'
           },
           // Single structure details (commented until implemented)
           {

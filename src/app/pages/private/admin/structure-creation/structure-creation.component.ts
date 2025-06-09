@@ -16,7 +16,11 @@ import {CommonModule} from '@angular/common';
 import {MatButtonModule} from '@angular/material/button';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {AuthService} from '../../../../core/services/domain/user/auth.service';
-import {StructureCreationDto, StructureCreationResponseDto} from '../../../../core/models/structure/structure.model';
+import {
+  StructureCreationDto,
+  StructureCreationResponseDto,
+  StructureModel
+} from '../../../../core/models/structure/structure.model';
 import {MatCard, MatCardModule} from '@angular/material/card';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatIconModule} from '@angular/material/icon';
@@ -128,22 +132,40 @@ export class StructureCreationComponent implements OnInit {
     console.log('Submitting structure creation:', newStructureValues);
 
     this.structureService.createStructure(newStructureValues).subscribe({
-      next: () => {
+      next: (response: StructureModel | undefined) => {
         this.isLoading = false;
-        this.router.navigateByUrl('/admin');
+
+        this.notification.displayNotification(
+          'Structure créée avec succès !',
+          'valid',
+          'Fermer'
+        );
+
+        // La mise à jour de l'utilisateur se fait déjà dans structure.service.ts
+        // Pas besoin de le refaire ici
+
+        // Redirection avec un délai pour s'assurer que la mise à jour est terminée
+        setTimeout(() => {
+          this.router.navigate(['/admin/dashboard']);
+        }, 500);
       },
       error: (error) => {
         console.error('Error during structure creation:', error);
-        const errorMessage =
-          error.error?.message ||
-          error.message ||
-          'Une erreur est survenue lors de la création de la structure.';
+        this.isLoading = false;
+
+        let errorMessage = 'Une erreur est survenue lors de la création de la structure.';
+
+        if (error?.error?.message) {
+          errorMessage = error.error.message;
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
+
         this.notification.displayNotification(
           `Erreur: ${errorMessage}`,
           'error',
           'Fermer'
         );
-        this.isLoading = false;
       },
     });
   }

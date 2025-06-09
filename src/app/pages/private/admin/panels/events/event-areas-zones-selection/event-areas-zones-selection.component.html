@@ -61,7 +61,7 @@
 
             <div class="zones-counter">
               <span *ngIf="isAreaSelected(area.id)" class="badge-count">
-                {{ getSelectedZonesCountForArea(area.id) }}/{{ allZonesByArea()[area.id]?.length || 0 }} zones sélectionnées
+                {{ getSelectedZonesCountForArea(area.id) }}/{{ allZonesByArea()[area.id].length || 0 }} zones sélectionnées
               </span>
               <span *ngIf="isAreaSelected(area.id)" class="capacity-info">
                 {{ getAllocatedCapacityForArea(area.id) }}/{{ getMaxCapacityForArea(area.id) }} places allouées

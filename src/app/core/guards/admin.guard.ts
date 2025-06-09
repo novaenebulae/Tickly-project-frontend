@@ -34,20 +34,48 @@ export const AdminGuard: CanActivateFn = (state): boolean | UrlTree => {
     userStructureId
   });
 
-  // Vérifie si l'utilisateur a besoin de configurer sa structure et redirige vers la page appropriée
-  if (needsStructureSetup && !targetUrl.includes('/create-structure')) {
-    console.log('AdminGuard: User needs to set up structure. Redirecting to /create-structure.');
-    return router.createUrlTree(['/create-structure']);
-  } else if (!userStructureId) {
-    console.log('AdminGuard: User is not associated with a structure. Redirecting to home.');
+  // Vérifier que l'utilisateur a le rôle d'administrateur
+  if (currentUser?.role !== UserRole.STRUCTURE_ADMINISTRATOR) {
+    console.log('AdminGuard: User is not a structure administrator. Redirecting to home.');
     notification.displayNotification(
-      'Vous devez être associé à une structure pour accéder à l\'administration.',
-      'warning'
+      'Vous devez être administrateur d\'une structure pour accéder à cette page.',
+      'warning',
+      'Fermer'
     );
     return router.createUrlTree(['']);
   }
 
-  // Autorisé si : (connecté ET n'a pas besoin de setup) OU (connecté ET a besoin de setup ET va vers la page de setup)
+  // Si l'utilisateur a besoin de configurer sa structure
+  if (needsStructureSetup) {
+    if (targetUrl.includes('/create-structure')) {
+      // L'utilisateur va vers la page de création, autorisé
+      console.log('AdminGuard: User going to structure creation. Access GRANTED.');
+      return true;
+    } else {
+      // L'utilisateur essaie d'accéder à autre chose, rediriger vers création
+      console.log('AdminGuard: User needs to set up structure. Redirecting to /create-structure.');
+      return router.createUrlTree(['/create-structure']);
+    }
+  }
+
+  // Si l'utilisateur n'a pas de structure associée (et n'a pas besoin de setup)
+  if (!userStructureId) {
+    console.log('AdminGuard: User is not associated with a structure. Redirecting to home.');
+    notification.displayNotification(
+      'Vous devez être associé à une structure pour accéder à l\'administration.',
+      'warning',
+      'Fermer'
+    );
+    return router.createUrlTree(['']);
+  }
+
+  // Si l'utilisateur essaie d'accéder à la création alors qu'il a déjà une structure
+  if (targetUrl.includes('/create-structure') && userStructureId && !needsStructureSetup) {
+    console.log('AdminGuard: User already has a structure. Redirecting to admin dashboard.');
+    return router.createUrlTree(['/admin']);
+  }
+
+  // Autorisé : utilisateur admin avec structure
   console.log('AdminGuard: Access GRANTED.');
   return true;
 };

@@ -12,7 +12,7 @@ import { UserModel } from '../../../models/user/user.model';
 import { UserProfileUpdateDto } from '../../../models/user/user-profile-update.dto';
 
 // Mock data - Ensure mockUsers is an array of UserModel
-import { mockUsers } from '../../../mocks/auth/data/user-data.mock';
+import { mockUsers, MockUserModel } from '../../../mocks/auth/data/user-data.mock';
 import {AuthService} from '../../domain/user/auth.service';
 import {UserFavoriteStructureModel} from '../../../models/user/user-favorite-structure.model';
 import {UserRole} from '../../../models/user/user-role.enum';
@@ -26,32 +26,68 @@ export class UserApiMockService {
   private apiConfig = inject(ApiConfigService);
   private authService = inject(AuthService);
 
-  // In-memory store for mock users (make a copy to allow modifications)
-  private currentMockUsers: UserModel[] = JSON.parse(JSON.stringify(mockUsers));
-  private mockTeamMembers: TeamMember[] = JSON.parse(JSON.stringify(mockTeamMembersStructure3));
-  private readonly currentUserId = this.authService.currentUser()?.userId;
+  // Clés pour le stockage localStorage
+  private readonly MOCK_USERS_STORAGE_KEY = 'users';
+  private readonly MOCK_FAVORITES_STORAGE_KEY = 'user_favorites';
 
-  // Mock favorites storage
-  private mockFavorites: UserFavoriteStructureModel[] = [
-    {
-      id: 1,
-      userId: this.currentUserId || 1,
-      structureId: 1,
-      addedAt: new Date('2024-01-15T10:30:00')
-    },
-    {
-      id: 2,
-      userId: this.currentUserId || 1,
-      structureId: 3,
-      addedAt: new Date('2024-01-20T14:45:00')
-    },
-    {
-      id: 3,
-      userId: this.currentUserId || 1,
-      structureId: 5,
-      addedAt: new Date('2024-02-01T09:15:00')
-    }
-  ];
+  // Cela garantit que les deux services partagent la même référence aux données
+  private mockTeamMembers: TeamMember[] = JSON.parse(JSON.stringify(mockTeamMembersStructure3));
+
+  // Getter pour obtenir l'ID utilisateur actuel de manière dynamique
+  private get currentUserId(): number | undefined {
+    return this.authService.currentUser()?.userId;
+  }
+
+  // Mock favorites storage - maintenant géré avec localStorage
+  private mockFavorites: UserFavoriteStructureModel[] = [];
+
+  constructor() {
+    // Initialiser les données depuis localStorage
+    this.initializeMockData();
+  }
+
+  /**
+   * Initialise les données mock depuis localStorage.
+   */
+  private initializeMockData(): void {
+    // Charger les favoris depuis localStorage
+    const defaultFavorites: UserFavoriteStructureModel[] = [
+      {
+        id: 1,
+        userId: 1,
+        structureId: 1,
+        addedAt: new Date('2024-01-15T10:30:00')
+      },
+      {
+        id: 2,
+        userId: 1,
+        structureId: 3,
+        addedAt: new Date('2024-01-20T14:45:00')
+      },
+      {
+        id: 3,
+        userId: 1,
+        structureId: 5,
+        addedAt: new Date('2024-02-01T09:15:00')
+      }
+    ];
+
+    this.mockFavorites = this.apiConfig.loadMockDataFromStorage(this.MOCK_FAVORITES_STORAGE_KEY, defaultFavorites);
+  }
+
+  /**
+   * Sauvegarde les favoris dans localStorage.
+   */
+  private saveMockFavorites(): void {
+    this.apiConfig.saveMockDataToStorage(this.MOCK_FAVORITES_STORAGE_KEY, this.mockFavorites);
+  }
+
+  /**
+   * Sauvegarde les utilisateurs dans localStorage.
+   */
+  private saveMockUsers(): void {
+    this.apiConfig.saveMockDataToStorage(this.MOCK_USERS_STORAGE_KEY, mockUsers);
+  }
 
   /**
    * Mock implementation for fetching the current authenticated user's profile.
@@ -62,13 +98,13 @@ export class UserApiMockService {
     const endpointContext = 'users/profile (me)'; // For logging
     this.apiConfig.logApiRequest('MOCK GET', endpointContext);
 
-    const user = this.currentMockUsers.find(u => u.id === this.currentUserId);
+    const user = mockUsers.find(u => u.id === this.currentUserId);
     if (!user) {
       return this.apiConfig.createMockError(404, 'Mock: Current user profile not found.');
     }
-    // The mock should return data in the format the API would return.
-    // Assuming API returns data matching UserModel structure.
-    return this.apiConfig.createMockResponse(user);
+    // Convert MockUserModel to UserModel by excluding mock-specific fields
+    const userProfile: UserModel = this.convertMockUserToUserModel(user);
+    return this.apiConfig.createMockResponse(userProfile);
   }
 
   /**
@@ -80,11 +116,13 @@ export class UserApiMockService {
     const endpointContext = `users/byId(${userId})`; // For logging
     this.apiConfig.logApiRequest('MOCK GET', endpointContext);
 
-    const user = this.currentMockUsers.find(u => u.id === userId);
+    const user = mockUsers.find(u => u.id === userId);
     if (!user) {
       return this.apiConfig.createMockError(404, `Mock: User profile with ID ${userId} not found.`);
     }
-    return this.apiConfig.createMockResponse(user);
+    // Convert MockUserModel to UserModel by excluding mock-specific fields
+    const userProfile: UserModel = this.convertMockUserToUserModel(user);
+    return this.apiConfig.createMockResponse(userProfile);
   }
 
   /**
@@ -96,14 +134,14 @@ export class UserApiMockService {
     const endpointContext = 'users/profile (me) - update'; // For logging
     this.apiConfig.logApiRequest('MOCK PUT', endpointContext, profileUpdateDto);
 
-    const userIndex = this.currentMockUsers.findIndex(u => u.id === this.currentUserId);
+    const userIndex = mockUsers.findIndex(u => u.id === this.currentUserId);
     if (userIndex === -1) {
       return this.apiConfig.createMockError(404, 'Mock: Current user not found for profile update.');
     }
 
-    // Apply updates to a copy of the user object
-    const currentUser = this.currentMockUsers[userIndex];
-    const updatedUser: UserModel = {
+    // Apply updates to the existing MockUserModel object
+    const currentUser = mockUsers[userIndex];
+    const updatedMockUser: MockUserModel = {
       ...currentUser,
       firstName: profileUpdateDto.firstName !== undefined ? profileUpdateDto.firstName : currentUser.firstName,
       lastName: profileUpdateDto.lastName !== undefined ? profileUpdateDto.lastName : currentUser.lastName,
@@ -111,10 +149,14 @@ export class UserApiMockService {
       updatedAt: new Date()
     };
 
-    console.log(updatedUser);
+    console.log('Updated mock user:', updatedMockUser);
 
-    this.currentMockUsers[userIndex] = updatedUser; // Update the in-memory store
-    return this.apiConfig.createMockResponse(updatedUser);
+    mockUsers[userIndex] = updatedMockUser; // Update the in-memory store
+    this.saveMockUsers(); // Sauvegarder dans localStorage
+
+    // Convert to UserModel for response
+    const userModelResponse: UserModel = this.convertMockUserToUserModel(updatedMockUser);
+    return this.apiConfig.createMockResponse(userModelResponse);
   }
 
   /**
@@ -132,7 +174,7 @@ export class UserApiMockService {
       return this.apiConfig.createMockResponse([]); // Return empty if query is blank
     }
 
-    const results = this.currentMockUsers
+    const results = mockUsers
       .filter(u =>
         u.id !== this.currentUserId && // Optionally exclude current user from search results
         (u.firstName.toLowerCase().includes(searchTerm) ||
@@ -185,13 +227,14 @@ export class UserApiMockService {
 
     // Create new favorite
     const newFavorite: UserFavoriteStructureModel = {
-      id: this.mockFavorites.length + 1,
+      id: Math.max(...this.mockFavorites.map(f => f.id), 0) + 1,
       userId: this.currentUserId,
       structureId: structureId,
       addedAt: new Date()
     };
 
     this.mockFavorites.push(newFavorite);
+    this.saveMockFavorites(); // Sauvegarder dans localStorage
     return this.apiConfig.createMockResponse(newFavorite);
   }
 
@@ -217,6 +260,7 @@ export class UserApiMockService {
     }
 
     this.mockFavorites.splice(favoriteIndex, 1);
+    this.saveMockFavorites(); // Sauvegarder dans localStorage
     return this.apiConfig.createMockResponse(undefined);
   }
 
@@ -240,5 +284,14 @@ export class UserApiMockService {
     return this.apiConfig.createMockResponse(isFavorite);
   }
 
-
+  /**
+   * Converts a MockUserModel to a UserModel by excluding mock-specific fields.
+   * @param mockUser - The MockUserModel to convert.
+   * @returns A UserModel without mock-specific fields.
+   */
+  private convertMockUserToUserModel(mockUser: MockUserModel): UserModel {
+    // Destructure to exclude mock-specific fields
+    const { password, mockToken, ...userModel } = mockUser;
+    return userModel;
+  }
 }

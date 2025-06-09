@@ -312,7 +312,7 @@
                     </div>
                     <div class="meta-item">
                       <mat-icon class="meta-icon">place</mat-icon>
-                      <span>{{ event.address?.city || 'Lieu non défini' }}</span>
+                      <span>{{ event.address.city || 'Lieu non défini' }}</span>
                     </div>
                     @if (event.category) {
                       <div class="meta-item">

@@ -1,13 +1,14 @@
-import { Routes } from '@angular/router';
-import { LoginGuard } from './core/guards/login.guard';
-import { PublicGuard } from './core/guards/public.guard';
-import { AuthComponent } from './pages/auth/auth/auth.component';
-import { RegisterPageComponent } from './pages/auth/register/register-page.component';
-import { publicRoutes } from './pages/public/public.routes';
-import { userRoutes } from './pages/private/user/user.routes';
-import { adminRoutes } from './pages/private/admin/admin.routes';
-import { MainLayoutComponent } from './shared/layout/main-layout/main-layout.component';
+import {Routes} from '@angular/router';
+import {LoginGuard} from './core/guards/login.guard';
+import {PublicGuard} from './core/guards/public.guard';
+import {AuthComponent} from './pages/auth/auth/auth.component';
+import {RegisterPageComponent} from './pages/auth/register/register-page.component';
+import {publicRoutes} from './pages/public/public.routes';
+import {userRoutes} from './pages/private/user/user.routes';
+import {adminRoutes} from './pages/private/admin/admin.routes';
+import {MainLayoutComponent} from './shared/layout/main-layout/main-layout.component';
 import {AdminGuard} from './core/guards/admin.guard';
+import {StructureCreationComponent} from './pages/private/admin/structure-creation/structure-creation.component';
 
 /**
  * Main application routes configuration
@@ -39,13 +40,22 @@ export const routes: Routes = [
     canActivate: [LoginGuard],
     children: userRoutes
   },
+  {
+    path: 'create-structure',
+    loadComponent: () => import('./pages/private/admin/structure-creation/structure-creation.component')
+      .then(m => m.StructureCreationComponent),
+    canActivate: [LoginGuard], // Seul LoginGuard, PAS AdminGuard
+    title: 'Créer une structure | Tickly'
+  },
 
   // Admin private area (requires authentication)
   {
     path: 'admin',
-    canActivate: [AdminGuard],
-    children: adminRoutes
+    loadChildren: () => import('./pages/private/admin/admin.routes').then(m => m.adminRoutes),
+    canActivate: [LoginGuard, AdminGuard], // AdminGuard ici
+    title: 'Administration | Tickly'
   },
+
 
   // Public area (default)
   ...publicRoutes,

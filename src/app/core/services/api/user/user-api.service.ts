@@ -23,7 +23,7 @@ import {Role, TeamMember} from '../../../models/user/team-member.model';
 })
 export class UserApiService {
   private apiConfig = inject(ApiConfigService);
-  private http = inject(ApiConfigService).http;
+  private http = inject(HttpClient);
   private mockService = inject(UserApiMockService);
 
   /**

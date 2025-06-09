@@ -20,6 +20,7 @@ import { UserRegistrationDto } from '../../../models/user/user.model';
 import { UserRole } from '../../../models/user/user-role.enum';
 import { UserModel } from '../../../models/user/user.model';
 import { Location } from '@angular/common';
+import {AuthApiMockService} from '../../api/auth/auth-api-mock.service';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +30,8 @@ export class AuthService {
   private notification = inject(NotificationService);
   private router = inject(Router);
   private location = inject(Location);
+  private authApiMock = inject(AuthApiMockService);
+
 
   // --- User State Signals ---
   private currentUserSig: WritableSignal<JwtPayload | null> = signal(null);
@@ -289,6 +292,45 @@ export class AuthService {
   }
 
   /**
+   * Met à jour les informations de structure de l'utilisateur en mode mock
+   */
+  updateUserStructureInfoInMockMode(structureId: number): void {
+    const currentUser = this.currentUserSig();
+    if (!currentUser) {
+      console.error('No current user to update');
+      return;
+    }
+
+    try {
+      // 1. Mettre à jour les données mock de l'utilisateur
+        this.authApiMock.updateUserStructureInfo(currentUser.userId, structureId);
+
+        // 2. Générer un nouveau token avec les informations mises à jour
+        const newToken = this.authApiMock.generateUpdatedToken(currentUser.userId, structureId);
+
+        // 3. Stocker le nouveau token
+        this.storeToken(newToken);
+
+        // 4. Mettre à jour l'état de l'application avec le nouveau token
+        const decodedToken = jwtDecode<JwtPayload>(newToken);
+        this.updateUserState(decodedToken, newToken);
+
+        console.log('User structure info updated successfully in mock mode:', {
+          userId: currentUser.userId,
+          structureId: structureId,
+          needsStructureSetup: false
+        });
+    } catch (error) {
+      console.error('Error updating user structure info in mock mode:', error);
+      this.notification.displayNotification(
+        'Erreur lors de la mise à jour des informations utilisateur.',
+        'error',
+        'Fermer'
+      );
+    }
+  }
+
+  /**
    * Clears all authentication-related data from storage and service state.
    */
   private clearAuthData(): void {
@@ -313,12 +355,17 @@ export class AuthService {
    * @param decodedToken - The decoded JWT payload.
    */
   private navigateAfterLogin(decodedToken: JwtPayload): void {
-    if (decodedToken.needsStructureSetup) {
-      this.router.navigate(['/structure/create']); // Or your structure setup route
+    if (decodedToken.role === UserRole.STRUCTURE_ADMINISTRATOR) {
+      if (decodedToken.needsStructureSetup) {
+        this.router.navigate(['/create-structure']);
+      } else {
+        this.router.navigate(['/admin']);
+      }
     } else {
-      this.location.back();
+      this.router.navigate(['/user']);
     }
   }
+
 
   /**
    * Allows UserService to notify AuthService to refresh its currentUserSig

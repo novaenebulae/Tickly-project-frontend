@@ -175,4 +175,109 @@ export class ApiConfigService {
       console.error(`[API Error] ${method} ${url}`, error);
     }
   }
+
+  // ============= MOCK DATA PERSISTENCE METHODS =============
+
+  /**
+   * Saves mock data to localStorage with a specific key.
+   * @param key - The storage key.
+   * @param data - The data to save.
+   */
+  saveMockDataToStorage<T>(key: string, data: T): void {
+    if (this.isMockEnabled) {
+      try {
+        const serializedData = JSON.stringify(data, this.dateReplacer);
+        localStorage.setItem(`mock_${key}`, serializedData);
+        if (environment.enableDebugLogs) {
+          console.log(`[Mock Storage] Saved ${key} to localStorage`);
+        }
+      } catch (error) {
+        console.error(`[Mock Storage] Failed to save ${key}:`, error);
+      }
+    }
+  }
+
+  /**
+   * Loads mock data from localStorage.
+   * @param key - The storage key.
+   * @param defaultData - Default data to return if not found in storage.
+   * @returns The loaded data or default data.
+   */
+  loadMockDataFromStorage<T>(key: string, defaultData: T): T {
+    if (!this.isMockEnabled) {
+      return defaultData;
+    }
+
+    try {
+      const storedData = localStorage.getItem(`mock_${key}`);
+      if (storedData) {
+        const parsedData = JSON.parse(storedData, this.dateReviver);
+        if (environment.enableDebugLogs) {
+          console.log(`[Mock Storage] Loaded ${key} from localStorage`);
+        }
+        return parsedData;
+      }
+    } catch (error) {
+      console.error(`[Mock Storage] Failed to load ${key}:`, error);
+    }
+
+    // If no stored data or error, save default data and return it
+    this.saveMockDataToStorage(key, defaultData);
+    return defaultData;
+  }
+
+  /**
+   * Clears specific mock data from localStorage.
+   * @param key - The storage key to clear.
+   */
+  clearMockDataFromStorage(key: string): void {
+    try {
+      localStorage.removeItem(`mock_${key}`);
+      if (environment.enableDebugLogs) {
+        console.log(`[Mock Storage] Cleared ${key} from localStorage`);
+      }
+    } catch (error) {
+      console.error(`[Mock Storage] Failed to clear ${key}:`, error);
+    }
+  }
+
+  /**
+   * Clears all mock data from localStorage.
+   */
+  clearAllMockData(): void {
+    try {
+      const keys = Object.keys(localStorage);
+      const mockKeys = keys.filter(key => key.startsWith('mock_'));
+
+      mockKeys.forEach(key => {
+        localStorage.removeItem(key);
+      });
+
+      if (environment.enableDebugLogs) {
+        console.log(`[Mock Storage] Cleared all mock data (${mockKeys.length} items)`);
+      }
+    } catch (error) {
+      console.error('[Mock Storage] Failed to clear all mock data:', error);
+    }
+  }
+
+  /**
+   * Custom replacer function for JSON.stringify to handle Date objects.
+   */
+  private dateReplacer(key: string, value: any): any {
+    if (value instanceof Date) {
+      return { __type: 'Date', value: value.toISOString() };
+    }
+    return value;
+  }
+
+  /**
+   * Custom reviver function for JSON.parse to restore Date objects.
+   */
+  private dateReviver(key: string, value: any): any {
+    if (value && typeof value === 'object' && value.__type === 'Date') {
+      return new Date(value.value);
+    }
+    return value;
+  }
 }

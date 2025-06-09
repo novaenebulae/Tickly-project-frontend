@@ -22,7 +22,7 @@ import { UserRegistrationDto } from '../../../models/user/user.model';
 export class AuthApiService {
 
   private apiConfig = inject(ApiConfigService);
-  private http = inject(ApiConfigService).http; // Direct access to HttpClient for more control
+  private http = inject(HttpClient); // Direct access to HttpClient for more control
   private mockService = inject(AuthApiMockService); // Inject the mock service
 
   // TODO: Add methods for password reset and change

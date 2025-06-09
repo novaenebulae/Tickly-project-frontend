@@ -32,7 +32,8 @@ import {
   AudienceZoneCreationDto,
   AudienceZoneUpdateDto,
   EventAudienceZone
-} from '../../../models/event/event-audience-zone.model'; // For token updates and user context
+} from '../../../models/event/event-audience-zone.model';
+import {ApiConfigService} from '../../api/api-config.service'; // For token updates and user context
 
 @Injectable({
   providedIn: 'root'
@@ -41,6 +42,8 @@ export class StructureService {
   private structureApi = inject(StructureApiService);
   private notification = inject(NotificationService);
   private authService = inject(AuthService);
+
+  private apiConfig = inject(ApiConfigService);
 
   // --- State Management using Signals ---
 
@@ -82,7 +85,11 @@ export class StructureService {
     return this.structureApi.createStructure(structureCreationData).pipe(
       tap((response: StructureCreationResponseDto) => {
         if (response.newToken) {
-          this.authService.updateTokenAndState(response.newToken);
+          if (this.apiConfig.isMockEnabledForDomain("structures") && response.createdStructure?.id) {
+            this.authService.updateUserStructureInfoInMockMode(response.createdStructure.id);
+          } else {
+            this.authService.updateTokenAndState(response.newToken);
+          }
         }
         if (response.createdStructure) {
           // Assuming API returns the created structure which matches StructureModel

@@ -126,6 +126,7 @@ export class StructureApiMockService {
     }
 
     const newId = Math.max(0, ...this.currentMockStructures.map(s => s.id || 0)) + 1;
+
     const typesFromMock = mockStructureTypes.filter(t => structureApiDto.typeIds.includes(t.id));
 
     const newApiStructureDto: any = {
