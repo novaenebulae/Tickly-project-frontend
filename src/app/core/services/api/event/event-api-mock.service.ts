@@ -27,6 +27,42 @@ import { allMockEvents } from '../../../mocks/events/data/event-data.mock';
 export class EventApiMockService {
   private apiConfig = inject(ApiConfigService);
 
+  // Clés pour le stockage localStorage
+  private readonly MOCK_EVENTS_STORAGE_KEY = 'events';
+
+  constructor() {
+    // Initialiser les données depuis localStorage
+    this.initializeMockData();
+  }
+
+  /**
+   * Initialise les données mock depuis localStorage.
+   */
+  private initializeMockData(): void {
+    // Charger les événements depuis localStorage
+    const storedEvents = this.apiConfig.loadMockDataFromStorage(this.MOCK_EVENTS_STORAGE_KEY, allMockEvents);
+
+    // Synchroniser avec le tableau global allMockEvents
+    allMockEvents.length = 0; // Vider le tableau
+    allMockEvents.push(...storedEvents); // Ajouter les données du storage
+
+    // Mettre à jour nextEventId pour qu'il soit supérieur à tous les IDs existants
+    if (allMockEvents.length > 0) {
+      const maxId = Math.max(...allMockEvents.map(e => e.id));
+      // Mettre à jour la variable nextEventId dans events.mock.ts
+      // en utilisant une approche indirecte puisque c'est une variable externe
+      getNextEventId(); // Appel fictif pour accéder à la closure
+      // Cette logique sera gérée par la fonction getNextEventId elle-même
+    }
+  }
+
+  /**
+   * Sauvegarde les événements dans localStorage.
+   */
+  private saveMockEvents(): void {
+    this.apiConfig.saveMockDataToStorage(this.MOCK_EVENTS_STORAGE_KEY, allMockEvents);
+  }
+
   mockGetEvents(params: EventSearchParams): Observable<any[]> {
     this.apiConfig.logApiRequest('MOCK GET', 'events', params);
     let filters: any = { ...params };
@@ -108,6 +144,8 @@ export class EventApiMockService {
 
     // Important : ajouter l'événement à la liste des événements mockés
     addMockEvent(newApiEventResponse);
+    // Sauvegarder dans localStorage
+    this.saveMockEvents();
 
     return this.apiConfig.createMockResponse(newApiEventResponse);
   }
@@ -153,6 +191,8 @@ export class EventApiMockService {
 
     // Important : mettre à jour l'événement dans la liste des événements mockés
     updateMockEvent(id, updatedApiEventDto);
+    // Sauvegarder dans localStorage
+    this.saveMockEvents();
 
     return this.apiConfig.createMockResponse(updatedApiEventDto);
   }
@@ -169,6 +209,8 @@ export class EventApiMockService {
     if (index !== -1) {
       allMockEvents.splice(index, 1);
     }
+    // Sauvegarder dans localStorage
+    this.saveMockEvents();
 
     return this.apiConfig.createMockResponse(undefined as void);
   }
@@ -193,6 +235,8 @@ export class EventApiMockService {
 
     // Important : mettre à jour le statut de l'événement dans la liste des événements mockés
     updateMockEvent(id, { status, updatedAt: new Date().toISOString() });
+    // Sauvegarder dans localStorage
+    this.saveMockEvents();
 
     return this.apiConfig.createMockResponse(updatedApiEventDto);
   }

@@ -50,6 +50,13 @@ export class UserApiMockService {
    * Initialise les données mock depuis localStorage.
    */
   private initializeMockData(): void {
+    // Charger les utilisateurs depuis localStorage
+    const storedUsers = this.apiConfig.loadMockDataFromStorage(this.MOCK_USERS_STORAGE_KEY, mockUsers);
+
+    // Synchroniser avec le tableau global mockUsers
+    mockUsers.length = 0; // Vider le tableau
+    mockUsers.push(...storedUsers); // Ajouter les données du storage
+
     // Charger les favoris depuis localStorage
     const defaultFavorites: UserFavoriteStructureModel[] = [
       {

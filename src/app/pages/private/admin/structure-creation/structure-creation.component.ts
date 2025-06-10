@@ -132,7 +132,7 @@ export class StructureCreationComponent implements OnInit {
     console.log('Submitting structure creation:', newStructureValues);
 
     this.structureService.createStructure(newStructureValues).subscribe({
-      next: (response: StructureModel | undefined) => {
+      next: () => {
         this.isLoading = false;
 
         this.notification.displayNotification(
@@ -141,13 +141,6 @@ export class StructureCreationComponent implements OnInit {
           'Fermer'
         );
 
-        // La mise à jour de l'utilisateur se fait déjà dans structure.service.ts
-        // Pas besoin de le refaire ici
-
-        // Redirection avec un délai pour s'assurer que la mise à jour est terminée
-        setTimeout(() => {
-          this.router.navigate(['/admin/dashboard']);
-        }, 500);
       },
       error: (error) => {
         console.error('Error during structure creation:', error);

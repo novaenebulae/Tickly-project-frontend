@@ -85,7 +85,7 @@ export const mockStructures: MockApiStructureDto[] = [
     coverUrl: `https://picsum.photos/seed/structurecover3/1200/400`,
     createdAt: addDays(today, -1000).toISOString(),
     importance: 3,
-    eventsCount: 18
+    eventsCount: 6
   },
   // Structure ID 4: Stade (utilisé par event 4)
   {

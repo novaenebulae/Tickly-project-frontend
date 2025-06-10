@@ -33,7 +33,8 @@ import {
   AudienceZoneUpdateDto,
   EventAudienceZone
 } from '../../../models/event/event-audience-zone.model';
-import {ApiConfigService} from '../../api/api-config.service'; // For token updates and user context
+import {ApiConfigService} from '../../api/api-config.service';
+import {Router} from '@angular/router'; // For token updates and user context
 
 @Injectable({
   providedIn: 'root'
@@ -42,6 +43,7 @@ export class StructureService {
   private structureApi = inject(StructureApiService);
   private notification = inject(NotificationService);
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   private apiConfig = inject(ApiConfigService);
 
@@ -74,36 +76,54 @@ export class StructureService {
 
   /**
    * Creates a new structure.
-   * Updates the authentication token if a new one is provided in the response.
-   * Sets the newly created structure as the current structure if applicable.
+   * En mode mock : déconnecte l'utilisateur après création pour forcer une reconnexion.
+   * En mode réel : met à jour le token normalement.
    * @param structureCreationData - The DTO for creating the structure.
    * @returns An Observable of the created `StructureModel` or `undefined` on error.
    */
   createStructure(structureCreationData: StructureCreationDto): Observable<StructureModel | undefined> {
-    // The StructureApiService expects 'any' but we pass our typed DTO.
-    // The response is StructureCreationResponseDto which contains newToken and createdStructure.
     return this.structureApi.createStructure(structureCreationData).pipe(
       tap((response: StructureCreationResponseDto) => {
-        if (response.newToken) {
-          if (this.apiConfig.isMockEnabledForDomain("structures") && response.createdStructure?.id) {
-            this.authService.updateUserStructureInfoInMockMode(response.createdStructure.id);
-          } else {
-            this.authService.updateTokenAndState(response.newToken);
-          }
-        }
         if (response.createdStructure) {
-          // Assuming API returns the created structure which matches StructureModel
+          const structureId = response.createdStructure.id;
+
+          // En mode mock : déconnexion pour forcer la reconnexion avec les bonnes données
+          if (this.apiConfig.isMockEnabledForDomain("structures")) {
+            // Mettre à jour les données utilisateur dans le localStorage
+            this.authService.updateUserStructureInfoInMockMode(structureId!);
+
+            // Déconnecter l'utilisateur et rediriger vers la page de connexion
+            this.notification.displayNotification(
+              'Structure créée avec succès ! Vous allez être déconnecté pour mettre à jour vos données.',
+              'valid'
+            );
+
+            setTimeout(() => {
+              this.authService.logout();
+              this.router.navigate(['/auth'], {
+                queryParams: { message: 'Veuillez vous reconnecter pour accéder à votre nouvelle structure.' }
+              });
+            }, 2000);
+
+          } else if (response.newToken) {
+            // En mode réel, utiliser le token fourni par l'API
+            this.authService.updateTokenAndState(response.newToken);
+            this.notification.displayNotification('Structure créée avec succès !', 'valid');
+          }
+
+          // Mise à jour de l'état local
           const newStructure = response.createdStructure as StructureModel;
           this.currentStructureDetailsSig.set(newStructure);
-          // Optionally, clear areas cache as a new structure likely has no areas yet or they need to be fetched.
           this.currentStructureAreasSig.set([]);
-          this.notification.displayNotification('Structure créée avec succès !', 'valid');
+
         } else {
-          // Handle case where structure might not be returned directly
-          this.notification.displayNotification('Structure créée, mais les détails n\'ont pas pu être récupérés immédiatement.', 'warning');
+          this.notification.displayNotification(
+            'Structure créée, mais les détails n\'ont pas pu être récupérés immédiatement.',
+            'warning'
+          );
         }
       }),
-      map(response => response.createdStructure as StructureModel | undefined), // Return only the structure model
+      map(response => response.createdStructure as StructureModel | undefined),
       catchError(error => {
         this.handleError('Impossible de créer la structure.', error);
         return of(undefined);

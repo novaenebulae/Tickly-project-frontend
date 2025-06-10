@@ -21,6 +21,7 @@ import { NotificationService } from '../../../../../../core/services/domain/util
 // Models
 import { StructureModel } from '../../../../../../core/models/structure/structure.model';
 import { StructureAreaModel } from '../../../../../../core/models/structure/structure-area.model';
+import {TeamManagementService} from '../../../../../../core/services/domain/team-management/team-management.service';
 
 @Component({
   selector: 'app-structure-panel',
@@ -45,6 +46,7 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
   private userStructureService = inject(UserStructureService);
   private notification = inject(NotificationService);
   private destroy$ = new Subject<void>();
+  private teamManagementService = inject(TeamManagementService);
 
   // ✅ Utilisation des signaux des services
   private readonly userStructure = this.userStructureService.userStructure;
@@ -57,6 +59,7 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
   // ✅ Signaux locaux pour les statistiques
   private teamCountSig = signal<number>(0);
   private eventCountSig = signal<number>(0);
+
 
   // ✅ Computed properties pour l'UI
   protected readonly teamCount = computed(() => this.teamCountSig());
@@ -133,17 +136,10 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
    * ✅ Charge les statistiques (simulées pour le moment)
    */
   private loadStatistics(): void {
-    // TODO: Remplacer par de vrais services quand ils seront disponibles
+    console.log(this.teamManagementService.teamMembers().length);
+    this.teamCountSig.set(this.teamManagementService.teamMembers().length);
+    this.eventCountSig.set(this.userStructureData?.eventsCount!)
 
-    // Simulation du nombre de membres d'équipe
-    setTimeout(() => {
-      this.teamCountSig.set(Math.floor(Math.random() * 10) + 1);
-    }, 800);
-
-    // Simulation du nombre d'événements
-    setTimeout(() => {
-      this.eventCountSig.set(Math.floor(Math.random() * 25) + 5);
-    }, 1200);
   }
 
   /**
@@ -221,7 +217,7 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
     if (!structure?.address) return 'Adresse non définie';
 
     const { street, city, zipCode, country } = structure.address;
-    const parts = [street, `${zipCode} ${city}`, country].filter(Boolean);
+    const parts = [street, city, country].filter(Boolean);
     return parts.join(', ');
   }
 }
