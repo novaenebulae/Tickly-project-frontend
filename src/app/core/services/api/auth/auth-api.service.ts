@@ -15,6 +15,7 @@ import { AuthApiMockService } from './auth-api-mock.service'; // Import the mock
 import { APP_CONFIG } from '../../../config/app-config';
 import { LoginCredentials, AuthResponseDto } from '../../../models/auth/auth.model';
 import { UserRegistrationDto } from '../../../models/user/user.model';
+import {NotificationService} from '../../domain/utilities/notification.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,13 +25,15 @@ export class AuthApiService {
   private apiConfig = inject(ApiConfigService);
   private http = inject(HttpClient); // Direct access to HttpClient for more control
   private mockService = inject(AuthApiMockService); // Inject the mock service
+  private notificationService = inject(NotificationService);
 
-  // TODO: Add methods for password reset and change
+  // TODO: Add methods for password reset
   requestPasswordReset(dto: { email: string }): Observable<void> {
     /* ... call API ... */
   return new Observable<void>();
   }
 
+  // TODO : cela n'arrivera pas donc à supprimer
   requestPasswordChange(): Observable<void> {
     /* ... call API ... */
     return new Observable<void>(); // Retourne un observable vide
@@ -125,22 +128,25 @@ export class AuthApiService {
     this.apiConfig.logApiError('AUTH-API', context, error);
 
     let userMessage: string;
-    if (error.status === 401 && context === 'login') {
-      userMessage = 'Incorrect email or password.';
+    if (error.status === 404 && context === 'login') {
+      userMessage = 'Échec de la connexion. Utilisateur non trouvé';
+    } else if (error.status === 401 && context === 'login') {
+      userMessage = 'Échec de la connexion. Identifiants invalides ou compte non vérifié.';
     } else if (error.status === 409 && context === 'register') {
       userMessage =
         typeof error.error === 'string'
           ? error.error
-          : error.error?.message || 'This email address is already in use.';
+          : error.error?.message || 'Erreur : Cette adresse email est déja utilisée.';
     } else if (error.status === 400) {
       userMessage =
         error.error?.message ||
-        'Invalid data. Please verify the fields.';
+        'Échec de l\'inscription. Veuillez réessayer.';
     } else {
       userMessage =
-        'A technical error occurred. Please try again later.';
+        'Une erreur inattendue s\'est produite, merci de réessayer plus tard';
     }
 
+    this.notificationService.displayNotification(userMessage, 'error');
     return throwError(() => ({
       status: error.status,
       message: userMessage, // User-friendly message

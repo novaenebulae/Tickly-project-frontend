@@ -114,13 +114,15 @@ export const APP_CONFIG: AppConfig = {
   appVersion: '1.0.0',
 
   api: {
-    baseUrl: 'http://localhost:8080/', // TODO: Replace with your actual backend URL or use environment variable
+    baseUrl: 'http://localhost/api/v1/', // TODO: Replace with your actual backend URL or use environment variable
     endpoints: {
       auth: {
-        login: 'login',
+        login: 'auth/login',
         register: 'auth/register',
-        validateToken: 'auth/validate-token',
-        passwordResetRequest: 'auth/password-reset-request',
+        validateToken: 'auth/validate-email',
+        passwordResetRequest: 'auth/forgot-password',
+
+        // TODO : Pas possible de changer le mot de passe comme ça, uniquement reset
         passwordChangeRequest: 'auth/password-change-request', // For logged-in user
       },
       events: {
@@ -171,7 +173,7 @@ export const APP_CONFIG: AppConfig = {
   mock: {
     enabled: true,  // Set to false to use real API, true for mocks
     delay: 300,     // Simulate network latency for mocks
-    auth: true,
+    auth: false,
     events: true,
     structures: true,
     users: true,

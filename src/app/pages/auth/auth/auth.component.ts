@@ -63,7 +63,7 @@ export class AuthComponent {
    */
   formulaire = this.formBuilder.group({
     email: ['grace.martin@example.com', [Validators.required, Validators.email]],
-    password: ['password123', Validators.required],
+    password: ['Password123!', Validators.required],
     keepLoggedIn: [false],
   });
 
@@ -100,30 +100,5 @@ export class AuthComponent {
     }
   }
 
-  /**
-   * Handles user logout
-   */
-  onLogout(): void {
-    this.authService.logout();
-  }
 
-  /**
-   * Gets validation error message for a specific form control
-   * @param controlName - Name of the form control
-   * @returns Error message string or empty string if no error
-   */
-  getErrorMessage(controlName: string): string {
-    const control = this.formulaire.get(controlName);
-    if (!control) return '';
-
-    if (control.errors?.['required']) {
-      return 'Ce champ est obligatoire';
-    }
-
-    if (control.errors?.['email']) {
-      return 'Veuillez saisir une adresse email valide';
-    }
-
-    return '';
-  }
 }

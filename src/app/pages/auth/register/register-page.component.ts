@@ -24,6 +24,7 @@ import { StructureService } from '../../../core/services/domain/structure/struct
 
 // Models
 import { UserRegistrationDto } from '../../../core/models/user/user.model';
+import {NotificationService} from '../../../core/services/domain/utilities/notification.service';
 
 @Component({
   selector: 'app-register-page',
@@ -52,8 +53,8 @@ export class RegisterPageComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private structureService = inject(StructureService);
   private router = inject(Router);
+  private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.initForm();
@@ -126,8 +127,9 @@ export class RegisterPageComponent implements OnInit {
       next: () => {
         // Exécuté si l'observable de register se complète SANS erreur
         console.log(
-          'RegisterPageComponent: Registration successful (navigation handled by AuthService).'
+          'RegisterPageComponent: Registration successful.'
         );
+        this.notificationService.displayNotification("Compte créé avec succès, validez votre compte en cliquant sur le lien reçu par email", 'valid')
         // Si la navigation réussit, ce composant sera détruit.
         // Si elle échoue, on arrête le spinner.
         this.isLoading.set(false);

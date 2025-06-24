@@ -95,8 +95,7 @@ export class AuthService {
       }),
       map(() => true),
       catchError(error => {
-        this.notification.displayNotification(error.message || "Échec de la connexion. Vérifiez vos identifiants.", 'error');
-        return of(false);
+        return throwError(() => error);
       })
     );
   }
@@ -117,11 +116,12 @@ export class AuthService {
       }),
       map(() => true),
       catchError(error => {
-        this.notification.displayNotification(error.message || "Échec de l'inscription. Veuillez réessayer.", 'error');
-        return of(false);
+        return throwError(() => error);
       })
     );
   }
+
+  // TODO : Page de validation d'email
 
   /**
    * Logs out the current user, clears authentication data, and navigates to the login page.
@@ -221,15 +221,20 @@ export class AuthService {
    * @param response - The authentication response DTO from the API.
    */
   private handleAuthResponse(response: AuthResponseDto): void {
-    this.storeToken(response.token);
-    try {
-      const decodedToken = jwtDecode<JwtPayload>(response.token);
-      this.updateUserState(decodedToken, response.token);
-      this.navigateAfterLogin(decodedToken);
-    } catch (error) {
-      console.error('Failed to decode token or update user state:', error);
-      this.clearAuthData(); // Clear data if token is invalid
-      this.notification.displayNotification("Erreur de session. Veuillez vous reconnecter.", 'error');
+    if (response.accessToken) {
+      this.storeToken(response.accessToken);
+
+      try {
+        const decodedToken = jwtDecode<JwtPayload>(response.accessToken);
+        this.updateUserState(decodedToken, response.accessToken);
+        this.navigateAfterLogin(decodedToken);
+      } catch (error) {
+        console.error('Failed to decode token or update user state:', error);
+        this.clearAuthData(); // Clear data if token is invalid
+      }
+    } else {
+      console.error('Failed to decode token or update user state: No Token found');
+      this.clearAuthData();
     }
   }
 

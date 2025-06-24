@@ -48,7 +48,15 @@ export interface AuthResponseDto {
   /**
    * The JWT token for the authenticated user.
    */
-  token: string;
+  accessToken?: string;
+
+  expiresIn: number;
+
+  firstName: string;
+
+  lastName: string;
+
+  email: string;
 
   /**
    * Indicates whether the user needs to set up their structure.

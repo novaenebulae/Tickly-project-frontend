@@ -149,10 +149,14 @@ export class AuthApiMockService {
 
     // Create a mock response with a token and user details
     const mockResponse: AuthResponseDto = {
-      token: validToken,
+      accessToken: validToken,
       userId: user.id,
       needsStructureSetup: user.needsStructureSetup || false,
-      role: user.role
+      role: user.role,
+      expiresIn: 0,
+      firstName: '',
+      lastName: '',
+      email: ''
     };
     return this.apiConfig.createMockResponse(mockResponse);
   }
@@ -209,10 +213,14 @@ export class AuthApiMockService {
     const validToken = this.generateValidMockToken(newUserId, userRegistrationDto.email, newUserRole, userRegistrationDto.createStructure);
 
     const mockResponse: AuthResponseDto = {
-      token: validToken,
+      accessToken: validToken,
       userId: newUserId,
       needsStructureSetup: userRegistrationDto.createStructure || false,
-      role: newUserRole
+      role: newUserRole,
+      expiresIn: 0,
+      firstName: '',
+      lastName: '',
+      email: ''
     };
     return this.apiConfig.createMockResponse(mockResponse);
   }
@@ -233,10 +241,14 @@ export class AuthApiMockService {
     const newToken = this.getStoredToken();
 
     const mockResponse: AuthResponseDto = {
-      token: newToken!,
+      accessToken: newToken!,
       userId: 1,
       needsStructureSetup: false,
-      role: UserRole.SPECTATOR
+      role: UserRole.SPECTATOR,
+      expiresIn: 0,
+      firstName: '',
+      lastName: '',
+      email: ''
     };
     return this.apiConfig.createMockResponse(mockResponse);
   }
