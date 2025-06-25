@@ -35,10 +35,6 @@ export class StructureApiService {
   getStructures(params: StructureSearchParams = {}): Observable<any[]> {
     const endpointContext = APP_CONFIG.api.endpoints.structures.base;
 
-    if (this.apiConfig.isMockEnabledForDomain('structures')) {
-      return this.mockService.mockGetStructures(params);
-    }
-
     this.apiConfig.logApiRequest('GET', endpointContext, params);
     const httpParams = this.apiConfig.createHttpParams(params); // createHttpParams handles undefined/null values
     const url = this.apiConfig.getUrl(endpointContext);

@@ -189,8 +189,13 @@ export class EditProfileDialogComponent implements OnInit {
     const initials = `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
     const svg = `
       <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
-        <rect width="100%" height="100%" fill="#e9ecef"></rect>
-        <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="32px" font-weight="600" fill="#6c757d">
+        <defs>
+          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+        <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="36px" font-weight="600" fill="white">
           ${initials}
         </text>
       </svg>

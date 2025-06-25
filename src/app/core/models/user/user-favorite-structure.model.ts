@@ -1,4 +1,4 @@
-import { StructureModel } from '../structure/structure.model';
+import {StructureSummaryModel} from '../structure/structure-summary.model';
 
 /**
  * Représente une structure favorite de l'utilisateur, telle que retournée par l'API.
@@ -7,7 +7,7 @@ import { StructureModel } from '../structure/structure.model';
 export interface UserFavoriteStructureModel {
   id: number;
   userId: number;
-  structure: StructureModel; // L'objet structure est maintenant directement inclus et non optionnel
+  structure: StructureSummaryModel; // L'objet structure est maintenant directement inclus et non optionnel
   addedAt: Date;
 }
 

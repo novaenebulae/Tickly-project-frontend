@@ -1,15 +1,13 @@
-  <!-- En-tête de la page -->
-  <div class="header-section">
-    <div class="header-content">
-      <div class="title-section">
-        <h1 class="main-title">Découvrez les Structures</h1>
-        <p class="subtitle">Trouvez les structures et lieux culturels autour de vous !</p>
-      </div>
+<!-- En-tête de la page -->
+<div class="header-section">
+  <div class="header-content">
+    <div class="title-section">
+      <h1 class="main-title">Découvrez les Structures</h1>
+      <p class="subtitle">Trouvez les structures et lieux culturels autour de vous !</p>
     </div>
   </div>
+</div>
 <div class="structures-page">
-<!--  <h1 class="page-title">Toutes les structures</h1>-->
-
   <!-- Filtres -->
   <app-structure-filters
     (filtersChanged)="onFiltersChanged($event)"
@@ -20,9 +18,7 @@
   <div class="structures-container">
     <!-- État de chargement -->
     <div class="loading-state" *ngIf="loading">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Chargement...</span>
-      </div>
+      <mat-spinner diameter="50"></mat-spinner>
       <p>Chargement des structures...</p>
     </div>
 
@@ -34,13 +30,11 @@
     </div>
 
     <!-- Liste des structures -->
-    <!-- Dans la section des structures -->
     <div class="row g-4" *ngIf="!loading && structures.length > 0">
-      <div class="col-6" *ngFor="let structure of structures">
+      <div class="col-12 col-md-6 col-lg-4" *ngFor="let structure of structures">
         <app-structure-card
           [structure]="structure"
-          [eventCount]="structure.eventsCount || 0"
-          [highlightNewStructure]="structure.createdAt && (structure.createdAt > getThirtyDaysAgo() || false)"
+          [eventCount]="structure.eventCount || 0"
           [showActions]="true"
           [showFavoriteButton]="isUserLoggedIn"
           [isFavorite]="favoritesService.isFavorite(structure.id || 0)"
@@ -53,7 +47,7 @@
 
     <!-- Pagination -->
     <mat-paginator
-      *ngIf="!loading && structures.length > 0"
+      *ngIf="!loading && totalCount > pageSize"
       [length]="totalCount"
       [pageSize]="pageSize"
       [pageSizeOptions]="[6, 12, 24, 48]"

@@ -13,13 +13,14 @@ import { Title } from '@angular/platform-browser';
 // Services et modèles
 import { StructureService } from '../../../../core/services/domain/structure/structure.service';
 import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
-import { StructureModel } from '../../../../core/models/structure/structure.model';
+import { StructureSummaryModel } from '../../../../core/models/structure/structure-summary.model';
 import { StructureTypeModel } from '../../../../core/models/structure/structure-type.model';
 import { StructureSearchParams } from '../../../../core/models/structure/structure-search-params.model';
 import { StructureFiltersComponent } from '../../../../shared/domain/structures/structure-filters/structure-filters.component';
 import { StructureCardComponent } from '../../../../shared/domain/structures/structure-card/structure-card.component';
 import { AuthService } from '../../../../core/services/domain/user/auth.service';
-import {UserFavoritesService} from '../../../../core/services/domain/user/user-favorites.service';
+import { UserFavoritesService } from '../../../../core/services/domain/user/user-favorites.service';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
 
 // Interfaces pour les types utilisés localement
 interface StructureFilters {
@@ -49,7 +50,8 @@ interface StructureSortOptions {
     FormsModule,
     ReactiveFormsModule,
     StructureFiltersComponent,
-    StructureCardComponent
+    StructureCardComponent,
+    MatProgressSpinner
   ]
 })
 export class AllStructuresPageComponent implements OnInit, OnDestroy {
@@ -67,7 +69,7 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
   structureTypes: StructureTypeModel[] = [];
 
   // Structure list
-  structures: StructureModel[] = [];
+  structures: StructureSummaryModel[] = [];
 
   // Données pour le paginator
   pageSize = 12;
@@ -121,9 +123,6 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Charge les structures en utilisant le service
-   */
   private loadStructures(): void {
     this.loading = true;
 
@@ -152,9 +151,9 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
     this.structureService.getStructures(searchParams)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (structures) => {
-          this.structures = structures;
-          this.totalCount = structures.length;
+        next: (response: any) => {
+          this.structures = response.content;
+          this.totalCount = response.totalElements;
           this.loading = false;
         },
         error: (error) => {
@@ -168,6 +167,7 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
         }
       });
   }
+
 
   /**
    * Gère le changement de filtres
@@ -196,18 +196,9 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Calcule la date d'il y a 30 jours pour identifier les nouvelles structures
-   */
-  getThirtyDaysAgo(): Date {
-    const date = new Date();
-    date.setDate(date.getDate() - 30);
-    return date;
-  }
-
-  /**
    * Navigue vers la page des détails d'une structure
    */
-  onViewStructureDetails(structure: StructureModel): void {
+  onViewStructureDetails(structure: StructureSummaryModel): void {
     if (!structure.id) {
       this.notificationService.displayNotification(
         'Impossible d\'afficher les détails de cette structure',
@@ -222,7 +213,7 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
   /**
    * Navigue vers la page des événements d'une structure
    */
-  onBookEvent(structure: StructureModel): void {
+  onBookEvent(structure: StructureSummaryModel): void {
     if (!structure.id) {
       this.notificationService.displayNotification(
         'Impossible d\'afficher les événements de cette structure',
@@ -237,7 +228,7 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
   /**
    * Ajoute une structure aux favoris
    */
-  onAddToFavorites(structure: StructureModel): void {
+  onAddToFavorites(structure: StructureSummaryModel): void {
     if (!this.isUserLoggedIn) {
       this.notificationService.displayNotification(
         'Veuillez vous connecter pour ajouter des structures aux favoris',
@@ -256,10 +247,8 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // ✅ Utiliser le service des favoris pour vraiment ajouter/supprimer
     this.favoritesService.toggleFavorite(structure.id).subscribe({
       next: (isNowFavorite) => {
-        // Les notifications sont gérées par le service
         console.log(`🔄 Structure ${structure.name} ${isNowFavorite ? 'ajoutée aux' : 'retirée des'} favoris`);
       },
       error: (error) => {
@@ -267,5 +256,4 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
       }
     });
   }
-
 }

@@ -233,11 +233,12 @@ export class UserApiService {
   }
 
   /**
-   * Retrieves all favorite structures for the current authenticated user.
-   * @returns An Observable of an array of `UserFavoriteStructureModel`.
+   * Retrieves the favorite structures for the current user.
+   * The API is expected to return an array of `UserFavoriteStructureModel`.
+   * @returns An Observable of `UserFavoriteStructureModel[]`.
    */
   getUserFavoriteStructures(): Observable<UserFavoriteStructureModel[]> {
-    const endpointContext = 'users/favorites'; // Assuming endpoint like 'users/me/favorites'
+    const endpointContext = APP_CONFIG.api.endpoints.users.favorites.structures;
 
     if (this.apiConfig.isMockEnabledForDomain('users')) {
       return this.mockService.mockGetUserFavoriteStructures();
@@ -246,52 +247,59 @@ export class UserApiService {
     this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
+
     return this.http.get<UserFavoriteStructureModel[]>(url, { headers }).pipe(
+      map(favorites => favorites.map(fav => ({
+        ...fav,
+        // Assurer la conversion de la date string en objet Date
+        addedAt: new Date(fav.addedAt)
+      }))),
       tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
       catchError(error => this.handleUserError(error, 'getUserFavoriteStructures'))
     );
   }
 
   /**
-   * Adds a structure to the current user's favorites.
-   * @param structureId - The ID of the structure to add to favorites.
-   * @returns An Observable of the created `UserFavoriteStructureModel`.
+   * Adds a structure to the user's favorites.
+   * The API is expected to return the newly created `UserFavoriteStructureModel`.
+   * @param dto - A DTO containing the structure ID to add.
+   * @returns An Observable of the new `UserFavoriteStructureModel`.
    */
-  addStructureToFavorites(structureId: number): Observable<UserFavoriteStructureModel> {
-    const endpointContext = 'users/favorites';
-    const favoriteDto: FavoriteStructureDto = { structureId };
+  addFavoriteStructure(dto: FavoriteStructureDto): Observable<UserFavoriteStructureModel> {
+    const endpointContext = APP_CONFIG.api.endpoints.users.favorites.structures;
 
-    if (this.apiConfig.isMockEnabledForDomain('users')) {
-      return this.mockService.mockAddStructureToFavorites(structureId);
-    }
-
-    this.apiConfig.logApiRequest('POST', endpointContext, favoriteDto);
+    this.apiConfig.logApiRequest('POST', endpointContext, dto);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
-    return this.http.post<UserFavoriteStructureModel>(url, favoriteDto, { headers }).pipe(
+
+    return this.http.post<UserFavoriteStructureModel>(url, dto, { headers }).pipe(
+      map(newFavorite => ({
+        ...newFavorite,
+        // Assurer la conversion de la date
+        addedAt: new Date(newFavorite.addedAt)
+      })),
       tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),
-      catchError(error => this.handleUserError(error, 'addStructureToFavorites'))
+      catchError(error => this.handleUserError(error, 'addFavoriteStructure'))
     );
   }
 
   /**
-   * Removes a structure from the current user's favorites.
-   * @param structureId - The ID of the structure to remove from favorites.
-   * @returns An Observable of void.
+   * Removes a structure from the user's favorites.
+   * The API is expected to return a 204 No Content on success.
+   * @param structureId - The ID of the structure to remove.
+   * @returns An Observable<void>.
    */
-  removeStructureFromFavorites(structureId: number): Observable<void> {
-    const endpointContext = `users/favorites/${structureId}`;
+  removeFavoriteStructure(structureId: number): Observable<void> {
+    const endpointContext = APP_CONFIG.api.endpoints.users.favorites.structureById(structureId);
 
-    if (this.apiConfig.isMockEnabledForDomain('users')) {
-      return this.mockService.mockRemoveStructureFromFavorites(structureId);
-    }
 
     this.apiConfig.logApiRequest('DELETE', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
+
     return this.http.delete<void>(url, { headers }).pipe(
-      tap(response => this.apiConfig.logApiResponse('DELETE', endpointContext, response)),
-      catchError(error => this.handleUserError(error, 'removeStructureFromFavorites'))
+      tap(() => this.apiConfig.logApiResponse('DELETE', endpointContext, { status: 'Success' })),
+      catchError(error => this.handleUserError(error, 'removeFavoriteStructure'))
     );
   }
 
@@ -313,9 +321,6 @@ export class UserApiService {
     const endpointContext = `users/favorites/${structureId}/exists`;
     this.apiConfig.logApiRequest('GET', endpointContext);
 
-    if (this.apiConfig.isMockEnabledForDomain('users')) {
-      return this.mockService.mockIsStructureFavorite(structureId);
-    }
 
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();

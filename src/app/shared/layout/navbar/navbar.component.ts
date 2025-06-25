@@ -67,6 +67,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   // ✅ Computed values pour l'interface utilisateur
   readonly userInitial = computed(() => {
     const profile = this.currentUserProfile();
+    if (profile?.firstName && profile?.lastName) {
+      return profile.firstName.charAt(0).toUpperCase() + profile.lastName.charAt(0).toUpperCase();
+    }
     if (profile?.firstName) {
       return profile.firstName.charAt(0).toUpperCase();
     }

@@ -23,8 +23,6 @@ type DeletionStatus = 'loading' | 'success' | 'error';
     RouterLink,
     MatButtonModule,
     MatProgressSpinnerModule,
-    NgSwitch,
-    NgSwitchCase
   ]
 })
 export class AccountDeletionConfirmationComponent implements OnInit {

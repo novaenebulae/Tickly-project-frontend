@@ -57,36 +57,6 @@ export class UserApiMockService {
     mockUsers.length = 0; // Vider le tableau
     mockUsers.push(...storedUsers); // Ajouter les données du storage
 
-    // Charger les favoris depuis localStorage
-    const defaultFavorites: UserFavoriteStructureModel[] = [
-      {
-        id: 1,
-        userId: 1,
-        structureId: 1,
-        addedAt: new Date('2024-01-15T10:30:00')
-      },
-      {
-        id: 2,
-        userId: 1,
-        structureId: 3,
-        addedAt: new Date('2024-01-20T14:45:00')
-      },
-      {
-        id: 3,
-        userId: 1,
-        structureId: 5,
-        addedAt: new Date('2024-02-01T09:15:00')
-      }
-    ];
-
-    this.mockFavorites = this.apiConfig.loadMockDataFromStorage(this.MOCK_FAVORITES_STORAGE_KEY, defaultFavorites);
-  }
-
-  /**
-   * Sauvegarde les favoris dans localStorage.
-   */
-  private saveMockFavorites(): void {
-    this.apiConfig.saveMockDataToStorage(this.MOCK_FAVORITES_STORAGE_KEY, this.mockFavorites);
   }
 
   /**
@@ -209,86 +179,6 @@ export class UserApiMockService {
     return this.apiConfig.createMockResponse(userFavorites);
   }
 
-  /**
-   * Mock implementation for adding a structure to favorites.
-   * @param structureId - The ID of the structure to add to favorites.
-   * @returns An Observable of the created `UserFavoriteStructureModel`.
-   */
-  mockAddStructureToFavorites(structureId: number): Observable<UserFavoriteStructureModel> {
-    const endpointContext = 'users/favorites - add'; // For logging
-    this.apiConfig.logApiRequest('MOCK POST', endpointContext, { structureId });
-
-    if (!this.currentUserId) {
-      return this.apiConfig.createMockError(401, 'Mock: User not authenticated.');
-    }
-
-    // Check if already in favorites
-    const existingFavorite = this.mockFavorites.find(
-      fav => fav.userId === this.currentUserId && fav.structureId === structureId
-    );
-
-    if (existingFavorite) {
-      return this.apiConfig.createMockError(409, 'Mock: Structure is already in user favorites.');
-    }
-
-    // Create new favorite
-    const newFavorite: UserFavoriteStructureModel = {
-      id: Math.max(...this.mockFavorites.map(f => f.id), 0) + 1,
-      userId: this.currentUserId,
-      structureId: structureId,
-      addedAt: new Date()
-    };
-
-    this.mockFavorites.push(newFavorite);
-    this.saveMockFavorites(); // Sauvegarder dans localStorage
-    return this.apiConfig.createMockResponse(newFavorite);
-  }
-
-  /**
-   * Mock implementation for removing a structure from favorites.
-   * @param structureId - The ID of the structure to remove from favorites.
-   * @returns An Observable of void.
-   */
-  mockRemoveStructureFromFavorites(structureId: number): Observable<void> {
-    const endpointContext = 'users/favorites - remove'; // For logging
-    this.apiConfig.logApiRequest('MOCK DELETE', endpointContext, { structureId });
-
-    if (!this.currentUserId) {
-      return this.apiConfig.createMockError(401, 'Mock: User not authenticated.');
-    }
-
-    const favoriteIndex = this.mockFavorites.findIndex(
-      fav => fav.userId === this.currentUserId && fav.structureId === structureId
-    );
-
-    if (favoriteIndex === -1) {
-      return this.apiConfig.createMockError(404, 'Mock: Structure not found in user favorites.');
-    }
-
-    this.mockFavorites.splice(favoriteIndex, 1);
-    this.saveMockFavorites(); // Sauvegarder dans localStorage
-    return this.apiConfig.createMockResponse(undefined);
-  }
-
-  /**
-   * Mock implementation for checking if a structure is in user's favorites.
-   * @param structureId - The ID of the structure to check.
-   * @returns An Observable of boolean indicating if the structure is a favorite.
-   */
-  mockIsStructureFavorite(structureId: number): Observable<boolean> {
-    const endpointContext = 'users/favorites - check'; // For logging
-    this.apiConfig.logApiRequest('MOCK GET', endpointContext, { structureId });
-
-    if (!this.currentUserId) {
-      return this.apiConfig.createMockResponse(false);
-    }
-
-    const isFavorite = this.mockFavorites.some(
-      fav => fav.userId === this.currentUserId && fav.structureId === structureId
-    );
-
-    return this.apiConfig.createMockResponse(isFavorite);
-  }
 
   /**
    * Converts a MockUserModel to a UserModel by excluding mock-specific fields.

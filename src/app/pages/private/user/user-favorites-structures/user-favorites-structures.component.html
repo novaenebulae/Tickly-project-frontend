@@ -13,8 +13,6 @@
         Retrouvez ici toutes vos structures préférées !
       </p>
     </div>
-
-
   </div>
 
   <!-- État de chargement global -->
@@ -46,15 +44,14 @@
     class="favorites-grid"
     [class.grid-view]="viewMode() === 'grid'"
     [class.list-view]="viewMode() === 'list'"
-    *ngIf="!isLoading() && favoritesCount() > 0">
+    *ngIf="favoritesCount() > 0">
 
-    @for (favorite of favoritesDataSig(); track favorite.structure.id) {
+    @for (favorite of favorites(); track favorite.id) {
       <div class="favorite-item-wrapper">
         <app-structure-card
           [structure]="favorite.structure"
           [showActions]="true"
           [showFavoriteButton]="true"
-          [highlightNewStructure]="false"
           [isFavorite]="true"
           (viewDetails)="onViewStructureDetails($event)"
           (bookEvent)="onBookStructureEvents($event)"
@@ -83,14 +80,5 @@
       <mat-icon>add</mat-icon>
       Ajouter d'autres favoris
     </button>
-
-<!--    <button-->
-<!--      mat-stroked-button-->
-<!--      color="accent"-->
-<!--      routerLink="/events"-->
-<!--      class="action-button">-->
-<!--      <mat-icon>event</mat-icon>-->
-<!--      Voir événements des favoris-->
-<!--    </button>-->
   </div>
 </div>

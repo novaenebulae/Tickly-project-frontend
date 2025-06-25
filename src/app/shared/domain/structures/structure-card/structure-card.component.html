@@ -4,16 +4,9 @@
     <div class="cover-container">
       <div class="structure-cover"
            [style.background-image]="'url(' + (structure.coverUrl || 'https://picsum.photos/1200/400?random=' + structure.id) + ')'">
-        <div class="structure-importance" *ngIf="structure.importance !== undefined"
-             [class]="getImportanceClass()"
-             matTooltip="Score de popularité: {{structure.importance}}/100">
-          <mat-icon>stars</mat-icon>
-          <span>{{ getImportanceLabel() }}</span>
-        </div>
       </div>
-      <!-- Bouton de favoris positionné dans le coin supérieur droit -->
     </div>
-    <!-- Bouton de favoris positionné dans le coin supérieur droit -->
+    <!-- Bouton de favoris -->
     <div class="favorite-btn-container" *ngIf="showFavoriteButton">
       <button
         mat-icon-button
@@ -21,11 +14,7 @@
         [class.is-favorite]="isFavorite"
         [matTooltip]="isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'"
         (click)="onFavorite()">
-        @if (isFavorite) {
-          <mat-icon>favorite</mat-icon>
-        } @else {
-          <mat-icon>favorite_border</mat-icon>
-        }
+        <mat-icon>{{ isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
       </button>
     </div>
   </div>
@@ -36,17 +25,17 @@
         <div class="structure-title">
           <h3>{{ structure.name }}</h3>
           <div class="structure-types">
-            <mat-chip-set>
+            <mat-chip-listbox>
               <mat-chip *ngFor="let type of structure.types"
                         color="primary"
                         [matTooltip]="type.name || ''"
                         class="type-chip">
                 {{ type.name }}
               </mat-chip>
-            </mat-chip-set>
+            </mat-chip-listbox>
           </div>
           <div>
-            <span class="structure-address">{{ structure.address.city }}</span>
+            <span class="structure-address">{{ structure.city }}</span>
           </div>
         </div>
 
@@ -54,13 +43,6 @@
         <div class="structure-logo" *ngIf="structure.logoUrl">
           <img [src]="structure.logoUrl" [alt]="structure.name + ' logo'"/>
         </div>
-      </div>
-
-      <!-- Description -->
-      <div class="structure-description" *ngIf="structure.description">
-        <p>
-          {{ structure.description | slice:0:150 }}{{ structure.description && structure.description.length > 150 ? '...' : '' }}
-        </p>
       </div>
     </div>
 

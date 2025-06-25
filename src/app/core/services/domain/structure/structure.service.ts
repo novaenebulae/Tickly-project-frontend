@@ -34,7 +34,8 @@ import {
   EventAudienceZone
 } from '../../../models/event/event-audience-zone.model';
 import {ApiConfigService} from '../../api/api-config.service';
-import {Router} from '@angular/router'; // For token updates and user context
+import {Router} from '@angular/router';
+import {StructureSummaryModel} from '../../../models/structure/structure-summary.model'; // For token updates and user context
 
 @Injectable({
   providedIn: 'root'
@@ -138,27 +139,10 @@ export class StructureService {
    * @param params - Search parameters for filtering and sorting.
    * @returns An Observable of `StructureModel[]`.
    */
-  getStructures(params: StructureSearchParams = {}): Observable<StructureModel[]> {
+  getStructures(params: StructureSearchParams = {}): Observable<StructureSummaryModel[]> {
     // `importance` and `eventsCount` are assumed to be included by default by the backend.
     // No need for includeImportanceStats or includeEventCount parameters here.
     return this.structureApi.getStructures(params).pipe(
-      map((apiStructures: any[]): StructureModel[] => {
-        // Transform raw API objects to StructureModel instances if necessary.
-        // Assuming the structure from API matches StructureModel for now.
-        let structures = apiStructures.map(s => this.mapApiToStructureModel(s));
-
-        // Local sorting if sortBy is 'importance' and API might not sort it or data is mixed.
-        // Best if API handles all sorting. This is a client-side fallback.
-        if (params.sortBy === 'importance') {
-          structures = [...structures].sort((a, b) => {
-            const importanceA = a.importance ?? 0;
-            const importanceB = b.importance ?? 0;
-            const direction = params.sortDirection === 'desc' ? -1 : 1;
-            return (importanceA - importanceB) * direction;
-          });
-        }
-        return structures;
-      }),
       catchError(error => {
         this.handleError('Impossible de récupérer la liste des structures.', error);
         return of([]); // Return empty array on error
@@ -597,6 +581,25 @@ export class StructureService {
       updatedAt: apiStructure.updatedAt ? new Date(apiStructure.updatedAt) : undefined,
     } as StructureModel;
   }
+
+  /**
+   * Maps a raw API DTO to a `StructureSummaryModel`.
+   * @param dto - The raw data object from the API.
+   * @returns A `StructureSummaryModel` instance.
+   */
+  private mapApiToStructureSummaryModel(dto: any): StructureSummaryModel {
+    return {
+      id: dto.id,
+      name: dto.name,
+      types: dto.types || [],
+      city: dto.address?.city || 'Ville non disponible',
+      logoUrl: dto.logoUrl,
+      coverUrl: dto.coverUrl,
+      isActive: dto.isActive !== undefined ? dto.isActive : true, // Par défaut à true si non fourni
+      eventCount: dto.eventsCount || 0,
+    };
+  }
+
 
   private mapApiToStructureTypeModel(apiType: any): StructureTypeModel {
     return apiType as StructureTypeModel; // Direct cast if API DTO matches
