@@ -8,7 +8,7 @@
 
 /**
  * Data Transfer Object for updating a user's profile.
- * All fields are optional; only provided fields will be updated by the backend.
+ * Conforme au endpoint PUT /api/v1/users/me
  */
 export interface UserProfileUpdateDto {
   /**
@@ -21,18 +21,11 @@ export interface UserProfileUpdateDto {
    */
   lastName?: string;
 
-  // Email is typically not updatable directly or handled via a separate verification process.
-  // email?: string;
-
   /**
-   * URL of the user's avatar image.
-   * Can be set to null to request avatar removal if the API supports it.
+   * The user's email address.
    */
-  avatarUrl?: string | null;
+  email?: string;
 
-  // Password changes are usually handled by a separate endpoint/flow in AuthService/AuthApiService.
-  // currentPassword?: string;
-  // newPassword?: string;
-
-  // Role changes are typically admin-only operations via a different mechanism/endpoint.
+  // L'avatarUrl est géré par un endpoint spécifique (/api/v1/users/me/avatar)
+  // et n'est plus inclus directement dans cette DTO
 }

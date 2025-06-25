@@ -1,0 +1,39 @@
+/* Styles pour le composant de validation d'email */
+
+.success-icon, .error-icon {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.mat-card {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Styles de l'état de chargement */
+.mat-spinner {
+  margin: 0 auto;
+}
+
+/* Styles du texte */
+h2 {
+  font-weight: 500;
+  color: #333;
+}
+
+p {
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Styles responsives */
+@media (max-width: 576px) {
+  .mat-card {
+    margin: 0 1rem;
+  }
+}

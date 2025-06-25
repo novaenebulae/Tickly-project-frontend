@@ -70,6 +70,10 @@ export const publicRoutes: Routes = [
           }
         ]
       },
+      {
+        path: 'users/confirm-deletion',
+        loadComponent: () => import('../auth/account-deletion-confirmation/account-deletion-confirmation.component').then(m => m.AccountDeletionConfirmationComponent)
+      }
 
       // Fallback for unmatched routes within public area
       // {

@@ -222,11 +222,12 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
     );
   }
 
+  // TODO: Implémenter avec le search user
   /**
    * ✅ Génère l'URL de l'avatar pour un utilisateur
    */
-  getAvatarUrl(firstName?: string, lastName?: string): string {
-    return this.userService.generateAvatarUrl(firstName, lastName, 40);
+  getAvatarUrl(): string {
+    return '';
   }
 
   /**

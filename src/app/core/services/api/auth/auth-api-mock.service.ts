@@ -5,13 +5,15 @@
  */
 
 import {inject, Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, of, throwError} from 'rxjs';
 import {ApiConfigService} from '../api-config.service';
 import {AuthResponseDto, LoginCredentials} from '../../../models/auth/auth.model';
 import {UserRegistrationDto} from '../../../models/user/user.model';
 import {mockUsers as defaultMockUsers, MockUserModel} from '../../../mocks/auth/data/user-data.mock';
 import {APP_CONFIG} from '../../../config/app-config';
 import {UserRole} from '../../../models/user/user-role.enum';
+import {HttpErrorResponse} from '@angular/common/http';
+import {delay} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -62,6 +64,105 @@ export class AuthApiMockService {
       this.saveMockUsers();
       console.log(`Mock user ${userId} updated with structure ${structureId}`);
     }
+  }
+
+  /**
+   * Simule la validation d'email avec un token
+   * @param token - Token de validation reçu par email
+   * @returns Un Observable qui complète en cas de succès ou échoue en cas d'erreur
+   */
+  mockValidateEmail(token: string): Observable<void> {
+    // Simuler une validation réussie ou un échec en fonction du token
+    if (token === 'invalid') {
+      return throwError(() => new HttpErrorResponse({
+        status: 400,
+        statusText: 'Bad Request',
+        error: { message: 'Token de validation invalide ou expiré.' }
+      })).pipe(delay(APP_CONFIG.mock.delay));
+    } else if (token === 'expired') {
+      return throwError(() => new HttpErrorResponse({
+        status: 410,
+        statusText: 'Gone',
+        error: { message: 'Ce lien de validation a expiré. Veuillez demander un nouveau lien.' }
+      })).pipe(delay(APP_CONFIG.mock.delay));
+    } else if (token === 'not-found') {
+      return throwError(() => new HttpErrorResponse({
+        status: 404,
+        statusText: 'Not Found',
+        error: { message: 'Utilisateur non trouvé ou déjà validé.' }
+      })).pipe(delay(APP_CONFIG.mock.delay));
+    }
+
+    // Simulation d'une validation réussie par défaut
+    return of(void 0).pipe(delay(APP_CONFIG.mock.delay));
+  }
+
+  /**
+   * Simule la demande de réinitialisation de mot de passe
+   * @param email - Adresse email de l'utilisateur
+   * @returns Un Observable qui complète en cas de succès ou échoue en cas d'erreur
+   */
+  mockRequestPasswordReset(email: string): Observable<void> {
+    this.apiConfig.logApiRequest('MOCK POST', 'forgot-password', { email });
+
+    // Simuler une demande trop fréquente pour test (par exemple, si l'email est 'rate-limited@example.com')
+    if (email === 'rate-limited@example.com') {
+      return throwError(() => new HttpErrorResponse({
+        status: 429,
+        statusText: 'Too Many Requests',
+        error: { message: 'Trop de tentatives. Veuillez réessayer plus tard.' }
+      })).pipe(delay(APP_CONFIG.mock.delay));
+    }
+
+    // Pour des raisons de sécurité, on ne divulgue pas si l'email existe ou non
+    // On renvoie toujours un succès, même si l'email n'existe pas dans la base
+    return of(void 0).pipe(delay(APP_CONFIG.mock.delay));
+  }
+
+  /**
+   * Simule la réinitialisation de mot de passe avec un token
+   * @param dto - Objet contenant le token et le nouveau mot de passe
+   * @returns Un Observable qui complète en cas de succès ou échoue en cas d'erreur
+   */
+  mockResetPassword(dto: { token: string, newPassword: string }): Observable<void> {
+    this.apiConfig.logApiRequest('MOCK POST', 'reset-password', { token: dto.token, newPassword: '***' });
+
+    // Simuler des erreurs en fonction du token pour les tests
+    if (dto.token === 'invalid') {
+      return throwError(() => new HttpErrorResponse({
+        status: 400,
+        statusText: 'Bad Request',
+        error: { message: 'Le lien de réinitialisation est invalide ou a expiré.' }
+      })).pipe(delay(APP_CONFIG.mock.delay));
+    }
+
+    if (dto.token === 'expired') {
+      return throwError(() => new HttpErrorResponse({
+        status: 410,
+        statusText: 'Gone',
+        error: { message: 'Ce lien de réinitialisation a expiré. Veuillez demander un nouveau lien.' }
+      })).pipe(delay(APP_CONFIG.mock.delay));
+    }
+
+    if (dto.token === 'not-found') {
+      return throwError(() => new HttpErrorResponse({
+        status: 404,
+        statusText: 'Not Found',
+        error: { message: 'Le lien de réinitialisation est invalide ou a expiré.' }
+      })).pipe(delay(APP_CONFIG.mock.delay));
+    }
+
+    // Si le mot de passe est trop court ou ne respecte pas les critères
+    if (dto.newPassword.length < 8) {
+      return throwError(() => new HttpErrorResponse({
+        status: 400,
+        statusText: 'Bad Request',
+        error: { message: 'Le mot de passe doit comporter au moins 8 caractères.' }
+      })).pipe(delay(APP_CONFIG.mock.delay));
+    }
+
+    // Simulation d'une réinitialisation réussie
+    return of(void 0).pipe(delay(APP_CONFIG.mock.delay));
   }
 
   /**

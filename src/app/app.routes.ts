@@ -9,6 +9,10 @@ import {adminRoutes} from './pages/private/admin/admin.routes';
 import {MainLayoutComponent} from './shared/layout/main-layout/main-layout.component';
 import {AdminGuard} from './core/guards/admin.guard';
 import {StructureCreationComponent} from './pages/private/admin/structure-creation/structure-creation.component';
+import {ValidateEmailComponent} from './pages/auth/validate-email/validate-email.component';
+import {
+  AccountDeletionConfirmationComponent
+} from './pages/auth/account-deletion-confirmation/account-deletion-confirmation.component';
 
 /**
  * Main application routes configuration
@@ -33,6 +37,34 @@ export const routes: Routes = [
     canActivate: [PublicGuard],
     title: 'Inscription | Tickly'
   },
+  {
+    path: 'auth/forgot-password',
+    loadComponent: () => import('./pages/auth/forgot-password/forgot-password.component')
+      .then(m => m.ForgotPasswordComponent),
+    canActivate: [PublicGuard],
+    title: 'Mot de passe oublié | Tickly'
+  },
+  {
+    path: 'auth/reset-password',
+    loadComponent: () => import('./pages/auth/reset-password/reset-password.component')
+      .then(m => m.ResetPasswordComponent),
+    canActivate: [PublicGuard],
+    title: 'Réinitialisation du mot de passe | Tickly'
+  },
+
+  {
+    path: 'auth/validate-email',
+    component: ValidateEmailComponent,
+    title: 'Validation de l\'email | Tickly'
+    // Note: Le token est passé en query parameter (?token=xyz) et non en paramètre de route
+  },
+
+  {
+    path: 'users/confirm-deletion', // Ce chemin correspond au lien dans l'email
+    component: AccountDeletionConfirmationComponent,
+    title: 'Confirmation de suppression de compte'
+  },
+
 
   // User private area (requires authentication)
   {

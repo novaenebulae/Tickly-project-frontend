@@ -1,15 +1,19 @@
-// models/user/user-favorite-structure.model.ts
-import {StructureModel} from '../structure/structure.model';
+import { StructureModel } from '../structure/structure.model';
 
+/**
+ * Représente une structure favorite de l'utilisateur, telle que retournée par l'API.
+ * Inclut l'objet complet de la structure.
+ */
 export interface UserFavoriteStructureModel {
   id: number;
   userId: number;
-  structureId: number;
+  structure: StructureModel; // L'objet structure est maintenant directement inclus et non optionnel
   addedAt: Date;
-  structure?: StructureModel; // Relation optionnelle pour les jointures
 }
 
-// DTO pour les opérations API
+/**
+ * DTO pour l'ajout d'une structure aux favoris.
+ */
 export interface FavoriteStructureDto {
   structureId: number;
 }

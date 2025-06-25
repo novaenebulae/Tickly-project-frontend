@@ -152,7 +152,6 @@ export class UserApiMockService {
       ...currentUser,
       firstName: profileUpdateDto.firstName !== undefined ? profileUpdateDto.firstName : currentUser.firstName,
       lastName: profileUpdateDto.lastName !== undefined ? profileUpdateDto.lastName : currentUser.lastName,
-      avatarUrl: profileUpdateDto.avatarUrl !== undefined ? (profileUpdateDto.avatarUrl === null ? undefined : profileUpdateDto.avatarUrl) : currentUser.avatarUrl,
       updatedAt: new Date()
     };
 

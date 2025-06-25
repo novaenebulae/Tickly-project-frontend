@@ -50,6 +50,22 @@ export class ApiConfigService {
   }
 
   /**
+   * Crée les en-têtes HTTP pour les requêtes FormData, incluant l'autorisation mais sans 'Content-Type'.
+   * HttpClient d'Angular définira automatiquement 'Content-Type' à 'multipart/form-data' avec le bon boundary.
+   * @returns HttpHeaders Les en-têtes HTTP construits.
+   */
+  createFormDataHeaders(): HttpHeaders {
+    let headers = new HttpHeaders();
+
+    const token = this.getAuthToken();
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
+  }
+
+
+  /**
    * Retrieves the authentication token from localStorage or sessionStorage based on 'keepLoggedIn' setting.
    * @returns The authentication token, or null if not found.
    */

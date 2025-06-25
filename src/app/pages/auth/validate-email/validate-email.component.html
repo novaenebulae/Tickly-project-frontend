@@ -1,0 +1,58 @@
+<div class="d-flex flex-column align-items-center justify-content-center vh-100">
+  <img
+    src="logos/tickly-logo.svg"
+    alt="Logo"
+    class="mb-4"
+    style="width: 300px; height: auto"
+  />
+
+  <mat-card
+    class="p-4 shadow-lg"
+    style="width: 100%; max-width: 450px; border-radius: 12px"
+  >
+    @if (isLoading()) {
+      <div class="d-flex flex-column align-items-center p-4">
+        <mat-spinner diameter="60"></mat-spinner>
+        <p class="mt-3">Validation de votre adresse email en cours...</p>
+      </div>
+    } @else if (isSuccess()) {
+      <div class="text-center">
+        <div class="success-icon">
+          <mat-icon style="font-size: 48px; color: #4CAF50; height: 48px; width: 48px;">check_circle</mat-icon>
+        </div>
+        <h2 class="mt-3">Validation réussie !</h2>
+        <p class="mb-4">Votre adresse email a été validée avec succès. Vous pouvez maintenant vous connecter à votre compte.</p>
+
+        <div class="d-flex justify-content-center gap-3 mt-4">
+          <button mat-stroked-button color="primary" (click)="navigateToHome()">
+            <mat-icon>home</mat-icon>
+            Accueil
+          </button>
+          <button mat-raised-button color="primary" (click)="navigateToLogin()">
+            <mat-icon>login</mat-icon>
+            Se connecter
+          </button>
+        </div>
+      </div>
+    } @else {
+      <div class="text-center">
+        <div class="error-icon">
+          <mat-icon style="font-size: 48px; color: #F44336; height: 48px; width: 48px;">error</mat-icon>
+        </div>
+        <h2 class="mt-3">Validation échouée</h2>
+        <p class="mb-4">{{ errorMessage() }}</p>
+
+        <div class="d-flex justify-content-center gap-3 mt-4">
+          <button mat-stroked-button color="primary" (click)="navigateToHome()">
+            <mat-icon>home</mat-icon>
+            Accueil
+          </button>
+          <button mat-raised-button color="primary" (click)="navigateToLogin()">
+            <mat-icon>login</mat-icon>
+            Se connecter
+          </button>
+        </div>
+      </div>
+    }
+  </mat-card>
+</div>

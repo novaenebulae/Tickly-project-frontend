@@ -98,17 +98,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
   readonly userAvatarUrl = computed(() => {
     const profile = this.currentUserProfile();
 
-    //TODO : Changer si on met des photos users
-    // if (profile?.avatarUrl) {
-    //   return profile.avatarUrl;
-    // }
+    if (profile?.avatarUrl) {
+      return profile.avatarUrl;
+    }
 
     // Générer un avatar par défaut avec les initiales
-    return this.userService.generateAvatarUrl(
-      profile?.firstName || this.fullName().split(' ')[0],
-      profile?.lastName || this.fullName().split(' ')[1],
-      40
-    );
+    return ''
   });
 
   readonly hasNotifications = computed(() => {

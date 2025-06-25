@@ -1,0 +1,41 @@
+<div class="container">
+  <mat-card class="confirmation-card">
+    @switch (status()) {
+      @case ('loading') {
+        <mat-card-content class="status-content">
+          <mat-progress-spinner mode="indeterminate" [diameter]="50"></mat-progress-spinner>
+          <p>Confirmation de la suppression en cours...</p>
+        </mat-card-content>
+      }
+      @case ('success') {
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="success-icon">check_circle</mat-icon>
+          <mat-card-title>Compte supprimé</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>
+            Votre compte a été supprimé avec succès. Nous sommes désolés de vous voir partir.
+          </p>
+          <p>
+            Toutes vos données personnelles ont été effacées de nos systèmes.
+          </p>
+        </mat-card-content>
+        <mat-card-actions>
+          <a mat-stroked-button color="primary" routerLink="/">Retour à l'accueil</a>
+        </mat-card-actions>
+      }
+      @case ('error') {
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="error-icon">error</mat-icon>
+          <mat-card-title>Échec de la suppression</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ errorMessage() }}</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <a mat-stroked-button color="primary" routerLink="/">Retour à l'accueil</a>
+        </mat-card-actions>
+      }
+    }
+  </mat-card>
+</div>

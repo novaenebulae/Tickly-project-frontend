@@ -19,7 +19,6 @@ interface AppConfig {
         validateToken: string;
         refreshToken?: string; // Optional: if you implement token refresh
         passwordResetRequest: string;
-        passwordChangeRequest: string;
       };
       events: {
         base: string;          // e.g., 'events' for GET (list), POST (create)
@@ -42,8 +41,15 @@ interface AppConfig {
         byId: (id: number | string) => string;
         profile: string; // For current user's profile (e.g., 'users/me')
         updateProfile: string;
-        search: string; // To search users (e.g., for adding friends)
+        search: string; // To search users (e.g., for adding friends);
+        deleteAccount: string;
+        confirmAccountDeletion: string;
+        favorites: { // Ajout de la section pour les favoris
+          structures: string;
+          structureById: (id: number | string) => string;
+        };
       };
+
       friendship: {
         base: string;          // List current user's friends
         requests: string;      // GET (received/sent), POST (send new)
@@ -122,8 +128,6 @@ export const APP_CONFIG: AppConfig = {
         validateToken: 'auth/validate-email',
         passwordResetRequest: 'auth/forgot-password',
 
-        // TODO : Pas possible de changer le mot de passe comme ça, uniquement reset
-        passwordChangeRequest: 'auth/password-change-request', // For logged-in user
       },
       events: {
         base: 'events',
@@ -147,7 +151,14 @@ export const APP_CONFIG: AppConfig = {
         profile: 'users/me',
         updateProfile: 'users/me',
         search: 'users/search',
+        deleteAccount: 'users/me',
+        confirmAccountDeletion: 'users/confirm-deletion',
+        favorites: {
+          structures: 'users/me/favorites/structures',
+          structureById: (id: number | string) => `users/me/favorites/structures/${id}`
+        }
       },
+
       team: {
         structure: (structureId: number | string) => `team/structure/${structureId}`,
         roles: 'team/roles',
@@ -176,7 +187,7 @@ export const APP_CONFIG: AppConfig = {
     auth: false,
     events: true,
     structures: true,
-    users: true,
+    users: false,
     friendship: true,
     ticketing: true,
     team: true,

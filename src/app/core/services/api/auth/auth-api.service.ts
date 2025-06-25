@@ -27,16 +27,70 @@ export class AuthApiService {
   private mockService = inject(AuthApiMockService); // Inject the mock service
   private notificationService = inject(NotificationService);
 
-  // TODO: Add methods for password reset
+  /**
+   * Envoie une requête pour réinitialiser le mot de passe
+   * @param dto - Objet contenant l'email de l'utilisateur
+   * @returns Observable qui complète en cas de succès ou émet une erreur
+   */
   requestPasswordReset(dto: { email: string }): Observable<void> {
-    /* ... call API ... */
-  return new Observable<void>();
+    if (this.apiConfig.isMockEnabledForDomain('auth')) {
+      return this.mockService.mockRequestPasswordReset(dto.email);
+    }
+
+    this.apiConfig.logApiRequest('POST', 'forgot-password', { email: dto.email });
+    const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.auth.passwordResetRequest);
+    const headers = this.apiConfig.createHeaders();
+
+    return this.http.post<void>(url, dto, { headers }).pipe(
+      tap(() => this.apiConfig.logApiResponse('POST', 'forgot-password', { success: true })),
+      catchError(error => this.handleAuthError(error, 'forgot-password'))
+    );
+  }
+
+  /**
+   * Réinitialise le mot de passe avec le token reçu par email
+   * @param dto - Objet contenant le token et le nouveau mot de passe
+   * @returns Observable qui complète en cas de succès ou émet une erreur
+   */
+  resetPassword(dto: { token: string, newPassword: string }): Observable<void> {
+    if (this.apiConfig.isMockEnabledForDomain('auth')) {
+      return this.mockService.mockResetPassword(dto);
+    }
+
+    this.apiConfig.logApiRequest('POST', 'reset-password', { token: dto.token, newPassword: '***' });
+    const url = this.apiConfig.getUrl('auth/reset-password');
+    const headers = this.apiConfig.createHeaders();
+
+    return this.http.post<void>(url, dto, { headers }).pipe(
+      tap(() => this.apiConfig.logApiResponse('POST', 'reset-password', { success: true })),
+      catchError(error => this.handleAuthError(error, 'reset-password'))
+    );
   }
 
   // TODO : cela n'arrivera pas donc à supprimer
   requestPasswordChange(): Observable<void> {
     /* ... call API ... */
     return new Observable<void>(); // Retourne un observable vide
+  }
+
+  /**
+   * Valide l'email d'un utilisateur avec le token fourni.
+   * @param token - Le token de validation reçu par email
+   * @returns Un Observable qui complète en cas de succès ou échoue en cas d'erreur
+   */
+  validateEmail(token: string): Observable<void> {
+    if (this.apiConfig.isMockEnabledForDomain('auth')) {
+      return this.mockService.mockValidateEmail(token);
+    }
+
+    this.apiConfig.logApiRequest('GET', 'validate-email', { token });
+    const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.auth.validateToken);
+    const headers = this.apiConfig.createHeaders();
+
+    return this.http.get<void>(`${url}?token=${token}`, { headers }).pipe(
+      tap(() => this.apiConfig.logApiResponse('GET', 'validate-email', { success: true })),
+      catchError(error => this.handleAuthError(error, 'validate'))
+    );
   }
 
 
@@ -116,14 +170,22 @@ export class AuthApiService {
   }
 
   /**
-   * Handles authentication-related errors.
-   * @param error - The HttpErrorResponse.
-   * @param context - The context in which the error occurred (e.g., 'login', 'register').
-   * @returns An Observable that emits an error with a user-friendly message.
+   * Gère de façon centralisée les erreurs liées à l'authentification.
+   * Cette méthode:
+   * 1. Génère un message d'erreur adapté au contexte et au code HTTP
+   * 2. Affiche une notification à l'utilisateur via le service de notification
+   * 3. Retourne un Observable d'erreur contenant des informations structurées
+   *
+   * Note importante: Les composants utilisant cette méthode n'ont pas besoin de réafficher
+   * le message d'erreur via le service de notification, car c'est déjà fait ici.
+   *
+   * @param error - La réponse HTTP d'erreur
+   * @param context - Le contexte dans lequel l'erreur s'est produite ('login', 'register', etc.)
+   * @returns Un Observable qui émet une erreur avec un message adapté à l'utilisateur
    */
   private handleAuthError(
     error: HttpErrorResponse,
-    context: 'login' | 'register' | 'refresh'
+    context: 'login' | 'register' | 'refresh' | 'validate' | 'forgot-password' | 'reset-password'
   ): Observable<never> {
     this.apiConfig.logApiError('AUTH-API', context, error);
 
@@ -137,6 +199,23 @@ export class AuthApiService {
         typeof error.error === 'string'
           ? error.error
           : error.error?.message || 'Erreur : Cette adresse email est déja utilisée.';
+    } else if (error.status === 400 && context === 'validate') {
+      userMessage = 'Token de validation invalide ou expiré.';
+    } else if (error.status === 404 && context === 'validate') {
+      userMessage = 'Utilisateur non trouvé ou déjà validé.';
+    } else if (error.status === 410 && context === 'validate') {
+      userMessage = 'Ce lien de validation a expiré. Veuillez demander un nouveau lien.';
+    } else if (error.status === 404 && context === 'forgot-password') {
+      // Pour des raisons de sécurité, on n'indique pas si l'email existe ou non
+      userMessage = 'Si un compte existe avec cette adresse email, un lien de réinitialisation a été envoyé.';
+    } else if (error.status === 429 && context === 'forgot-password') {
+      userMessage = 'Trop de tentatives. Veuillez réessayer plus tard.';
+    } else if (error.status === 400 && context === 'reset-password') {
+      userMessage = 'Le lien de réinitialisation est invalide ou a expiré.';
+    } else if (error.status === 404 && context === 'reset-password') {
+      userMessage = 'Le lien de réinitialisation est invalide ou a expiré.';
+    } else if (error.status === 410 && context === 'reset-password') {
+      userMessage = 'Ce lien de réinitialisation a expiré. Veuillez demander un nouveau lien.';
     } else if (error.status === 400) {
       userMessage =
         error.error?.message ||

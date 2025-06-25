@@ -32,7 +32,7 @@
     max-height: calc(80vh - 140px);
   }
 
-  // === SECTION AVATAR ===
+  // === SECTION AVATAR (MISE À JOUR) ===
   .avatar-section {
     display: flex;
     flex-direction: column;
@@ -40,21 +40,54 @@
     padding: 1.5rem 1rem 1rem;
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 
-    .avatar-preview {
+    .avatar-container {
       position: relative;
       margin-bottom: 0.75rem;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
       .avatar-image {
-        width: 80px;
-        height: 80px;
+        width: 100%;
+        height: 100%;
         border-radius: 50%;
         object-fit: cover;
         border: 3px solid var(--primary-color, #1976d2);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        transition: transform 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: filter 0.3s ease;
+      }
 
-        &:hover {
-          transform: scale(1.05);
+      .edit-avatar-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background-color: rgba(0, 0, 0, 0.4);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none; // Permet au clic de passer au conteneur
+
+        mat-icon {
+          font-size: 2rem;
+        }
+      }
+
+      &:hover:not(:has(mat-spinner)) {
+        .avatar-image {
+          filter: brightness(0.7);
+        }
+        .edit-avatar-overlay {
+          opacity: 1;
         }
       }
     }
@@ -102,6 +135,56 @@
   mat-divider {
     border-color: var(--border-color, #e0e0e0);
     margin: 0;
+  }
+
+
+  .danger-section {
+    margin-top: 1.5rem;
+    padding: 24px;
+
+    .danger-title {
+      color: #d32f2f;
+
+      mat-icon {
+        color: #d32f2f;
+      }
+    }
+
+    .danger-info {
+      color: #666;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+      font-size: 0.9rem;
+    }
+
+    .danger-button {
+      color: #d32f2f;
+      border-color: #d32f2f;
+
+      &:hover {
+        background-color: rgba(211, 47, 47, 0.04);
+      }
+
+      mat-icon {
+        margin-right: 0.5rem;
+      }
+
+      .inline-spinner {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+
+    mat-icon {
+      margin-right: 0.5rem;
+    }
   }
 
   // === SECTION SÉCURITÉ ===
@@ -194,7 +277,7 @@
     .avatar-section {
       padding: 1rem 0.75rem 0.75rem;
 
-      .avatar-preview .avatar-image {
+      .avatar-container {
         width: 70px;
         height: 70px;
       }
@@ -260,7 +343,7 @@
     .avatar-section {
       padding: 0.75rem 0.5rem 0.5rem;
 
-      .avatar-preview .avatar-image {
+      .avatar-container {
         width: 60px;
         height: 60px;
       }
@@ -279,10 +362,6 @@
 
 // === ANIMATIONS ===
 .edit-profile-dialog {
-  .avatar-preview .avatar-image {
-    transition: all 0.3s ease;
-  }
-
   .password-reset-button {
     transition: all 0.2s ease;
 

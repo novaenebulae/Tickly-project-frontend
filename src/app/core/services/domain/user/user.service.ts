@@ -8,7 +8,7 @@
 
 import {Injectable, inject, signal, computed, WritableSignal, effect, untracked} from '@angular/core';
 import {Observable, of, BehaviorSubject} from 'rxjs';
-import {catchError, tap} from 'rxjs/operators';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
 
 import {UserApiService} from '../../api/user/user-api.service';
 import {AuthService} from './auth.service';
@@ -59,7 +59,7 @@ export class UserService {
         const currentProfileData = untracked(() => this.currentUserProfileDataSig());
 
         if (!currentProfileData || currentProfileData.id !== authUser.userId) {
-          this.loadUserProfile(authUser.userId, true).subscribe(profile => {
+          this.getCurrentUserProfile(true).subscribe(profile => {
             if (profile) {
               this.currentUserProfileDataSig.set(profile);
             } else {
@@ -82,7 +82,7 @@ export class UserService {
     });
   }
 
-
+  //TODO : Ne doit paas exister
   /**
    * Loads a specific user's profile by their ID.
    * Fetches from the API if not in cache or if `forceRefresh` is true.
@@ -103,7 +103,7 @@ export class UserService {
       return of(cachedProfile);
     }
 
-    return this.userApi.getUserProfileById(userId).pipe(
+    return this.userApi.getCurrentUserProfile().pipe(
       tap(profile => {
         if (profile) {
           const currentCache = this.userProfilesCache.value;
@@ -240,7 +240,7 @@ export class UserService {
     if (user?.avatarUrl) {
       return user.avatarUrl;
     }
-    return this.generateAvatarUrl(user?.firstName, user?.lastName);
+    return '';
   }
 
   // /**
@@ -267,61 +267,111 @@ export class UserService {
   // }
 
   /**
-   * Generates a placeholder avatar URL based on the user's initials with caching.
-   * @param firstName - The user's first name.
-   * @param lastName - The user's last name.
-   * @param size - The desired size of the avatar image in pixels (default: 128).
-   * @returns A URL string for the placeholder avatar image.
+   * Uploade un avatar pour l'utilisateur courant.
+   * En cas de succès, récupère le profil utilisateur mis à jour et met à jour les signaux.
+   * @param file Le fichier d'avatar à uploader.
+   * @returns Un Observable du `UserModel` mis à jour, ou undefined en cas d'erreur.
    */
-  generateAvatarUrl(firstName ?: string, lastName ?: string, size
-                    :
-                    number = 128
-  ):
-    string {
-    // ✅ Création d'une clé de cache unique
-    const cacheKey = `${firstName || ''}-${lastName || ''}-${size}`;
+  uploadUserAvatar(file: File): Observable<UserModel | undefined> {
+    return this.userApi.uploadAvatar(file).pipe(
+      // Après l'upload réussi, récupérer le profil utilisateur mis à jour
+      switchMap(uploadResponse => {
+        this.notification.displayNotification(uploadResponse.message || 'Avatar mis à jour avec succès.', 'valid');
 
-    // ✅ Vérification du cache
-    const cachedUrl = this.avatarUrlCache.get(cacheKey);
-    if (cachedUrl) {
-      return cachedUrl;
-    }
+        // Récupérer le profil utilisateur mis à jour qui contiendra la nouvelle avatarUrl
+        return this.userApi.getCurrentUserProfile().pipe(
+          tap(updatedUser => {
+            // Mettre à jour le signal du profil de l'utilisateur courant
+            this.currentUserProfileDataSig.set(updatedUser);
 
-    const getInitials = (fName?: string, lName?: string): string => {
-      const firstInitial = fName ? fName.charAt(0).toUpperCase() : '';
-      const lastInitial = lName ? lName.charAt(0).toUpperCase() : '';
-      if (firstInitial && lastInitial) return firstInitial + lastInitial;
-      if (firstInitial) return firstInitial;
-      if (lastInitial) return lastInitial;
-      return '??';
-    };
-
-    const initials = getInitials(firstName, lastName);
-
-    // Simple color generation based on initials for consistency
-    let hash = 0;
-    for (let i = 0; i < initials.length; i++) {
-      hash = initials.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const h = hash % 360;
-    const s = 70;
-    const l = 50;
-
-    let avatarUrl: string;
-
-    // Fallback if no initials
-    if (initials === '??') {
-      avatarUrl = `https://avatar.iran.liara.run/public`;
-    } else {
-      const bgColorHex = this.hslToHex(h, s, l);
-      const textColorHex = this.hslToHex(h, s, (l < 50 ? l + 40 : l - 20));
-      avatarUrl = `https://avatar.iran.liara.run/username?username=${firstName}+${lastName}&color=${textColorHex}&background=${bgColorHex}&size=${size}`;
-    }
-
-    // ✅ Mise en cache du résultat
-    this.avatarUrlCache.set(cacheKey, avatarUrl);
-    return avatarUrl;
+            // Mettre à jour le profil dans le cache
+            const currentCache = this.userProfilesCache.value;
+            currentCache.set(updatedUser.id, updatedUser);
+            this.userProfilesCache.next(new Map(currentCache));
+          }),
+          catchError(profileError => {
+            console.error('Erreur lors de la récupération du profil mis à jour:', profileError);
+            // Même si on ne peut pas récupérer le profil, l'upload a réussi
+            // On peut créer un UserModel temporaire avec l'URL de l'avatar
+            const currentUser = this.currentUserProfileDataSig();
+            if (currentUser) {
+              const updatedUser = { ...currentUser, avatarUrl: uploadResponse.fileUrl };
+              this.currentUserProfileDataSig.set(updatedUser);
+              return of(updatedUser);
+            }
+            return of(undefined);
+          })
+        );
+      }),
+      catchError(error => {
+        this.notification.displayNotification(
+          error.message || "Erreur lors de la mise à jour de l'avatar.",
+          'error'
+        );
+        return of(undefined);
+      })
+    );
   }
+
+  /**
+   * Demande la suppression du compte utilisateur courant.
+   * Déclenche l'envoi d'un email avec un lien de confirmation.
+   * @returns Un Observable avec true si succès, false sinon.
+   */
+  requestAccountDeletion(): Observable<boolean> {
+    const currentAuthUser = this.authService.currentUser();
+    if (!currentAuthUser || !currentAuthUser.userId) {
+      this.notification.displayNotification("Action non autorisée : aucun utilisateur connecté.", 'error');
+      return of(false);
+    }
+
+    return this.userApi.requestAccountDeletion().pipe(
+      map(() => {
+        this.notification.displayNotification(
+          "Un email de confirmation de suppression a été envoyé à votre adresse.",
+          'valid'
+        );
+        return true;
+      }),
+      catchError(error => {
+        this.notification.displayNotification(
+          error.message || "Erreur lors de la demande de suppression du compte.",
+          'error'
+        );
+        return of(false);
+      })
+    );
+  }
+
+  /**
+   * Confirme la suppression du compte utilisateur avec le token.
+   * @param token - Token de confirmation reçu par email
+   * @returns Un Observable avec true si succès, false sinon.
+   */
+  confirmAccountDeletion(token: string): Observable<boolean> {
+    if (!token || token.trim().length === 0) {
+      this.notification.displayNotification("Token de confirmation manquant.", 'error');
+      return of(false);
+    }
+
+    return this.userApi.confirmAccountDeletion(token).pipe(
+      map(() => {
+        this.notification.displayNotification(
+          "Votre compte a été supprimé avec succès.",
+          'valid'
+        );
+        return true;
+      }),
+      catchError(error => {
+        this.notification.displayNotification(
+          error.message || "Erreur lors de la confirmation de suppression du compte.",
+          'error'
+        );
+        return of(false);
+      })
+    );
+  }
+
 
   /**
    * Clears the currently active user profile from the service's state.
@@ -346,22 +396,4 @@ export class UserService {
     return this.userProfilesCache.value.get(userId);
   }
 
-  private hslToHex(h
-                   :
-                   number, s
-                   :
-                   number, l
-                   :
-                   number
-  ):
-    string {
-    s /= 100;
-    l /= 100;
-    const k = (n: number) => (n + h / 30) % 12;
-    const a = s * Math.min(l, 1 - l);
-    const f = (n: number) =>
-      l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-    const toHex = (x: number) => Math.round(x * 255).toString(16).padStart(2, '0');
-    return `${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
-  }
 }

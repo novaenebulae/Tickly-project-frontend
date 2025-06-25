@@ -5,17 +5,34 @@
   </h2>
 
   <mat-dialog-content class="dialog-content">
-    <!-- Avatar Preview -->
+    <!-- Avatar Section -->
     <div class="avatar-section">
-      <div class="avatar-preview">
-        <img [src]="profileAvatarUrl()"
-             [alt]="data.user.firstName + ' ' + data.user.lastName"
+      <!-- Le conteneur de l'avatar est maintenant cliquable pour lancer l'upload -->
+      <div class="avatar-container" (click)="!isUploadingAvatar() && fileInput.click()">
+        <!-- Le spinner s'affiche pendant l'upload -->
+        <mat-spinner *ngIf="isUploadingAvatar()" [diameter]="80"></mat-spinner>
+
+        <!-- L'image de l'avatar, masquée pendant l'upload -->
+        <img *ngIf="!isUploadingAvatar()"
+             [src]="profileAvatarUrl()"
+             [alt]="'Avatar de ' + data.user.firstName"
              class="avatar-image">
+
+        <!-- Overlay qui s'affiche au survol -->
+        <div *ngIf="!isUploadingAvatar()" class="edit-avatar-overlay">
+          <mat-icon>photo_camera</mat-icon>
+        </div>
       </div>
+
+      <!-- Texte d'instruction -->
       <p class="avatar-info">
-        Avatar généré automatiquement basé sur vos initiales
+        Cliquez sur l'avatar pour le modifier
       </p>
+
+      <!-- Input de fichier caché, déclenché par le clic sur l'avatar -->
+      <input hidden type="file" #fileInput (change)="onAvatarSelected($event)" accept="image/png, image/jpeg">
     </div>
+
 
     <mat-divider></mat-divider>
 
@@ -54,23 +71,6 @@
           </mat-error>
         </mat-form-field>
       </div>
-
-<!--      <mat-form-field appearance="outline" class="full-width">-->
-<!--        <mat-label>Email</mat-label>-->
-<!--        <input matInput-->
-<!--               formControlName="email"-->
-<!--               type="email"-->
-<!--               placeholder="votre.email@exemple.com">-->
-<!--        <mat-error *ngIf="email?.hasError('required')">-->
-<!--          L'email est requis-->
-<!--        </mat-error>-->
-<!--        <mat-error *ngIf="email?.hasError('email')">-->
-<!--          Veuillez entrer un email valide-->
-<!--        </mat-error>-->
-<!--        <mat-error *ngIf="email?.hasError('maxlength')">-->
-<!--          L'email ne peut pas dépasser 100 caractères-->
-<!--        </mat-error>-->
-<!--      </mat-form-field>-->
     </form>
 
     <mat-divider></mat-divider>
@@ -98,6 +98,32 @@
         }
       </button>
     </div>
+
+    <!-- Nouvelle section pour la suppression de compte -->
+    <mat-divider></mat-divider>
+
+    <div class="danger-section">
+      <h3 class="section-title danger-title">
+        <mat-icon color="warn">warning</mat-icon>
+        Zone de danger
+      </h3>
+      <p class="danger-info">
+        La suppression de votre compte est irréversible. Toutes vos données seront définitivement supprimées.
+      </p>
+      <button mat-stroked-button
+              color="warn"
+              [disabled]="isRequestingAccountDeletion()"
+              (click)="requestAccountDeletion()"
+              class="delete-account-button">
+        <mat-icon>delete_forever</mat-icon>
+        @if (isRequestingAccountDeletion()) {
+          <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+          Traitement en cours...
+        } @else {
+          <ng-container>Supprimer mon compte</ng-container>
+        }
+      </button>
+    </div>
   </mat-dialog-content>
 
   <mat-dialog-actions align="end" class="dialog-actions">
@@ -109,7 +135,8 @@
 
     <button mat-raised-button
             color="primary"
-            (click)="submitProfileChanges()">
+            (click)="submitProfileChanges()"
+            [disabled]="isUpdatingProfile() || isUploadingAvatar()">
       @if (isUpdatingProfile()) {
         <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
         Mise à jour...

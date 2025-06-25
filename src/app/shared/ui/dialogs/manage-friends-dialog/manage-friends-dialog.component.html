@@ -29,7 +29,7 @@
                   <mat-card-content class="friend-content">
                     <div class="friend-info">
                       <div class="friend-avatar">
-                        <img [src]="getAvatarUrl(friend.firstName, friend.lastName)"
+                        <img [src]="getAvatarUrl()"
                              [alt]="friend.firstName + ' ' + friend.lastName"
                              class="avatar-image">
                       </div>
@@ -91,7 +91,7 @@
                   <mat-card-content class="request-content">
                     <div class="request-info">
                       <div class="request-avatar">
-                        <img [src]="getAvatarUrl(request.sender.firstName, request.sender.lastName)"
+                        <img [src]="getAvatarUrl()"
                              [alt]="request.sender.firstName + ' ' + request.sender.lastName"
                              class="avatar-image">
                       </div>
@@ -147,7 +147,7 @@
                   <mat-card-content class="sent-request-content">
                     <div class="sent-request-info">
                       <div class="sent-request-avatar">
-                        <img [src]="getAvatarUrl(request.receiver.firstName, request.receiver.lastName)"
+                        <img [src]="getAvatarUrl()"
                              [alt]="request.receiver.firstName + ' ' + request.receiver.lastName"
                              class="avatar-image">
                       </div>
