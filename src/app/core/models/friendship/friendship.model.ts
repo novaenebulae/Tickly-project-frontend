@@ -50,12 +50,6 @@ export interface FriendshipDataModel {
  * The backend will use either `receiverId` or `receiverEmail` to identify the target user.
  */
 export interface SendFriendRequestDto {
-  /**
-   * The user ID of the person to whom the friend request is being sent.
-   * Use this if the sender knows the receiver's user ID.
-   * Mutually exclusive with `receiverEmail`.
-   */
-  receiverId?: number;
 
   /**
    * The email address of the person to whom the friend request is being sent.
@@ -63,7 +57,7 @@ export interface SendFriendRequestDto {
    * The backend will resolve this to a user ID.
    * Mutually exclusive with `receiverId`.
    */
-  receiverEmail?: string;
+  email?: string;
 }
 
 /**
@@ -75,5 +69,5 @@ export interface UpdateFriendshipStatusDto {
    * The new status to set for the friendship.
    * The backend will validate if the status transition is allowed.
    */
-  newStatus: FriendshipStatus;
+  status: FriendshipStatus;
 }

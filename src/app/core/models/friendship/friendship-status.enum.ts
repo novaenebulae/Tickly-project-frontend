@@ -10,22 +10,22 @@ export enum FriendshipStatus {
   /**
    * The friend request has been accepted, and the users are now friends.
    */
-  ACCEPTED = 'accepted',
+  ACCEPTED = 'ACCEPTED',
 
   /**
    * The friend request has been rejected by the receiver.
    */
-  REJECTED = 'rejected',
+  REJECTED = 'REJECTED',
 
   /**
    * One user has blocked the other. This status might prevent further interaction.
    * This can apply to an existing friendship or prevent new requests.
    */
-  BLOCKED = 'blocked',
+  BLOCKED = 'BLOCKED',
 
   /**
    * The friendship was cancelled by one of the users (unfriended).
    * This is distinct from 'rejected' which applies to a request.
    */
-  CANCELLED = 'cancelled' // Ajouté pour plus de clarté par rapport à 'rejected'
+  CANCELLED = 'CANCELLED_BY_SENDER' // Ajouté pour plus de clarté par rapport à 'rejected'
 }

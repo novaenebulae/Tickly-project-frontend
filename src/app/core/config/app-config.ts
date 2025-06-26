@@ -54,6 +54,7 @@ interface AppConfig {
         base: string;          // List current user's friends
         requests: string;      // GET (received/sent), POST (send new)
         requestAction: (friendshipId: number | string) => string; // PUT/DELETE for accept/reject/cancel/block
+        removeAction: (friendId: number | string) => string;
         friendsAttendingEvent: (eventId: number | string) => string; // GET friends for an event
       };
       team: {
@@ -167,10 +168,11 @@ export const APP_CONFIG: AppConfig = {
         myRole: 'team/me/role'
       },
       friendship: {
-        base: 'friendships', // GET list of FriendModel
-        requests: 'friendships/requests', // GET list of FriendRequestModel, POST SendFriendRequestDto
-        requestAction: (friendshipId) => `friendships/requests/${friendshipId}`, // PUT/DELETE with UpdateFriendshipStatusDto
-        friendsAttendingEvent: (eventId) => `friendships/events/${eventId}/attendees`,
+        base: 'friendship', // GET list of FriendModel
+        requests: 'friendship/requests', // GET list of FriendRequestModel, POST SendFriendRequestDto
+        requestAction: (friendshipId) => `friendship/requests/${friendshipId}`, // PUT/DELETE with UpdateFriendshipStatusDto
+        removeAction:  (friendId) => `friendship/friends/${friendId}`,
+        friendsAttendingEvent: (eventId) => `friendship/events/${eventId}/attendees`,
       },
       ticketing: {
         reservations: 'ticketing/reservations', // POST ReservationRequestDto
@@ -188,7 +190,7 @@ export const APP_CONFIG: AppConfig = {
     events: true,
     structures: true,
     users: false,
-    friendship: true,
+    friendship: false,
     ticketing: true,
     team: true,
   },

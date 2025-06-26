@@ -4,62 +4,55 @@
  * @author VotreNomOuEquipe
  */
 
-import { FriendshipStatus } from './friendship-status.enum';
-import { UserModel } from '../user/user.model'; // Assuming user.model.ts is in ../user/
-
 /**
- * Represents a friend request that has been received by the current application user.
- * This model is typically used for display in a list of incoming friend requests.
+ * Defines the user information associated with a friend request,
+ * matching the data sent by the API.
  */
-export interface ReceivedFriendRequestModel {
-  /**
-   * The ID of the underlying friendship record (`FriendshipDataModel.id`).
-   * This ID is used to perform actions on the request (accept, reject).
-   */
-  friendshipId: number;
-
-  /**
-   * Minimal details of the user who sent the friend request.
-   * Uses a subset of `UserModel` properties.
-   */
-  sender: Pick<UserModel, 'id' | 'firstName' | 'lastName' | 'email' | 'avatarUrl'>;
-
-  /**
-   * The current status of the friend request. For received requests, this is typically 'pending'.
-   */
-  status: FriendshipStatus; // Should usually be FriendshipStatus.PENDING
-
-  /**
-   * The date and time when the friend request was sent by the sender.
-   */
-  requestedAt: Date;
+export interface FriendRequestParticipant {
+  id: number;
+  firstName: string;
+  lastName: string;
+  avatarUrl?: string;
 }
 
 /**
- * Represents a friend request that was sent by the current application user to another user.
- * This model is typically used for display in a list of outgoing (sent) friend requests.
+ * Represents a friend request that has been received by the current application user.
+ * This model is used for display in a list of incoming friend requests.
  */
-export interface SentFriendRequestModel {
+export interface ReceivedFriendRequestModel {
   /**
-   * The ID of the underlying friendship record (`FriendshipDataModel.id`).
-   * This ID can be used to cancel the sent request if the backend supports it.
+   * The ID of the friendship record, used to perform actions (accept, reject).
    */
   friendshipId: number;
 
   /**
-   * Minimal details of the user to whom the friend request was sent.
-   * Uses a subset of `UserModel` properties.
+   * Details of the user who sent the friend request.
    */
-  receiver: Pick<UserModel, 'id' | 'firstName' | 'lastName' | 'email' | 'avatarUrl'>;
+  sender: FriendRequestParticipant;
 
   /**
-   * The current status of the friend request (e.g., 'pending' if awaiting response,
-   * 'rejected' if the receiver declined, 'accepted' if they accepted).
+   * The date and time when the request was sent (ISO 8601 string).
    */
-  status: FriendshipStatus;
+  requestedAt: string;
+}
+
+/**
+ * Represents a friend request that was sent by the current application user.
+ * This model is used for display in a list of outgoing friend requests.
+ */
+export interface SentFriendRequestModel {
+  /**
+   * The ID of the friendship record, used to cancel the request.
+   */
+  friendshipId: number;
 
   /**
-   * The date and time when the current user sent the friend request.
+   * Details of the user to whom the friend request was sent.
    */
-  sentAt: Date;
+  receiver: FriendRequestParticipant;
+
+  /**
+   * The date and time when the request was sent (ISO 8601 string).
+   */
+  sentAt: string;
 }

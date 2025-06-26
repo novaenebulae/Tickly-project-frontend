@@ -107,143 +107,109 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Charge les données initiales (déjà chargées par le service via effect)
+   * Charge les données initiales au chargement du composant.
    */
   private loadInitialData(): void {
-    // Le service charge automatiquement les données via l'effect dans le constructor
-    // On peut forcer un refresh si nécessaire
-    this.friendshipService.loadInitialFriendshipData(true).subscribe();
+    // On utilise la nouvelle méthode unifiée. Le 'true' force le rechargement à chaque ouverture.
+    this.friendshipService.loadFriendsData(true).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe();
   }
 
   /**
-   * ✅ Envoie une demande d'ami par email
+   * Retourne l'URL de l'avatar fourni ou une URL par défaut.
+   * @param url - L'URL de l'avatar (optionnel).
    */
-  sendFriendRequestByEmail(): void {
-    if (this.addFriendForm.invalid) {
-      this.addFriendForm.markAllAsTouched();
-      return;
-    }
+  getAvatarUrl(url?: string): string {
+    return url || 'assets/images/avatars/avatar-placeholder.png'; // Assurez-vous d'avoir une image par défaut
+  }
 
-    const email = this.addFriendForm.get('email')?.value;
+  /**
+   * Retourne une date relative (ex: "il y a 2 heures").
+   * @param dateString - La date au format ISO.
+   */
+  getRelativeDate(dateString: string): string {
+    // Implémentation avec date-fns ou une autre librairie si vous le souhaitez
+    // Pour l'exemple, on retourne la date formatée simplement.
+    return new Date(dateString).toLocaleDateString('fr-FR', {
+      year: 'numeric', month: 'long', day: 'numeric'
+    });
+  }
+
+  sendFriendRequest(): void {
+    if (this.addFriendForm.invalid) return;
     this.isSendingRequest.set(true);
+    const email = this.addFriendForm.value.email;
 
-    this.friendshipService.sendFriendRequest(email).subscribe({
-      next: (result) => {
-        this.isSendingRequest.set(false);
-        if (result) {
-          this.addFriendForm.reset();
-          this.searchControl.setValue('');
-        }
-      },
-      error: () => {
-        this.isSendingRequest.set(false);
-      }
+    this.friendshipService.sendFriendRequestByEmail(email).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => this.addFriendForm.reset(),
+      error: () => this.isSendingRequest.set(false),
+      complete: () => this.isSendingRequest.set(false)
     });
   }
 
-
-  /**
-   * ✅ Accepte une demande d'ami
-   */
-  acceptFriendRequest(request: ReceivedFriendRequestModel): void {
-    this.isPerformingAction.set(true);
-
-    this.friendshipService.acceptFriendRequest(request.friendshipId).subscribe({
-      next: () => {
-        this.isPerformingAction.set(false);
-      },
-      error: () => {
-        this.isPerformingAction.set(false);
-      }
-    });
-  }
-
-  /**
-   * ✅ Rejette une demande d'ami
-   */
-  rejectFriendRequest(request: ReceivedFriendRequestModel): void {
-    this.isPerformingAction.set(true);
-
-    this.friendshipService.rejectFriendRequest(request.friendshipId).subscribe({
-      next: () => {
-        this.isPerformingAction.set(false);
-      },
-      error: () => {
-        this.isPerformingAction.set(false);
-      }
-    });
-  }
-
-  /**
-   * ✅ Supprime un ami (annule l'amitié)
-   */
   removeFriend(friend: FriendModel): void {
     this.isPerformingAction.set(true);
-
-    this.friendshipService.removeFriend(friend.friendshipId).subscribe({
-      next: () => {
-        this.isPerformingAction.set(false);
-      },
-      error: () => {
-        this.isPerformingAction.set(false);
-      }
+    this.friendshipService.removeFriend(friend.friend.id).pipe(takeUntil(this.destroy$)).subscribe({
+      error: () => this.isPerformingAction.set(false),
+      complete: () => this.isPerformingAction.set(false)
     });
   }
 
-  /**
-   * ✅ Bloque un utilisateur
-   */
-  blockUser(friendshipId: number): void {
+  cancelSentRequest(request: SentFriendRequestModel): void {
     this.isPerformingAction.set(true);
-
-    this.friendshipService.blockUser(friendshipId).subscribe({
-      next: () => {
-        this.isPerformingAction.set(false);
-      },
-      error: () => {
-        this.isPerformingAction.set(false);
-      }
+    this.friendshipService.cancelSentRequest(request.friendshipId).pipe(takeUntil(this.destroy$)).subscribe({
+      error: () => this.isPerformingAction.set(false),
+      complete: () => this.isPerformingAction.set(false)
     });
   }
 
+
   /**
-   * ✅ Vérifie si un utilisateur est déjà ami
+   * Accepts a friend request.
+   * @param request The received friend request to accept.
    */
-  isUserAlreadyFriend(userId: number): boolean {
-    return this.friends().some(friend => friend.userId === userId);
+  acceptRequest(request: ReceivedFriendRequestModel): void {
+    this.isPerformingAction.set(true);
+    this.friendshipService.acceptFriendRequest(request.friendshipId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => this.isPerformingAction.set(false),
+        error: () => this.isPerformingAction.set(false)
+      });
   }
 
   /**
-   * ✅ Vérifie si une demande d'ami est déjà envoyée à cet utilisateur
+   * Rejects a friend request.
+   * @param request The received friend request to reject.
    */
-  isRequestAlreadySent(userId: number): boolean {
-    return this.sentRequests().some(request =>
-      request.receiver.id === userId && request.status === FriendshipStatus.PENDING
-    );
+  rejectRequest(request: ReceivedFriendRequestModel): void {
+    this.isPerformingAction.set(true);
+    this.friendshipService.rejectFriendRequest(request.friendshipId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => this.isPerformingAction.set(false),
+        error: () => this.isPerformingAction.set(false)
+      });
   }
 
-  // TODO: Implémenter avec le search user
-  /**
-   * ✅ Génère l'URL de l'avatar pour un utilisateur
-   */
-  getAvatarUrl(): string {
-    return '';
-  }
 
-  /**
-   * ✅ Formate la date relative
-   */
-  getRelativeDate(date: Date): string {
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  // /**
+  //  * ✅ Bloque un utilisateur
+  //  */
+  // blockUser(friendshipId: number): void {
+  //   this.isPerformingAction.set(true);
+  //
+  //   this.friendshipService.blockUser(friendshipId).subscribe({
+  //     next: () => {
+  //       this.isPerformingAction.set(false);
+  //     },
+  //     error: () => {
+  //       this.isPerformingAction.set(false);
+  //     }
+  //   });
+  // }
 
-    if (diffDays === 0) return "Aujourd'hui";
-    if (diffDays === 1) return "Hier";
-    if (diffDays < 7) return `Il y a ${diffDays} jours`;
-    if (diffDays < 30) return `Il y a ${Math.floor(diffDays / 7)} semaines`;
-    return date.toLocaleDateString('fr-FR');
-  }
 
   /**
    * ✅ Obtient le libellé du statut

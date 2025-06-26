@@ -7,7 +7,7 @@
  */
 
 import { Injectable, inject, signal, WritableSignal, computed, effect, Signal } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import {Observable, of, throwError} from 'rxjs';
 import { map, tap, catchError, switchMap } from 'rxjs/operators';
 
 // API Service
@@ -29,6 +29,7 @@ import { ReceivedFriendRequestModel, SentFriendRequestModel } from '../../../mod
 import { FriendshipStatus } from '../../../models/friendship/friendship-status.enum';
 import { FriendParticipantDto } from '../../../models/friendship/friend-participant.dto';
 import { UserModel } from '../../../models/user/user.model';
+import {HttpErrorResponse} from '@angular/common/http';
 
 export interface FriendsData {
   friends: FriendModel[];
@@ -78,91 +79,105 @@ export class FriendshipService {
 
   /**
    * Loads all friendship data using the unified getFriendsData endpoint.
-   * @param forceRefresh - If true, fetches data from the API even if cached.
+   * La méthode met directement à jour le signal interne avec les données de l'API.
+   * @param forceRefresh - If true, fetches data from the API even if there's existing data.
    * @returns An Observable that completes when data is loaded.
    */
-  loadFriendsData(forceRefresh = false): Observable<FriendsData> {
+  loadFriendsData(forceRefresh = false): Observable<void> {
+    // Si on ne force pas le rafraîchissement et qu'on a déjà des données, on ne fait rien.
     if (!forceRefresh && this.friendsDataSig().friends.length > 0) {
-      return of(this.friendsDataSig());
+      return of(undefined);
     }
 
     return this.friendshipApi.getFriendsData().pipe(
       tap(data => {
-        const mappedData: FriendsData = {
-          friends: data.friends.map(f => this.mapApiToFriendModel(f)),
-          pendingRequests: data.pendingRequests.map(r => this.mapApiToReceivedFriendRequestModel(r)),
-          sentRequests: data.sentRequests.map(s => this.mapApiToSentFriendRequestModel(s))
-        };
-        this.friendsDataSig.set(mappedData);
+        // Plus besoin de mapper ! Les modèles correspondent à la réponse de l'API.
+        this.friendsDataSig.set(data);
       }),
+      map(() => undefined), // On transforme le retour en void car le composant n'utilise pas la data directement.
       catchError(error => {
-        this.handleError("Erreur lors du chargement des données d'amitié.", error);
-        return of({
-          friends: [],
-          pendingRequests: [],
-          sentRequests: []
-        });
+        this.handleError(error.message || "Erreur lors du chargement des données d'amitié.", error);
+        // En cas d'erreur, on réinitialise l'état pour ne pas afficher de données corrompues.
+        this.friendsDataSig.set({ friends: [], pendingRequests: [], sentRequests: [] });
+        return of(undefined); // On termine le flux proprement.
       })
     );
   }
 
-  /**
-   * @deprecated Use loadFriendsData() instead
-   */
-  loadInitialFriendshipData(forceRefresh = false): Observable<void> {
-    return this.loadFriendsData(forceRefresh).pipe(
-      map(() => undefined)
-    );
-  }
 
-  /**
-   * @deprecated Use friends computed signal instead
-   */
-  getFriends(forceRefresh = false): Observable<FriendModel[]> {
-    return this.loadFriendsData(forceRefresh).pipe(
-      map(data => data.friends)
-    );
-  }
 
   // --- Friend Request Operations ---
 
-  /**
-   * Sends a friend request to a user identified by their ID or email.
-   * If email is provided, it first searches for the user.
-   * @param identifier - User ID (number) or email (string).
-   * @returns An Observable of the created `FriendshipDataModel` (from API) or `undefined` on error/user not found.
-   */
-  sendFriendRequest(identifier: number | string): Observable<FriendshipDataModel | undefined> {
-    if (typeof identifier === 'string') { // Identifier is an email
-      return this.userService.searchUsers(identifier).pipe(
-        switchMap(users => {
-          if (users && users.length > 0 && users[0].id) {
-            const targetUser = users[0];
-            if (targetUser.id === this.authService.currentUser()?.userId) {
-              this.notification.displayNotification("Vous ne pouvez pas vous envoyer une demande d'ami.", "warning");
-              return of(undefined);
-            }
-            const dto: SendFriendRequestDto = { receiverId: targetUser.id };
-            return this.executeSendFriendRequest(dto);
-          } else {
-            this.notification.displayNotification(`Utilisateur avec l'email "${identifier}" non trouvé.`, 'error');
-            return of(undefined);
-          }
-        }),
-        catchError(error => {
-          this.handleError("Erreur lors de la recherche d'utilisateur pour la demande d'ami.", error);
-          return of(undefined);
+  // /**
+  //  * Sends a friend request to a user identified by their ID or email.
+  //  * If email is provided, it first searches for the user.
+  //  * @param identifier - User ID (number) or email (string).
+  //  * @returns An Observable of the created `FriendshipDataModel` (from API) or `undefined` on error/user not found.
+  //  */
+  // sendFriendRequest(identifier: number | string): Observable<FriendshipDataModel | undefined> {
+  //   if (typeof identifier === 'string') { // Identifier is an email
+  //     return this.userService.searchUsers(identifier).pipe(
+  //       switchMap(users => {
+  //         if (users && users.length > 0 && users[0].id) {
+  //           const targetUser = users[0];
+  //           if (targetUser.id === this.authService.currentUser()?.userId) {
+  //             this.notification.displayNotification("Vous ne pouvez pas vous envoyer une demande d'ami.", "warning");
+  //             return of(undefined);
+  //           }
+  //           const dto: SendFriendRequestDto = { receiverId: targetUser.id };
+  //           return this.executeSendFriendRequest(dto);
+  //         } else {
+  //           this.notification.displayNotification(`Utilisateur avec l'email "${identifier}" non trouvé.`, 'error');
+  //           return of(undefined);
+  //         }
+  //       }),
+  //       catchError(error => {
+  //         this.handleError("Erreur lors de la recherche d'utilisateur pour la demande d'ami.", error);
+  //         return of(undefined);
+  //       })
+  //     );
+  //   } else { // Identifier is a user ID
+  //     if (identifier === this.authService.currentUser()?.userId) {
+  //       this.notification.displayNotification("Vous ne pouvez pas vous envoyer une demande d'ami.", "warning");
+  //       return of(undefined);
+  //     }
+  //     const dto: SendFriendRequestDto = { receiverId: identifier };
+  //     return this.executeSendFriendRequest(dto);
+  //   }
+  // }
+
+  sendFriendRequestByEmail(email: string): Observable<void> {
+    const dto: SendFriendRequestDto = {email: email};
+    return this.friendshipApi.sendFriendRequest(dto).pipe(
+      switchMap(() => {
+        this.notification.displayNotification(`Demande d'ami envoyée à ${email}.`, 'valid');
+        return this.loadFriendsData(true);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        this.handleError(error.message, error);
+        return throwError(() => error);
         })
       );
-    } else { // Identifier is a user ID
-      if (identifier === this.authService.currentUser()?.userId) {
-        this.notification.displayNotification("Vous ne pouvez pas vous envoyer une demande d'ami.", "warning");
-        return of(undefined);
-      }
-      const dto: SendFriendRequestDto = { receiverId: identifier };
-      return this.executeSendFriendRequest(dto);
     }
+
+  cancelSentRequest(friendshipId: number): Observable<void> {
+    const dto: UpdateFriendshipStatusDto = { status: FriendshipStatus.CANCELLED };
+    return this.friendshipApi.updateFriendshipStatus(friendshipId, dto).pipe(
+      tap(() => {
+        this.notification.displayNotification('La demande a été annulée.', 'valid');
+        this.friendsDataSig.update(currentData => ({
+          ...currentData,
+          sentRequests: currentData.sentRequests.filter(req => req.friendshipId !== friendshipId)
+        }));
+      }),
+      map(() => undefined),
+      catchError(error => {
+        this.notification.displayNotification("Impossible d'annuler la demande.", 'error');
+        return throwError(() => error);
+      })
+    );
   }
+
 
   private executeSendFriendRequest(dto: SendFriendRequestDto): Observable<FriendshipDataModel | undefined> {
     return this.friendshipApi.sendFriendRequest(dto).pipe(
@@ -174,110 +189,93 @@ export class FriendshipService {
         }
       }),
       catchError(error => {
-        this.handleError("Erreur lors de l'envoi de la demande d'ami.", error);
+        this.handleError(error.message ||"Erreur lors de l'envoi de la demande d'ami.", error);
         return of(undefined);
       })
     );
   }
 
   /**
-   * Accepts a friend request.
-   * @param friendshipId - The ID of the friendship record.
-   * @returns An Observable of the updated `FriendshipDataModel` or `undefined` on error.
+   * Accepts a pending friend request.
+   * @param friendshipId The ID of the request to accept.
    */
-  acceptFriendRequest(friendshipId: number): Observable<FriendshipDataModel | undefined> {
-    const dto: UpdateFriendshipStatusDto = { newStatus: FriendshipStatus.ACCEPTED };
+  acceptFriendRequest(friendshipId: number): Observable<void> {
+    return this.respondToFriendRequest(friendshipId, FriendshipStatus.ACCEPTED);
+  }
+
+  /**
+   * Rejects a pending friend request.
+   * @param friendshipId The ID of the request to reject.
+   */
+  rejectFriendRequest(friendshipId: number): Observable<void> {
+    return this.respondToFriendRequest(friendshipId, FriendshipStatus.REJECTED);
+  }
+
+  /**
+   * Responds to a friend request by accepting or rejecting it.
+   * @param friendshipId The ID of the friendship to update.
+   * @param status The new status (ACCEPTED or REJECTED).
+   * @private
+   */
+  private respondToFriendRequest(friendshipId: number, status: FriendshipStatus): Observable<void> {
+    const dto: UpdateFriendshipStatusDto = { status: status };
     return this.friendshipApi.updateFriendshipStatus(friendshipId, dto).pipe(
-      tap(friendshipData => {
-        if (friendshipData) {
-          this.notification.displayNotification('Demande d\'ami acceptée.', 'valid');
-          // Refresh friends data to reflect the acceptance
-          this.loadFriendsData(true).subscribe();
-        }
+      tap(() => {
+        // Upon success, refresh all friendship data to ensure UI consistency.
+        this.loadFriendsData(true).subscribe();
+        const message = status === FriendshipStatus.ACCEPTED ? 'Demande d\'ami acceptée.' : 'Demande d\'ami refusée.';
+        this.notification.displayNotification(message, 'valid');
       }),
+      map(() => undefined), // Convert to Observable<void> for the component
       catchError(error => {
-        this.handleError("Erreur lors de l'acceptation de la demande d'ami.", error);
-        return of(undefined);
+        this.handleError(error.message || "Erreur lors de la mise à jour de la demande d\'ami.", error);
+
+        return throwError(() => error);
       })
     );
   }
 
-  /**
-   * Rejects a friend request.
-   * @param friendshipId - The ID of the friendship record.
-   * @returns An Observable of the updated `FriendshipDataModel` or `undefined` on error.
-   */
-  rejectFriendRequest(friendshipId: number): Observable<FriendshipDataModel | undefined> {
-    const dto: UpdateFriendshipStatusDto = { newStatus: FriendshipStatus.REJECTED };
-    return this.friendshipApi.updateFriendshipStatus(friendshipId, dto).pipe(
-      tap(friendshipData => {
-        if (friendshipData) {
-          this.notification.displayNotification('Demande d\'ami rejetée.', 'valid');
-          // Refresh friends data to reflect the rejection
-          this.loadFriendsData(true).subscribe();
-        }
-      }),
-      catchError(error => {
-        this.handleError("Erreur lors du rejet de la demande d'ami.", error);
-        return of(undefined);
-      })
-    );
-  }
 
   /**
    * Removes or unfriends an existing friend.
-   * @param friendshipId - The ID of the friendship record.
+   * @param friendId - The ID of the friend.
    * @returns An Observable that completes when the operation is done.
    */
-  removeFriend(friendshipId: number): Observable<void> {
-    return this.friendshipApi.removeFriendship(friendshipId).pipe(
+  removeFriend(friendId: number): Observable<void> {
+    return this.friendshipApi.removeFriendship(friendId).pipe(
       tap(() => {
         this.notification.displayNotification('Ami retiré avec succès.', 'valid');
         // Refresh friends data to reflect the removal
         this.loadFriendsData(true).subscribe();
       }),
       catchError(error => {
-        this.handleError("Erreur lors de la suppression de l'ami.", error);
+        this.handleError(error.message || "Erreur lors de la suppression de l'ami.", error);
         return of(undefined as void);
       })
     );
   }
 
-  /**
-   * Blocks a user.
-   * @param friendshipId - The ID of the friendship record.
-   * @returns An Observable of the updated `FriendshipDataModel` or `undefined` on error.
-   */
-  blockUser(friendshipId: number): Observable<FriendshipDataModel | undefined> {
-    const dto: UpdateFriendshipStatusDto = { newStatus: FriendshipStatus.BLOCKED };
-    return this.friendshipApi.updateFriendshipStatus(friendshipId, dto).pipe(
-      tap(friendshipData => {
-        if (friendshipData) {
-          this.notification.displayNotification('Utilisateur bloqué.', 'valid');
-          // Refresh friends data to reflect the blocking
-          this.loadFriendsData(true).subscribe();
-        }
-      }),
-      catchError(error => {
-        this.handleError("Erreur lors du blocage de l'utilisateur.", error);
-        return of(undefined);
-      })
-    );
-  }
-
-  /**
-   * Searches for users by name or email.
-   * @param query - Search term.
-   * @returns An Observable of partial user models.
-   */
-  searchUsers(query: string): Observable<Partial<UserModel>[]> {
-    return this.friendshipApi.searchUsers(query).pipe(
-      catchError(error => {
-        this.handleError("Erreur lors de la recherche d'utilisateurs.", error);
-        return of([]);
-      })
-    );
-  }
+  // /**
+  //  * Blocks a user.
+  //  * @param friendshipId - The ID of the friendship record.
+  //  * @returns An Observable of the updated `FriendshipDataModel` or `undefined` on error.
+  //  */
+  // blockUser(friendshipId: number): Observable<FriendshipDataModel | undefined> {
+  //   const dto: UpdateFriendshipStatusDto = { newStatus: FriendshipStatus.BLOCKED };
+  //   return this.friendshipApi.updateFriendshipStatus(friendshipId, dto).pipe(
+  //     tap(friendshipData => {
+  //       if (friendshipData) {
+  //         this.notification.displayNotification('Utilisateur bloqué.', 'valid');
+  //         // Refresh friends data to reflect the blocking
+  //         this.loadFriendsData(true).subscribe();
+  //       }
+  //     }),
+  //     catchError(error => {
+  //       this.handleError("Erreur lors du blocage de l'utilisateur.", error);
+  //       return of(undefined);
+  //     })
+  //   );
+  // }
 
   /**
    * Gets friends attending a specific event.
@@ -287,46 +285,17 @@ export class FriendshipService {
   getFriendsAttendingEvent(eventId: number): Observable<FriendParticipantDto[]> {
     return this.friendshipApi.getFriendsAttendingEvent(eventId).pipe(
       catchError(error => {
-        this.handleError("Erreur lors de la récupération des amis participant à l'événement.", error);
+        this.handleError(error.message || "Erreur lors de la récupération des amis participant à l'événement.", error);
         return of([]);
       })
     );
   }
 
   // --- Helper/Mapping Methods ---
-  private mapApiToFriendModel(apiFriend: any): FriendModel {
-    return {
-      userId: apiFriend.userId || apiFriend.id,
-      friendshipId: apiFriend.friendshipId,
-      firstName: apiFriend.firstName,
-      lastName: apiFriend.lastName,
-      email: apiFriend.email,
-      avatarUrl: apiFriend.avatarUrl
-    };
-  }
-
-  private mapApiToReceivedFriendRequestModel(apiRequest: any): ReceivedFriendRequestModel {
-    return {
-      friendshipId: apiRequest.friendshipId,
-      sender: apiRequest.sender,
-      status: apiRequest.status,
-      requestedAt: new Date(apiRequest.requestedAt)
-    };
-  }
-
-  private mapApiToSentFriendRequestModel(apiRequest: any): SentFriendRequestModel {
-    return {
-      friendshipId: apiRequest.friendshipId,
-      receiver: apiRequest.receiver,
-      status: apiRequest.status,
-      sentAt: new Date(apiRequest.sentAt)
-    };
-  }
 
   private handleError(message: string, error: any): void {
-    console.error(message, error);
     this.notification.displayNotification(
-      error?.message || message,
+      message,
       'error',
       undefined,
       5000

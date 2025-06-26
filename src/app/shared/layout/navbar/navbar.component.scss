@@ -74,11 +74,10 @@
     gap: 0.75rem;
     padding: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 0.375rem;
+    border-radius: 0.5rem;
     transition: all 0.3s ease;
     max-width: 250px;
     position: relative; // Pour le badge
-    overflow: visible;
 
     &:hover {
       background-color: rgba(255, 255, 255, 0.1);
@@ -191,11 +190,15 @@
 
 // === USER DROPDOWN MENU ===
 ::ng-deep .user-dropdown-menu {
-  min-width: 280px;
+  min-width: 220px;
   border: none;
   box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  border-radius: 0.5rem;
   padding: 0.5rem 0;
+  overflow: hidden;
+
+  .cdk-overlay-pane {
+    border-radius: 0.5rem;
+  }
 
   .mat-mdc-menu-panel {
     min-width: 0;

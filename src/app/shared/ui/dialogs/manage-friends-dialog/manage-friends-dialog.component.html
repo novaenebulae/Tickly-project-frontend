@@ -24,18 +24,20 @@
         <div class="tab-content">
           @if (hasFriends()) {
             <div class="friends-list">
-              @for (friend of friends(); track friend.userId) {
+              @for (friend of friends(); track friend.friend.id) {
                 <mat-card class="friend-card">
                   <mat-card-content class="friend-content">
                     <div class="friend-info">
                       <div class="friend-avatar">
-                        <img [src]="getAvatarUrl()"
-                             [alt]="friend.firstName + ' ' + friend.lastName"
+                        <img [src]="getAvatarUrl(friend.friend.avatarUrl)"
+                             [alt]="friend.friend.firstName + ' ' + friend.friend.lastName"
                              class="avatar-image">
                       </div>
                       <div class="friend-details">
-                        <h4 class="friend-name">{{ friend.firstName }} {{ friend.lastName }}</h4>
-                        <p class="friend-email">{{ friend.email }}</p>
+                        <h4 class="friend-name">{{ friend.friend.firstName }} {{ friend.friend.lastName }}</h4>
+                        <p class="friend-since">
+                          Ami depuis le {{ friend.since | date:'longDate' }}
+                        </p>
                       </div>
                     </div>
 
@@ -52,10 +54,10 @@
                           <mat-icon color="warn">person_remove</mat-icon>
                           <span>Retirer des amis</span>
                         </button>
-                        <button mat-menu-item (click)="blockUser(friend.friendshipId)">
-                          <mat-icon color="warn">block</mat-icon>
-                          <span>Bloquer</span>
-                        </button>
+<!--                        <button mat-menu-item (click)="blockUser(friend.friendshipId)">-->
+<!--                          <mat-icon color="warn">block</mat-icon>-->
+<!--                          <span>Bloquer</span>-->
+<!--                        </button>-->
                       </mat-menu>
                     </div>
                   </mat-card-content>
@@ -91,29 +93,28 @@
                   <mat-card-content class="request-content">
                     <div class="request-info">
                       <div class="request-avatar">
-                        <img [src]="getAvatarUrl()"
+                        <img [src]="getAvatarUrl(request.sender.avatarUrl)"
                              [alt]="request.sender.firstName + ' ' + request.sender.lastName"
                              class="avatar-image">
                       </div>
                       <div class="request-details">
                         <h4 class="request-name">{{ request.sender.firstName }} {{ request.sender.lastName }}</h4>
-                        <p class="request-email">{{ request.sender.email }}</p>
-                        <p class="request-date">{{ getRelativeDate(request.requestedAt) }}</p>
+                        <p class="request-date">
+                          Reçue le {{ request.requestedAt | date:'longDate' }}
+                        </p>
                       </div>
                     </div>
 
                     <div class="request-actions">
-                      <button mat-raised-button
-                              color="primary"
-                              [disabled]="isPerformingAction()"
-                              (click)="acceptFriendRequest(request)">
+                      <button mat-flat-button color="primary"
+                              (click)="acceptRequest(request)"
+                              [disabled]="isPerformingAction()">
                         <mat-icon>check</mat-icon>
                         Accepter
                       </button>
-                      <button mat-button
-                              color="warn"
-                              [disabled]="isPerformingAction()"
-                              (click)="rejectFriendRequest(request)">
+                      <button mat-button color="warn"
+                              (click)="rejectRequest(request)"
+                              [disabled]="isPerformingAction()">
                         <mat-icon>close</mat-icon>
                         Refuser
                       </button>
@@ -124,9 +125,9 @@
             </div>
           } @else {
             <div class="empty-state">
-              <mat-icon class="empty-icon">inbox</mat-icon>
+              <mat-icon class="empty-icon">mark_email_read</mat-icon>
               <h3>Aucune demande en attente</h3>
-              <p>Vous n'avez aucune demande d'amitié en attente</p>
+              <p>Vous n'avez pas de nouvelle demande d'ami pour le moment.</p>
             </div>
           }
         </div>
@@ -135,10 +136,9 @@
       <!-- Onglet : Demandes Envoyées -->
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon>send</mat-icon>
-          Demandes envoyées
+          <mat-icon>outbox</mat-icon>
+          Demandes envoyées ({{ sentRequests().length }})
         </ng-template>
-
         <div class="tab-content">
           @if (hasSentRequests()) {
             <div class="sent-requests-list">
@@ -146,22 +146,24 @@
                 <mat-card class="sent-request-card">
                   <mat-card-content class="sent-request-content">
                     <div class="sent-request-info">
-                      <div class="sent-request-avatar">
-                        <img [src]="getAvatarUrl()"
-                             [alt]="request.receiver.firstName + ' ' + request.receiver.lastName"
-                             class="avatar-image">
+                      <div class="avatar-container">
+                        <img [src]="getAvatarUrl(request.receiver.avatarUrl)"
+                             [alt]="request.receiver.firstName + ' ' + request.receiver.lastName" class="avatar-image">
                       </div>
                       <div class="sent-request-details">
                         <h4 class="sent-request-name">{{ request.receiver.firstName }} {{ request.receiver.lastName }}</h4>
-                        <p class="sent-request-email">{{ request.receiver.email }}</p>
-                        <p class="sent-request-date">Envoyée {{ getRelativeDate(request.sentAt) }}</p>
+                        <p class="sent-request-date">Envoyée le {{ request.sentAt | date:'medium' }}</p>
                       </div>
                     </div>
-
-                    <div class="sent-request-status">
-                      <mat-chip [style.background-color]="getStatusColor(request.status)">
-                        {{ getStatusLabel(request.status) }}
-                      </mat-chip>
+                    <div class="sent-request-actions">
+                      <mat-chip-listbox>
+                        <mat-chip highlighted color="accent">En attente</mat-chip>
+                      </mat-chip-listbox>
+                      <button mat-stroked-button color="warn" (click)="cancelSentRequest(request)"
+                              [disabled]="isPerformingAction()">
+                        <mat-icon>cancel</mat-icon>
+                        Annuler
+                      </button>
                     </div>
                   </mat-card-content>
                 </mat-card>
@@ -169,66 +171,158 @@
             </div>
           } @else {
             <div class="empty-state">
-              <mat-icon class="empty-icon">send</mat-icon>
+              <mat-icon class="empty-icon">outbox</mat-icon>
               <h3>Aucune demande envoyée</h3>
-              <p>Vous n'avez envoyé aucune demande d'amitié</p>
+              <p>Les demandes que vous envoyez apparaîtront ici.</p>
             </div>
           }
         </div>
       </mat-tab>
 
-      <!-- Onglet : Ajouter un Ami -->
+      <!-- Onglet : Ajouter un ami -->
       <mat-tab>
         <ng-template mat-tab-label>
           <mat-icon>person_add</mat-icon>
           Ajouter un ami
         </ng-template>
-
         <div class="tab-content">
-          <!-- Formulaire d'ajout par email -->
           <mat-card class="add-friend-card">
             <mat-card-header>
               <mat-card-title>
-                <mat-icon>email</mat-icon>
-                Ajouter par email
+                <mat-icon>mail_outline</mat-icon>
+                Envoyer une demande par e-mail
               </mat-card-title>
             </mat-card-header>
             <mat-card-content>
-              <form [formGroup]="addFriendForm" (ngSubmit)="sendFriendRequestByEmail()">
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Adresse email</mat-label>
-                  <input matInput
-                         formControlName="email"
-                         type="email"
-                         placeholder="ami@exemple.com">
+              <p>Entrez l'adresse e-mail de l'utilisateur que vous souhaitez ajouter comme ami.</p>
+
+              <form [formGroup]="addFriendForm" (ngSubmit)="sendFriendRequest()" class="add-friend-form">
+                <mat-form-field class="full-width" appearance="outline">
+                  <mat-label>E-mail de l'ami</mat-label>
+                  <input matInput formControlName="email" type="email" required placeholder="exemple@domaine.com">
                   <mat-icon matSuffix>email</mat-icon>
-                  <mat-error *ngIf="emailControl?.hasError('required')">
-                    L'email est requis
-                  </mat-error>
-                  <mat-error *ngIf="emailControl?.hasError('email')">
-                    Veuillez entrer un email valide
-                  </mat-error>
+                  @if (addFriendForm.get('email')?.hasError('email') && !addFriendForm.get('email')?.hasError('required')) {
+                    <mat-error>Veuillez entrer une adresse e-mail valide.</mat-error>
+                  }
+                  @if (addFriendForm.get('email')?.hasError('required')) {
+                    <mat-error>L'adresse e-mail est requise.</mat-error>
+                  }
                 </mat-form-field>
 
                 <div class="form-actions">
-                  <button mat-raised-button
-                          color="primary"
-                          type="submit"
-                          [disabled]="addFriendForm.invalid || isSendingRequest()">
-                    @if (isSendingRequest()) {
+                  <button mat-flat-button color="primary" type="submit" [disabled]="addFriendForm.invalid || isSendingRequest()">
+                    @if(isSendingRequest()) {
                       <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
-                      Envoi...
+                      <span>Envoi en cours...</span>
                     } @else {
-                      <ng-container>
-                        <mat-icon>send</mat-icon>
-                        Envoyer la demande
-                      </ng-container>
+                      <mat-icon>send</mat-icon>
+                      <span>Envoyer la demande</span>
                     }
                   </button>
                 </div>
               </form>
             </mat-card-content>
           </mat-card>
+        </div>
+      </mat-tab>
+
+      <!--      &lt;!&ndash; Onglet : Demandes Envoyées &ndash;&gt;-->
+<!--      <mat-tab>-->
+<!--        <ng-template mat-tab-label>-->
+<!--          <mat-icon>send</mat-icon>-->
+<!--          Demandes envoyées-->
+<!--        </ng-template>-->
+
+<!--        <div class="tab-content">-->
+<!--          @if (hasSentRequests()) {-->
+<!--            <div class="sent-requests-list">-->
+<!--              @for (request of sentRequests(); track request.friendshipId) {-->
+<!--                <mat-card class="sent-request-card">-->
+<!--                  <mat-card-content class="sent-request-content">-->
+<!--                    <div class="sent-request-info">-->
+<!--                      <div class="sent-request-avatar">-->
+<!--                        <img [src]="getAvatarUrl()"-->
+<!--                             [alt]="request.receiver.firstName + ' ' + request.receiver.lastName"-->
+<!--                             class="avatar-image">-->
+<!--                      </div>-->
+<!--                      <div class="sent-request-details">-->
+<!--                        <h4 class="sent-request-name">{{ request.receiver.firstName }} {{ request.receiver.lastName }}</h4>-->
+<!--                        <p class="sent-request-email">{{ request.receiver.email }}</p>-->
+<!--                        <p class="sent-request-date">Envoyée {{ getRelativeDate(request.sentAt) }}</p>-->
+<!--                      </div>-->
+<!--                    </div>-->
+
+<!--                    <div class="sent-request-status">-->
+<!--                      <mat-chip [style.background-color]="getStatusColor(request.status)">-->
+<!--                        {{ getStatusLabel(request.status) }}-->
+<!--                      </mat-chip>-->
+<!--                    </div>-->
+<!--                  </mat-card-content>-->
+<!--                </mat-card>-->
+<!--              }-->
+<!--            </div>-->
+<!--          } @else {-->
+<!--            <div class="empty-state">-->
+<!--              <mat-icon class="empty-icon">send</mat-icon>-->
+<!--              <h3>Aucune demande envoyée</h3>-->
+<!--              <p>Vous n'avez envoyé aucune demande d'amitié</p>-->
+<!--            </div>-->
+<!--          }-->
+<!--        </div>-->
+<!--      </mat-tab>-->
+
+<!--      &lt;!&ndash; Onglet : Ajouter un Ami &ndash;&gt;-->
+<!--      <mat-tab>-->
+<!--        <ng-template mat-tab-label>-->
+<!--          <mat-icon>person_add</mat-icon>-->
+<!--          Ajouter un ami-->
+<!--        </ng-template>-->
+
+<!--        <div class="tab-content">-->
+<!--          &lt;!&ndash; Formulaire d'ajout par email &ndash;&gt;-->
+<!--          <mat-card class="add-friend-card">-->
+<!--            <mat-card-header>-->
+<!--              <mat-card-title>-->
+<!--                <mat-icon>email</mat-icon>-->
+<!--                Ajouter par email-->
+<!--              </mat-card-title>-->
+<!--            </mat-card-header>-->
+<!--            <mat-card-content>-->
+<!--              <form [formGroup]="addFriendForm" (ngSubmit)="sendFriendRequestByEmail()">-->
+<!--                <mat-form-field appearance="outline" class="full-width">-->
+<!--                  <mat-label>Adresse email</mat-label>-->
+<!--                  <input matInput-->
+<!--                         formControlName="email"-->
+<!--                         type="email"-->
+<!--                         placeholder="ami@exemple.com">-->
+<!--                  <mat-icon matSuffix>email</mat-icon>-->
+<!--                  <mat-error *ngIf="emailControl?.hasError('required')">-->
+<!--                    L'email est requis-->
+<!--                  </mat-error>-->
+<!--                  <mat-error *ngIf="emailControl?.hasError('email')">-->
+<!--                    Veuillez entrer un email valide-->
+<!--                  </mat-error>-->
+<!--                </mat-form-field>-->
+
+<!--                <div class="form-actions">-->
+<!--                  <button mat-raised-button-->
+<!--                          color="primary"-->
+<!--                          type="submit"-->
+<!--                          [disabled]="addFriendForm.invalid || isSendingRequest()">-->
+<!--                    @if (isSendingRequest()) {-->
+<!--                      <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>-->
+<!--                      Envoi...-->
+<!--                    } @else {-->
+<!--                      <ng-container>-->
+<!--                        <mat-icon>send</mat-icon>-->
+<!--                        Envoyer la demande-->
+<!--                      </ng-container>-->
+<!--                    }-->
+<!--                  </button>-->
+<!--                </div>-->
+<!--              </form>-->
+<!--            </mat-card-content>-->
+<!--          </mat-card>-->
 
 <!--          &lt;!&ndash; Recherche d'utilisateurs &ndash;&gt;-->
 <!--          <mat-card class="search-card">-->
@@ -298,8 +392,8 @@
 <!--              }-->
 <!--            </mat-card-content>-->
 <!--          </mat-card>-->
-        </div>
-      </mat-tab>
+<!--        </div>-->
+<!--      </mat-tab>-->
     </mat-tab-group>
   </mat-dialog-content>
 
