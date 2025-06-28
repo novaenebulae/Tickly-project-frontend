@@ -25,9 +25,12 @@ $section-bg-darker: #f0f4f8;
   align-items: center;
   flex-direction: column;
   width: 100%;
-  max-width: 1400px;
+  //max-width: 1400px;
   margin-top: 2rem;
+  padding: 0 2rem; // Ajout du padding horizontal
+  box-sizing: border-box; // Pour inclure le padding dans la largeur totale
 }
+
 
 // En-tête de la page
 .header-section {
@@ -69,7 +72,6 @@ $section-bg-darker: #f0f4f8;
       .subtitle {
         font-size: 1.2rem;
         font-weight: 300;
-        margin-bottom: 0;
         max-width: 800px;
         margin: 0 auto;
       }
@@ -77,9 +79,19 @@ $section-bg-darker: #f0f4f8;
   }
 }
 
-// Responsive
+@media (max-width: 1200px) {
+  .all-events-content {
+    padding: 0 1.5rem;
+  }
+}
+
 @media (max-width: 768px) {
   .all-events-page-container {
     padding-bottom: 1rem;
   }
+  .all-events-content {
+    padding: 0 1rem;
+    margin-top: 1.5rem;
+  }
 }
+

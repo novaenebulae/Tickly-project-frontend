@@ -56,7 +56,7 @@ export class EventsDisplayComponent implements OnInit {
   @Output() displayModeChanged = new EventEmitter<'grid' | 'list'>();
 
   // Variables pour l'affichage conditionnel
-  skeletonArray = Array(12).fill(0);
+  skeletonArray = Array(48).fill(0);
 
   // Propriétés pour la pagination
   pageSizeOptions: number[] = [3, 6, 9, 12, 24, 48];

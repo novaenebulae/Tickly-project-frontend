@@ -188,7 +188,7 @@ export const APP_CONFIG: AppConfig = {
     delay: 300,     // Simulate network latency for mocks
     auth: false,
     events: false,
-    structures: true,
+    structures: false,
     users: false,
     friendship: false,
     ticketing: true,
