@@ -9,7 +9,7 @@ import { trigger, transition, style, animate, stagger, query } from '@angular/an
 import {EventCardComponent} from '../event-card-item/event-card.component';
 import { EventListItemComponent } from '../event-list-item/event-list-item.component';
 import { EventFiltersComponent } from '../events-filters/event-filters.component';
-import { EventModel } from '../../../../core/models/event/event.model';
+import {EventModel, EventSummaryModel} from '../../../../core/models/event/event.model';
 
 @Component({
   selector: 'app-events-display',
@@ -42,7 +42,7 @@ import { EventModel } from '../../../../core/models/event/event.model';
 })
 export class EventsDisplayComponent implements OnInit {
   // Inputs
-  @Input() events: EventModel[] = [];
+  @Input() events: EventSummaryModel[] = [];
   @Input() displayMode: 'grid' | 'list' = 'grid';
   @Input() isLoading: boolean = false;
   @Input() totalItems: number = 0;

@@ -22,31 +22,6 @@ import { EventModel } from '../../../../core/models/event/event.model';
 export class EventDescriptionSectionComponent {
   @Input() event?: EventModel | null;
 
-  // Getter pour récupérer les acteurs de l'événement ou les placeholders
-  get eventActors() {
-    if (this.event?.eventActors && this.event.eventActors.length > 0) {
-      return this.event.eventActors;
-    }
-    // Données placeholder pour les acteurs de l'événement si aucun acteur n'est défini
-    return [
-      {
-        name: 'Marie Dupont',
-        role: 'Artiste principale',
-        photoUrl: 'https://randomuser.me/api/portraits/women/12.jpg'
-      },
-      {
-        name: 'Jean Martin',
-        role: 'Invité spécial',
-        photoUrl: 'https://randomuser.me/api/portraits/men/32.jpg'
-      },
-      {
-        name: 'Sophie Leblanc',
-        role: 'Conférencière',
-        photoUrl: 'https://randomuser.me/api/portraits/women/24.jpg'
-      }
-    ];
-  }
-
   // Description placeholder
   placeholderDescription = `
     <p>Rejoignez-nous pour une expérience culturelle exceptionnelle au cœur de la ville. Cet événement unique rassemble artistes et passionnés dans un cadre convivial et inspirant.</p>

@@ -380,21 +380,6 @@ export class EventFormComponent implements OnInit {
       this.additionalPhotosPreview.set([...event.eventPhotoUrls]);
     }
 
-    // Event actors
-    const actorsArray = this.eventActorsFormArray;
-    actorsArray.clear();
-    const actorPreviews: string[] = [];
-    event.eventActors?.forEach(actor => {
-      actorsArray.push(this.fb.group({
-        id: [actor.id],
-        name: [actor.name, Validators.required],
-        role: [actor.role, Validators.required],
-        photoUrl: [actor.photoUrl]
-      }));
-      actorPreviews.push(actor.photoUrl || '');
-    });
-    this.actorPhotosPreview.set(actorPreviews);
-
     // Links
     const linksArray = this.linksFormArray;
     linksArray.clear();
@@ -925,7 +910,6 @@ export class EventFormComponent implements OnInit {
       })) || [],
       displayOnHomepage: config.displayOnHomepage,
       isFeaturedEvent: config.isFeaturedEvent,
-      eventActors: eventActorsData.filter((actor: any) => actor.name && actor.role),
       links: media.links.filter((link: string) => link.trim() !== ''),
       mainPhotoUrl: mainPhotoUrl,
       eventPhotoUrls: additionalPhotoUrls,

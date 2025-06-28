@@ -4,8 +4,8 @@
  * Enumération des rôles possibles pour un utilisateur.
  */
 export enum UserRole {
-  SPECTATOR = 'spectator',
-  STRUCTURE_ADMINISTRATOR = 'structure_administrator',
-  RESERVATION_SERVICE = 'reservation_service',
-  ORGANIZATION_SERVICE = 'organization_service'
+  SPECTATOR = 'SPECTATOR',
+  STRUCTURE_ADMINISTRATOR = 'STRUCTURE_ADMINISTRATOR',
+  RESERVATION_SERVICE = 'RESERVATION_SERVICE',
+  ORGANIZATION_SERVICE = 'ORGANIZATION_SERVICE'
 }

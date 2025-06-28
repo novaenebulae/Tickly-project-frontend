@@ -1,18 +1,18 @@
 // src/app/shared/components/event-details/event-banner/event-banner.component.ts
 
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject } from '@angular/core';
-import { CommonModule, DatePipe, Location } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterModule } from '@angular/router';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import {Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {CommonModule, DatePipe, Location} from '@angular/common';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatBadgeModule} from '@angular/material/badge';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {RouterModule} from '@angular/router';
+import {format} from 'date-fns';
+import {fr} from 'date-fns/locale';
 
-import { EventModel, EventStatus } from '../../../../core/models/event/event.model';
-import { StructureService } from '../../../../core/services/domain/structure/structure.service';
+import {EventModel, EventStatus, EventSummaryModel} from '../../../../core/models/event/event.model';
+import {StructureService} from '../../../../core/services/domain/structure/structure.service';
 
 @Component({
   selector: 'app-event-banner',
@@ -56,6 +56,7 @@ export class EventBannerComponent implements OnChanges {
     }
   }
 
+  // TODO : INUTILE SI DATEPIPE
   /**
    * Formatte la date et l'heure de l'événement
    */
@@ -88,35 +89,35 @@ export class EventBannerComponent implements OnChanges {
    */
   private setStatusInfo(): void {
     switch (this.event.status) {
-      case 'published':
+      case 'PUBLISHED':
         this.statusInfo = {
           label: 'Places disponibles',
           class: 'status-available',
           icon: 'event_available'
         };
         break;
-      case 'cancelled':
+      case 'CANCELLED':
         this.statusInfo = {
           label: 'Annulé',
           class: 'status-cancelled',
           icon: 'event_busy'
         };
         break;
-      case 'completed':
+      case 'COMPLETED':
         this.statusInfo = {
           label: 'Terminé',
           class: 'status-completed',
           icon: 'event_available'
         };
         break;
-      case 'draft':
+      case 'DRAFT':
         this.statusInfo = {
           label: 'Brouillon',
           class: 'status-draft',
           icon: 'edit'
         };
         break;
-      case 'pending_approval':
+      case 'PENDING_APPROVAL':
         this.statusInfo = {
           label: 'En attente d\'approbation',
           class: 'status-pending',
@@ -138,7 +139,7 @@ export class EventBannerComponent implements OnChanges {
   get isBookable(): boolean {
     if (!this.event) return false;
 
-    const isPublished = this.event.status === 'published';
+    const isPublished = this.event.status === EventStatus.PUBLISHED;
     const isFutureEvent = new Date(this.event.startDate) > new Date();
 
     return isPublished && isFutureEvent;

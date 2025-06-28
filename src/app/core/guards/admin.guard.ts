@@ -31,7 +31,7 @@ export const AdminGuard: CanActivateFn = (state): boolean | UrlTree => {
     userId: currentUser?.userId,
     role: currentUser?.role,
     needsStructureSetup,
-    userStructureId
+    structureId: currentUser?.structureId,
   });
 
   // Vérifier que l'utilisateur a le rôle d'administrateur

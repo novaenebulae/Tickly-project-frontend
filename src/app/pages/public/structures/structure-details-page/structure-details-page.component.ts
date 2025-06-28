@@ -15,7 +15,7 @@ import {EventsDisplayComponent} from '../../../../shared/domain/events/events-di
 import {StructureService} from '../../../../core/services/domain/structure/structure.service';
 import {EventService} from '../../../../core/services/domain/event/event.service';
 import {StructureModel} from '../../../../core/models/structure/structure.model';
-import {EventModel} from '../../../../core/models/event/event.model';
+import {EventModel, EventSummaryModel} from '../../../../core/models/event/event.model';
 import {EventSearchParams} from '../../../../core/models/event/event-search-params.model';
 
 @Component({
@@ -51,9 +51,9 @@ export class StructureDetailsPageComponent implements OnInit, OnDestroy {
   structureError = signal<string | null>(null);
 
   // Événements
-  featuredEvent = signal<EventModel | null>(null);
-  featuredEvents = signal<EventModel[]>([]);
-  allEvents = signal<EventModel[]>([]);
+  featuredEvent = signal<EventSummaryModel | null>(null);
+  featuredEvents = signal<EventSummaryModel[]>([]);
+  allEvents = signal<EventSummaryModel[]>([]);
   isLoadingEvents = signal(true);
   eventsError = signal<string | null>(null);
 

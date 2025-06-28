@@ -25,7 +25,7 @@ import {CustomEventTitleFormatter} from '../../../../../../core/providers/event-
 import {StructureService} from '../../../../../../core/services/domain/structure/structure.service';
 import {EventService} from '../../../../../../core/services/domain/event/event.service';
 import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service';
-import {EventModel} from '../../../../../../core/models/event/event.model';
+import {EventModel, EventSummaryModel} from '../../../../../../core/models/event/event.model';
 
 @Component({
   selector: 'app-event-calendar',
@@ -175,10 +175,10 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
    * Transforme les événements du modèle de données en événements de calendrier
    * @param events Liste des événements à transformer
    */
-  updateCalendarEvents(events: EventModel[]): void {
+  updateCalendarEvents(events: EventSummaryModel[]): void {
     this.events = events.map(event => {
       // Déterminer le type d'événement et sa couleur
-      const eventType = event.category?.name?.toLowerCase() || 'default';
+      const eventType = event.category[0]?.name?.toLowerCase() || 'default';
       const color = this.getColorForEventType(eventType);
 
       // Créer un événement de calendrier
@@ -191,10 +191,10 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
         color: color,
         meta: {
           id: event.id,
-          type: event.category?.name || 'Non catégorisé',
+          type: event.category?.map(c => c.name).join(', ') || 'Non catégorisé',
           // artists: event. || [],
-          description: event.shortDescription || event.fullDescription || '',
-          location: event.address || ''
+          description: event.shortDescription || '',
+          location: event.city || ''
         }
       } as CalendarEvent;
     });

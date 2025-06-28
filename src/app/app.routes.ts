@@ -84,7 +84,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     loadChildren: () => import('./pages/private/admin/admin.routes').then(m => m.adminRoutes),
-    canActivate: [LoginGuard, AdminGuard], // AdminGuard ici
+    canActivate: [LoginGuard], // AdminGuard ici
     title: 'Administration | Tickly'
   },
 

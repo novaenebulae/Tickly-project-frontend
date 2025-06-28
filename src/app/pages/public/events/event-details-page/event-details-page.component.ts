@@ -14,7 +14,7 @@ import { NotificationService } from '../../../../core/services/domain/utilities/
 import { AuthService } from '../../../../core/services/domain/user/auth.service';
 
 // Models
-import { EventModel } from '../../../../core/models/event/event.model';
+import {EventModel, EventSummaryModel} from '../../../../core/models/event/event.model';
 import { StructureModel } from '../../../../core/models/structure/structure.model';
 
 // Components
@@ -64,7 +64,7 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
   // Signaux et propriétés
   event = signal<EventModel | undefined>(undefined);
   structure = signal<StructureModel | null>(null);
-  similarEvents = signal<EventModel[]>([]);
+  similarEvents = signal<EventSummaryModel[]>([]);
   isUserLoggedIn = false;
   isLoading = true;
   hasError = false;

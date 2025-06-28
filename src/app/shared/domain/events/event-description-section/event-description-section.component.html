@@ -22,26 +22,6 @@
         </div>
       </div>
 
-      <!-- Acteurs de l'événement (artistes, intervenants) -->
-      <div class="col-md-4">
-        <div class="event-actors">
-          <h3>Acteurs de l'événement</h3>
-          <div class="actors-list">
-            @for (actor of eventActors; track $index) {
-
-            <div class="actor-card">
-              <div class="actor-image">
-                <img [src]="actor.photoUrl" [alt]="actor.name">
-              </div>
-              <div class="actor-info">
-                <h4 class="actor-name">{{ actor.name }}</h4>
-                <p class="actor-role">{{ actor.role }}</p>
-              </div>
-            </div>
-            }
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>

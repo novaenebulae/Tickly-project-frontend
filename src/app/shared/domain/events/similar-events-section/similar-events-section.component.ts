@@ -1,6 +1,6 @@
 import {Component, inject, Input, OnInit} from '@angular/core';
 import {EventService} from '../../../../core/services/domain/event/event.service';
-import {EventModel} from '../../../../core/models/event/event.model';
+import {EventModel, EventSummaryModel} from '../../../../core/models/event/event.model';
 import {EventsCarouselComponent} from '../events-carousel/events-carousel.component';
 import {CommonModule} from '@angular/common';
 
@@ -12,10 +12,10 @@ import {CommonModule} from '@angular/common';
   styleUrl: './similar-events-section.component.scss'
 })
 export class SimilarEventsSectionComponent implements OnInit {
-  @Input() event: EventModel | undefined;
+  @Input() event: EventSummaryModel | undefined;
 
   private eventService = inject(EventService);
-  similarEvents: EventModel[] = [];
+  similarEvents: EventSummaryModel[] = [];
   loading = true;
 
   ngOnInit(): void {
@@ -24,9 +24,9 @@ export class SimilarEventsSectionComponent implements OnInit {
 
   private loadSimilarEvents(): void {
     if (this.event) {
-      const searchTerms = [this.event.category];
+      const searchTerms = this.event.category.map(c => c.id);
 
-      this.eventService.searchEvents('', {category: searchTerms}).subscribe({
+      this.eventService.searchEvents('', {categoryIds: searchTerms}).subscribe({
         next: (events) => {
           // Filtrer l'événement actuel et limiter à 6 événements similaires
           this.similarEvents = events

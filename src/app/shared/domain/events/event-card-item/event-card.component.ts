@@ -5,7 +5,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatRippleModule} from '@angular/material/core';
 
-import {EventModel} from '../../../../core/models/event/event.model';
+import {EventModel, EventSummaryModel} from '../../../../core/models/event/event.model';
 
 @Component({
   selector: 'app-event-card',
@@ -22,7 +22,7 @@ import {EventModel} from '../../../../core/models/event/event.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EventCardComponent implements OnInit {
-  @Input() event!: EventModel;
+  @Input() event!: EventSummaryModel;
 
   constructor(private router: Router, private datePipe: DatePipe) {
   }
@@ -67,8 +67,15 @@ export class EventCardComponent implements OnInit {
    * Retourne l'adresse formatée de l'événement
    */
   get displayLocation(): string {
-    if (this.event && this.event.address) {
-      return `${this.event.address.city}, ${this.event.address.country}`;
+    if (this.event && this.event.city) {
+      return `${this.event.city}`;
+    }
+    return 'Lieu à déterminer';
+  }
+
+  get displayStructure(): string {
+    if (this.event && this.event.structureName) {
+      return `${this.event.structureName}`;
     }
     return 'Lieu à déterminer';
   }

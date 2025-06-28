@@ -14,6 +14,8 @@ import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { EventCategoryModel} from '../../../../core/models/event/event-category.model';
 import {CategoryService} from '../../../../core/services/domain/event/category.service';
+import { EventSearchParams } from '../../../../core/models/event/event-search-params.model';
+
 
 // Interface pour les options de tri
 interface SortOption {
@@ -71,17 +73,15 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
   categoryService = inject(CategoryService);
 
   private destroy$ = new Subject<void>();
-  protected readonly categoriesList = this.categoryService.categories()
+  categoriesList:EventCategoryModel[] = [];
 
 
   // Options pour le tri
   sortOptions: SortOption[] = [
-    { value: 'date_asc', viewValue: 'Date (plus proche)' },
-    { value: 'date_desc', viewValue: 'Date (plus lointaine)' },
+    { value: 'startDate_asc', viewValue: 'Date (plus proche)' },
+    { value: 'startDate_desc', viewValue: 'Date (plus lointaine)' },
     { value: 'name_asc', viewValue: 'Nom (A-Z)' },
-    { value: 'name_desc', viewValue: 'Nom (Z-A)' },
-    { value: 'price_asc', viewValue: 'Prix (croissant)' },
-    { value: 'price_desc', viewValue: 'Prix (décroissant)' }
+    { value: 'name_desc', viewValue: 'Nom (Z-A)' }
   ];
 
   constructor(private fb: FormBuilder) {}
@@ -90,6 +90,9 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
    * Initialise le composant et le formulaire
    */
   ngOnInit(): void {
+    this.categoryService.loadCategories().subscribe(categories => {
+      this.categoriesList = categories;
+    })
     this.initForm();
     this.listenToFormChanges();
     // this.applyInitialFilters();
@@ -369,10 +372,10 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
   /**
    * Formate les filtres pour qu'ils soient compatibles avec l'API
    */
-  private formatFiltersForApi(formValue: any): FilterState {
-    const formattedFilters: FilterState = {};
+  private formatFiltersForApi(formValue: any): EventSearchParams {
+    const formattedFilters: EventSearchParams = {};
 
-    // Gérer le tri
+    // Gérer le tri (pour le service, pas directement pour l'API de filtre)
     if (formValue.sortBy) {
       const [field, direction] = formValue.sortBy.split('_');
       formattedFilters.sortBy = field;
@@ -384,24 +387,21 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
       formattedFilters.query = formValue.searchQuery.trim();
     }
 
-    // Gérer les catégories - passer directement les objets EventCategoryModel
-    if (formValue.selectedCategories && formValue.selectedCategories.length > 0) {
-      formattedFilters.category = formValue.selectedCategories;
+    if (this.selectedCategories && this.selectedCategories.length > 0) {
+      formattedFilters.categoryIds = this.selectedCategories.map(cat => cat.id);
     }
 
-    // Gérer les dates
     if (formValue.dateRange) {
       if (formValue.dateRange.startDate) {
-        formattedFilters.startDate = new Date(formValue.dateRange.startDate);
+        formattedFilters.startDateAfter = new Date(formValue.dateRange.startDate);
       }
       if (formValue.dateRange.endDate) {
-        formattedFilters.endDate = new Date(formValue.dateRange.endDate);
+        formattedFilters.startDateBefore = new Date(formValue.dateRange.endDate);
       }
     }
 
-    // Gérer la localisation
     if (formValue.location && formValue.location.trim() !== '') {
-      formattedFilters.location = formValue.location.trim();
+      formattedFilters.city = formValue.location.trim();
     }
 
     return formattedFilters;

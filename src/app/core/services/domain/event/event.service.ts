@@ -6,27 +6,25 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject, signal, computed, WritableSignal } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { map, tap, catchError } from 'rxjs/operators';
+import {computed, inject, Injectable, signal, WritableSignal} from '@angular/core';
+import {Observable, of} from 'rxjs';
+import {catchError, map, tap} from 'rxjs/operators';
 
 // API and Domain Services
-import { EventApiService } from '../../api/event/event-api.service';
-import { CategoryService } from './category.service';
-import { NotificationService } from '../utilities/notification.service';
-import { AuthService } from '../user/auth.service';
+import {EventApiService} from '../../api/event/event-api.service';
+import {CategoryService} from './category.service';
+import {NotificationService} from '../utilities/notification.service';
+import {AuthService} from '../user/auth.service';
 
 // Models and DTOs
-import { EventModel, EventDataDto, EventStatus } from '../../../models/event/event.model';
-import { EventCategoryModel } from '../../../models/event/event-category.model';
-import { EventSearchParams } from '../../../models/event/event-search-params.model';
-import { EventAudienceZone, SeatingType } from '../../../models/event/event-audience-zone.model';
-import { StructureAddressModel } from '../../../models/structure/structure-address.model'; // For address
-import { StructureAreaModel } from '../../../models/structure/structure-area.model'; // For event.areas
-
-
+import {EventDataDto, EventModel, EventStatus, EventSummaryModel} from '../../../models/event/event.model';
+import {EventCategoryModel} from '../../../models/event/event-category.model';
+import {EventSearchParams} from '../../../models/event/event-search-params.model';
+import {EventAudienceZone, SeatingType} from '../../../models/event/event-audience-zone.model';
+import {StructureAddressModel} from '../../../models/structure/structure-address.model'; // For address
+import {StructureAreaModel} from '../../../models/structure/structure-area.model'; // For event.areas
 // Configuration
-import { APP_CONFIG } from '../../../config/app-config';
+import {APP_CONFIG} from '../../../config/app-config';
 
 @Injectable({
   providedIn: 'root'
@@ -38,13 +36,13 @@ export class EventService {
   private authService = inject(AuthService);
 
   // --- State Management using Signals ---
-  private featuredEventsSig: WritableSignal<EventModel[]> = signal([]);
+  private featuredEventsSig: WritableSignal<EventSummaryModel[]> = signal([]);
   public readonly featuredEvents = computed(() => this.featuredEventsSig());
 
-  private homePageEventsSig: WritableSignal<EventModel[]> = signal([]);
+  private homePageEventsSig: WritableSignal<EventSummaryModel[]> = signal([]);
   public readonly homePageEvents = computed(() => this.homePageEventsSig());
 
-  private structureEventsSig: WritableSignal<EventModel[]> = signal([]);
+  private structureEventsSig: WritableSignal<EventSummaryModel[]> = signal([]);
   public readonly structureEvents = computed(() => this.structureEventsSig());
 
 
@@ -68,11 +66,19 @@ export class EventService {
    * @param params - Search parameters for filtering and sorting.
    * @returns An Observable of `EventModel[]`.
    */
-  getEvents(params: EventSearchParams = {}): Observable<EventModel[]> {
-    // EventApiService.getEvents now directly accepts EventSearchParams.
-    // The conversion to HttpParams is handled within EventApiService.
+  getEvents(params: EventSearchParams = {}): Observable<EventSummaryModel[]> {
     return this.eventApi.getEvents(params).pipe(
-      map(apiEvents => this.mapApiEventsToEventModels(apiEvents)),
+      // ✅ CORRECTION : Extraire le tableau 'items' de la réponse
+      map((response: any) => {
+        // La réponse de l'API est { items: [...], totalItems: ... }
+        // Nous retournons uniquement le tableau 'items'.
+        if (response && Array.isArray(response.items)) {
+          return this.mapApiEventsToEventSummaryModels(response.items);
+        }
+        // Si la structure est inattendue, retourner un tableau vide pour éviter les erreurs.
+        console.warn('API response for events did not contain an "items" array.');
+        return [];
+      }),
       catchError(error => {
         this.handleError('Impossible de récupérer la liste des événements.', error);
         return of([]);
@@ -217,10 +223,10 @@ export class EventService {
    * @param additionalParams - Additional `EventSearchParams`.
    * @returns An Observable of `EventModel[]`.
    */
-  searchEvents(searchTerm: string, additionalParams: Partial<EventSearchParams> = {}): Observable<EventModel[]> {
+  searchEvents(searchTerm: string, additionalParams: Partial<EventSearchParams> = {}): Observable<EventSummaryModel[]> {
     const params: EventSearchParams = { query: searchTerm, ...additionalParams };
     return this.eventApi.searchEvents(params).pipe( // EventApiService handles HttpParams conversion
-      map(apiEvents => this.mapApiEventsToEventModels(apiEvents)),
+      map(apiEvents => this.mapApiEventsToEventSummaryModels(apiEvents)),
       catchError(error => {
         this.handleError("Erreur lors de la recherche d'événements.", error);
         return of([]);
@@ -233,7 +239,7 @@ export class EventService {
    * Rafraîchit la liste des événements mis en avant
    * @param forceRefresh - Force le rechargement depuis l'API
    */
-  refreshFeaturedEvents(forceRefresh = false, count = APP_CONFIG.events.defaultFeaturedCount): Observable<EventModel[]> {
+  refreshFeaturedEvents(forceRefresh = false, count = APP_CONFIG.events.defaultFeaturedCount): Observable<EventSummaryModel[]> {
     return this.getFeaturedEvents(forceRefresh, count);
   }
 
@@ -242,7 +248,7 @@ export class EventService {
    * @param structureId - ID de la structure
    * @param forceRefresh - Force le rechargement depuis l'API
    */
-  refreshStructureEvents(structureId: number, forceRefresh = false): Observable<EventModel[]> {
+  refreshStructureEvents(structureId: number, forceRefresh = false): Observable<EventSummaryModel[]> {
     if (forceRefresh) {
       return this.getEventsByStructure(structureId).pipe(
         tap(events => this.structureEventsSig.set(events))
@@ -251,12 +257,19 @@ export class EventService {
     return of(this.structureEventsSig());
   }
 
-  getHomePageEvents(forceRefresh = false, count = APP_CONFIG.events.defaultHomeCount): Observable<EventModel[]> {
+  getHomePageEvents(forceRefresh = false, count = APP_CONFIG.events.defaultHomeCount): Observable<EventSummaryModel[]> {
     if (!forceRefresh && this.homePageEventsSig().length > 0 && this.homePageEventsSig().length >= count) {
       return of(this.homePageEventsSig().slice(0, count));
     }
-    return this.eventApi.getHomePageEvents(count).pipe(
-      map(apiEvents => this.mapApiEventsToEventModels(apiEvents)),
+    return this.getEvents({
+      status: EventStatus.PUBLISHED,
+      displayOnHomepage: true,
+      sortBy: 'startDate',
+      sortDirection: 'asc',
+      pageSize: count,
+      page: 0
+    }).pipe(
+      map(apiEvents => this.mapApiEventsToEventSummaryModels(apiEvents)),
       tap(events => this.homePageEventsSig.set(events)),
       catchError(error => {
         this.handleError("Impossible de récupérer les événements pour la page d'accueil.", error);
@@ -265,12 +278,12 @@ export class EventService {
     );
   }
 
-  getFeaturedEvents(forceRefresh = false, count = APP_CONFIG.events.defaultFeaturedCount): Observable<EventModel[]> {
+  getFeaturedEvents(forceRefresh = false, count = APP_CONFIG.events.defaultFeaturedCount): Observable<EventSummaryModel[]> {
     if (!forceRefresh && this.featuredEventsSig().length > 0 && this.featuredEventsSig().length >= count) {
       return of(this.featuredEventsSig().slice(0, count));
     }
     return this.eventApi.getFeaturedEvents(count).pipe(
-      map(apiEvents => this.mapApiEventsToEventModels(apiEvents)),
+      map(apiEvents => this.mapApiEventsToEventSummaryModels(apiEvents)),
       tap(events => this.featuredEventsSig.set(events)),
       catchError(error => {
         this.handleError('Impossible de récupérer les événements mis en avant.', error);
@@ -283,7 +296,7 @@ export class EventService {
 
   getStructureFeaturedEvents(structureId: number, count = APP_CONFIG.events.defaultFeaturedCount) {
     return this.eventApi.getFeaturedEvents(count, structureId).pipe(
-      map(apiEvents => this.mapApiEventsToEventModels(apiEvents)),
+      map(apiEvents => this.mapApiEventsToEventSummaryModels(apiEvents)),
       tap(events => this.featuredEventsSig.set(events)),
       catchError(error => {
         this.handleError('Impossible de récupérer les événements mis en avant.', error);
@@ -292,9 +305,9 @@ export class EventService {
     );
   }
 
-  getUpcomingEvents(params: Partial<EventSearchParams> = {}): Observable<EventModel[]> {
+  getUpcomingEvents(params: Partial<EventSearchParams> = {}): Observable<EventSummaryModel[]> {
     return this.eventApi.getUpcomingEvents(params).pipe( // EventApiService handles HttpParams conversion
-      map(apiEvents => this.mapApiEventsToEventModels(apiEvents)),
+      map(apiEvents => this.mapApiEventsToEventSummaryModels(apiEvents)),
       catchError(error => {
         this.handleError('Impossible de récupérer les événements à venir.', error);
         return of([]);
@@ -302,10 +315,10 @@ export class EventService {
     );
   }
 
-  getEventsByStructure(structureId: number, params: Partial<EventSearchParams> = {}): Observable<EventModel[]> {
+  getEventsByStructure(structureId: number, params: Partial<EventSearchParams> = {}): Observable<EventSummaryModel[]> {
     const searchParams: EventSearchParams = { ...params, structureId: structureId };
     return this.eventApi.getEventsByStructure(structureId, searchParams).pipe( // EventApiService handles HttpParams
-      map(apiEvents => this.mapApiEventsToEventModels(apiEvents)),
+      map(apiEvents => this.mapApiEventsToEventSummaryModels(apiEvents)),
       catchError(error => {
         this.handleError(`Impossible de récupérer les événements pour la structure #${structureId}.`, error);
         return of([]);
@@ -313,7 +326,7 @@ export class EventService {
     );
   }
 
-  getLatestEvents(count: number): Observable<EventModel[]> {
+  getLatestEvents(count: number): Observable<EventSummaryModel[]> {
     const params: EventSearchParams = {
       sortBy: 'createdAt',
       sortDirection: 'desc',
@@ -335,7 +348,7 @@ export class EventService {
 
   // --- Cache Refresh Logic ---
 
-  private refreshHomePageEvents(force = true): Observable<EventModel[]> {
+  private refreshHomePageEvents(force = true): Observable<EventSummaryModel[]> {
     return this.getHomePageEvents(force);
   }
 
@@ -383,7 +396,6 @@ export class EventService {
    */
   private mapApiEventToEventModel(apiEvent: any): EventModel | undefined {
     if (!apiEvent) return undefined;
-
     // Resolve category: API sends category as an object {id, name}
     // or it might send categoryId. CategoryService helps resolve.
     let categoryModel: EventCategoryModel;
@@ -406,7 +418,7 @@ export class EventService {
       seatingType: az.seatingType as SeatingType
     }));
 
-    const event: EventModel = {
+    return {
       id: apiEvent.id,
       name: apiEvent.name,
       category: categoryModel,
@@ -430,7 +442,6 @@ export class EventService {
       createdAt: apiEvent.createdAt ? new Date(apiEvent.createdAt) : undefined,
       updatedAt: apiEvent.updatedAt ? new Date(apiEvent.updatedAt) : undefined,
     };
-    return event;
   }
 
   private mapApiEventsToEventModels(apiEvents: any[]): EventModel[] {
@@ -438,6 +449,45 @@ export class EventService {
     return apiEvents
       .map(apiEvent => this.mapApiEventToEventModel(apiEvent))
       .filter((event): event is EventModel => event !== undefined);
+  }
+
+  private mapApiEventToEventSummaryModel(apiEvent: any): EventSummaryModel | undefined {
+    if (!apiEvent) return undefined;
+    // Resolve category: API sends category as an object {id, name}
+    // or it might send categoryId. CategoryService helps resolve.
+    // let categoryModel: EventCategoryModel;
+    // if (apiEvent.category && typeof apiEvent.category === 'object') {
+    //   categoryModel = { id: apiEvent.category.id, name: apiEvent.category.name };
+    // } else if (apiEvent.categoryId) {
+    //   categoryModel = this.categoryService.getCategoryById(apiEvent.categoryId) ||
+    //     { id: apiEvent.categoryId, name: 'Catégorie Inconnue' };
+    // } else {
+    //   categoryModel = { id: 0, name: 'Non Catégorisé' }; // Fallback
+    // }
+    const categoryModel: EventCategoryModel[] = apiEvent.category || { id: 0, name: 'Non Catégorisé' };
+
+    return {
+      id: apiEvent.id,
+      name: apiEvent.name,
+      category: categoryModel,
+      shortDescription: apiEvent.shortDescription,
+      startDate: new Date(apiEvent.startDate),
+      endDate: new Date(apiEvent.endDate),
+      city: apiEvent.city,
+      structureName: apiEvent.structureName,
+      structureId: apiEvent.structureId,
+      freeEvent: apiEvent.isFreeEvent,
+      featuredEvent: apiEvent.isFeaturedEvent || false,
+      mainPhotoUrl: apiEvent.mainPhotoUrl,
+      status: apiEvent.status as EventStatus,
+    };
+  }
+
+  private mapApiEventsToEventSummaryModels(apiEvents: any[]): EventSummaryModel[] {
+    if (!apiEvents || !Array.isArray(apiEvents)) return [];
+    return apiEvents
+      .map(apiEvent => this.mapApiEventToEventSummaryModel(apiEvent))
+      .filter((event): event is EventSummaryModel => event !== undefined);
   }
 
   /**

@@ -134,7 +134,7 @@ export const APP_CONFIG: AppConfig = {
         base: 'events',
         byId: (id) => `events/${id}`,
         search: 'events/search',
-        categories: 'events/categories',
+        categories: 'event-categories',
         statusUpdate: (id) => `events/${id}/status`,
       },
       structures: {
@@ -187,7 +187,7 @@ export const APP_CONFIG: AppConfig = {
     enabled: true,  // Set to false to use real API, true for mocks
     delay: 300,     // Simulate network latency for mocks
     auth: false,
-    events: true,
+    events: false,
     structures: true,
     users: false,
     friendship: false,

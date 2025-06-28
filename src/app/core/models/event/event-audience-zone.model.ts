@@ -12,18 +12,18 @@ export enum SeatingType {
    * Indicates that the zone has assigned/numbered seats.
    * (Note: Specific seat assignment is not handled by this model).
    */
-  SEATED = 'seated',
+  SEATED = 'SEATED',
 
   /**
    * Indicates that the zone offers free-standing room for the audience.
    */
-  STANDING = 'standing',
+  STANDING = 'STANDING',
 
   /**
    * Indicates that the zone may offer a combination of seated and standing areas,
    * or the type is not specifically defined.
    */
-  MIXED = 'mixed'
+  MIXED = 'MIXED'
 }
 
 /**

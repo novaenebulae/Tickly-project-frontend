@@ -4,7 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRippleModule } from '@angular/material/core';
-import { EventModel } from '../../../../core/models/event/event.model';
+import {EventModel, EventSummaryModel} from '../../../../core/models/event/event.model';
 
 @Component({
   selector: 'app-event-list-item',
@@ -22,7 +22,7 @@ import { EventModel } from '../../../../core/models/event/event.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EventListItemComponent implements OnInit {
-  @Input() event!: EventModel;
+  @Input() event!: EventSummaryModel;
 
   constructor(
     private router: Router,
@@ -52,8 +52,8 @@ export class EventListItemComponent implements OnInit {
   }
 
   get displayLocation(): string {
-    if (this.event && this.event.address) {
-      return `${this.event.address.city}, ${this.event.address.country}`;
+    if (this.event && this.event.city) {
+      return `${this.event.city}`;
     }
     return ''; // Retourne une chaîne vide si pas d'adresse
   }

@@ -23,23 +23,17 @@ export interface EventSearchParams {
    * The backend service will typically extract IDs from these objects for querying.
    * An event must match at least one of the specified categories.
    */
-  category?: EventCategoryModel[];
+  categoryIds?: number[];
 
   /**
    * The minimum start date for events (inclusive).
    */
-  startDate?: Date;
+  startDateAfter?: Date;
 
   /**
    * The maximum end date for events (inclusive).
    */
-  endDate?: Date;
-
-  /**
-   * Filter for free events only if set to true.
-   * If false or undefined, includes both free and non-free (though price isn't managed).
-   */
-  free?: boolean;
+  startDateBefore?: Date;
 
   /**
    * Filter events by their current status.
@@ -54,7 +48,7 @@ export interface EventSearchParams {
   /**
    * Filter events that are marked as featured.
    */
-  isFeaturedEvent?: boolean; // Renamed from 'featured' for consistency with EventModel
+  isFeatured?: boolean; // Renamed from 'featured' for consistency with EventModel
 
   /**
    * Filter events by the ID of the hosting structure.
@@ -64,7 +58,7 @@ export interface EventSearchParams {
   /**
    * A text query for location-based search (e.g., city, region).
    */
-  location?: string;
+  city?: string;
 
   /**
    * The page number for pagination (0-indexed or 1-indexed depending on API).
@@ -92,15 +86,4 @@ export interface EventSearchParams {
    */
   tags?: string[];
 
-  /**
-   * Filter events by an array of genres.
-   * This field was present in your original EventCreationDto and kept here for search consistency if needed.
-   * If 'tags' are sufficient, this can be removed.
-   */
-  genres?: string[];
-
-  /**
-   * Filter events that have at least one photo associated.
-   */
-  withPhotos?: boolean;
 }

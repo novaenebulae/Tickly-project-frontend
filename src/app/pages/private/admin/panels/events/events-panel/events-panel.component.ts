@@ -1,39 +1,37 @@
-import { Component, OnInit, inject, OnDestroy, ChangeDetectorRef, LOCALE_ID } from '@angular/core';
-import { CommonModule, DatePipe, registerLocaleData } from '@angular/common';
+import {ChangeDetectorRef, Component, inject, LOCALE_ID, OnDestroy, OnInit} from '@angular/core';
+import {CommonModule, DatePipe, registerLocaleData} from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
-import { FormsModule } from '@angular/forms';
+import {FormsModule} from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
-import { Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import {debounceTime, distinctUntilChanged, Subject, Subscription} from 'rxjs';
 
 // Angular Material imports
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatExpansionModule } from '@angular/material/expansion';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatCardModule} from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatBadgeModule} from '@angular/material/badge';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
+import {MatExpansionModule} from '@angular/material/expansion';
 
 // Services
-import { EventService } from '../../../../../../core/services/domain/event/event.service';
-import { CategoryService } from '../../../../../../core/services/domain/event/category.service';
-import { AuthService } from '../../../../../../core/services/domain/user/auth.service';
-import { UserStructureService } from '../../../../../../core/services/domain/user-structure/user-structure.service';
+import {EventService} from '../../../../../../core/services/domain/event/event.service';
+import {CategoryService} from '../../../../../../core/services/domain/event/category.service';
+import {AuthService} from '../../../../../../core/services/domain/user/auth.service';
+import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service';
 
 // Models
-import { EventModel, EventStatus } from '../../../../../../core/models/event/event.model';
-import { EventCategoryModel } from '../../../../../../core/models/event/event-category.model';
-import { EventSearchParams } from '../../../../../../core/models/event/event-search-params.model';
+import {EventModel, EventStatus, EventSummaryModel} from '../../../../../../core/models/event/event.model';
+import {EventCategoryModel} from '../../../../../../core/models/event/event-category.model';
 
 registerLocaleData(localeFr);
 
@@ -79,9 +77,9 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
   filtersExpanded: boolean = false;
 
   // Data
-  private allEvents: EventModel[] = [];
-  filteredEvents: EventModel[] = [];
-  paginatedEvents: EventModel[] = [];
+  private allEvents: EventSummaryModel[] = [];
+  filteredEvents: EventSummaryModel[] = [];
+  paginatedEvents: EventSummaryModel[] = [];
   categories: EventCategoryModel[] = [];
 
   // Pagination
@@ -179,10 +177,10 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
 
   calculateStatistics(): void {
     this.totalEvents = this.allEvents.length;
-    this.publishedEvents = this.allEvents.filter(e => e.status === 'published').length;
-    this.draftEvents = this.allEvents.filter(e => e.status === 'draft').length;
+    this.publishedEvents = this.allEvents.filter(e => e.status === EventStatus.PUBLISHED).length;
+    this.draftEvents = this.allEvents.filter(e => e.status === EventStatus.DRAFT).length;
     this.upcomingEvents = this.allEvents.filter(e =>
-      e.status === 'published' && new Date(e.startDate) > new Date()
+      e.status === EventStatus.PUBLISHED && new Date(e.startDate) > new Date()
     ).length;
   }
 
@@ -238,6 +236,10 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
     this.processEvents();
   }
 
+  get formattedEventCategories(): string {
+    return this.categories.map(c => c.name).join(', ');
+  }
+
   // === Event Processing ===
 
   processEvents(): void {
@@ -257,14 +259,13 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
       events = events.filter(event =>
         event.name.toLowerCase().includes(lowerSearchTerm) ||
         event.shortDescription?.toLowerCase().includes(lowerSearchTerm) ||
-        event.fullDescription.toLowerCase().includes(lowerSearchTerm) ||
-        event.category?.name.toLowerCase().includes(lowerSearchTerm)
+        event.category?.map(c=>c.name).join(' ').toLowerCase().includes(lowerSearchTerm)
       );
     }
 
     if (this.selectedCategoryIds.length > 0) {
       events = events.filter(event =>
-        event.category && this.selectedCategoryIds.includes(event.category.id)
+        event.category && event.category.some(cat => this.selectedCategoryIds.includes(cat.id))
       );
     }
 
@@ -287,7 +288,7 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
     this.updatePaginatedEvents();
   }
 
-  sortEvents(events: EventModel[]): void {
+  sortEvents(events: EventSummaryModel[]): void {
     const [field, direction] = this.sortOption.split('_');
 
     events.sort((a, b) => {
@@ -304,8 +305,8 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
           valueB = new Date(b.startDate).getTime();
           break;
         case 'category':
-          valueA = a.category?.name.toLowerCase() || '';
-          valueB = b.category?.name.toLowerCase() || '';
+          valueA = a.category[0]?.name.toLowerCase() || '';
+          valueB = b.category[0]?.name.toLowerCase() || '';
           break;
         case 'status':
           valueA = a.status;
@@ -339,11 +340,11 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
 
   getStatusColor(status: EventStatus): 'primary' | 'accent' | 'warn' | undefined {
     switch (status) {
-      case 'published': return 'primary';
-      case 'draft': return 'accent';
-      case 'cancelled': return 'warn';
-      case 'completed': return undefined;
-      case 'pending_approval': return 'accent';
+      case EventStatus.PUBLISHED: return 'primary';
+      case EventStatus.DRAFT: return 'accent';
+      case EventStatus.CANCELLED: return 'warn';
+      case EventStatus.COMPLETED: return undefined;
+      case EventStatus.PENDING_APPROVAL: return 'accent';
       default: return undefined;
     }
   }
@@ -370,7 +371,7 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  formatEventDuration(event: EventModel): string {
+  formatEventDuration(event: EventSummaryModel): string {
     const start = new Date(event.startDate);
     const end = new Date(event.endDate);
 
@@ -390,15 +391,15 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
     this.loadEvents(true);
   }
 
-  showEventDetails(event: EventModel): void {
+  showEventDetails(event: EventSummaryModel): void {
     this.router.navigate(['/admin/events/details', event.id]);
   }
 
-  editEvent(event: EventModel): void {
+  editEvent(event: EventSummaryModel): void {
     this.router.navigate(['/admin/event', event.id, 'edit']);
   }
 
-  deleteEvent(event: EventModel): void {
+  deleteEvent(event: EventSummaryModel): void {
     if (confirm(`Êtes-vous sûr de vouloir supprimer l'événement "${event.name}" ?`)) {
       const deleteSub = this.eventService.deleteEvent(event.id!).subscribe({
         next: (success) => {
@@ -421,7 +422,7 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  openEventPage(event: EventModel): void {
+  openEventPage(event: EventSummaryModel): void {
     this.router.navigate(['/events', event.id]);
   }
 }

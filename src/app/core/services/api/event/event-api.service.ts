@@ -13,7 +13,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { ApiConfigService } from '../api-config.service';
 import { EventApiMockService } from './event-api-mock.service';
 import { APP_CONFIG } from '../../../config/app-config';
-import {EventModel, EventStatus} from '../../../models/event/event.model';
+import {EventModel, EventStatus, EventSummaryModel} from '../../../models/event/event.model';
 import { EventSearchParams } from '../../../models/event/event-search-params.model';
 
 @Injectable({
@@ -30,9 +30,6 @@ export class EventApiService {
    * @param params - Search and filter parameters.
    */
   getEvents(params: EventSearchParams = {}): Observable<any[]> {
-    if (this.apiConfig.isMockEnabledForDomain('events')) {
-      return this.mockService.mockGetEvents(params);
-    }
 
     this.apiConfig.logApiRequest('GET', 'events', params);
     const httpParams = this.convertToHttpParams(params);
@@ -50,9 +47,6 @@ export class EventApiService {
    * @param params - Search parameters including the search term.
    */
   searchEvents(params: EventSearchParams): Observable<any[]> {
-    if (this.apiConfig.isMockEnabledForDomain('events')) {
-      return this.mockService.mockSearchEvents(params);
-    }
 
     this.apiConfig.logApiRequest('GET', 'search-events', params);
     const httpParams = this.convertToHttpParams(params);
@@ -70,9 +64,6 @@ export class EventApiService {
    * @param id - The ID of the event to retrieve.
    */
   getEventById(id: number): Observable<any> {
-    if (this.apiConfig.isMockEnabledForDomain('events')) {
-      return this.mockService.mockGetEventById(id);
-    }
 
     this.apiConfig.logApiRequest('GET', `event/${id}`);
     const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base)}/${id}`;
@@ -148,12 +139,9 @@ export class EventApiService {
    * Returns raw API category DTOs (e.g., array of {id: number, name: string}).
    */
   getEventCategories(): Observable<any[]> {
-    if (this.apiConfig.isMockEnabledForDomain('events')) { // Or a specific 'categories' domain
-      return this.mockService.mockGetEventCategories();
-    }
 
     this.apiConfig.logApiRequest('GET', 'event-categories');
-    const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base)}/categories`; // Or a dedicated categories endpoint
+    const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.categories); // Or a dedicated categories endpoint
     const headers = this.apiConfig.createHeaders();
     return this.http.get<any[]>(url, { headers }).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', 'event-categories', response)),
@@ -186,12 +174,7 @@ export class EventApiService {
    */
   getHomePageEvents(count: number = APP_CONFIG.events.defaultHomeCount): Observable<any[]> {
     const params: EventSearchParams = {
-      status: EventStatus.PUBLISHED,
-      displayOnHomepage: true,
-      sortBy: 'startDate',
-      sortDirection: 'asc',
-      pageSize: count,
-      page: 0
+
     };
     return this.getEvents(params); // Delegates to the main getEvents method
   }
@@ -201,10 +184,10 @@ export class EventApiService {
    * @param count - The number of featured events to retrieve.
    * @param structureId - If defined gets only featured events of this structure.
    */
-  getFeaturedEvents(count: number = 3, structureId?: number): Observable<EventModel[]> {
+  getFeaturedEvents(count: number = 3, structureId?: number): Observable<EventSummaryModel[]> {
     const params: EventSearchParams = {
       structureId: structureId,
-      isFeaturedEvent: true, // Using the renamed model property
+      isFeatured: true, // Using the renamed model property
       status: EventStatus.PUBLISHED,
       sortBy: 'startDate',
       sortDirection: 'asc',
@@ -221,7 +204,7 @@ export class EventApiService {
   getUpcomingEvents(params: EventSearchParams = {}): Observable<any[]> {
     return this.getEvents({
       ...params,
-      startDate: params.startDate || new Date(),
+      startDateAfter: params.startDateAfter || new Date(),
       status: EventStatus.PUBLISHED,
       sortBy: 'startDate',
       sortDirection: 'asc'
@@ -246,28 +229,40 @@ export class EventApiService {
    */
   private convertToHttpParams(params: EventSearchParams): HttpParams {
     let httpParams = new HttpParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        if (key === 'category' && Array.isArray(value)) {
-          // `value` is an array of EventCategoryModel from EventSearchParams
-          // The API likely expects a list of category IDs.
-          const categoryIds = value.map(cat => cat.id);
-          categoryIds.forEach(id => {
-            // API might expect 'category' multiple times, or 'categoryIds[]', or 'categoryIds=1,2,3'
-            // Adjust based on your API's array parameter format. Common is multiple params with same name.
-            httpParams = httpParams.append('category', id.toString());
+
+    // Boucle sur tous les paramètres pour les ajouter à la requête
+    for (const key in params) {
+      if (Object.prototype.hasOwnProperty.call(params, key)) {
+        const value = params[key as keyof EventSearchParams];
+
+        if (value === undefined || value === null || value === '') {
+          continue; // Ignorer les valeurs vides ou nulles
+        }
+
+
+        if (key === 'categoryIds' && Array.isArray(value)) {
+          // Gérer le tableau d'IDs
+          value.forEach(id => {
+            httpParams = httpParams.append('categoryIds', id.toString());
           });
         } else if (value instanceof Date) {
           httpParams = httpParams.set(key, value.toISOString());
         } else if (Array.isArray(value)) {
           value.forEach(item => {
-            httpParams = httpParams.append(key, item.toString()); // e.g., for tags: tags=rock&tags=live
+            httpParams = httpParams.append(key, item.toString());
           });
         } else {
           httpParams = httpParams.set(key, value.toString());
         }
       }
-    });
+    }
+
+    if (params.sortBy && params.sortDirection) {
+      const sortField = params.sortBy === 'date' ? 'startDate' : params.sortBy;
+      const sortValue = `${sortField},${params.sortDirection}`;
+      httpParams = httpParams.set('sort', sortValue);
+    }
+
     return httpParams;
   }
 

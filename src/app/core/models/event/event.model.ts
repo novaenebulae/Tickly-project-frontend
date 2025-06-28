@@ -20,11 +20,11 @@ import { StructureAreaModel } from '../structure/structure-area.model'; // Using
 //   | 'completed'; // Event has finished.
 
 export enum EventStatus {
-  DRAFT = 'draft',
-  PUBLISHED = 'published',
-  PENDING_APPROVAL = 'pending_approval',
-  CANCELLED = 'cancelled',
-  COMPLETED = 'completed'
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+  PENDING_APPROVAL = 'PENDING_APPROVAL',
+  CANCELLED = 'CANCELLED',
+  COMPLETED = 'COMPLETED'
 }
 
 /**
@@ -94,7 +94,7 @@ export interface EventModel {
    * Indicates whether the event is free of charge.
    * Ticket prices are not managed in this application.
    */
-  isFreeEvent: boolean;
+  isFreeEvent: boolean; // A SUPPRIMER
 
   /**
    * The default type of seating/placement for this event,
@@ -123,7 +123,6 @@ export interface EventModel {
    */
   links?: string[];
 
-  eventActors?: EventActor[];
 
   /**
    * URL of the main promotional photo or poster for the event.
@@ -153,12 +152,6 @@ export interface EventModel {
   updatedAt?: Date;
 }
 
-export interface EventActor {
-  id: number;
-  name: string;
-  role: string;
-  photoUrl: string;
-}
 
 /**
  * Data Transfer Object for creating or updating an Event.
@@ -181,7 +174,7 @@ export interface EventDataDto {
    * Optional array of IDs of `StructureAreaModel` where the event takes place.
    */
   areaIds?: number[];
-  isFreeEvent: boolean;
+  isFreeEvent: boolean; // A SUPPRIMER
   defaultSeatingType: SeatingType;
   /**
    * Audience zones for the event. For creation, `id` within `EventAudienceZone` is omitted.
@@ -191,9 +184,24 @@ export interface EventDataDto {
   audienceZones: (Omit<EventAudienceZone, 'id'> | EventAudienceZone)[]; // Allows new and existing zones for update
   displayOnHomepage?: boolean;
   isFeaturedEvent?: boolean;
-  eventActors?: EventActor[];
   links?: string[];
   mainPhotoUrl?: string;
   eventPhotoUrls?: string[];
   status?: EventStatus; // Status might be updatable separately or along with other fields
+}
+
+export interface EventSummaryModel {
+  id: number;
+  name: string;
+  category: EventCategoryModel[];
+  shortDescription: string;
+  startDate: Date; // Garder en string pour le moment, la conversion se fera dans le composant
+  endDate: Date;
+  city: string;
+  structureId: number;
+  structureName: string;
+  mainPhotoUrl?: string;
+  status: EventStatus;
+  freeEvent: boolean;
+  featuredEvent: boolean;
 }

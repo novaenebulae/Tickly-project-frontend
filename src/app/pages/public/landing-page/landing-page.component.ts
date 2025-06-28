@@ -4,7 +4,7 @@ import {CommonModule} from '@angular/common';
 import {Subject, takeUntil} from 'rxjs';
 
 // Models
-import {EventModel} from '../../../core/models/event/event.model';
+import {EventModel, EventSummaryModel} from '../../../core/models/event/event.model';
 
 // Services
 import {EventService} from '../../../core/services/domain/event/event.service';
@@ -46,7 +46,7 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
   // Signaux (nouvelle API Angular 19)
   currentHeroSlideIndex = signal(0);
-  latestEvents = signal<EventModel[]>([]);
+  latestEvents = signal<EventSummaryModel[]>([]);
   isLoading = signal(false);
 
   // Sujet de désabonnement

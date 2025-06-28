@@ -14,7 +14,7 @@ import {CommonModule} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
 import {EventCardComponent} from '../event-card-item/event-card.component';
 import {MatButtonModule} from '@angular/material/button';
-import {EventModel} from '../../../../core/models/event/event.model';
+import {EventModel, EventSummaryModel} from '../../../../core/models/event/event.model';
 import {EventService} from '../../../../core/services/domain/event/event.service';
 // Les imports pour MatIconModule etc. sont dans le décorateur @Component pour les composants standalone
 
@@ -26,7 +26,7 @@ import {EventService} from '../../../../core/services/domain/event/event.service
   imports: [ CommonModule, MatIconModule, EventCardComponent, MatButtonModule ], // CommonModule pour @for
 })
 export class EventsCarouselComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Input() events: EventModel[] = [];
+  @Input() events: EventSummaryModel[] = [];
   @Input() showControls = true;
   @Input() autoSlide = true;
   @Input() slideInterval = 5000;
@@ -34,7 +34,7 @@ export class EventsCarouselComponent implements OnInit, AfterViewInit, OnDestroy
 
   @ViewChild('carouselSlides') carouselSlidesElement!: ElementRef<HTMLElement>;
 
-  eventsDisplayed: EventModel[] = [];
+  eventsDisplayed: EventSummaryModel[] = [];
 
   currentPage = 0;
   totalPages = 0;

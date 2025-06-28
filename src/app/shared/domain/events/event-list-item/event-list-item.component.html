@@ -5,7 +5,7 @@
       <img [src]="event.mainPhotoUrl || 'https://picsum.photos/seed/' + event.id + '/300/200'"
            [alt]="'Image pour ' + event.name"
            class="event-list-item__image">
-      @if (event.isFeaturedEvent) {
+      @if (event.featuredEvent) {
         <div class="event-list-item__featured-banner">
           <mat-icon>star</mat-icon><span>À la une</span>
         </div>
@@ -24,7 +24,7 @@
         <div class="event-list-item__meta">
           <span class="meta-item">
             <mat-icon>calendar_today</mat-icon>
-            <span>{{ formattedStartDate }}</span>
+            <span>{{ this.event.startDate | date: 'dd MMM yyyy ・ HH:mm' }}</span>
           </span>
           @if (displayLocation) {
             <span class="meta-item">
@@ -35,9 +35,7 @@
 
           <!-- Affichage du prix -->
           <div class="event-list-item__price">
-            @if (event.isFreeEvent) {
               <span class="free-event">GRATUIT</span>
-            }
           </div>
         </div>
       </div>

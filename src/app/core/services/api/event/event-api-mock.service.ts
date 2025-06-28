@@ -63,22 +63,22 @@ export class EventApiMockService {
     this.apiConfig.saveMockDataToStorage(this.MOCK_EVENTS_STORAGE_KEY, allMockEvents);
   }
 
-  mockGetEvents(params: EventSearchParams): Observable<any[]> {
-    this.apiConfig.logApiRequest('MOCK GET', 'events', params);
-    let filters: any = { ...params };
-    if (params.category && Array.isArray(params.category)) {
-      filters = { ...filters, categoryIds: params.category.map(c => c.id) };
-      delete filters.category;
-    }
-    // getFilteredEvents should expect 'audienceZones' in allMockEvents if that's our API contract
-    const filteredApiEvents = getFilteredEvents(allMockEvents, filters);
-    return this.apiConfig.createMockResponse(filteredApiEvents);
-  }
+  // mockGetEvents(params: EventSearchParams): Observable<any[]> {
+  //   this.apiConfig.logApiRequest('MOCK GET', 'events', params);
+  //   let filters: any = { ...params };
+  //   if (params.category && Array.isArray(params.category)) {
+  //     filters = { ...filters, categoryIds: params.category.map(c => c.id) };
+  //     delete filters.category;
+  //   }
+  //   // getFilteredEvents should expect 'audienceZones' in allMockEvents if that's our API contract
+  //   const filteredApiEvents = getFilteredEvents(allMockEvents, filters);
+  //   return this.apiConfig.createMockResponse(filteredApiEvents);
+  // }
 
-  mockSearchEvents(params: EventSearchParams): Observable<any[]> {
-    this.apiConfig.logApiRequest('MOCK GET', 'search-events', params);
-    return this.mockGetEvents(params);
-  }
+  // mockSearchEvents(params: EventSearchParams): Observable<any[]> {
+  //   this.apiConfig.logApiRequest('MOCK GET', 'search-events', params);
+  //   return this.mockGetEvents(params);
+  // }
 
   mockGetEventById(id: number): Observable<any> {
     this.apiConfig.logApiRequest('MOCK GET', `event/${id}`, null);

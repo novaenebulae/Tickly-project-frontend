@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, inject, signal, computed } from '@angular
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { EventsDisplayComponent } from '../../../../shared/domain/events/events-display/events-display.component';
-import { EventModel } from '../../../../core/models/event/event.model';
+import {EventModel, EventSummaryModel} from '../../../../core/models/event/event.model';
 import { EventService } from '../../../../core/services/domain/event/event.service';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { Subject, takeUntil } from 'rxjs';
@@ -36,7 +36,7 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
   totalItems = signal(0);
 
   // Listes d'événements
-  events = signal<EventModel[]>([]);
+  events = signal<EventSummaryModel[]>([]);
 
   displayedEvents = computed(() => {
     const startIndex = (this.currentPage() - 1) * this.pageSize();
@@ -45,7 +45,7 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
   });
 
   // Filtres
-  currentFilters = signal<EventSearchParams>({sortBy: 'date', sortDirection: 'asc'});
+  currentFilters = signal<EventSearchParams>({sortBy: 'startDate', sortDirection: 'asc'});
 
   // Subject pour gérer la désinscription aux observables
   private destroy$ = new Subject<void>();
@@ -75,7 +75,7 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (events) => {
-          window.scrollTo({ top: 0, behavior: 'instant' });
+          // window.scrollTo({ top: 0, behavior: 'instant' });
           this.events.set(events);
           this.totalItems.set(events.length);
           this.isLoading.set(false);

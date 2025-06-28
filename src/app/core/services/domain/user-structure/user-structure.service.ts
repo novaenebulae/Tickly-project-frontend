@@ -10,7 +10,7 @@ import {StructureModel} from '../../../models/structure/structure.model';
 import {Observable, of} from 'rxjs';
 import {catchError, tap} from 'rxjs/operators';
 import {StructureAreaModel} from '../../../models/structure/structure-area.model';
-import {EventModel} from '../../../models/event/event.model';
+import {EventModel, EventSummaryModel} from '../../../models/event/event.model';
 import {EventService} from '../event/event.service';
 import {UserRole} from '../../../models/user/user-role.enum';
 
@@ -33,7 +33,7 @@ export class UserStructureService {
   private userStructureSig: WritableSignal<StructureModel | null | undefined> = signal(undefined);
   public readonly userStructure = computed(() => this.userStructureSig());
 
-  private userStructureEventsSig: WritableSignal<EventModel[]> = signal([]);
+  private userStructureEventsSig: WritableSignal<EventSummaryModel[]> = signal([]);
   public readonly userStructureEvents = computed(() => this.userStructureEventsSig());
 
   // Signal pour l'état de chargement
@@ -81,7 +81,7 @@ export class UserStructureService {
    * @param forceRefresh - If true, forces a refresh from the API.
    * @returns Observable of EventModel[] or empty array if no structure ID is associated.
    */
-  getUserStructureEvents(forceRefresh = false): Observable<EventModel[]> {
+  getUserStructureEvents(forceRefresh = false): Observable<EventSummaryModel[]> {
     const userStructureId = this.authService.userStructureId();
     if (!userStructureId) {
       return of([]);
@@ -100,7 +100,7 @@ export class UserStructureService {
     );
   }
 
-  private refreshStructureEvents(force = true): Observable<EventModel[]> {
+  private refreshStructureEvents(force = true): Observable<EventSummaryModel[]> {
     return this.getUserStructureEvents(force);
   }
 
