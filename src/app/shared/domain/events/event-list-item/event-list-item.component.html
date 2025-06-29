@@ -7,7 +7,8 @@
            class="event-list-item__image">
       @if (event.featuredEvent) {
         <div class="event-list-item__featured-banner">
-          <mat-icon>star</mat-icon><span>À la une</span>
+          <mat-icon>star</mat-icon>
+          <span>À la une</span>
         </div>
       }
     </div>
@@ -16,9 +17,16 @@
     <div class="event-list-item__content-area" (click)="viewEventDetails($event)">
       <div class="event-list-item__header">
         <div class="event-list-item__header-top">
-          @if (event.category) {
-            <span class="event-list-item__category">{{ event.category.name }}</span>
+          @if (event.category && Array.isArray(event.category) && event.category.length > 0) {
+            @for (category of event.category; track category.id; let isLast = $last) {
+              <span class="event-list-item__category">
+          {{ category.name }}@if (!isLast) {<span>, </span>}
+        </span>
+            }
+          } @else {
+            <span class="event-card__category">Non catégorisé</span>
           }
+
           <h3 class="event-list-item__title">{{ event.name }}</h3>
         </div>
         <div class="event-list-item__meta">
@@ -35,7 +43,7 @@
 
           <!-- Affichage du prix -->
           <div class="event-list-item__price">
-              <span class="free-event">GRATUIT</span>
+            <span class="free-event">GRATUIT</span>
           </div>
         </div>
       </div>
@@ -51,11 +59,13 @@
     <!-- Section Actions -->
     <div class="event-list-item__action-area">
       <div class="event-list-item__buttons">
-        <button mat-flat-button class="event-list-item__cta-button event-list-item__cta-button--white" (click)="onButtonClick($event)">
+        <button mat-flat-button class="event-list-item__cta-button event-list-item__cta-button--white"
+                (click)="onButtonClick($event)">
           <mat-icon>event_seat</mat-icon>
           <span>Réserver</span>
         </button>
-        <button mat-flat-button color="primary" class="event-list-item__cta-button event-list-item__cta-button--blue" (click)="onButtonClick($event)">
+        <button mat-flat-button color="primary" class="event-list-item__cta-button event-list-item__cta-button--blue"
+                (click)="onButtonClick($event)">
           <mat-icon>info</mat-icon>
           <span>Découvrir</span>
         </button>

@@ -27,27 +27,11 @@ export interface StructureSearchParams {
    * The field to sort the results by.
    * @example "name", "importance", "createdAt"
    */
-  sortBy?: string; // e.g., 'name', 'importance', 'createdAt'
+  sortBy?: string; // e.g., 'name', 'createdAt'
 
   /**
    * The direction of sorting.
    */
   sortDirection?: 'asc' | 'desc';
 
-  /**
-   * Minimum importance score for filtering.
-   */
-  minImportance?: number;
-
-  /**
-   * Maximum importance score for filtering.
-   */
-  maxImportance?: number;
-
-  /**
-   * A text query to search by location (city, country, zip code).
-   */
-  location?: string;
-
-  // 'types?: number[];' was redundant with 'typeIds' and has been removed.
 }

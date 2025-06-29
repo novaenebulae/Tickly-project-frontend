@@ -113,7 +113,7 @@ export class EventDetailDialogComponent implements OnInit, OnDestroy {
 
     return {
       title: event.name,
-      category: event.category?.name || 'Non catégorisé',
+      category: event.categories,
       startDate: event.startDate,
       endDate: event.endDate,
       description: event.fullDescription || event.shortDescription,

@@ -335,7 +335,7 @@ export class EventFormComponent implements OnInit {
     this.generalInfoForm.patchValue({
       name: event.name,
       address: event.address,
-      categoryId: event.category.id,
+      categoryId: event.categories,
       shortDescription: event.shortDescription,
       fullDescription: event.fullDescription,
       startDatePart: startDateParts.datePart,

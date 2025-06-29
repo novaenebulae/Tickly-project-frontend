@@ -26,7 +26,10 @@
 
   <!-- Détails de l'événement -->
   <div class="event-card__content">
-    <div class="event-card__category">{{ event.category.name }}</div>
+        <span class="event-card__category">
+          {{ formattedCategories }}
+        </span>
+
     <h3 class="event-card__title">{{ event.name }}</h3>
 
     <div class="event-card__location">

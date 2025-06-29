@@ -143,10 +143,6 @@ export class AllStructuresPageComponent implements OnInit, OnDestroy {
       searchParams.typeIds = this.currentFilters.typeIds;
     }
 
-    if (this.currentFilters.city) {
-      searchParams.location = this.currentFilters.city;
-    }
-
     // Charger les structures
     this.structureService.getStructures(searchParams)
       .pipe(takeUntil(this.destroy$))

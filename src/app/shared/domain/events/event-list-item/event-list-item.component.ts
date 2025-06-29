@@ -65,4 +65,6 @@ export class EventListItemComponent implements OnInit {
     event.stopPropagation();
     this.viewEventDetails(event);
   }
+
+  protected readonly Array = Array;
 }

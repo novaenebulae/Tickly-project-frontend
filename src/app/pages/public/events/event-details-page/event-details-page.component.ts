@@ -134,7 +134,7 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
           }
 
           // Charger les événements similaires
-          this.loadSimilarEvents(eventId, eventData.category.id || 0);
+          this.loadSimilarEvents(eventId, eventData.categories[0].id || 0);
         } else {
           this.handleError('Événement non trouvé');
           this.router.navigate(['/events']);

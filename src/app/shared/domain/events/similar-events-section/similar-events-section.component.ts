@@ -24,7 +24,7 @@ export class SimilarEventsSectionComponent implements OnInit {
 
   private loadSimilarEvents(): void {
     if (this.event) {
-      const searchTerms = this.event.category.map(c => c.id);
+      const searchTerms = this.event.categories.map(c => c.id);
 
       this.eventService.searchEvents('', {categoryIds: searchTerms}).subscribe({
         next: (events) => {

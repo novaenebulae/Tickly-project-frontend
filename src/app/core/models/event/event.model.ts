@@ -45,7 +45,7 @@ export interface EventModel {
    * The category of the event (e.g., concert, theater).
    * This is an object for easy display in the application.
    */
-  category: EventCategoryModel;
+  categories: EventCategoryModel[];
 
   /**
    * A short, concise description or tagline for the event.
@@ -193,7 +193,7 @@ export interface EventDataDto {
 export interface EventSummaryModel {
   id: number;
   name: string;
-  category: EventCategoryModel[];
+  categories: EventCategoryModel[];
   shortDescription: string;
   startDate: Date; // Garder en string pour le moment, la conversion se fera dans le composant
   endDate: Date;

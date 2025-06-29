@@ -259,13 +259,13 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
       events = events.filter(event =>
         event.name.toLowerCase().includes(lowerSearchTerm) ||
         event.shortDescription?.toLowerCase().includes(lowerSearchTerm) ||
-        event.category?.map(c=>c.name).join(' ').toLowerCase().includes(lowerSearchTerm)
+        event.categories?.map(c=>c.name).join(' ').toLowerCase().includes(lowerSearchTerm)
       );
     }
 
     if (this.selectedCategoryIds.length > 0) {
       events = events.filter(event =>
-        event.category && event.category.some(cat => this.selectedCategoryIds.includes(cat.id))
+        event.categories && event.categories.some(cat => this.selectedCategoryIds.includes(cat.id))
       );
     }
 
@@ -305,8 +305,8 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
           valueB = new Date(b.startDate).getTime();
           break;
         case 'category':
-          valueA = a.category[0]?.name.toLowerCase() || '';
-          valueB = b.category[0]?.name.toLowerCase() || '';
+          valueA = a.categories[0]?.name.toLowerCase() || '';
+          valueB = b.categories[0]?.name.toLowerCase() || '';
           break;
         case 'status':
           valueA = a.status;

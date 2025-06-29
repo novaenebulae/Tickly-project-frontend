@@ -44,7 +44,6 @@ export class StructureFiltersComponent implements OnInit, OnDestroy {
 
   // État des filtres
   searchQuery: string = '';
-  cityQuery: string = '';
   selectedTypes: number[] = [];
   sortBy: string = 'name';
   sortDirection: 'asc' | 'desc' = 'asc';
@@ -142,7 +141,6 @@ export class StructureFiltersComponent implements OnInit, OnDestroy {
    */
   resetFilters(): void {
     this.searchQuery = '';
-    this.cityQuery = '';
     this.selectedTypes = [];
     this.sortBy = 'name';
     this.sortDirection = 'asc';
@@ -154,7 +152,7 @@ export class StructureFiltersComponent implements OnInit, OnDestroy {
    * Vérifie s'il y a des filtres actifs
    */
   hasActiveFilters(): boolean {
-    return !!(this.searchQuery || this.cityQuery || this.selectedTypes.length > 0);
+    return !!(this.searchQuery || this.selectedTypes.length > 0);
   }
 
   /**
@@ -162,14 +160,6 @@ export class StructureFiltersComponent implements OnInit, OnDestroy {
    */
   clearSearch(): void {
     this.searchQuery = '';
-    this.onFilterChange();
-  }
-
-  /**
-   * Efface le filtre de ville
-   */
-  clearCity(): void {
-    this.cityQuery = '';
     this.onFilterChange();
   }
 
@@ -215,7 +205,6 @@ export class StructureFiltersComponent implements OnInit, OnDestroy {
   private getCurrentFilters(): StructureFilters {
     return {
       query: this.searchQuery || undefined,
-      city: this.cityQuery || undefined,
       typeIds: this.selectedTypes.length > 0 ? this.selectedTypes : undefined
     };
   }

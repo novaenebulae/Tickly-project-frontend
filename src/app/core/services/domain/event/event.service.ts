@@ -396,17 +396,6 @@ export class EventService {
    */
   private mapApiEventToEventModel(apiEvent: any): EventModel | undefined {
     if (!apiEvent) return undefined;
-    // Resolve category: API sends category as an object {id, name}
-    // or it might send categoryId. CategoryService helps resolve.
-    let categoryModel: EventCategoryModel;
-    if (apiEvent.category && typeof apiEvent.category === 'object') {
-      categoryModel = { id: apiEvent.category.id, name: apiEvent.category.name };
-    } else if (apiEvent.categoryId) {
-      categoryModel = this.categoryService.getCategoryById(apiEvent.categoryId) ||
-        { id: apiEvent.categoryId, name: 'Catégorie Inconnue' };
-    } else {
-      categoryModel = { id: 0, name: 'Non Catégorisé' }; // Fallback
-    }
 
     // Map audienceZones: API sends audienceZones array directly matching EventAudienceZone
     const audienceZones: EventAudienceZone[] = (apiEvent.audienceZones || []).map((az: any) => ({
@@ -421,7 +410,7 @@ export class EventService {
     return {
       id: apiEvent.id,
       name: apiEvent.name,
-      category: categoryModel,
+      categories: apiEvent.categories,
       shortDescription: apiEvent.shortDescription,
       fullDescription: apiEvent.fullDescription,
       tags: apiEvent.tags || [],
@@ -464,12 +453,11 @@ export class EventService {
     // } else {
     //   categoryModel = { id: 0, name: 'Non Catégorisé' }; // Fallback
     // }
-    const categoryModel: EventCategoryModel[] = apiEvent.category || { id: 0, name: 'Non Catégorisé' };
 
     return {
       id: apiEvent.id,
       name: apiEvent.name,
-      category: categoryModel,
+      categories: apiEvent.categories,
       shortDescription: apiEvent.shortDescription,
       startDate: new Date(apiEvent.startDate),
       endDate: new Date(apiEvent.endDate),

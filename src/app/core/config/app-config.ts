@@ -140,7 +140,7 @@ export const APP_CONFIG: AppConfig = {
       structures: {
         base: 'structures', // GET (list)
         byId: (id: number | string) => `structures/${id}`, // GET (single), PUT, DELETE
-        types: 'structures/types', // GET structure types
+        types: 'structure-types', // GET structure types
         areas: (structureId: number | string) => `structures/${structureId}/areas`, // GET, POST (create area)
         areaById: (structureId: number | string, areaId: number | string) => `structures/${structureId}/areas/${areaId}`,
         areaAudienceZones: (structureId: number | string, areaId: number | string) => `structures/${structureId}/areas/${areaId}/audience-zones`,

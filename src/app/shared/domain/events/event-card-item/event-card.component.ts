@@ -80,31 +80,10 @@ export class EventCardComponent implements OnInit {
     return 'Lieu à déterminer';
   }
 
-  /**
-   * Retourne le jour de la date de début formaté.
-   */
-  get formattedStartDateDay(): string {
-    if (this.event && this.event.startDate) {
-      return this.datePipe.transform(this.event.startDate, 'dd') || '';
-    }
-    return '';
-  }
+get formattedCategories () {
+    return this.event.categories.map(cat => cat.name).join(', ');
+}
 
-  /**
-   * Retourne le mois de la date de début formaté (en majuscules).
-   */
-  get formattedStartDateMonth(): string {
-    if (this.event && this.event.startDate) {
-      const month = this.datePipe.transform(this.event.startDate, 'MMM');
-      return month ? month.toUpperCase().replace('.', '') : '';
-    }
-    return '';
-  }
 
-  /**
-   * Récupère le prix minimum des billets pour l'événement
-   */
-  getMinTicketPrice(): number {
-    return 0
-  }
+  protected readonly Array = Array;
 }

@@ -36,7 +36,7 @@ export class StructureApiService {
     const endpointContext = APP_CONFIG.api.endpoints.structures.base;
 
     this.apiConfig.logApiRequest('GET', endpointContext, params);
-    const httpParams = this.apiConfig.createHttpParams(params); // createHttpParams handles undefined/null values
+    const httpParams = this.createHttpParamsFromStructureSearchParams(params);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
 
@@ -68,6 +68,35 @@ export class StructureApiService {
       tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
       catchError(error => this.handleStructureError(error, 'getStructureById'))
     );
+  }
+
+  private createHttpParamsFromStructureSearchParams(params: StructureSearchParams): HttpParams {
+    let httpParams = new HttpParams();
+
+    for (const key in params) {
+      if (Object.prototype.hasOwnProperty.call(params, key)) {
+        const value = params[key as keyof StructureSearchParams];
+
+        if (value === undefined || value === null || value === '') {
+          continue;
+        }
+
+        // Ignorer les clés de tri car elles seront traitées séparément
+        if (key === 'sortBy' || key === 'sortDirection') {
+          continue;
+        }
+
+        httpParams = httpParams.set(key, String(value));
+      }
+    }
+
+    // Construire le paramètre 'sort' unique
+    if (params.sortBy && params.sortDirection) {
+      const sortValue = `${params.sortBy},${params.sortDirection}`;
+      httpParams = httpParams.set('sort', sortValue);
+    }
+
+    return httpParams;
   }
 
   /**
