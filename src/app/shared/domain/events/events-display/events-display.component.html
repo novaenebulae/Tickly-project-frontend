@@ -1,6 +1,9 @@
 <div class="events-display">
   <!-- Composant de filtres -->
-  <app-event-filters (filtersChanged)="onFiltersChanged($event)" [showFilters]="showFilters"></app-event-filters>
+
+  @if (showFilters) {
+  <app-event-filters (filtersChanged)="onFiltersChanged($event)"></app-event-filters>
+  }
 
   <!-- Affichage du nombre de résultats et sélecteur de mode d'affichage -->
   <div class="display-options-bar">

@@ -29,6 +29,7 @@ import {MatIcon} from '@angular/material/icon';
 import {MatButton} from '@angular/material/button';
 import {tap} from 'rxjs/operators';
 import {EventsCarouselComponent} from '../../../../shared/domain/events/events-carousel/events-carousel.component';
+import {EventCategoryModel} from '../../../../core/models/event/event-category.model';
 
 @Component({
   selector: 'app-event-details-page',
@@ -129,12 +130,10 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
           this.titleService.setTitle(`${eventData.name} | Tickly`);
 
           // Charger les données de la structure
-          if (eventData.structureId) {
-            this.loadStructureData(eventData.structureId);
-          }
+          this.loadStructureData(eventData.structure);
 
           // Charger les événements similaires
-          this.loadSimilarEvents(eventId, eventData.categories[0].id || 0);
+          this.loadSimilarEvents(eventData.id!, eventData.categories);
         } else {
           this.handleError('Événement non trouvé');
           this.router.navigate(['/events']);
@@ -162,13 +161,14 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
   /**
    * Charge les événements similaires (même catégorie ou même structure)
    */
-  private loadSimilarEvents(eventId: number, categoryId: number): void {
+  private loadSimilarEvents(excludeId: number, categories: EventCategoryModel[]): void {
     // Définir les paramètres de recherche pour trouver des événements similaires
     // Ici on recherche des événements avec les mêmes catégories, à l'exception de l'événement actuel
+    const categoryIds = categories.map(category => category.id);
+
     const params = {
-      categoryId: categoryId,
+      categoryIds: categoryIds,
       pageSize: 4,
-      excludeIds: [eventId]
     };
 
     this.eventService.getEvents(params)
@@ -180,7 +180,7 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
         })
       )
       .subscribe(events => {
-        this.similarEvents.set(events);
+        this.similarEvents.set(events.filter(event => event.id !== excludeId));
       });
   }
 

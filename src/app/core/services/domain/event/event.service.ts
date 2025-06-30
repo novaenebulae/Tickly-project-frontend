@@ -68,14 +68,10 @@ export class EventService {
    */
   getEvents(params: EventSearchParams = {}): Observable<EventSummaryModel[]> {
     return this.eventApi.getEvents(params).pipe(
-      // ✅ CORRECTION : Extraire le tableau 'items' de la réponse
       map((response: any) => {
-        // La réponse de l'API est { items: [...], totalItems: ... }
-        // Nous retournons uniquement le tableau 'items'.
         if (response && Array.isArray(response.items)) {
           return this.mapApiEventsToEventSummaryModels(response.items);
         }
-        // Si la structure est inattendue, retourner un tableau vide pour éviter les erreurs.
         console.warn('API response for events did not contain an "items" array.');
         return [];
       }),
@@ -278,12 +274,19 @@ export class EventService {
     );
   }
 
+  // TODO : Voir pour supprimer
   getFeaturedEvents(forceRefresh = false, count = APP_CONFIG.events.defaultFeaturedCount): Observable<EventSummaryModel[]> {
-    if (!forceRefresh && this.featuredEventsSig().length > 0 && this.featuredEventsSig().length >= count) {
-      return of(this.featuredEventsSig().slice(0, count));
-    }
+    // if (!forceRefresh && this.featuredEventsSig().length > 0 && this.featuredEventsSig().length >= count) {
+    //   return of(this.featuredEventsSig().slice(0, count));
+    // }
     return this.eventApi.getFeaturedEvents(count).pipe(
-      map(apiEvents => this.mapApiEventsToEventSummaryModels(apiEvents)),
+      map((response: any) => {
+        if (response && Array.isArray(response.items)) {
+          return this.mapApiEventsToEventSummaryModels(response.items);
+        }
+        console.warn('API response for featured events did not contain an "items" array.');
+        return [];
+      }),
       tap(events => this.featuredEventsSig.set(events)),
       catchError(error => {
         this.handleError('Impossible de récupérer les événements mis en avant.', error);
@@ -291,6 +294,7 @@ export class EventService {
       })
     );
   }
+
 
 
 
@@ -317,14 +321,21 @@ export class EventService {
 
   getEventsByStructure(structureId: number, params: Partial<EventSearchParams> = {}): Observable<EventSummaryModel[]> {
     const searchParams: EventSearchParams = { ...params, structureId: structureId };
-    return this.eventApi.getEventsByStructure(structureId, searchParams).pipe( // EventApiService handles HttpParams
-      map(apiEvents => this.mapApiEventsToEventSummaryModels(apiEvents)),
+    return this.eventApi.getEventsByStructure(structureId, searchParams).pipe(
+      map((response: any) => {
+        if (response && Array.isArray(response.items)) {
+          return this.mapApiEventsToEventSummaryModels(response.items);
+        }
+        console.warn('API response for structure events did not contain an "items" array.');
+        return [];
+      }),
       catchError(error => {
         this.handleError(`Impossible de récupérer les événements pour la structure #${structureId}.`, error);
         return of([]);
       })
     );
   }
+
 
   getLatestEvents(count: number): Observable<EventSummaryModel[]> {
     const params: EventSearchParams = {
@@ -417,7 +428,7 @@ export class EventService {
       startDate: new Date(apiEvent.startDate),
       endDate: new Date(apiEvent.endDate),
       address: apiEvent.address as StructureAddressModel || this.createEmptyAddress(),
-      structureId: apiEvent.structureId,
+      structure: apiEvent.structure.id,
       areas: (apiEvent.areas || []) as StructureAreaModel[], // Assuming API returns StructureAreaModel like objects
       isFreeEvent: apiEvent.isFreeEvent,
       defaultSeatingType: apiEvent.defaultSeatingType as SeatingType || SeatingType.MIXED,
@@ -546,7 +557,7 @@ export class EventService {
     if (!currentAuthUser || !currentAuthUser.structureId) return false; // User not logged in or no structureId
 
     // Example: User can edit if they belong to the structure that created/hosts the event
-    return event.structureId === currentAuthUser.structureId;
+    return event.structure === currentAuthUser.structureId;
   }
 
   /**

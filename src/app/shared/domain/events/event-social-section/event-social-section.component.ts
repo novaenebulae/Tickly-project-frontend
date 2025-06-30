@@ -47,7 +47,6 @@ export class EventSocialSectionComponent implements OnInit {
         })
       )
       .subscribe(friends => {
-        console.log('Friends attending:', friends);
         this.attendingFriends = friends;
         this.isLoading = false;
       });

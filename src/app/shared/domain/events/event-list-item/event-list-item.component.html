@@ -17,8 +17,8 @@
     <div class="event-list-item__content-area" (click)="viewEventDetails($event)">
       <div class="event-list-item__header">
         <div class="event-list-item__header-top">
-          @if (event.category && Array.isArray(event.category) && event.category.length > 0) {
-            @for (category of event.category; track category.id; let isLast = $last) {
+          @if (event.categories && Array.isArray(event.categories) && event.categories.length > 0) {
+            @for (category of event.categories; track category.id; let isLast = $last) {
               <span class="event-list-item__category">
           {{ category.name }}@if (!isLast) {<span>, </span>}
         </span>

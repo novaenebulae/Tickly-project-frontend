@@ -172,7 +172,7 @@ export const APP_CONFIG: AppConfig = {
         requests: 'friendship/requests', // GET list of FriendRequestModel, POST SendFriendRequestDto
         requestAction: (friendshipId) => `friendship/requests/${friendshipId}`, // PUT/DELETE with UpdateFriendshipStatusDto
         removeAction:  (friendId) => `friendship/friends/${friendId}`,
-        friendsAttendingEvent: (eventId) => `friendship/events/${eventId}/attendees`,
+        friendsAttendingEvent: (eventId) => `events/${eventId}/friends`,
       },
       ticketing: {
         reservations: 'ticketing/reservations', // POST ReservationRequestDto

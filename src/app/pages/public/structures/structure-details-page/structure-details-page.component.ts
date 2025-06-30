@@ -8,7 +8,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
 import { PageEvent } from '@angular/material/paginator';
-import { Subject, takeUntil, switchMap, combineLatest } from 'rxjs';
+import {Subject, takeUntil, switchMap, combineLatest, filter} from 'rxjs';
 import {EventBannerComponent} from '../../../../shared/domain/events/event-banner/event-banner.component';
 import {EventsCarouselComponent} from '../../../../shared/domain/events/events-carousel/events-carousel.component';
 import {EventsDisplayComponent} from '../../../../shared/domain/events/events-display/events-display.component';
@@ -122,19 +122,25 @@ export class StructureDetailsPageComponent implements OnInit, OnDestroy {
   private loadStructureEvents(structureId: number): void {
     this.isLoadingEvents.set(true);
     this.eventsError.set(null);
-    combineLatest([
-      this.eventService.getEventsByStructure(structureId),
-      this.eventService.getStructureFeaturedEvents(structureId)
-    ]).pipe(takeUntil(this.destroy$))
+
+    this.eventService.getEventsByStructure(structureId)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: ([eventsResult, featuredEvents]) => {
-          this.allEvents.set(eventsResult || []);
-          this.totalEvents.set(eventsResult.length || 0);
+        next: (eventsResult) => {
+
+          let events: EventSummaryModel[];
+
+          events = eventsResult;
+
+          const featuredEvents = events.filter((event) => event.featuredEvent);
+          this.allEvents.set(events);
+          this.totalEvents.set(events.length || 0);
+
           this.featuredEvents.set(featuredEvents || []);
-          this.featuredEvent.set(featuredEvents[0]);
+          this.featuredEvent.set(featuredEvents[0] || null);
+
           this.route.fragment.subscribe(fragment => {
             if (fragment) {
-              // Scroll manuel vers le fragment
               this.viewPortScroller.scrollToAnchor(fragment);
             }
           });
@@ -147,6 +153,7 @@ export class StructureDetailsPageComponent implements OnInit, OnDestroy {
         }
       });
   }
+
 
   /**
    * Toggle l'affichage des filtres

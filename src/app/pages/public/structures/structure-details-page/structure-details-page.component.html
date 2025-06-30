@@ -172,12 +172,12 @@
 
         <!-- Événements à la une (Carousel) -->
         <div *ngIf="featuredEvents().length > 0" class="featured-events-carousel">
-<!--          <div class="carousel-header">-->
-<!--            <h3>-->
-<!--              <mat-icon>star</mat-icon>-->
-<!--              À la une-->
-<!--            </h3>-->
-<!--          </div>-->
+          <div class="carousel-header">
+            <h3>
+              <mat-icon>star</mat-icon>
+              À la une
+            </h3>
+          </div>
           <app-events-carousel
             [events]="featuredEvents()"
             [showControls]="true"

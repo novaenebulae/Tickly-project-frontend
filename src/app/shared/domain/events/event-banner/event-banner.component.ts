@@ -31,7 +31,7 @@ import {StructureService} from '../../../../core/services/domain/structure/struc
   styleUrls: ['./event-banner.component.scss']
 })
 export class EventBannerComponent implements OnChanges {
-  @Input() event!: EventModel;
+  @Input() event!: EventModel | EventSummaryModel;
   @Input() showNav: boolean = true;
   @Output() bookEvent = new EventEmitter<void>();
 
@@ -52,7 +52,6 @@ export class EventBannerComponent implements OnChanges {
     if (changes['event'] && this.event) {
       this.formatDateTime();
       this.setStatusInfo();
-      this.loadStructureName();
     }
   }
 
@@ -73,16 +72,16 @@ export class EventBannerComponent implements OnChanges {
   /**
    * Charge le nom de la structure organisatrice
    */
-  private loadStructureName(): void {
-    if (this.event.structureId) {
-      this.structureService.getStructureById(this.event.structureId)
-        .subscribe(structure => {
-          if (structure) {
-            this.structureName = structure.name;
-          }
-        });
-    }
-  }
+  // private loadStructureName(): void {
+  //   if (this.event.structureId) {
+  //     this.structureService.getStructureById(this.event.structureId)
+  //       .subscribe(structure => {
+  //         if (structure) {
+  //           this.structureName = structure.name;
+  //         }
+  //       });
+  //   }
+  // }
 
   /**
    * Configure les informations de statut en fonction du statut de l'événement
@@ -149,10 +148,7 @@ export class EventBannerComponent implements OnChanges {
    * Retourne une URL d'image par défaut si aucune image principale n'est définie
    */
   getEventImageUrl(): string {
-    return this.event.mainPhotoUrl ||
-      (this.event.eventPhotoUrls && this.event.eventPhotoUrls.length > 0
-        ? this.event.eventPhotoUrls[0]
-        : 'assets/images/event-placeholder.jpg');
+    return this.event.mainPhotoUrl || 'assets/images/event-placeholder.jpg';
   }
 
   /**

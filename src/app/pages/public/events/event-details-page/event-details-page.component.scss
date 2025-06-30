@@ -94,9 +94,33 @@
       background-color: var(--white);
     }
 
+    // Style du titre de section commun à toutes les sections
+    .section-title {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--text-color);
+      margin-bottom: 2rem;
+      position: relative;
+
+      &:after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: var(--primary-color);
+        border-radius: 2px;
+      }
+    }
+
     // Responsive
     @media (max-width: 768px) {
       padding: 2rem 0;
+
+      .section-title {
+        font-size: 1.5rem;
+      }
     }
   }
 }

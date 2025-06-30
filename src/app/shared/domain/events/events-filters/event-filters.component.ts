@@ -64,7 +64,6 @@ interface FilterState {
 export class EventFiltersComponent implements OnInit, OnDestroy {
   @Output() filtersChanged = new EventEmitter<FilterState>();
   @Input() initialFilters: Partial<FilterState> = {};
-  @Input() showFilters: boolean = true;
 
   filtersForm!: FormGroup;
   isAdvancedFilterOpen = false;

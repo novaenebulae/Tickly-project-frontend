@@ -55,14 +55,9 @@ export class StructureApiService {
   getStructureById(id: number): Observable<any> {
     const endpointContext = APP_CONFIG.api.endpoints.structures.byId(id);
 
-    if (this.apiConfig.isMockEnabledForDomain('structures')) {
-      return this.mockService.mockGetStructureById(id);
-    }
-
     this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
-    // No specific query params needed here if stats are included by default
 
     return this.http.get<any>(url, { headers }).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
@@ -188,10 +183,6 @@ export class StructureApiService {
   getAreas(structureId: number): Observable<any[]> {
     const endpointContext = APP_CONFIG.api.endpoints.structures.areas(structureId);
 
-    if (this.apiConfig.isMockEnabledForDomain('structures')) {
-      return this.mockService.mockGetAreas(structureId);
-    }
-
     this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
@@ -201,7 +192,6 @@ export class StructureApiService {
     );
   }
 
-// Ajouter ces méthodes au StructureApiService existant
 
   /**
    * Crée une nouvelle area pour une structure

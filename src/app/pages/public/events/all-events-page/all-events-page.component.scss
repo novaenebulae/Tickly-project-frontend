@@ -79,6 +79,12 @@ $section-bg-darker: #f0f4f8;
   }
 }
 
+.events-display {
+  width: 100% !important;
+  height: fit-content;
+  padding: 0 3rem;
+}
+
 @media (max-width: 1200px) {
   .all-events-content {
     padding: 0 1.5rem;

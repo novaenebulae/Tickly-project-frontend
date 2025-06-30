@@ -7,7 +7,8 @@
 import { EventCategoryModel } from './event-category.model';
 import { EventAudienceZone, SeatingType } from './event-audience-zone.model'; // Updated import
 import { StructureAddressModel } from '../structure/structure-address.model'; // Using the renamed AddressModel
-import { StructureAreaModel } from '../structure/structure-area.model'; // Using the renamed AreaModel
+import { StructureAreaModel } from '../structure/structure-area.model';
+import {StructureSummaryModel} from '../structure/structure-summary.model'; // Using the renamed AreaModel
 
 /**
  * Defines the possible statuses of an event.
@@ -81,7 +82,7 @@ export interface EventModel {
   /**
    * The ID of the structure (venue) hosting the event.
    */
-  structureId: number;
+  structure: number;
 
   /**
    * Optional list of general physical areas of the host structure

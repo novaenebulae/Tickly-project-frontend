@@ -228,7 +228,7 @@ export class TicketService {
         // Enrich with structure name if needed
         return this.eventService.getEventById(ticket.eventId).pipe(
           switchMap(eventDetails => {
-            if (!eventDetails || !eventDetails.structureId) {
+            if (!eventDetails || !eventDetails.structure) {
               // If event details or structureId is missing, return ticket data as is
               const pdfData: TicketPdfDataDto = {
                 ...ticket,
@@ -236,7 +236,7 @@ export class TicketService {
               };
               return of(pdfData);
             }
-            return this.structureService.getStructureById(eventDetails.structureId).pipe(
+            return this.structureService.getStructureById(eventDetails.structure).pipe(
               map(structureDetails => {
                 const pdfData: TicketPdfDataDto = {
                   ...ticket,

@@ -29,7 +29,6 @@ export class AuthService {
   private authApi = inject(AuthApiService);
   private notification = inject(NotificationService);
   private router = inject(Router);
-  private location = inject(Location);
   private authApiMock = inject(AuthApiMockService);
 
 

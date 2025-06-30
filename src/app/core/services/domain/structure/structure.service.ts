@@ -168,7 +168,7 @@ export class StructureService {
       map(apiStructure => apiStructure ? this.mapApiToStructureModel(apiStructure) : undefined),
       tap(structure => {
         this.currentStructureDetailsSig.set(structure || null); // Set to null if not found by API
-        if (structure) {
+        if (structure && this.authService.userStructureId() === structureId) {
           // When a new structure is fetched as current, also fetch its areas.
           this.loadStructureAreas(structureId, true).subscribe();
         } else {
