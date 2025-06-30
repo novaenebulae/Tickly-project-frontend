@@ -12,9 +12,9 @@
             <div class="summary-chip primary">
               <span>{{ tickets.length }} billet{{ tickets.length > 1 ? 's' : '' }}</span>
             </div>
-      <button mat-icon-button (click)="close()" class="close-button">
-        <mat-icon>close</mat-icon>
-      </button>
+            <button mat-icon-button (click)="close()" class="close-button">
+              <mat-icon>close</mat-icon>
+            </button>
           </div>
         </div>
         <div class="event-metadata">
@@ -56,8 +56,8 @@
                 <mat-icon>person</mat-icon>
               </div>
               <div class="participant-details">
-                <h3>{{ ticket.participantInfo.firstName }} {{ ticket.participantInfo.lastName }}</h3>
-                <p class="email">{{ ticket.participantInfo.email }}</p>
+                <h3>{{ ticket.participant.firstName }} {{ ticket.participant.lastName }}</h3>
+                <p class="email">{{ ticket.participant.email }}</p>
                 <div class="zone-info">
                   <mat-icon>theater_comedy</mat-icon>
                   <span>{{ ticket.audienceZoneSnapshot.name }}</span>
@@ -67,8 +67,8 @@
             </div>
 
             <!-- QR Code aligné sur la même ligne -->
-            <div class="qr-section" *ngIf="ticket.status === 'valid' && isEventUpcoming()">
-              <qrcode [qrdata]="ticket.qrCodeData"
+            <div class="qr-section" *ngIf="ticket.status === 'VALID' && isEventUpcoming()">
+              <qrcode [qrdata]="ticket.qrCodeValue"
                       [width]="100"
                       [errorCorrectionLevel]="'M'"
                       [colorDark]="'#333333'"
@@ -84,18 +84,12 @@
             </div>
             <!-- Ticket footer avec dates -->
             <div class="ticket-footer">
-              <div class="ticket-date">
-                <mat-icon>schedule</mat-icon>
-                <span>Émis le {{ ticket.issuedAt | date:'short' }}</span>
-              </div>
-              <div class="ticket-date" *ngIf="ticket.usedAt">
-                <mat-icon>check_circle</mat-icon>
-                <span>Utilisé le {{ ticket.usedAt | date:'short' }}</span>
-              </div>
+              <!-- Note: Les dates issuedAt et usedAt ne sont pas présentes dans l'API -->
+              <!-- On peut utiliser d'autres informations ou les masquer -->
             </div>
             <button mat-icon-button class="download-button"
                     (click)="downloadSinglePdf(ticket)"
-                    [attr.aria-label]="'Télécharger le billet de ' + ticket.participantInfo.firstName">
+                    [attr.aria-label]="'Télécharger le billet de ' + ticket.participant.firstName">
               <mat-icon>download</mat-icon>
             </button>
           </div>
@@ -103,12 +97,12 @@
         </div>
 
         <!-- Message pour billets non valides -->
-        <div class="invalid-message" *ngIf="ticket.status !== 'valid' || !isEventUpcoming()">
+        <div class="invalid-message" *ngIf="ticket.status !== 'VALID' || !isEventUpcoming()">
           <mat-icon>info</mat-icon>
-          <span *ngIf="ticket.status === 'used'">Ce billet a été utilisé pour l'entrée</span>
-          <span *ngIf="ticket.status === 'cancelled'">Ce billet a été annulé</span>
-          <span *ngIf="ticket.status === 'expired'">Ce billet a expiré</span>
-          <span *ngIf="!isEventUpcoming() && ticket.status === 'valid'">Événement terminé</span>
+          <span *ngIf="ticket.status === 'USED'">Ce billet a été utilisé pour l'entrée</span>
+          <span *ngIf="ticket.status === 'CANCELLED'">Ce billet a été annulé</span>
+          <span *ngIf="ticket.status === 'EXPIRED'">Ce billet a expiré</span>
+          <span *ngIf="!isEventUpcoming() && ticket.status === 'VALID'">Événement terminé</span>
         </div>
       </div>
     </div>

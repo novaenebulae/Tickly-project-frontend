@@ -176,7 +176,7 @@ export const APP_CONFIG: AppConfig = {
       },
       ticketing: {
         reservations: 'ticketing/reservations', // POST ReservationRequestDto
-        myTickets: 'ticketing/tickets/my',     // GET current user's TicketModel[]
+        myTickets: 'ticketing/my-tickets',     // GET current user's TicketModel[]
         ticketById: (ticketId) => `ticketing/tickets/${ticketId}`, // GET TicketModel
         // validateTicket: 'ticketing/tickets/validate',
       }
@@ -191,7 +191,7 @@ export const APP_CONFIG: AppConfig = {
     structures: false,
     users: false,
     friendship: false,
-    ticketing: true,
+    ticketing: false,
     team: true,
   },
 

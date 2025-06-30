@@ -69,9 +69,9 @@
                   <div class="participants-preview">
                     <div class="participant-item"
                          *ngFor="let ticket of entry.value.slice(0, 3)"
-                         [class.invalid]="ticket.status !== 'valid'">
+                           [class.invalid]="ticket.status !== TicketStatus.VALID">
                       <mat-icon>person</mat-icon>
-                      <span>{{ ticket.participantInfo.firstName }} {{ ticket.participantInfo.lastName }}</span>
+                      <span>{{ ticket.participant.firstName }} {{ ticket.participant.lastName }}</span>
                       <mat-chip [ngClass]="getStatusColor(ticket.status)" class="mini-status status-badge">
                         {{ getStatusLabel(ticket.status) }}
                       </mat-chip>
@@ -87,7 +87,7 @@
                     <mat-icon>qr_code</mat-icon>
                     Voir les billets
                   </button>
-                  <button mat-button>
+                  <button mat-button (click)="downloadEventPdfsFromCard($event, entry.value)">
                     <mat-icon>download</mat-icon>
                     Télécharger PDF
                   </button>
@@ -139,9 +139,9 @@
                   <div class="participants-preview">
                     <div class="participant-item"
                          *ngFor="let ticket of entry.value.slice(0, 3)"
-                         [class.used]="ticket.status === 'used'">
+                         [class.used]="ticket.status === TicketStatus.USED">
                       <mat-icon>person</mat-icon>
-                      <span>{{ ticket.participantInfo.firstName }} {{ ticket.participantInfo.lastName }}</span>
+                      <span>{{ ticket.participant.firstName }} {{ ticket.participant.lastName }}</span>
                     </div>
                     <div class="more-participants" *ngIf="entry.value.length > 3">
                       <span>+{{ entry.value.length - 3 }} autre{{ entry.value.length - 3 > 1 ? 's' : '' }}</span>
@@ -154,7 +154,7 @@
                     <mat-icon>visibility</mat-icon>
                     Voir les détails
                   </button>
-                  <button mat-button>
+                  <button mat-button (click)="downloadEventPdfsFromCard($event, entry.value)">
                     <mat-icon>download</mat-icon>
                     Télécharger PDF
                   </button>

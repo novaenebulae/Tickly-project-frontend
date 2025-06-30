@@ -46,7 +46,7 @@ export interface ReservationConfirmationModel {
    * A unique identifier for this reservation batch, if the backend generates one.
    * e.g., a group booking reference.
    */
-  reservationId?: string;
+  reservationId: string;
 
   /**
    * The ID of the event.
@@ -54,19 +54,9 @@ export interface ReservationConfirmationModel {
   eventId: number;
 
   /**
-   * The ID of the user who made the reservation.
-   */
-  userId?: number;
-
-  /**
    * The list of individual tickets that were successfully issued as part of this reservation.
    */
-  issuedTickets: TicketModel[];
-
-  /**
-   * The total number of tickets issued in this reservation.
-   */
-  totalTicketsIssued: number; // Should match participants.length from the request
+  tickets: TicketModel[];
 
   /**
    * The date and time when this reservation was confirmed and tickets were issued.

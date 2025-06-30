@@ -1,23 +1,19 @@
 /**
  * @file Domain service for managing tickets and reservations.
- * This service encapsulates business logic related to ticketing, composes TicketApiService
- * for API interactions, and manages state/cache for user's tickets.
  * @licence Proprietary
  * @author VotreNomOuEquipe
  */
 
 import { Injectable, inject, signal, computed, WritableSignal, effect } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { map, tap, catchError, switchMap } from 'rxjs/operators';
+import {forkJoin, Observable, of} from 'rxjs';
+import {tap, catchError, switchMap} from 'rxjs/operators';
 
 // API Service
-import { TicketApiService } from '../../api/ticket/ticket-api.service'; // Corrected path based on typical structure
+import { TicketApiService } from '../../api/ticket/ticket-api.service';
 
 // Domain Services
 import { NotificationService } from '../utilities/notification.service';
 import { AuthService } from '../user/auth.service';
-import { EventService } from '../event/event.service'; // For event details if needed for PDF
-import { StructureService } from '../structure/structure.service'; // For structure details if needed for PDF
 
 // Models and DTOs
 import {
@@ -28,7 +24,7 @@ import {
 import { TicketModel } from '../../../models/tickets/ticket.model';
 import { ParticipantInfoModel } from '../../../models/tickets/participant-info.model';
 import { TicketStatus } from '../../../models/tickets/ticket-status.enum';
-import { EventModel } from '../../../models/event/event.model';
+import {TicketPdfService} from './ticket-pdf.service';
 
 @Injectable({
   providedIn: 'root'
@@ -37,8 +33,7 @@ export class TicketService {
   private ticketApi = inject(TicketApiService);
   private notification = inject(NotificationService);
   private authService = inject(AuthService);
-  private eventService = inject(EventService); // For enriching PDF data
-  private structureService = inject(StructureService); // For enriching PDF data
+  private pdfService = inject(TicketPdfService)
 
   // --- State Management using Signals ---
   private myTicketsSig: WritableSignal<TicketModel[]> = signal([]);
@@ -47,7 +42,7 @@ export class TicketService {
    */
   public readonly myTickets = computed(() => this.myTicketsSig());
 
-  private selectedTicketDetailSig: WritableSignal<TicketModel | null | undefined> = signal(undefined); // undefined: loading, null: not found
+  private selectedTicketDetailSig: WritableSignal<TicketModel | null | undefined> = signal(undefined);
   /**
    * A signal representing the details of a currently selected or viewed ticket.
    */
@@ -58,7 +53,7 @@ export class TicketService {
     effect(() => {
       const isLoggedIn = this.authService.isLoggedIn();
       if (isLoggedIn) {
-        this.loadMyTickets(true).subscribe(); // Force refresh on login
+        this.loadMyTickets(true).subscribe();
       } else {
         this.myTicketsSig.set([]);
         this.selectedTicketDetailSig.set(undefined);
@@ -70,10 +65,6 @@ export class TicketService {
 
   /**
    * Creates a new reservation for an event.
-   * @param eventId - The ID of the event.
-   * @param audienceZoneId - The ID of the selected audience zone.
-   * @param participants - An array of participant information (1 to 4 participants).
-   * @returns An Observable of `ReservationConfirmationModel` or `undefined` on error.
    */
   createReservation(
     eventId: number,
@@ -91,17 +82,16 @@ export class TicketService {
       eventId,
       audienceZoneId,
       participants,
-      userId: currentUserId // Optional, backend might infer from token
+      userId: currentUserId
     };
 
     return this.ticketApi.createReservation(reservationDto).pipe(
-      map(apiConfirmation => this.mapApiToReservationConfirmationModel(apiConfirmation)),
       tap(confirmation => {
         if (confirmation) {
           this.notification.displayNotification('Réservation effectuée avec succès ! Vos billets ont été émis.', 'valid');
           // Add new tickets to the beginning of myTicketsSig for immediate UI update
           const currentTickets = this.myTicketsSig();
-          this.myTicketsSig.set([...confirmation.issuedTickets, ...currentTickets]);
+          this.myTicketsSig.set([...confirmation.tickets, ...currentTickets]);
         }
       }),
       catchError(error => {
@@ -113,9 +103,6 @@ export class TicketService {
 
   /**
    * Retrieves the tickets for the currently authenticated user.
-   * Updates the `myTicketsSig` signal.
-   * @param forceRefresh - If true, fetches from the API even if tickets are already in the signal.
-   * @returns An Observable of `TicketModel[]`.
    */
   loadMyTickets(forceRefresh = false): Observable<TicketModel[]> {
     if (!forceRefresh && this.myTicketsSig().length > 0) {
@@ -123,13 +110,12 @@ export class TicketService {
     }
 
     return this.ticketApi.getMyTickets().pipe(
-      map(apiTickets => apiTickets.map(t => this.mapApiToTicketModel(t))),
       tap(tickets => {
         this.myTicketsSig.set(tickets);
       }),
       catchError(error => {
         this.handleError("Impossible de récupérer vos billets.", error);
-        this.myTicketsSig.set([]); // Clear on error
+        this.myTicketsSig.set([]);
         return of([]);
       })
     );
@@ -137,15 +123,11 @@ export class TicketService {
 
   /**
    * Retrieves details for a specific ticket by its ID.
-   * Updates the `selectedTicketDetailSig` signal.
-   * @param ticketId - The unique ID of the ticket.
-   * @param forceRefresh - If true, fetches from the API even if the ticket is already cached (e.g., in myTickets).
-   * @returns An Observable of `TicketModel` or `undefined` if not found/error.
    */
   getTicketById(ticketId: string, forceRefresh = false): Observable<TicketModel | undefined> {
-    this.selectedTicketDetailSig.set(undefined); // Indicate loading
+    this.selectedTicketDetailSig.set(undefined);
 
-    // Check cache (myTicketsSig) first if not forcing refresh
+    // Check cache first if not forcing refresh
     if (!forceRefresh) {
       const cachedTicket = this.myTicketsSig().find(t => t.id === ticketId);
       if (cachedTicket) {
@@ -155,10 +137,8 @@ export class TicketService {
     }
 
     return this.ticketApi.getTicketById(ticketId).pipe(
-      map(apiTicket => this.mapApiToTicketModel(apiTicket)),
       tap(ticket => {
-        this.selectedTicketDetailSig.set(ticket || null); // Set to null if API returns undefined/error
-        // Optionally update myTicketsSig if this ticket wasn't there or needs update
+        this.selectedTicketDetailSig.set(ticket || null);
         if (ticket) {
           const currentTickets = this.myTicketsSig();
           const index = currentTickets.findIndex(t => t.id === ticket.id);
@@ -166,7 +146,6 @@ export class TicketService {
             currentTickets[index] = ticket;
             this.myTicketsSig.set([...currentTickets]);
           } else {
-            // This case might be rare if getMyTickets is comprehensive
             this.myTicketsSig.set([...currentTickets, ticket]);
           }
         }
@@ -180,14 +159,55 @@ export class TicketService {
   }
 
   /**
+   * Génère et télécharge un PDF pour un billet spécifique
+   */
+  downloadTicketPdf(ticketId: string): Observable<void> {
+    return this.prepareTicketPdfData(ticketId).pipe(
+      switchMap(pdfData => {
+        if (pdfData) {
+          return this.pdfService.generateSingleTicketPdf(pdfData);
+        } else {
+          this.notification.displayNotification(`Impossible de trouver le billet #${ticketId}.`, 'error');
+          return of();
+        }
+      }),
+      catchError(error => {
+        this.handleError(`Impossible de générer le PDF pour le billet #${ticketId}.`, error);
+        return of();
+      })
+    );
+  }
+
+  /**
+   * Génère et télécharge un PDF pour plusieurs billets
+   */
+  downloadMultipleTicketsPdf(ticketIds: string[]): Observable<void> {
+    const pdfDataObservables = ticketIds.map(id => this.prepareTicketPdfData(id));
+
+    return forkJoin(pdfDataObservables).pipe(
+      switchMap(pdfDataArray => {
+        const validPdfData = pdfDataArray.filter(data => data !== undefined) as TicketPdfDataDto[];
+
+        if (validPdfData.length > 0) {
+          return this.pdfService.generateMultipleTicketsPdf(validPdfData);
+        } else {
+          this.notification.displayNotification('Aucun billet valide trouvé pour la génération PDF.', 'error');
+          return of();
+        }
+      }),
+      catchError(error => {
+        this.handleError('Erreur lors de la préparation des données PDF.', error);
+        return of();
+      })
+    );
+  }
+
+
+  /**
    * Validates a ticket (e.g., for scanning at event entry).
-   * Updates the status of the ticket in local cache (`myTicketsSig`, `selectedTicketDetailSig`).
-   * @param ticketId - The ID of the ticket to validate.
-   * @returns An Observable of the updated `TicketModel` or `undefined` on error.
    */
   validateTicket(ticketId: string): Observable<TicketModel | undefined> {
     return this.ticketApi.validateTicket(ticketId).pipe(
-      map(apiTicket => this.mapApiToTicketModel(apiTicket)),
       tap(updatedTicket => {
         if (updatedTicket) {
           this.notification.displayNotification(`Billet #${ticketId} validé avec succès. Statut : ${updatedTicket.status}`, 'valid');
@@ -210,92 +230,46 @@ export class TicketService {
     );
   }
 
-
-  // --- PDF Export Preparation ---
-
   /**
    * Prepares the data required for generating a PDF for a specific ticket.
-   * This method fetches additional details like structure name if not in the ticket snapshot.
-   * @param ticketId - The ID of the ticket for which to prepare PDF data.
-   * @returns An Observable of `TicketPdfDataDto` or `undefined` if an error occurs.
+   * Uses the eventSnapshot data to avoid additional API calls.
    */
   prepareTicketPdfData(ticketId: string): Observable<TicketPdfDataDto | undefined> {
-    return this.getTicketById(ticketId, true).pipe( // Force refresh to get latest ticket data
-      switchMap(ticket => {
-        if (!ticket) {
+    const ticket = this.myTicketsSig().find(t => t.id === ticketId);
+
+    if (!ticket) {
+      return this.getTicketById(ticketId, true).pipe(
+        tap(fetchedTicket => {
+          if (fetchedTicket) {
+            const pdfData: TicketPdfDataDto = {
+              ...fetchedTicket,
+              // Use eventSnapshot data instead of making additional API calls
+              structureName: `Structure pour ${fetchedTicket.eventSnapshot.name}`,
+              organizerLogoUrl: fetchedTicket.eventSnapshot.mainPhotoUrl,
+              termsAndConditions: "Conditions générales: Billet non remboursable, non échangeable. Présentez ce billet à l'entrée."
+            };
+            return pdfData;
+          } else {
+            this.notification.displayNotification(`Impossible de trouver le billet #${ticketId}.`, 'error');
+            return of(undefined);
+          }
+        }),
+        catchError(error => {
+          this.handleError(`Impossible de préparer les données PDF pour le billet #${ticketId}.`, error);
           return of(undefined);
-        }
-        // Enrich with structure name if needed
-        return this.eventService.getEventById(ticket.eventId).pipe(
-          switchMap(eventDetails => {
-            if (!eventDetails || !eventDetails.structure) {
-              // If event details or structureId is missing, return ticket data as is
-              const pdfData: TicketPdfDataDto = {
-                ...ticket,
-                // organizerLogoUrl and termsAndConditions would be fetched or configured elsewhere
-              };
-              return of(pdfData);
-            }
-            return this.structureService.getStructureById(eventDetails.structure).pipe(
-              map(structureDetails => {
-                const pdfData: TicketPdfDataDto = {
-                  ...ticket,
-                  structureName: structureDetails?.name,
-                  // Example: Fetch organizer logo from structure or event, or use a default
-                  organizerLogoUrl: structureDetails?.logoUrl || eventDetails?.mainPhotoUrl,
-                  // Example: Fetch terms from a config or event details
-                  termsAndConditions: "Conditions générales: Billet non remboursable, non échangeable. Présentez ce billet à l'entrée."
-                };
-                return pdfData;
-              }),
-              catchError(structError => {
-                console.error('Error fetching structure details for PDF:', structError);
-                // Fallback: return ticket data without structure name if structure fetch fails
-                const pdfData: TicketPdfDataDto = { ...ticket };
-                return of(pdfData);
-              })
-            );
-          }),
-          catchError(eventError => {
-            console.error('Error fetching event details for PDF:', eventError);
-            // Fallback: return ticket data as is if event fetch fails
-            const pdfData: TicketPdfDataDto = { ...ticket };
-            return of(pdfData);
-          })
-        );
-      }),
-      catchError(error => {
-        // Error already handled by getTicketById, just return undefined
-        return of(undefined);
-      })
-    );
-  }
+        })
+      );
+    }
 
+    // Use cached ticket data
+    const pdfData: TicketPdfDataDto = {
+      ...ticket,
+      structureName: `Structure pour ${ticket.eventSnapshot.name}`,
+      organizerLogoUrl: ticket.eventSnapshot.mainPhotoUrl,
+      termsAndConditions: "Conditions générales: Billet non remboursable, non échangeable. Présentez ce billet à l'entrée."
+    };
 
-  // --- Data Mapping Utilities ---
-
-  private mapApiToTicketModel(apiTicket: any): TicketModel {
-    if (!apiTicket) return undefined as any; // Or throw error
-    return {
-      ...apiTicket,
-      issuedAt: new Date(apiTicket.issuedAt),
-      usedAt: apiTicket.usedAt ? new Date(apiTicket.usedAt) : undefined,
-      eventSnapshot: {
-        ...apiTicket.eventSnapshot,
-        startDate: new Date(apiTicket.eventSnapshot.startDate),
-        endDate: new Date(apiTicket.eventSnapshot.endDate),
-      }
-      // participantInfo and audienceZoneSnapshot are assumed to match model structure
-    } as TicketModel;
-  }
-
-  private mapApiToReservationConfirmationModel(apiConfirmation: any): ReservationConfirmationModel {
-    if (!apiConfirmation) return undefined as any;
-    return {
-      ...apiConfirmation,
-      reservationDate: new Date(apiConfirmation.reservationDate),
-      issuedTickets: (apiConfirmation.issuedTickets || []).map((t: any) => this.mapApiToTicketModel(t))
-    } as ReservationConfirmationModel;
+    return of(pdfData);
   }
 
   /**

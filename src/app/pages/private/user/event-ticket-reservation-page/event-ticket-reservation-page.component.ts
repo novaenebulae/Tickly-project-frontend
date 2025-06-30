@@ -264,7 +264,7 @@ export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
         if (confirmation) {
           this.reservationConfirmation.set(confirmation);
           this.notificationService.displayNotification(
-            `Réservation confirmée ! ${confirmation.totalTicketsIssued} billet(s) émis.`,
+            `Réservation confirmée ! ${confirmation.tickets.length} billet(s) émis.`,
             'valid'
           );
 

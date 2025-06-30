@@ -13,7 +13,7 @@ import {TicketService} from '../../../../core/services/domain/ticket/ticket.serv
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 
 export interface TicketDetailModalData {
-  ticket: TicketModel;
+  ticket: TicketModel | TicketModel[];
 }
 
 @Component({
@@ -57,29 +57,22 @@ export class TicketDetailModalComponent {
   downloadAllPdfs(): void {
     this.isDownloading.set(true);
 
-    // Télécharger tous les billets
-    const downloadPromises = this.tickets.map(ticket =>
-      this.ticketService.prepareTicketPdfData(ticket.id).toPromise()
-    );
+    const ticketIds = this.tickets.map(ticket => ticket.id);
 
-    Promise.all(downloadPromises).then((pdfDataArray) => {
-      pdfDataArray.forEach((pdfData, index) => {
-        if (pdfData) {
-          this.generatePdfFromData(pdfData, this.tickets[index]);
-        }
-      });
-      this.isDownloading.set(false);
-    }).catch(() => {
-      this.isDownloading.set(false);
+    this.ticketService.downloadMultipleTicketsPdf(ticketIds).subscribe({
+      next: () => {
+        this.isDownloading.set(false);
+      },
+      error: () => {
+        this.isDownloading.set(false);
+      }
     });
   }
 
   downloadSinglePdf(ticket: TicketModel): void {
-    this.ticketService.prepareTicketPdfData(ticket.id).subscribe({
-      next: (pdfData) => {
-        if (pdfData) {
-          this.generatePdfFromData(pdfData, ticket);
-        }
+    this.ticketService.downloadTicketPdf(ticket.id).subscribe({
+      next: () => {
+        // Le téléchargement est géré par le service PDF
       },
       error: () => {
         console.error('Erreur lors du téléchargement du PDF');
@@ -87,8 +80,9 @@ export class TicketDetailModalComponent {
     });
   }
 
+
   private generatePdfFromData(pdfData: any, ticket: TicketModel): void {
-    const fileName = `billet-${this.eventInfo.name.replace(/\s+/g, '-')}-${ticket.participantInfo.firstName}-${ticket.id.slice(-6)}.pdf`;
+    const fileName = `billet-${this.eventInfo.name.replace(/\s+/g, '-')}-${ticket.participant.firstName}-${ticket.id.slice(-6)}.pdf`;
     console.log('Génération du PDF:', fileName, pdfData);
 
     const link = document.createElement('a');
@@ -126,7 +120,7 @@ export class TicketDetailModalComponent {
     }
   }
 
-  formatDate(date: Date | string): string {
+  formatDate(date: string): string {
     return new Date(date).toLocaleDateString('fr-FR', {
       weekday: 'long',
       year: 'numeric',

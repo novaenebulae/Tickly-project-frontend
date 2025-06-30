@@ -13,7 +13,6 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
 import { ApiConfigService } from '../api-config.service';
-import { TicketApiMockService } from './ticket-api-mock.service';
 import { APP_CONFIG } from '../../../config/app-config';
 
 import { ReservationRequestDto, ReservationConfirmationModel } from '../../../models/tickets/reservation.model';
@@ -25,7 +24,6 @@ import { TicketModel } from '../../../models/tickets/ticket.model';
 export class TicketApiService {
   private apiConfig = inject(ApiConfigService);
   private http = inject(ApiConfigService).http;
-  private mockService = inject(TicketApiMockService);
 
   /**
    * Creates a new reservation and issues tickets.
@@ -36,9 +34,9 @@ export class TicketApiService {
   createReservation(reservationDto: ReservationRequestDto): Observable<ReservationConfirmationModel> {
     const endpointContext = APP_CONFIG.api.endpoints.ticketing.reservations;
 
-    if (this.apiConfig.isMockEnabledForDomain('ticketing')) {
-      return this.mockService.mockCreateReservation(reservationDto);
-    }
+    // if (this.apiConfig.isMockEnabledForDomain('ticketing')) {
+    //   return this.mockService.mockCreateReservation(reservationDto);
+    // }
 
     this.apiConfig.logApiRequest('POST', endpointContext, reservationDto);
     const url = this.apiConfig.getUrl(endpointContext);
@@ -57,9 +55,9 @@ export class TicketApiService {
   getMyTickets(): Observable<TicketModel[]> {
     const endpointContext = APP_CONFIG.api.endpoints.ticketing.myTickets;
 
-    if (this.apiConfig.isMockEnabledForDomain('ticketing')) {
-      return this.mockService.mockGetMyTickets();
-    }
+    // if (this.apiConfig.isMockEnabledForDomain('ticketing')) {
+    //   return this.mockService.mockGetMyTickets();
+    // }
 
     this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
@@ -79,9 +77,9 @@ export class TicketApiService {
   getTicketById(ticketId: string): Observable<TicketModel> {
     const endpointContext = APP_CONFIG.api.endpoints.ticketing.ticketById(ticketId);
 
-    if (this.apiConfig.isMockEnabledForDomain('ticketing')) {
-      return this.mockService.mockGetTicketById(ticketId);
-    }
+    // if (this.apiConfig.isMockEnabledForDomain('ticketing')) {
+    //   return this.mockService.mockGetTicketById(ticketId);
+    // }
 
     this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
@@ -105,9 +103,9 @@ export class TicketApiService {
     const validateEndpoint = APP_CONFIG.api.endpoints.ticketing.validateTicket || `ticketing/tickets/${ticketId}/validate`;
     const endpointContext = validateEndpoint; // For logging
 
-    if (this.apiConfig.isMockEnabledForDomain('ticketing')) {
-      return this.mockService.mockValidateTicket(ticketId);
-    }
+    // if (this.apiConfig.isMockEnabledForDomain('ticketing')) {
+    //   return this.mockService.mockValidateTicket(ticketId);
+    // }
 
     this.apiConfig.logApiRequest('POST', endpointContext, { ticketId }); // Or empty body
     const url = this.apiConfig.getUrl(endpointContext);

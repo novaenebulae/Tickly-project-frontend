@@ -50,7 +50,7 @@ export class UserTicketsPage implements OnInit, OnDestroy {
     const grouped = new Map<number, TicketModel[]>();
 
     tickets.forEach(ticket => {
-      const eventId = ticket.eventId;
+      const eventId = ticket.eventSnapshot.eventId;
       if (!grouped.has(eventId)) {
         grouped.set(eventId, []);
       }
@@ -75,7 +75,6 @@ export class UserTicketsPage implements OnInit, OnDestroy {
       }
     });
 
-    // Convertir en tableau pour éviter l'erreur ExpressionChangedAfterItHasBeenCheckedError
     return events;
   });
 
@@ -91,7 +90,6 @@ export class UserTicketsPage implements OnInit, OnDestroy {
       }
     });
 
-    // Convertir en tableau pour éviter l'erreur ExpressionChangedAfterItHasBeenCheckedError
     return events;
   });
 
@@ -120,12 +118,27 @@ export class UserTicketsPage implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Télécharge le PDF pour tous les billets d'un événement
+   */
+  downloadEventPdfs(tickets: TicketModel[]): void {
+    const ticketIds = tickets.map(ticket => ticket.id);
+    this.ticketService.downloadMultipleTicketsPdf(ticketIds).subscribe();
+  }
+
+  /**
+   * Télécharge le PDF pour un événement spécifique depuis la carte
+   */
+  downloadEventPdfsFromCard(event: Event, tickets: TicketModel[]): void {
+    event.stopPropagation(); // Empêche l'ouverture de la modal
+    this.downloadEventPdfs(tickets);
+  }
+
   openEventTickets(tickets: TicketModel[]): void {
     const dialogRef = this.dialog.open(TicketDetailModalComponent, {
       width: 'auto',
       maxWidth: '800px',
-      // maxHeight: '90vh',
-      data: { ticket: tickets } // Passer la liste de billets
+      data: { ticket: tickets }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -158,7 +171,6 @@ export class UserTicketsPage implements OnInit, OnDestroy {
     }
   }
 
-  // Méthodes utilitaires existantes...
   getStatusColor(status: TicketStatus): string {
     switch (status) {
       case TicketStatus.VALID:
@@ -189,7 +201,7 @@ export class UserTicketsPage implements OnInit, OnDestroy {
     }
   }
 
-  formatEventDate(date: Date | string): string {
+  formatEventDate(date: string): string {
     const eventDate = new Date(date);
     return eventDate.toLocaleDateString('fr-FR', {
       weekday: 'long',
@@ -200,4 +212,6 @@ export class UserTicketsPage implements OnInit, OnDestroy {
       minute: '2-digit'
     });
   }
+
+  protected readonly TicketStatus = TicketStatus;
 }
