@@ -69,6 +69,8 @@ export interface StructureModel {
    */
   coverUrl?: string;
 
+  galleryImageUrls?: string[];
+
   /**
    * The date and time when the structure was created.
    * Managed by the backend.

@@ -42,6 +42,7 @@ export class TicketPdfService {
 
       // Générer le canvas depuis l'HTML
       const canvas = await html2canvas(ticketElement, {
+        // @ts-ignore
         scale: 2,
         useCORS: true,
         allowTaint: true,
@@ -95,6 +96,7 @@ export class TicketPdfService {
         await this.waitForImages(ticketElement);
 
         const canvas = await html2canvas(ticketElement, {
+        // @ts-ignore
           scale: 2,
           useCORS: true,
           allowTaint: true,

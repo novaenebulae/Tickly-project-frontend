@@ -139,7 +139,7 @@ export const APP_CONFIG: AppConfig = {
       },
       structures: {
         base: 'structures', // GET (list)
-        byId: (id: number | string) => `structures/${id}`, // GET (single), PUT, DELETE
+        byId: (id: number | string) => `structures/${id}`, // GET (single), PATCH, DELETE
         types: 'structure-types', // GET structure types
         areas: (structureId: number | string) => `structures/${structureId}/areas`, // GET, POST (create area)
         areaById: (structureId: number | string, areaId: number | string) => `structures/${structureId}/areas/${areaId}`,
@@ -192,7 +192,7 @@ export const APP_CONFIG: AppConfig = {
     users: false,
     friendship: false,
     ticketing: false,
-    team: true,
+    team: false,
   },
 
   auth: {

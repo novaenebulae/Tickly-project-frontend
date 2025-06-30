@@ -121,19 +121,105 @@ export class StructureApiService {
    */
   updateStructure(id: number, structureApiDto: Partial<any>): Observable<any> {
     const endpointContext = APP_CONFIG.api.endpoints.structures.byId(id);
-    this.apiConfig.logApiRequest('PUT', endpointContext, structureApiDto);
-
-    if (this.apiConfig.isMockEnabledForDomain('structures')) {
-      return this.mockService.mockUpdateStructure(id, structureApiDto);
-    }
+    this.apiConfig.logApiRequest('PATCH', endpointContext, structureApiDto);
 
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
-    return this.http.put<any>(url, structureApiDto, { headers }).pipe(
-      tap(response => this.apiConfig.logApiResponse('PUT', endpointContext, response)),
+    return this.http.patch<any>(url, structureApiDto, { headers }).pipe(
+      tap(response => this.apiConfig.logApiResponse('PATCH', endpointContext, response)),
       catchError(error => this.handleStructureError(error, 'updateStructure'))
     );
   }
+
+  /**
+   * Upload une image pour la structure (logo ou couverture)
+   * @param structureId ID de la structure
+   * @param file Le fichier image à uploader
+   * @param type Le type d'image ('logo' ou 'cover')
+   * @returns Observable contenant l'URL de l'image uploadée
+   */
+  uploadStructureImage(structureId: number, file: File, type: 'logo' | 'cover'): Observable<{ fileName: string; fileUrl: string; message: string }> {
+    const endpointContext = `structures/${structureId}/${type}`;
+
+    const url = this.apiConfig.getUrl(endpointContext);
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    const headers = this.apiConfig.createFormDataHeaders();
+
+    this.apiConfig.logApiRequest('POST', endpointContext, 'FormData with file');
+    return this.http.post<{ fileName: string; fileUrl: string; message: string }>(url, formData, { headers }).pipe(
+      tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),
+      catchError(error => this.handleStructureError(error, 'uploadStructureImage'))
+    );
+  }
+
+  /**
+   * Upload une image pour la galerie de la structure
+   * @param structureId ID de la structure
+   * @param file Le fichier image à uploader
+   * @returns Observable contenant l'URL de l'image uploadée
+   */
+  uploadGalleryImage(structureId: number, file: File): Observable<{ fileName: string; fileUrl: string; message: string }> {
+    const endpointContext = `structures/${structureId}/gallery`;
+
+    const url = this.apiConfig.getUrl(endpointContext);
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    const headers = this.apiConfig.createFormDataHeaders();
+
+    this.apiConfig.logApiRequest('POST', endpointContext, 'FormData with file');
+    return this.http.post<{ fileName: string; fileUrl: string; message: string }>(url, formData, { headers }).pipe(
+      tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),
+      catchError(error => this.handleStructureError(error, 'uploadGalleryImage'))
+    );
+  }
+
+  /**
+   * Supprime une image de la galerie
+   * @param structureId ID de la structure
+   * @param imagePath URL de l'image à supprimer
+   * @returns Observable vide
+   */
+  deleteGalleryImage(structureId: number, imagePath: string): Observable<void> {
+    const endpointContext = `structures/${structureId}/gallery`;
+
+    // Créer les paramètres de requête avec imagePath
+    const httpParams = new HttpParams().set('imagePath', imagePath);
+
+    this.apiConfig.logApiRequest('DELETE', endpointContext, { imagePath });
+    const url = this.apiConfig.getUrl(endpointContext);
+    const headers = this.apiConfig.createHeaders();
+
+    return this.http.delete<void>(url, {
+      headers,
+      params: httpParams  // Utiliser params au lieu de body
+    }).pipe(
+      tap(() => this.apiConfig.logApiResponse('DELETE', endpointContext, 'Image de galerie supprimée')),
+      catchError(error => this.handleStructureError(error, 'deleteGalleryImage'))
+    );
+  }
+
+  /**
+   * Supprime une image de la structure (logo ou couverture)
+   * @param structureId ID de la structure
+   * @param type Le type d'image ('logo' ou 'cover')
+   * @returns Observable vide
+   */
+  deleteStructureImage(structureId: number, type: 'logo' | 'cover'): Observable<void> {
+    const endpointContext = `structures/${structureId}/${type}`;
+
+    this.apiConfig.logApiRequest('DELETE', endpointContext);
+    const url = this.apiConfig.getUrl(endpointContext);
+    const headers = this.apiConfig.createHeaders();
+
+    return this.http.delete<void>(url, { headers }).pipe(
+      tap(() => this.apiConfig.logApiResponse('DELETE', endpointContext, 'Image supprimée')),
+      catchError(error => this.handleStructureError(error, 'deleteStructureImage'))
+    );
+  }
+
 
   /**
    * Deletes a structure by its ID.

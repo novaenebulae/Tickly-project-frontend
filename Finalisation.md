@@ -1,6 +1,17 @@
 ### **Étape 1 : Finalisation de la Connexion à l'API**
 
-L'objectif est de s'assurer que tous les composants et services communiquent correctement avec le backend en utilisant des modèles de données (DTOs) cohérents.
+Formulaire structure à finaliser (design)
+Créer un onglet pour la gestion des médias.
+
+Vérifier les mises à jour en temps réel des données
+
+Areas et zones (finaliser)
+Team Management (finaliser)
+Événement Panel (finaliser)
+Calendrier (vérifier)
+
+Statistiques (supprimer) -> intégration sur le dashboard + dans les détails backoffice des événements, mais intégrer service stats dans backend
+
 
 #### **1.1. `StructureAPI` (Détails et Gestion Admin)**
 
@@ -20,10 +31,6 @@ L'objectif est de s'assurer que tous les composants et services communiquent cor
 * **Gestion Admin :** Le composant `events-panel.component.ts` liste les événements. Il faut s'assurer que les actions (suppression, modification de statut) sont bien connectées.
   * Le `EventFormComponent` (`event-form.component.ts`) est central. [cite_start]Lors de la soumission, il doit construire un `EventCreationDto` [cite: 415] [cite_start]ou `EventUpdateDto` [cite: 364] valide. [cite_start]Une attention particulière doit être portée à la construction du tableau `audienceZones` pour qu'il corresponde aux attentes de l'API[cite: 348].
   * [cite_start]La gestion des statuts (Brouillon, Publié, etc.) doit utiliser l'endpoint `PATCH /api/v1/events/{eventId}/status` [cite: 264] via le service `EventService`.
-
-#### **1.3. `TicketingAPI` (Réservation et Génération de PDF)**
-
-* **Génération de PDF :** La méthode `prepareTicketPdfData` dans `ticket.service.ts` doit être finalisée. Actuellement, elle semble récupérer les données nécessaires. L'étape suivante consiste à intégrer une bibliothèque comme `jspdf` et `jspdf-autotable` pour générer le fichier PDF côté client à partir des données structurées dans le `TicketPdfDataDto`.
 
 #### **1.4. `TeamManagementAPI` (Gestion Admin)**
 

@@ -234,6 +234,47 @@ export class StructureService {
     );
   }
 
+  /**
+   * Supprime une image de la structure
+   * @param structureId ID de la structure
+   * @param type Le type d'image ('logo' ou 'cover')
+   * @returns Observable vide
+   */
+  deleteStructureImage(structureId: number, type: 'logo' | 'cover'): Observable<void> {
+    return this.structureApi.deleteStructureImage(structureId, type);
+  }
+
+  /**
+   * Upload une image pour la structure (logo ou couverture)
+   * @param structureId ID de la structure
+   * @param file Le fichier image à uploader
+   * @param type Le type d'image ('logo' ou 'cover')
+   * @returns Observable contenant l'URL de l'image uploadée
+   */
+  uploadStructureImage(structureId: number, file: File, type: 'logo' | 'cover'): Observable<{ fileName: string; fileUrl: string; message: string }> {
+    return this.structureApi.uploadStructureImage(structureId, file, type);
+  }
+
+  /**
+   * Upload une image pour la galerie
+   * @param structureId ID de la structure
+   * @param file Le fichier image à uploader
+   * @returns Observable contenant l'URL de l'image uploadée
+   */
+  uploadGalleryImage(structureId: number, file: File): Observable<{ fileName: string; fileUrl: string; message: string }> {
+    return this.structureApi.uploadGalleryImage(structureId, file);
+  }
+
+  /**
+   * Supprime une image de la galerie
+   * @param structureId ID de la structure
+   * @param imagePath URL de l'image à supprimer
+   * @returns Observable vide
+   */
+  deleteGalleryImage(structureId: number, imagePath: string): Observable<void> {
+    return this.structureApi.deleteGalleryImage(structureId, imagePath);
+  }
+
   // --- Structure Type Operations ---
 
   /**

@@ -32,7 +32,7 @@
   </div>
 
   <!-- Indicateur de chargement global -->
-  <div *ngIf="isLoading() || isStructureLoading()" class="loading-section">
+  <div *ngIf="isLoading()" class="loading-section">
     <mat-card class="loading-card">
       <mat-card-content class="loading-content">
         <mat-progress-spinner mode="indeterminate" diameter="40" color="primary"></mat-progress-spinner>
@@ -42,7 +42,7 @@
   </div>
 
   <!-- Message d'erreur -->
-  <div *ngIf="errorLoading() && !isLoading() && !isStructureLoading()" class="error-section">
+  <div *ngIf="errorLoading() && !isLoading()" class="error-section">
     <mat-card class="error-card">
       <mat-card-content class="error-content">
         <mat-icon class="error-icon">error</mat-icon>
@@ -56,269 +56,351 @@
     </mat-card>
   </div>
 
-  <!-- Formulaire d'édition -->
-  <div *ngIf="!isLoading() && !isStructureLoading() && currentStructure() && !errorLoading()" class="form-section">
-    <form [formGroup]="structureForm" (ngSubmit)="onSave()">
+  <!-- Contenu principal -->
+  <div *ngIf="!isLoading() && currentStructure() && !errorLoading()" class="content-section">
 
-      <!-- Section A: Informations générales -->
-      <mat-card class="form-card general-info-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon class="section-icon">info</mat-icon>
-            Informations générales
-          </mat-card-title>
-          <mat-card-subtitle>
-            Nom, types et description de votre structure
-          </mat-card-subtitle>
-        </mat-card-header>
+    <!-- Formulaire d'édition (informations de base uniquement) -->
+    <div class="form-section">
+      <form [formGroup]="structureForm" (ngSubmit)="onSave()">
 
-        <mat-card-content>
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Nom de la structure *</mat-label>
-              <input matInput formControlName="name" placeholder="Nom de votre structure">
-              <mat-icon matSuffix>business</mat-icon>
-              <mat-error>{{ getFieldErrorMessage('name') }}</mat-error>
-            </mat-form-field>
-          </div>
+        <!-- Section A: Informations générales -->
+        <mat-card class="form-card general-info-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="section-icon">info</mat-icon>
+              Informations générales
+            </mat-card-title>
+            <mat-card-subtitle>
+              Nom, types et description de votre structure
+            </mat-card-subtitle>
+          </mat-card-header>
 
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Types de structure *</mat-label>
-              <mat-select formControlName="typeIds" multiple>
-                <mat-option
-                  *ngFor="let type of structureTypes()"
-                  [value]="type.id">
-                  {{ type.name }}
-                </mat-option>
-              </mat-select>
-              <mat-hint>Vous pouvez sélectionner plusieurs types</mat-hint>
-              <mat-error>{{ getFieldErrorMessage('typeIds') }}</mat-error>
-            </mat-form-field>
-          </div>
-
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Description</mat-label>
-              <textarea
-                matInput
-                formControlName="description"
-                rows="4"
-                placeholder="Décrivez votre structure, ses activités...">
-              </textarea>
-              <mat-hint>Maximum 1000 caractères</mat-hint>
-              <mat-error>{{ getFieldErrorMessage('description') }}</mat-error>
-            </mat-form-field>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Section B: Adresse -->
-      <mat-card class="form-card address-card" formGroupName="address">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon class="section-icon">location_on</mat-icon>
-            Adresse
-          </mat-card-title>
-          <mat-card-subtitle>
-            Localisation physique de votre structure
-          </mat-card-subtitle>
-        </mat-card-header>
-
-        <mat-card-content>
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Pays *</mat-label>
-              <input matInput formControlName="country" placeholder="France">
-              <mat-icon matSuffix>public</mat-icon>
-              <mat-error>{{ getFieldErrorMessage('address.country') }}</mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Ville *</mat-label>
-              <input matInput formControlName="city" placeholder="Paris">
-              <mat-icon matSuffix>location_city</mat-icon>
-              <mat-error>{{ getFieldErrorMessage('address.city') }}</mat-error>
-            </mat-form-field>
-          </div>
-
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="three-quarter-width">
-              <mat-label>Rue *</mat-label>
-              <input matInput formControlName="street" placeholder="123 Rue de la République">
-              <mat-icon matSuffix>home</mat-icon>
-              <mat-error>{{ getFieldErrorMessage('address.street') }}</mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="quarter-width">
-              <mat-label>Code postal</mat-label>
-              <input matInput formControlName="zipCode" placeholder="75001">
-              <mat-error>{{ getFieldErrorMessage('address.zipCode') }}</mat-error>
-            </mat-form-field>
-          </div>
-
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Complément d'adresse</mat-label>
-              <input matInput formControlName="number" placeholder="Bâtiment A, Étage 2...">
-              <mat-icon matSuffix>info</mat-icon>
-            </mat-form-field>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Section C: Contact -->
-      <mat-card class="form-card contact-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon class="section-icon">contact_phone</mat-icon>
-            Informations de contact
-          </mat-card-title>
-          <mat-card-subtitle>
-            Moyens de contacter votre structure
-          </mat-card-subtitle>
-        </mat-card-header>
-
-        <mat-card-content>
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Téléphone</mat-label>
-              <input matInput formControlName="phone" placeholder="+33 1 23 45 67 89">
-              <mat-icon matSuffix>phone</mat-icon>
-              <mat-error>{{ getFieldErrorMessage('phone') }}</mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="half-width">
-              <mat-label>Email</mat-label>
-              <input matInput type="email" formControlName="email" placeholder="contact@structure.com">
-              <mat-icon matSuffix>email</mat-icon>
-              <mat-error>{{ getFieldErrorMessage('email') }}</mat-error>
-            </mat-form-field>
-          </div>
-
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Site web</mat-label>
-              <input matInput formControlName="websiteUrl" placeholder="https://www.structure.com">
-              <mat-icon matSuffix>language</mat-icon>
-              <mat-error>{{ getFieldErrorMessage('websiteUrl') }}</mat-error>
-            </mat-form-field>
-          </div>
-
-          <!-- URLs sociales -->
-          <div class="socials-section">
-            <h4>Réseaux sociaux</h4>
-            <div formArrayName="socialsUrl">
-              <div *ngFor="let social of socialsUrlArray.controls; let i = index" class="social-url-row">
-                <mat-form-field appearance="outline" class="social-url-field">
-                  <mat-label>URL réseau social {{ i + 1 }}</mat-label>
-                  <input matInput [formControlName]="i" placeholder="https://www.facebook.com/structure">
-                  <mat-icon matSuffix>share</mat-icon>
-                </mat-form-field>
-                <button type="button" mat-icon-button color="warn" (click)="removeSocialUrl(i)" class="remove-social-btn">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            </div>
-            <button type="button" mat-stroked-button (click)="addSocialUrl()" class="add-social-btn">
-              <mat-icon>add</mat-icon>
-              Ajouter un réseau social
-            </button>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Section D: Médias -->
-      <mat-card class="form-card media-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon class="section-icon">image</mat-icon>
-            Images et médias
-          </mat-card-title>
-          <mat-card-subtitle>
-            Logo et image de couverture de votre structure
-          </mat-card-subtitle>
-        </mat-card-header>
-
-        <mat-card-content>
-          <div class="media-row">
-            <div class="media-item">
-              <h4>Logo</h4>
-              <p class="media-description">
-                Image principale de votre structure (recommandé: carré, 400x400px)
-              </p>
-
-              <div class="image-upload-section">
-                <div class="image-preview" *ngIf="logoPreviewUrl">
-                  <img [src]="logoPreviewUrl" alt="Aperçu du logo" class="preview-image">
-                  <button type="button" mat-icon-button color="warn" (click)="removeImage('logo')" class="remove-image-btn">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-
-                <div class="upload-controls">
-                  <input type="file" #logoInput (change)="onLogoFileSelected($event)" accept="image/*" style="display: none;">
-                  <button type="button" mat-stroked-button (click)="logoInput.click()">
-                    <mat-icon>upload</mat-icon>
-                    {{ logoPreviewUrl ? 'Changer' : 'Ajouter' }} le logo
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="media-item">
-              <h4>Image de couverture</h4>
-              <p class="media-description">
-                Image d'arrière-plan pour votre structure (recommandé: 1920x600px)
-              </p>
-
-              <div class="image-upload-section">
-                <div class="image-preview" *ngIf="coverPreviewUrl">
-                  <img [src]="coverPreviewUrl" alt="Aperçu de la couverture" class="preview-image cover-preview">
-                  <button type="button" mat-icon-button color="warn" (click)="removeImage('cover')" class="remove-image-btn">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-
-                <div class="upload-controls">
-                  <input type="file" #coverInput (change)="onCoverFileSelected($event)" accept="image/*" style="display: none;">
-                  <button type="button" mat-stroked-button (click)="coverInput.click()">
-                    <mat-icon>upload</mat-icon>
-                    {{ coverPreviewUrl ? 'Changer' : 'Ajouter' }} l'image de couverture
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Actions du formulaire -->
-      <div class="form-actions">
-        <mat-card class="actions-card">
           <mat-card-content>
-            <div class="actions-row">
-              <button type="button" mat-stroked-button (click)="onCancel()" [disabled]="isSaving()">
-                <mat-icon>cancel</mat-icon>
-                Annuler
-              </button>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Nom de la structure *</mat-label>
+                <input matInput formControlName="name" placeholder="Nom de votre structure">
+                <mat-icon matSuffix>business</mat-icon>
+                <mat-error>{{ getFieldErrorMessage('name') }}</mat-error>
+              </mat-form-field>
+            </div>
 
-              <div class="save-actions">
-                <button
-                  type="submit"
-                  mat-raised-button
-                  color="primary"
-                  [disabled]="!isFormValid || isSaving()">
-                  <mat-icon *ngIf="!isSaving()">save</mat-icon>
-                  <mat-progress-spinner *ngIf="isSaving()" diameter="20"></mat-progress-spinner>
-                  {{ isSaving() ? 'Sauvegarde...' : 'Sauvegarder les modifications' }}
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Types de structure *</mat-label>
+                <mat-select formControlName="typeIds" multiple>
+                  <mat-option
+                    *ngFor="let type of structureTypes()"
+                    [value]="type.id">
+                    {{ type.name }}
+                  </mat-option>
+                </mat-select>
+                <mat-hint>Vous pouvez sélectionner plusieurs types</mat-hint>
+                <mat-error>{{ getFieldErrorMessage('typeIds') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Description</mat-label>
+                <textarea
+                  matInput
+                  formControlName="description"
+                  rows="4"
+                  placeholder="Décrivez votre structure, ses activités...">
+                </textarea>
+                <mat-hint>Maximum 1000 caractères</mat-hint>
+                <mat-error>{{ getFieldErrorMessage('description') }}</mat-error>
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Section B: Adresse -->
+        <mat-card class="form-card address-card" formGroupName="address">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="section-icon">location_on</mat-icon>
+              Adresse
+            </mat-card-title>
+            <mat-card-subtitle>
+              Localisation physique de votre structure
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Pays *</mat-label>
+                <input matInput formControlName="country" placeholder="France">
+                <mat-icon matSuffix>public</mat-icon>
+                <mat-error>{{ getFieldErrorMessage('address.country') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Ville *</mat-label>
+                <input matInput formControlName="city" placeholder="Paris">
+                <mat-icon matSuffix>location_city</mat-icon>
+                <mat-error>{{ getFieldErrorMessage('address.city') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Rue *</mat-label>
+                <input matInput formControlName="street" placeholder="123 Rue de la République">
+                <mat-icon matSuffix>home</mat-icon>
+                <mat-error>{{ getFieldErrorMessage('address.street') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="quarter-width">
+                <mat-label>Numéro</mat-label>
+                <input matInput formControlName="number" placeholder="123">
+                <mat-error>{{ getFieldErrorMessage('address.number') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="quarter-width">
+                <mat-label>Code postal</mat-label>
+                <input matInput formControlName="zipCode" placeholder="75001">
+                <mat-error>{{ getFieldErrorMessage('address.zipCode') }}</mat-error>
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Section C: Contact -->
+        <mat-card class="form-card contact-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="section-icon">contact_phone</mat-icon>
+              Informations de contact
+            </mat-card-title>
+            <mat-card-subtitle>
+              Moyens de contact avec votre structure
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Téléphone</mat-label>
+                <input matInput formControlName="phone" placeholder="+33 1 23 45 67 89">
+                <mat-icon matSuffix>phone</mat-icon>
+                <mat-error>{{ getFieldErrorMessage('phone') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>E-mail</mat-label>
+                <input matInput formControlName="email" type="email" placeholder="contact@structure.com">
+                <mat-icon matSuffix>email</mat-icon>
+                <mat-error>{{ getFieldErrorMessage('email') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Site web</mat-label>
+                <input matInput formControlName="websiteUrl" placeholder="https://www.structure.com">
+                <mat-icon matSuffix>language</mat-icon>
+                <mat-error>{{ getFieldErrorMessage('websiteUrl') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- URLs sociales dynamiques -->
+            <div class="social-urls-section">
+              <div class="social-urls-header">
+                <h4>Réseaux sociaux</h4>
+                <button type="button" mat-icon-button color="primary" (click)="addSocialUrl()" matTooltip="Ajouter un réseau social">
+                  <mat-icon>add</mat-icon>
                 </button>
+              </div>
+
+              <div formArrayName="socialsUrl" class="social-urls-list">
+                <div *ngFor="let socialControl of socialsUrlArray.controls; let i = index" class="social-url-row">
+                  <mat-form-field appearance="outline" class="social-url-field">
+                    <mat-label>Réseau social {{ i + 1 }}</mat-label>
+                    <input matInput [formControlName]="i" placeholder="https://www.facebook.com/votre-page">
+                    <mat-icon matSuffix>share</mat-icon>
+                  </mat-form-field>
+                  <button type="button" mat-icon-button color="warn" (click)="removeSocialUrl(i)" matTooltip="Supprimer">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
               </div>
             </div>
           </mat-card-content>
         </mat-card>
-      </div>
 
-    </form>
+        <!-- Boutons de sauvegarde du formulaire -->
+        <div class="form-actions">
+          <mat-card class="actions-card">
+            <mat-card-content>
+              <div class="actions-content">
+                <div class="actions-info">
+                  <mat-icon class="info-icon">save</mat-icon>
+                  <div>
+                    <h4>Sauvegarder les informations</h4>
+                    <p>Les modifications des informations de base seront appliquées immédiatement.</p>
+                  </div>
+                </div>
+                <div class="actions-buttons">
+                  <button type="button" mat-button (click)="onCancel()" [disabled]="isSaving()">
+                    Annuler
+                  </button>
+                  <button type="submit" mat-raised-button color="primary" [disabled]="structureForm.invalid || isSaving()">
+                    <mat-progress-spinner *ngIf="isSaving()" diameter="20" color="primary"></mat-progress-spinner>
+                    <mat-icon *ngIf="!isSaving()">save</mat-icon>
+                    {{ isSaving() ? 'Sauvegarde...' : 'Sauvegarder' }}
+                  </button>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </form>
+    </div>
+
+    <!-- Section de gestion des images (complètement séparée du formulaire) -->
+    <div class="images-management-section">
+      <mat-card class="images-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon class="section-icon">image</mat-icon>
+            Images de la structure
+          </mat-card-title>
+          <mat-card-subtitle>
+            Gérez le logo, l'image de couverture et la galerie de votre structure
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <!-- Logo et Cover -->
+          <div class="main-images-row">
+            <!-- Logo -->
+            <div class="image-upload-section">
+              <h4 class="image-section-title">
+                <mat-icon>account_circle</mat-icon>
+                Logo
+              </h4>
+              <div class="image-preview-container">
+                <div class="image-preview" [class.has-image]="logoPreviewUrl" [class.uploading]="isUploadingLogoSig">
+                  <img *ngIf="logoPreviewUrl && !isUploadingLogoSig" [src]="logoPreviewUrl" alt="Aperçu logo" class="preview-image">
+                  <div *ngIf="!logoPreviewUrl && !isUploadingLogoSig" class="no-image-placeholder">
+                    <mat-icon>business</mat-icon>
+                    <span>Aucun logo</span>
+                  </div>
+                  <div *ngIf="isUploadingLogoSig" class="upload-progress">
+                    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+                    <span>Upload en cours...</span>
+                  </div>
+                </div>
+                <div class="image-actions">
+                  <input type="file" #logoInput (change)="onLogoSelected($event)" accept="image/*" style="display: none;">
+                  <button
+                    type="button"
+                    mat-raised-button
+                    color="primary"
+                    (click)="logoInput.click()"
+                    [disabled]="isUploadingLogoSig">
+                    <mat-icon>upload</mat-icon>
+                    {{ logoPreviewUrl ? 'Changer' : 'Ajouter' }}
+                  </button>
+                  <button
+                    *ngIf="logoPreviewUrl"
+                    type="button"
+                    mat-raised-button
+                    color="warn"
+                    (click)="removeLogo()"
+                    [disabled]="isUploadingLogoSig">
+                    <mat-icon>delete</mat-icon>
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cover -->
+            <div class="image-upload-section">
+              <h4 class="image-section-title">
+                <mat-icon>landscape</mat-icon>
+                Image de couverture
+              </h4>
+              <div class="image-preview-container">
+                <div class="image-preview cover-preview" [class.has-image]="coverPreviewUrl" [class.uploading]="isUploadingCoverSig">
+                  <img *ngIf="coverPreviewUrl && !isUploadingCoverSig" [src]="coverPreviewUrl" alt="Aperçu couverture" class="preview-image">
+                  <div *ngIf="!coverPreviewUrl && !isUploadingCoverSig" class="no-image-placeholder">
+                    <mat-icon>landscape</mat-icon>
+                    <span>Aucune couverture</span>
+                  </div>
+                  <div *ngIf="isUploadingCoverSig" class="upload-progress">
+                    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+                    <span>Upload en cours...</span>
+                  </div>
+                </div>
+                <div class="image-actions">
+                  <input type="file" #coverInput (change)="onCoverSelected($event)" accept="image/*" style="display: none;">
+                  <button
+                    type="button"
+                    mat-raised-button
+                    color="primary"
+                    (click)="coverInput.click()"
+                    [disabled]="isUploadingCoverSig">
+                    <mat-icon>upload</mat-icon>
+                    {{ coverPreviewUrl ? 'Changer' : 'Ajouter' }}
+                  </button>
+                  <button
+                    *ngIf="coverPreviewUrl"
+                    type="button"
+                    mat-raised-button
+                    color="warn"
+                    (click)="removeCover()"
+                    [disabled]="isUploadingCoverSig">
+                    <mat-icon>delete</mat-icon>
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Galerie -->
+          <div class="gallery-section">
+            <div class="gallery-header">
+              <h4 class="image-section-title">
+                <mat-icon>photo_library</mat-icon>
+                Galerie d'images
+              </h4>
+              <button type="button" mat-raised-button color="accent" (click)="openGalleryManager()">
+                <mat-icon>edit</mat-icon>
+                Gérer la galerie
+              </button>
+            </div>
+
+            <div class="gallery-preview" *ngIf="currentStructure()?.galleryImageUrls && currentStructure()!.galleryImageUrls!.length > 0">
+              <div class="gallery-grid">
+                <div
+                  *ngFor="let imageUrl of currentStructure()!.galleryImageUrls!.slice(0, 6); trackBy: trackByImageUrl"
+                  class="gallery-item">
+                  <img [src]="imageUrl" [alt]="'Image galerie'" class="gallery-thumbnail">
+                </div>
+                <div *ngIf="currentStructure()!.galleryImageUrls!.length > 6" class="gallery-more">
+                  <span>+{{ currentStructure()!.galleryImageUrls!.length - 6 }} image(s)</span>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="!currentStructure()?.galleryImageUrls || currentStructure()!.galleryImageUrls!.length === 0" class="no-gallery">
+              <mat-icon>photo_library</mat-icon>
+              <p>Aucune image dans la galerie</p>
+              <button type="button" mat-raised-button color="primary" (click)="openGalleryManager()">
+                <mat-icon>add_photo_alternate</mat-icon>
+                Ajouter des images
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
   </div>
 </div>
