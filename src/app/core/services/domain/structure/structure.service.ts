@@ -35,7 +35,8 @@ import {
 } from '../../../models/event/event-audience-zone.model';
 import {ApiConfigService} from '../../api/api-config.service';
 import {Router} from '@angular/router';
-import {StructureSummaryModel} from '../../../models/structure/structure-summary.model'; // For token updates and user context
+import {StructureSummaryModel} from '../../../models/structure/structure-summary.model';
+import {FileUploadResponse} from '../../../models/files/file-upload-response.model'; // For token updates and user context
 
 @Injectable({
   providedIn: 'root'
@@ -264,6 +265,17 @@ export class StructureService {
   uploadGalleryImage(structureId: number, file: File): Observable<{ fileName: string; fileUrl: string; message: string }> {
     return this.structureApi.uploadGalleryImage(structureId, file);
   }
+
+  /**
+   * Upload multiple images pour la galerie de la structure
+   * @param structureId ID de la structure
+   * @param files Les fichiers images à uploader
+   * @returns Observable contenant la liste des URLs des images uploadées
+   */
+  uploadMultipleGalleryImages(structureId: number, files: File[]): Observable<FileUploadResponse[]> {
+    return this.structureApi.uploadMultipleGalleryImages(structureId, files);
+  }
+
 
   /**
    * Supprime une image de la galerie

@@ -30,6 +30,7 @@ import {
   StructureGalleryManagerComponent
 } from '../../../../../../shared/domain/structures/structure-gallery-manager/structure-gallery-manager.component';
 
+
 @Component({
   selector: 'app-structure-edit',
   standalone: true,
@@ -75,8 +76,10 @@ export class StructureEditComponent implements OnInit, OnDestroy {
   coverPreviewUrl: string | null = null;
   selectedLogoFile: File | null = null;
   selectedCoverFile: File | null = null;
+  selectedGalleryFiles: File[] = [];
   isUploadingLogo = signal(false);
   isUploadingCover = signal(false);
+  isUploadingGallery = signal(false);
 
   // Pour cleanup
   private subscriptions = new Subscription();
@@ -203,187 +206,6 @@ export class StructureEditComponent implements OnInit, OnDestroy {
     this.coverPreviewUrl = structure.coverUrl || null;
   }
 
-  // --- Gestion des images (en dehors du formulaire) ---
-
-  /**
-   * Gestionnaire pour la sélection du logo
-   */
-  onLogoSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      this.selectedLogoFile = file;
-
-      // Créer une preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.logoPreviewUrl = e.target?.result as string;
-        this.cdRef.markForCheck();
-      };
-      reader.readAsDataURL(file);
-
-      // Upload immédiat du logo
-      this.uploadLogo();
-    }
-  }
-
-  /**
-   * Gestionnaire pour la sélection de la couverture
-   */
-  onCoverSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      this.selectedCoverFile = file;
-
-      // Créer une preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.coverPreviewUrl = e.target?.result as string;
-        this.cdRef.markForCheck();
-      };
-      reader.readAsDataURL(file);
-
-      // Upload immédiat de la couverture
-      this.uploadCover();
-    }
-  }
-
-  /**
-   * Upload du logo vers /api/v1/structures/{structureId}/logo
-   */
-  private uploadLogo(): void {
-    const currentStructure = this.currentStructure();
-    if (!this.selectedLogoFile || !currentStructure?.id) return;
-
-    this.isUploadingLogo.set(true);
-
-    this.structureService.uploadStructureImage(currentStructure.id, this.selectedLogoFile, 'logo').pipe(
-      finalize(() => {
-        this.isUploadingLogo.set(false);
-        this.cdRef.markForCheck();
-      })
-    ).subscribe({
-      next: (response) => {
-        this.notificationService.displayNotification('Logo mis à jour avec succès', 'valid');
-        this.selectedLogoFile = null;
-        // Mettre à jour la preview avec l'URL retournée par l'API
-        this.logoPreviewUrl = response.fileUrl;
-        // Recharger la structure pour avoir les données à jour
-        this.userStructureService.refreshUserStructure().subscribe();
-      },
-      error: (error) => {
-        console.error('Erreur lors de l\'upload du logo:', error);
-        this.notificationService.displayNotification('Erreur lors de l\'upload du logo', 'error');
-        // Restaurer l'ancienne preview
-        this.setupImagePreviews(currentStructure);
-        this.cdRef.markForCheck();
-      }
-    });
-  }
-
-  /**
-   * Upload de la couverture vers /api/v1/structures/{structureId}/cover
-   */
-  private uploadCover(): void {
-    const currentStructure = this.currentStructure();
-    if (!this.selectedCoverFile || !currentStructure?.id) return;
-
-    this.isUploadingCover.set(true);
-
-    this.structureService.uploadStructureImage(currentStructure.id, this.selectedCoverFile, 'cover').pipe(
-      finalize(() => {
-        this.isUploadingCover.set(false);
-        this.cdRef.markForCheck();
-      })
-    ).subscribe({
-      next: (response) => {
-        this.notificationService.displayNotification('Couverture mise à jour avec succès', 'valid');
-        this.selectedCoverFile = null;
-        // Mettre à jour la preview avec l'URL retournée par l'API
-        this.coverPreviewUrl = response.fileUrl;
-        // Recharger la structure pour avoir les données à jour
-        this.userStructureService.refreshUserStructure().subscribe();
-      },
-      error: (error) => {
-        console.error('Erreur lors de l\'upload de la couverture:', error);
-        this.notificationService.displayNotification('Erreur lors de l\'upload de la couverture', 'error');
-        // Restaurer l'ancienne preview
-        this.setupImagePreviews(currentStructure);
-        this.cdRef.markForCheck();
-      }
-    });
-  }
-
-  /**
-   * Supprime le logo
-   */
-  removeLogo(): void {
-    const currentStructure = this.currentStructure();
-    if (!currentStructure?.id || !currentStructure.logoUrl) return;
-
-    this.structureService.deleteStructureImage(currentStructure.id, 'logo').subscribe({
-      next: () => {
-        this.logoPreviewUrl = null;
-        this.selectedLogoFile = null;
-        this.notificationService.displayNotification('Logo supprimé', 'valid');
-        // Recharger la structure pour avoir les données à jour
-        this.userStructureService.refreshUserStructure().subscribe();
-      },
-      error: (error) => {
-        console.error('Erreur lors de la suppression du logo:', error);
-        this.notificationService.displayNotification('Erreur lors de la suppression du logo', 'error');
-      }
-    });
-  }
-
-  /**
-   * Supprime la couverture
-   */
-  removeCover(): void {
-    const currentStructure = this.currentStructure();
-    if (!currentStructure?.id || !currentStructure.coverUrl) return;
-
-    this.structureService.deleteStructureImage(currentStructure.id, 'cover').subscribe({
-      next: () => {
-        this.coverPreviewUrl = null;
-        this.selectedCoverFile = null;
-        this.notificationService.displayNotification('Couverture supprimée', 'valid');
-        // Recharger la structure pour avoir les données à jour
-        this.userStructureService.refreshUserStructure().subscribe();
-      },
-      error: (error) => {
-        console.error('Erreur lors de la suppression de la couverture:', error);
-        this.notificationService.displayNotification('Erreur lors de la suppression de la couverture', 'error');
-      }
-    });
-  }
-
-  /**
-   * Ouvre le gestionnaire de galerie
-   */
-  openGalleryManager(): void {
-    const currentStructure = this.currentStructure();
-    if (!currentStructure) return;
-
-    const dialogRef = this.dialog.open(StructureGalleryManagerComponent, {
-      width: '800px',
-      maxWidth: '90vw',
-      data: { structure: currentStructure }
-    });
-
-    dialogRef.afterClosed().subscribe(() => {
-      // Recharger la structure pour avoir la galerie à jour
-      this.userStructureService.refreshUserStructure().subscribe();
-    });
-  }
-
-  /**
-   * TrackBy function pour les images de galerie
-   */
-  trackByImageUrl(index: number, item: string): string {
-    return item;
-  }
 
   // --- Méthodes du formulaire (uniquement pour les informations de base) ---
 
@@ -509,5 +331,9 @@ export class StructureEditComponent implements OnInit, OnDestroy {
 
   get isUploadingCoverSig() {
     return this.isUploadingCover();
+  }
+
+  get isUploadingGallerySig() {
+    return this.isUploadingGallery();
   }
 }

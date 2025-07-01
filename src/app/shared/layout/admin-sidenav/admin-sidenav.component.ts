@@ -53,6 +53,11 @@ export class AdminSidenavComponent {
           route: 'edit',
         },
         {
+          icon: 'photo',
+          label: 'Médias',
+          route: 'medias',
+        },
+        {
           icon: 'groups',
           label: 'Équipe',
           route: 'team',

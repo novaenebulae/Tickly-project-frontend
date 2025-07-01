@@ -14,6 +14,7 @@ import { StructureEditComponent } from './panels/structure/structure-edit/struct
 import { TeamManagementComponent } from './panels/structure/team-management/team-management.component';
 import { AreasManagementComponent } from './panels/structure/areas-management/areas-management.component';
 import {EventFormComponent} from './panels/events/event-form/event-form.component';
+import {StructureMediasComponent} from './panels/structure/structure-medias/structure-medias.component';
 
 /**
  * Admin area routes configuration
@@ -87,6 +88,11 @@ export const adminRoutes: Routes = [
         path: 'structure/edit',
         component: StructureEditComponent,
         title: 'Modifier la structure | Administration'
+      },
+      {
+        path: 'structure/medias',
+        component: StructureMediasComponent,
+        title: 'Ajouter des photos à la structure | Administration'
       },
       {
         path: 'structure/team',

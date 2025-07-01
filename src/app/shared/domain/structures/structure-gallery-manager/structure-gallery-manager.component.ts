@@ -6,8 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { forkJoin, of } from 'rxjs';
-import { finalize, switchMap } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 
 import { StructureModel } from '../../../../core/models/structure/structure.model';
 import { StructureService } from '../../../../core/services/domain/structure/structure.service';
@@ -15,6 +14,13 @@ import { NotificationService } from '../../../../core/services/domain/utilities/
 
 interface GalleryDialogData {
   structure: StructureModel;
+}
+
+// Interface pour la réponse d'upload (identique à celle du formulaire)
+interface FileUploadResponseDto {
+  fileName: string;
+  fileUrl: string;
+  message: string;
 }
 
 @Component({
@@ -202,8 +208,23 @@ export class StructureGalleryManagerComponent {
 
   onFilesSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files) {
+    if (input.files && input.files.length > 0) {
       const files = Array.from(input.files);
+
+      // Vérifier la taille totale (max 50MB comme dans le formulaire)
+      const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+      const maxSizeInBytes = 50 * 1024 * 1024; // 50MB
+
+      if (totalSize > maxSizeInBytes) {
+        this.notificationService.displayNotification(
+          'La taille totale des fichiers dépasse 50MB. Veuillez sélectionner moins de fichiers.',
+          'error'
+        );
+        // Réinitialiser l'input
+        input.value = '';
+        return;
+      }
+
       this.selectedFilesSig.set(files);
     }
   }
@@ -214,13 +235,8 @@ export class StructureGalleryManagerComponent {
 
     this.isUploadingSig.set(true);
 
-    // Créer un array d'observables pour tous les uploads
-    const uploadTasks = files.map(file =>
-      this.structureService.uploadGalleryImage(this.data.structure.id!, file)
-    );
-
-    // Exécuter tous les uploads en parallèle
-    forkJoin(uploadTasks).pipe(
+    // ✅ CORRECTION : Utiliser uploadMultipleGalleryImages au lieu de forkJoin
+    this.structureService.uploadMultipleGalleryImages(this.data.structure.id!, files).pipe(
       finalize(() => {
         this.isUploadingSig.set(false);
         this.selectedFilesSig.set([]);
@@ -231,21 +247,21 @@ export class StructureGalleryManagerComponent {
         }
       })
     ).subscribe({
-      next: (responses) => {
-        // Ajouter les nouvelles URLs à la galerie en utilisant fileUrl
+      next: (responses: FileUploadResponseDto[]) => {
+        // Ajouter les nouvelles URLs à la galerie
         const newUrls = responses.map(response => response.fileUrl);
         const currentImages = this.galleryImages();
         this.galleryImagesSig.set([...currentImages, ...newUrls]);
 
         this.notificationService.displayNotification(
-          `${newUrls.length} image(s) ajoutée(s) à la galerie`,
+          `${newUrls.length} image(s) ajoutée(s) à la galerie avec succès`,
           'valid'
         );
       },
       error: (error) => {
-        console.error('Erreur lors de l\'upload:', error);
+        console.error('Erreur lors de l\'upload des images de galerie:', error);
         this.notificationService.displayNotification(
-          'Erreur lors de l\'upload des images',
+          'Erreur lors de l\'upload des images de galerie',
           'error'
         );
       }

@@ -8,7 +8,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpErrorResponse, HttpParams } from '@angular/common/http'; // HttpParams might not be needed if no query params for some methods
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import {catchError, map, tap} from 'rxjs/operators';
 
 import { ApiConfigService } from '../api-config.service';
 import { StructureApiMockService } from './structure-api-mock.service';
@@ -17,6 +17,7 @@ import { APP_CONFIG } from '../../../config/app-config'; // Adjusted path assumi
 // DTOs for API interaction
 import { StructureCreationResponseDto } from '../../../models/structure/structure.model'; // Assuming structure.model.ts has DTOs
 import { StructureSearchParams } from '../../../models/structure/structure-search-params.model';
+import {FileUploadResponse} from '../../../models/files/file-upload-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -138,7 +139,7 @@ export class StructureApiService {
    * @param type Le type d'image ('logo' ou 'cover')
    * @returns Observable contenant l'URL de l'image uploadée
    */
-  uploadStructureImage(structureId: number, file: File, type: 'logo' | 'cover'): Observable<{ fileName: string; fileUrl: string; message: string }> {
+  uploadStructureImage(structureId: number, file: File, type: 'logo' | 'cover'): Observable<FileUploadResponse> {
     const endpointContext = `structures/${structureId}/${type}`;
 
     const url = this.apiConfig.getUrl(endpointContext);
@@ -155,26 +156,45 @@ export class StructureApiService {
   }
 
   /**
-   * Upload une image pour la galerie de la structure
+   * Upload multiple images pour la galerie de la structure (nouveau endpoint)
    * @param structureId ID de la structure
-   * @param file Le fichier image à uploader
-   * @returns Observable contenant l'URL de l'image uploadée
+   * @param files Les fichiers images à uploader (max 50MB total)
+   * @returns Observable contenant la liste des URLs des images uploadées
    */
-  uploadGalleryImage(structureId: number, file: File): Observable<{ fileName: string; fileUrl: string; message: string }> {
+  uploadMultipleGalleryImages(structureId: number, files: File[]): Observable<FileUploadResponse[]> {
     const endpointContext = `structures/${structureId}/gallery`;
 
     const url = this.apiConfig.getUrl(endpointContext);
     const formData = new FormData();
-    formData.append('file', file, file.name);
+
+    // Ajouter tous les fichiers avec le nom 'files'
+    files.forEach(file => {
+      formData.append('files', file, file.name);
+    });
 
     const headers = this.apiConfig.createFormDataHeaders();
 
-    this.apiConfig.logApiRequest('POST', endpointContext, 'FormData with file');
-    return this.http.post<{ fileName: string; fileUrl: string; message: string }>(url, formData, { headers }).pipe(
+    this.apiConfig.logApiRequest('POST', endpointContext, `FormData with ${files.length} files`);
+    return this.http.post<FileUploadResponse[]>(url, formData, { headers }).pipe(
       tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),
-      catchError(error => this.handleStructureError(error, 'uploadGalleryImage'))
+      catchError(error => this.handleStructureError(error, 'uploadMultipleGalleryImages'))
     );
   }
+
+  /**
+   * @deprecated Use uploadMultipleGalleryImages instead
+   * Upload une seule image pour la galerie de la structure
+   * @param structureId ID de la structure
+   * @param file Le fichier image à uploader
+   * @returns Observable contenant l'URL de l'image uploadée
+   */
+  uploadGalleryImage(structureId: number, file: File): Observable<FileUploadResponse> {
+    // Utilise la nouvelle méthode avec un seul fichier
+    return this.uploadMultipleGalleryImages(structureId, [file]).pipe(
+      map(responses => responses[0])
+    );
+  }
+
 
   /**
    * Supprime une image de la galerie

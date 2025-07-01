@@ -1,0 +1,219 @@
+<div class="structure-medias-container">
+  <!-- Section Header -->
+  <div class="header-section">
+    <mat-card class="header-card">
+      <mat-card-content class="header-content">
+        <div class="breadcrumb-section">
+          <button mat-icon-button class="back-button" (click)="goBack()" matTooltip="Retour">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <div class="breadcrumb">
+            <span class="breadcrumb-item">Structure</span>
+            <mat-icon class="breadcrumb-separator">chevron_right</mat-icon>
+            <span class="breadcrumb-item current">Médias</span>
+          </div>
+        </div>
+        <div class="header-info">
+          <h1 class="page-title">
+            <mat-icon class="title-icon">photo</mat-icon>
+            Gestion des médias
+          </h1>
+          <p class="page-subtitle">
+            Gérez le logo, l'image de couverture et la galerie de votre structure
+          </p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Section de chargement -->
+  <div class="loading-section" *ngIf="isLoading()">
+    <mat-card class="loading-card">
+      <mat-card-content class="loading-content">
+        <mat-progress-spinner mode="indeterminate" diameter="40" color="primary"></mat-progress-spinner>
+        <p>Chargement des informations de la structure...</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="errorLoading() && !isLoading()" class="error-section">
+    <mat-card class="error-card">
+      <mat-card-content class="error-content">
+        <mat-icon class="error-icon">error</mat-icon>
+        <h3>Erreur de chargement</h3>
+        <p>{{ errorLoading() }}</p>
+        <button mat-raised-button color="primary" (click)="loadInitialData()">
+          <mat-icon>refresh</mat-icon>
+          Réessayer
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Contenu principal -->
+  <div *ngIf="!isLoading() && currentStructure() && !errorLoading()" class="content-section">
+    <mat-card class="main-form-card">
+      <!-- Section D: Gestion des images (intégrée dans le formulaire) -->
+      <div class="form-section images-section">
+        <div class="section-header">
+          <mat-icon class="section-icon">image</mat-icon>
+          <div class="section-title-group">
+            <h3 class="section-title">Images de la structure</h3>
+            <p class="section-subtitle">Gérez le logo, l'image de couverture et la galerie de votre structure</p>
+          </div>
+        </div>
+
+        <div class="section-content">
+          <!-- Logo et Cover avec nouvelle disposition -->
+          <div class="main-images-row">
+            <!-- Logo (carré) -->
+            <div class="logo-upload-section">
+              <h4 class="image-section-title">
+                <mat-icon>account_circle</mat-icon>
+                Logo
+              </h4>
+              <div class="image-preview-container">
+                <div class="logo-preview" [class.has-image]="logoPreviewUrl" [class.uploading]="isUploadingLogo()">
+                  <img *ngIf="logoPreviewUrl && !isUploadingLogo()" [src]="logoPreviewUrl" alt="Aperçu logo" class="preview-image">
+                  <div *ngIf="!logoPreviewUrl && !isUploadingLogo()" class="no-image-placeholder">
+                    <mat-icon>business</mat-icon>
+                    <span>Aucun logo</span>
+                  </div>
+                  <div *ngIf="isUploadingLogo()" class="upload-progress">
+                    <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
+                    <span>Upload...</span>
+                  </div>
+                </div>
+                <div class="image-actions">
+                  <input type="file" #logoInput (change)="onLogoSelected($event)" accept="image/*" style="display: none;">
+                  <button
+                    type="button"
+                    mat-raised-button
+                    color="primary"
+                    (click)="logoInput.click()"
+                    [disabled]="isUploadingLogo()">
+                    <mat-icon>upload</mat-icon>
+                    {{ logoPreviewUrl ? 'Changer' : 'Ajouter' }}
+                  </button>
+                  <button
+                    *ngIf="logoPreviewUrl"
+                    type="button"
+                    mat-raised-button
+                    color="warn"
+                    (click)="deleteLogo()"
+                    [disabled]="isUploadingLogo()">
+                    <mat-icon>delete</mat-icon>
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cover (rectangle) -->
+            <div class="cover-upload-section">
+              <h4 class="image-section-title">
+                <mat-icon>landscape</mat-icon>
+                Image de couverture
+              </h4>
+              <div class="image-preview-container">
+                <div class="cover-preview" [class.has-image]="coverPreviewUrl" [class.uploading]="isUploadingCover()">
+                  <img *ngIf="coverPreviewUrl && !isUploadingCover()" [src]="coverPreviewUrl" alt="Aperçu couverture" class="preview-image">
+                  <div *ngIf="!coverPreviewUrl && !isUploadingCover()" class="no-image-placeholder">
+                    <mat-icon>landscape</mat-icon>
+                    <span>Aucune couverture</span>
+                  </div>
+                  <div *ngIf="isUploadingCover()" class="upload-progress">
+                    <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
+                    <span>Upload...</span>
+                  </div>
+                </div>
+                <div class="image-actions">
+                  <input type="file" #coverInput (change)="onCoverSelected($event)" accept="image/*" style="display: none;">
+                  <button
+                    type="button"
+                    mat-raised-button
+                    color="primary"
+                    (click)="coverInput.click()"
+                    [disabled]="isUploadingCover()">
+                    <mat-icon>upload</mat-icon>
+                    {{ coverPreviewUrl ? 'Changer' : 'Ajouter' }}
+                  </button>
+                  <button
+                    *ngIf="coverPreviewUrl"
+                    type="button"
+                    mat-raised-button
+                    color="warn"
+                    (click)="deleteCover()"
+                    [disabled]="isUploadingCover()">
+                    <mat-icon>delete</mat-icon>
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Galerie avec upload multiple -->
+          <div class="gallery-section">
+            <div class="gallery-header">
+              <h4 class="image-section-title">
+                <mat-icon>photo_library</mat-icon>
+                Galerie d'images
+              </h4>
+              <div class="gallery-actions">
+                <input type="file" #galleryInput (change)="onGallerySelected($event)" accept="image/*" multiple style="display: none;">
+                <button
+                  type="button"
+                  mat-raised-button
+                  color="accent"
+                  (click)="galleryInput.click()"
+                  [disabled]="isUploadingGallery()">
+                  <mat-icon>add_photo_alternate</mat-icon>
+                  {{ isUploadingGallery() ? 'Upload en cours...' : 'Ajouter des images' }}
+                </button>
+                <button type="button" mat-raised-button color="primary" (click)="openGalleryManager()">
+                  <mat-icon>edit</mat-icon>
+                  Gérer la galerie
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="isUploadingGallery()" class="gallery-upload-progress">
+              <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
+              <span>Upload des images en cours...</span>
+            </div>
+
+            <div class="gallery-preview" *ngIf="currentStructure()?.galleryImageUrls && currentStructure()!.galleryImageUrls!.length > 0">
+              <div class="gallery-grid">
+                <div
+                  *ngFor="let imageUrl of currentStructure()!.galleryImageUrls!.slice(0, 6); trackBy: trackByImageUrl"
+                  class="gallery-item">
+                  <img [src]="imageUrl" [alt]="'Image galerie'" class="gallery-thumbnail">
+                </div>
+                <div *ngIf="currentStructure()!.galleryImageUrls!.length > 6" class="gallery-more">
+                  <span>+{{ currentStructure()!.galleryImageUrls!.length - 6 }} image(s)</span>
+                </div>
+              </div>
+              <p class="gallery-hint">Limite : 50MB par upload, plusieurs fichiers acceptés</p>
+            </div>
+
+            <div *ngIf="!currentStructure()?.galleryImageUrls || currentStructure()!.galleryImageUrls!.length === 0" class="no-gallery">
+              <mat-icon>photo_library</mat-icon>
+              <p>Aucune image dans la galerie</p>
+              <button
+                type="button"
+                mat-raised-button
+                color="primary"
+                (click)="galleryInput.click()"
+                [disabled]="isUploadingGallery()">
+                <mat-icon>add_photo_alternate</mat-icon>
+                Ajouter des images
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+</div>
