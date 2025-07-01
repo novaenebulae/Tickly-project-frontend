@@ -174,7 +174,12 @@ export class EventApiService {
    */
   getHomePageEvents(count: number = APP_CONFIG.events.defaultHomeCount): Observable<any[]> {
     const params: EventSearchParams = {
-
+      displayOnHomepage: true,
+      status: EventStatus.PUBLISHED,
+      sortBy: 'startDate',
+      sortDirection: 'asc',
+      pageSize: count,
+      page: 0
     };
     return this.getEvents(params); // Delegates to the main getEvents method
   }
