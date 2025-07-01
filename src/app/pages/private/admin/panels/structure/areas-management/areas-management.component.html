@@ -37,10 +37,10 @@
               <p class="area-details">
                 <span class="capacity">
                   <mat-icon class="mr-1">people</mat-icon>
-                   {{ area.maxCapacity }} places
+                  {{ area.maxCapacity }} places
                 </span>
-                <span class="status" [class.active]="area.isActive" [class.inactive]="!area.isActive">
-                  {{ area.isActive ? 'Actif' : 'Inactif' }}
+                <span class="status" [class.active]="area.active" [class.inactive]="!area.active">
+                  {{ area.active ? 'Actif' : 'Inactif' }}
                 </span>
               </p>
               @if (area.description) {
@@ -71,7 +71,7 @@
         @if (selectedArea()) {
           <button
             class="btn btn-primary btn-sm"
-            (click)="onShowCreateAudienceZoneForm()">
+            (click)="onShowCreateAudienceZoneTemplateForm()">
             <mat-icon>add</mat-icon>Ajouter une Zone
           </button>
         }
@@ -88,13 +88,13 @@
         </div>
 
         <div class="audience-zones-list">
-          @if (audienceZones().length === 0) {
+          @if (audienceZoneTemplates().length === 0) {
             <div class="empty-state">
               <p>Aucune zone d'audience définie pour cet espace.</p>
             </div>
           }
 
-          @for (zone of audienceZones(); track zone.id) {
+          @for (zone of audienceZoneTemplates(); track zone.id) {
             <div class="zone-card">
               <div class="zone-info">
                 <h5>{{ zone.name }}</h5>
@@ -105,20 +105,20 @@
                   <span class="seating-type">
                     <mat-icon>chair</mat-icon> {{ getSeatingTypeLabel(zone.seatingType) }}
                   </span>
-                  <span class="status" [class.active]="zone.isActive" [class.inactive]="!zone.isActive">
-                    {{ zone.isActive ? 'Actif' : 'Inactif' }}
+                  <span class="status" [class.active]="zone.active" [class.inactive]="!zone.active">
+                    {{ zone.active ? 'Actif' : 'Inactif' }}
                   </span>
                 </div>
               </div>
               <div class="zone-actions">
                 <button
                   class="btn btn-outline-primary btn-sm"
-                  (click)="onEditAudienceZone(zone)">
+                  (click)="onEditAudienceZoneTemplate(zone)">
                   <mat-icon>edit</mat-icon>
                 </button>
                 <button
                   class="btn btn-outline-danger btn-sm"
-                  (click)="onDeleteAudienceZone(zone)">
+                  (click)="onDeleteAudienceZoneTemplate(zone)">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
@@ -213,16 +213,16 @@
 
   <!-- Audience Zone Form Modal -->
   @if (showAudienceZoneForm()) {
-    <div class="modal-backdrop" (click)="onCancelAudienceZoneForm()">
+    <div class="modal-backdrop" (click)="onCancelAudienceZoneTemplateForm()">
       <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <h4>{{ editingAudienceZone() ? 'Modifier' : 'Créer' }} une Zone d'Audience</h4>
-          <button class="btn-close" (click)="onCancelAudienceZoneForm()">
+          <button class="btn-close" (click)="onCancelAudienceZoneTemplateForm()">
             <mat-icon>close</mat-icon>
           </button>
         </div>
 
-        <form [formGroup]="audienceZoneForm" (ngSubmit)="onSaveAudienceZone()">
+        <form [formGroup]="audienceZoneForm" (ngSubmit)="onSaveAudienceZoneTemplate()">
           <div class="modal-body">
             <div class="form-group">
               <label for="zoneName">Nom de la zone *</label>
@@ -280,7 +280,7 @@
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="onCancelAudienceZoneForm()">
+            <button type="button" class="btn btn-secondary" (click)="onCancelAudienceZoneTemplateForm()">
               Annuler
             </button>
             <button

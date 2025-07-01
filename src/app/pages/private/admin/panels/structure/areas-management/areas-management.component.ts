@@ -4,10 +4,10 @@
  * @author VotreNomOuEquipe
  */
 
-import { Component, OnInit, inject, signal, computed, WritableSignal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import {Component, OnInit, inject, signal, computed, WritableSignal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
 import {NotificationService} from '../../../../../../core/services/domain/utilities/notification.service';
 import {StructureService} from '../../../../../../core/services/domain/structure/structure.service';
 import {
@@ -15,9 +15,19 @@ import {
   AreaUpdateDto,
   StructureAreaModel
 } from '../../../../../../core/models/structure/structure-area.model';
-import {AudienceZoneCreationDto, AudienceZoneUpdateDto, EventAudienceZone} from '../../../../../../core/models/event/event-audience-zone.model';
+import {
+  AudienceZoneCreationDto,
+  AudienceZoneUpdateDto,
+  EventAudienceZone
+} from '../../../../../../core/models/event/event-audience-zone.model';
 import {SeatingType} from '../../../../../../core/models/event/event-audience-zone.model';
 import {MatIcon} from '@angular/material/icon';
+import {
+  AudienceZoneTemplateCreationDto,
+  AudienceZoneTemplateModel,
+  AudienceZoneTemplateUpdateDto
+} from '../../../../../../core/models/structure/AudienceZoneTemplate.model';
+import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service';
 
 @Component({
   selector: 'app-areas-management',
@@ -28,6 +38,7 @@ import {MatIcon} from '@angular/material/icon';
 })
 export class AreasManagementComponent implements OnInit {
   private structureService = inject(StructureService);
+  private userStructureService = inject(UserStructureService);
   private notification = inject(NotificationService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -39,17 +50,20 @@ export class AreasManagementComponent implements OnInit {
   private showAreaFormSig: WritableSignal<boolean> = signal(false);
   private showAudienceZoneFormSig: WritableSignal<boolean> = signal(false);
   private editingAreaSig: WritableSignal<StructureAreaModel | null> = signal(null);
-  private editingAudienceZoneSig: WritableSignal<EventAudienceZone | null> = signal(null);
+  private editingAudienceZoneTemplateSig: WritableSignal<AudienceZoneTemplateModel | null> = signal(null);
 
   // Computed signals
-  public readonly currentStructure = computed(() => this.structureService.currentStructureDetails());
-  public readonly areas = computed(() => this.structureService.currentStructureAreas());
-  public readonly audienceZones = computed(() => this.structureService.currentAreaAudienceZones());
+  public readonly audienceZoneTemplates = computed(() => this.userStructureService.currentAreaAudienceZoneTemplates());
+  public readonly editingAudienceZoneTemplate = computed(() => this.editingAudienceZoneTemplateSig());
+
+  // Computed signals
+  public readonly currentStructure = computed(() => this.userStructureService.userStructure());
+  public readonly areas = computed(() => this.userStructureService.userStructureAreas());
   public readonly selectedArea = computed(() => this.selectedAreaSig());
   public readonly showAreaForm = computed(() => this.showAreaFormSig());
   public readonly showAudienceZoneForm = computed(() => this.showAudienceZoneFormSig());
   public readonly editingArea = computed(() => this.editingAreaSig());
-  public readonly editingAudienceZone = computed(() => this.editingAudienceZoneSig());
+  public readonly editingAudienceZone = computed(() => this.editingAudienceZoneTemplateSig());
 
   // Forms
   areaForm: FormGroup = new FormGroup({});
@@ -58,24 +72,18 @@ export class AreasManagementComponent implements OnInit {
   // Enums for template
   SeatingType = SeatingType;
   seatingTypeOptions = [
-    { value: SeatingType.SEATED, label: 'Places assises' },
-    { value: SeatingType.STANDING, label: 'Places debout' },
-    { value: SeatingType.MIXED, label: 'Mixte' }
+    {value: SeatingType.SEATED, label: 'Places assises'},
+    {value: SeatingType.STANDING, label: 'Places debout'},
+    {value: SeatingType.MIXED, label: 'Mixte'}
   ];
 
   constructor() {
     this.initializeForms();
   }
 
-  ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      const structureId = +params['structureId'];
-      if (structureId) {
-        this.structureIdSig.set(structureId);
-        this.loadStructureData(structureId);
-      }
-    });
-  }
+ ngOnInit() {
+    this.loadStructureAreas()
+ }
 
   private initializeForms(): void {
     this.areaForm = this.fb.group({
@@ -93,12 +101,16 @@ export class AreasManagementComponent implements OnInit {
     });
   }
 
-  private loadStructureData(structureId: number): void {
-    this.structureService.getStructureById(structureId).subscribe(structure => {
-      if (!structure) {
-        this.notification.displayNotification('Structure non trouvée', 'error');
-        this.router.navigate(['/admin/structures']);
-      }
+  private loadStructureAreas(): void {
+    const structure = this.currentStructure();
+
+    if (!structure?.id) {
+      return
+    }
+
+    this.userStructureService.loadUserStructureAreas(true).subscribe(areas => {
+      // Les areas sont maintenant chargées dans le service et disponibles via le signal computed
+      console.log('Areas chargées:', areas);
     });
   }
 
@@ -120,8 +132,7 @@ export class AreasManagementComponent implements OnInit {
     this.areaForm.patchValue({
       name: area.name,
       maxCapacity: area.maxCapacity,
-      isActive: area.isActive,
-      description: area.description || ''
+      isActive: area.active,
     });
     this.showAreaFormSig.set(true);
   }
@@ -141,22 +152,17 @@ export class AreasManagementComponent implements OnInit {
     const formValue = this.areaForm.value;
     const editingArea = this.editingAreaSig();
 
-    // Calculer la capacité totale des zones d'audience existantes
-    const currentZones = this.audienceZones();
+    // Calculer la capacité totale des templates d'audience zones existants
+    const currentTemplates = this.audienceZoneTemplates();
     let totalExistingCapacity = 0;
 
-    // Si on édite une zone existante, on exclut sa capacité actuelle du calcul
+    // Si on édite une area existante, on compte les templates existants pour cette area
     if (editingArea) {
-      totalExistingCapacity = currentZones
-        .filter(zone => zone.id !== editingArea.id)
-        .reduce((sum, zone) => sum + zone.maxCapacity, 0);
-    } else {
-      // Si on crée une nouvelle zone, on compte toutes les zones existantes
-      totalExistingCapacity = currentZones
-        .reduce((sum, zone) => sum + zone.maxCapacity, 0);
+      totalExistingCapacity = currentTemplates
+        .reduce((sum, template) => sum + template.maxCapacity, 0);
     }
 
-    // Vérifier si la capacité de l'area n'est pas inférieure à la capacité totale des zones
+    // Vérifier si la capacité de l'area n'est pas inférieure à la capacité totale des templates
     if (formValue.maxCapacity < totalExistingCapacity) {
       this.notification.displayNotification(
         `La capacité de l'espace (${formValue.maxCapacity}) ne peut pas être inférieure à la somme des capacités des zones d'audience existantes (${totalExistingCapacity}).`,
@@ -174,7 +180,7 @@ export class AreasManagementComponent implements OnInit {
         description: formValue.description || undefined
       };
 
-      this.structureService.updateArea(editingArea.id, updateDto).subscribe(result => {
+      this.userStructureService.updateArea(editingArea.id, updateDto).subscribe(result => {
         if (result) {
           // Mettre à jour l'area sélectionnée si c'est celle qui a été modifiée
           if (this.selectedAreaSig()?.id === editingArea.id) {
@@ -193,7 +199,7 @@ export class AreasManagementComponent implements OnInit {
         description: formValue.description || undefined
       };
 
-      this.structureService.createArea(createDto).subscribe(result => {
+      this.userStructureService.createArea(createDto).subscribe(result => {
         if (result) {
           this.onCancelAreaForm();
         }
@@ -201,9 +207,14 @@ export class AreasManagementComponent implements OnInit {
     }
   }
 
+  onSelectArea(area: StructureAreaModel): void {
+    this.selectedAreaSig.set(area);
+    this.loadAudienceZoneTemplates(area.id);
+  }
+
   onDeleteArea(area: StructureAreaModel): void {
     if (confirm(`Êtes-vous sûr de vouloir supprimer l'espace "${area.name}" ?`)) {
-      this.structureService.deleteArea(area.id).subscribe(success => {
+      this.userStructureService.deleteArea(area.id).subscribe(success => {
         if (success && this.selectedAreaSig()?.id === area.id) {
           this.selectedAreaSig.set(null);
         }
@@ -211,24 +222,19 @@ export class AreasManagementComponent implements OnInit {
     }
   }
 
-  onSelectArea(area: StructureAreaModel): void {
-    this.selectedAreaSig.set(area);
-    this.loadAudienceZones(area.id);
-  }
-
   // --- Audience Zone Management ---
 
-  private loadAudienceZones(areaId: number): void {
-    this.structureService.loadAreaAudienceZones(areaId).subscribe();
+  private loadAudienceZoneTemplates(areaId: number): void {
+    this.userStructureService.loadAreaAudienceZoneTemplates(areaId).subscribe();
   }
 
-  onShowCreateAudienceZoneForm(): void {
+  onShowCreateAudienceZoneTemplateForm(): void {
     if (!this.selectedAreaSig()) {
       this.notification.displayNotification('Veuillez sélectionner un espace d\'abord', 'warning');
       return;
     }
 
-    this.editingAudienceZoneSig.set(null);
+    this.editingAudienceZoneTemplateSig.set(null);
     this.audienceZoneForm.reset({
       name: '',
       maxCapacity: 1,
@@ -238,24 +244,24 @@ export class AreasManagementComponent implements OnInit {
     this.showAudienceZoneFormSig.set(true);
   }
 
-  onEditAudienceZone(zone: EventAudienceZone): void {
-    this.editingAudienceZoneSig.set(zone);
+  onEditAudienceZoneTemplate(template: AudienceZoneTemplateModel): void {
+    this.editingAudienceZoneTemplateSig.set(template);
     this.audienceZoneForm.patchValue({
-      name: zone.name,
-      maxCapacity: zone.maxCapacity,
-      isActive: zone.isActive,
-      seatingType: zone.seatingType
+      name: template.name,
+      maxCapacity: template.maxCapacity,
+      isActive: template.active,
+      seatingType: template.seatingType
     });
     this.showAudienceZoneFormSig.set(true);
   }
 
-  onCancelAudienceZoneForm(): void {
+  onCancelAudienceZoneTemplateForm(): void {
     this.showAudienceZoneFormSig.set(false);
-    this.editingAudienceZoneSig.set(null);
+    this.editingAudienceZoneTemplateSig.set(null);
     this.audienceZoneForm.reset();
   }
 
-  onSaveAudienceZone(): void {
+  onSaveAudienceZoneTemplate(): void {
     if (this.audienceZoneForm.invalid) {
       this.notification.displayNotification('Veuillez corriger les erreurs du formulaire', 'error');
       return;
@@ -268,21 +274,21 @@ export class AreasManagementComponent implements OnInit {
     }
 
     const formValue = this.audienceZoneForm.value;
-    const editingZone = this.editingAudienceZoneSig();
+    const editingTemplate = this.editingAudienceZoneTemplateSig();
 
-    // Calculer la capacité totale des zones d'audience existantes
-    const currentZones = this.audienceZones();
+    // Calculer la capacité totale des templates existants
+    const currentTemplates = this.audienceZoneTemplates();
     let totalExistingCapacity = 0;
 
-    // Si on édite une zone existante, on exclut sa capacité actuelle du calcul
-    if (editingZone) {
-      totalExistingCapacity = currentZones
-        .filter(zone => zone.id !== editingZone.id)
-        .reduce((sum, zone) => sum + zone.maxCapacity, 0);
+    // Si on édite un template existant, on exclut sa capacité actuelle du calcul
+    if (editingTemplate) {
+      totalExistingCapacity = currentTemplates
+        .filter(template => template.id !== editingTemplate.id)
+        .reduce((sum, template) => sum + template.maxCapacity, 0);
     } else {
-      // Si on crée une nouvelle zone, on compte toutes les zones existantes
-      totalExistingCapacity = currentZones
-        .reduce((sum, zone) => sum + zone.maxCapacity, 0);
+      // Si on crée un nouveau template, on compte tous les templates existants
+      totalExistingCapacity = currentTemplates
+        .reduce((sum, template) => sum + template.maxCapacity, 0);
     }
 
     // Vérifier si la capacité totale ne dépasse pas la capacité maximale de l'area
@@ -297,44 +303,43 @@ export class AreasManagementComponent implements OnInit {
       return;
     }
 
-    if (editingZone) {
-      // Update existing audience zone
-      const updateDto: AudienceZoneUpdateDto = {
+    if (editingTemplate) {
+      // Update existing template
+      const updateDto: AudienceZoneTemplateUpdateDto = {
         name: formValue.name,
         maxCapacity: formValue.maxCapacity,
         isActive: formValue.isActive,
         seatingType: formValue.seatingType
       };
 
-      this.structureService.updateAudienceZone(selectedArea.id, editingZone.id!, updateDto).subscribe(result => {
+      this.userStructureService.updateAudienceZoneTemplate(selectedArea.id, editingTemplate.id, updateDto).subscribe(result => {
         if (result) {
-          this.onCancelAudienceZoneForm();
+          this.onCancelAudienceZoneTemplateForm();
         }
       });
     } else {
-      // Create new audience zone
-      const createDto: AudienceZoneCreationDto = {
+      // Create new template
+      const createDto: AudienceZoneTemplateCreationDto = {
         name: formValue.name,
-        areaId: selectedArea.id,
         maxCapacity: formValue.maxCapacity,
         isActive: formValue.isActive,
         seatingType: formValue.seatingType
       };
 
-      this.structureService.createAudienceZone(selectedArea.id, createDto).subscribe(result => {
+      this.userStructureService.createAudienceZoneTemplate(selectedArea.id, createDto).subscribe(result => {
         if (result) {
-          this.onCancelAudienceZoneForm();
+          this.onCancelAudienceZoneTemplateForm();
         }
       });
     }
   }
 
-  onDeleteAudienceZone(zone: EventAudienceZone): void {
+  onDeleteAudienceZoneTemplate(template: AudienceZoneTemplateModel): void {
     const selectedArea = this.selectedAreaSig();
-    if (!selectedArea || !zone.id) return;
+    if (!selectedArea || !template.id) return;
 
-    if (confirm(`Êtes-vous sûr de vouloir supprimer la zone "${zone.name}" ?`)) {
-      this.structureService.deleteAudienceZone(selectedArea.id, zone.id).subscribe();
+    if (confirm(`Êtes-vous sûr de vouloir supprimer le template "${template.name}" ?`)) {
+      this.userStructureService.deleteAudienceZoneTemplate(selectedArea.id, template.id).subscribe();
     }
   }
 

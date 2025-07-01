@@ -125,7 +125,7 @@ export class AreaEditDialogComponent implements OnInit {
         name: this.data.area.name,
         description: this.data.area.description || '',
         maxCapacity: this.data.area.maxCapacity,
-        isActive: this.data.area.isActive,
+        isActive: this.data.area.active || false,
       });
     }
   }
@@ -150,7 +150,7 @@ export class AreaEditDialogComponent implements OnInit {
         name: formValues.name,
         description: formValues.description || undefined,
         maxCapacity: formValues.maxCapacity,
-        isActive: formValues.isActive,
+        active: formValues.isActive,
         structureId: this.data.structureId,
       };
 

@@ -86,11 +86,6 @@ export class AdminSidenavComponent {
         },
       ],
     },
-    {
-      icon: 'query_stats',
-      label: 'Statistiques',
-      route: 'stats',
-    },
   ]);
 
   organisationPicSize = computed(() =>

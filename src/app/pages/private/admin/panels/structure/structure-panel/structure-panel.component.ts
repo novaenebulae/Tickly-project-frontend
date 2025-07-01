@@ -54,7 +54,7 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
 
   protected readonly isLoadingStructure = this.userStructureService.isLoading;
   protected readonly hasStructure = this.userStructureService.hasStructure;
-  protected readonly structureAreas = this.structureService.currentStructureAreas;
+  protected readonly structureAreas = this.userStructureService.userStructureAreas;
 
   // ✅ Signaux locaux pour les statistiques
   private teamCountSig = signal<number>(0);

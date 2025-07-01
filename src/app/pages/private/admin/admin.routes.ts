@@ -45,11 +45,6 @@ export const adminRoutes: Routes = [
         component: DashboardComponent,
         title: 'Tableau de bord | Administration'
       },
-      {
-        path: 'stats',
-        component: StatsComponent,
-        title: 'Statistiques | Administration'
-      },
 
       // Event Management
       {

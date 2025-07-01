@@ -10,17 +10,12 @@ import { finalize } from 'rxjs/operators';
 
 import { StructureModel } from '../../../../core/models/structure/structure.model';
 import { StructureService } from '../../../../core/services/domain/structure/structure.service';
+import { UserStructureService } from '../../../../core/services/domain/user-structure/user-structure.service';
 import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
+import { FileUploadResponseDto } from '../../../../core/models/files/file-upload-response.model';
 
 interface GalleryDialogData {
   structure: StructureModel;
-}
-
-// Interface pour la réponse d'upload (identique à celle du formulaire)
-interface FileUploadResponseDto {
-  fileName: string;
-  fileUrl: string;
-  message: string;
 }
 
 @Component({
@@ -185,6 +180,7 @@ interface FileUploadResponseDto {
 })
 export class StructureGalleryManagerComponent {
   private structureService = inject(StructureService);
+  private userStructureService = inject(UserStructureService);
   private notificationService = inject(NotificationService);
 
   // Signals pour l'état
@@ -236,7 +232,7 @@ export class StructureGalleryManagerComponent {
     this.isUploadingSig.set(true);
 
     // ✅ CORRECTION : Utiliser uploadMultipleGalleryImages au lieu de forkJoin
-    this.structureService.uploadMultipleGalleryImages(this.data.structure.id!, files).pipe(
+    this.userStructureService.uploadMultipleGalleryImages(this.data.structure.id!, files).pipe(
       finalize(() => {
         this.isUploadingSig.set(false);
         this.selectedFilesSig.set([]);
@@ -294,7 +290,7 @@ export class StructureGalleryManagerComponent {
     // Extraire le nom de fichier depuis l'URL complète
     const imagePath = this.extractFileNameFromUrl(imageUrl);
 
-    this.structureService.deleteGalleryImage(this.data.structure.id!, imagePath).pipe(
+    this.userStructureService.deleteGalleryImage(this.data.structure.id!, imagePath).pipe(
       finalize(() => {
         this.isDeletingSig.set(false);
       })

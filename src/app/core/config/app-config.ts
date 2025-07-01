@@ -33,8 +33,8 @@ interface AppConfig {
         types: string;
         areas: (structureId: number | string) => string; // e.g., `structures/${structureId}/areas`
         areaById: (structureId: number | string, areaId: number | string) => string;
-        areaAudienceZones: (structureId: number | string, areaId: number | string) => string;
-        areaAudienceZone: (structureId: number | string, areaId: number | string, zoneId: number | string) => string;
+        areaAudienceZoneTemplates: (structureId: number | string, areaId: number | string) => string;
+        areaAudienceZoneTemplateById: (structureId: number | string, areaId: number | string, templateId: number | string) => string;
       };
       users: {
         base: string; // For admin listing users, if any
@@ -143,8 +143,8 @@ export const APP_CONFIG: AppConfig = {
         types: 'structure-types', // GET structure types
         areas: (structureId: number | string) => `structures/${structureId}/areas`, // GET, POST (create area)
         areaById: (structureId: number | string, areaId: number | string) => `structures/${structureId}/areas/${areaId}`,
-        areaAudienceZones: (structureId: number | string, areaId: number | string) => `structures/${structureId}/areas/${areaId}/audience-zones`,
-        areaAudienceZone: (structureId: number | string, areaId: number | string, zoneId: number | string) => `structures/${structureId}/areas/${areaId}/audience-zones/${zoneId}`
+        areaAudienceZoneTemplates: (structureId: number | string, areaId: number | string) => `structures/${structureId}/areas/${areaId}/audience-zone-templates`,
+        areaAudienceZoneTemplateById: (structureId: number | string, areaId: number | string, templateId: number | string) => `structures/${structureId}/areas/${areaId}/audience-zone-templates/${templateId}`
       },
       users: {
         base: 'users',

@@ -48,8 +48,8 @@
                 <mat-icon class="icon-small">people</mat-icon>
                 {{ area.maxCapacity }} places
               </span>
-              <span [class.active-status]="area.isActive" [class.inactive-status]="!area.isActive">
-                {{ area.isActive ? 'Actif' : 'Inactif' }}
+              <span [class.active-status]="area.active" [class.inactive-status]="!area.active">
+                {{ area.active ? 'Actif' : 'Inactif' }}
               </span>
             </mat-card-subtitle>
           </mat-card-header>
@@ -85,36 +85,39 @@
                 <p class="no-zones">Aucune zone disponible pour cet espace.</p>
               }
 
-              @for (zone of allZonesByArea()[area.id]; track zone.id) {
-                                  <div class="zone-item" [class.selected-zone]="isZoneSelected(zone.id!)" (click)="$event.stopPropagation()">
+              @for (template of allZonesByArea()[area.id]; track template.id) {
+                <div class="zone-item" [class.selected-zone]="isZoneSelected(template.id!)" (click)="$event.stopPropagation()">
                   <div class="zone-selection">
                     <mat-checkbox
-                        class="zone-checkbox"
-                        [checked]="isZoneSelected(zone.id!)"
-                        (change)="toggleZoneSelection(zone)"
-                        (click)="$event.stopPropagation()">
-                      {{ zone.name }}
+                      class="zone-checkbox"
+                      [checked]="isZoneSelected(template.id!)"
+                      (change)="toggleZoneSelection(template)"
+                      (click)="$event.stopPropagation()">
+                      {{ template.name }}
                     </mat-checkbox>
                   </div>
 
                   <div class="zone-details">
                     <span class="seating-type">
-                      <mat-icon class="icon-small">{{ zone.seatingType === SeatingType.SEATED ? 'chair' : 'accessibility_new' }}</mat-icon>
-                      {{ getSeatingTypeLabel(zone.seatingType) }}
+                      <mat-icon class="icon-small">{{ template.seatingType === SeatingType.SEATED ? 'chair' : 'accessibility_new' }}</mat-icon>
+                      {{ getSeatingTypeLabel(template.seatingType) }}
                     </span>
                     <span class="zone-capacity">
                       <mat-icon class="icon-small">people</mat-icon>
-                      {{ zone.maxCapacity }} places
+                      {{ template.maxCapacity }} places
+                    </span>
+                    <span [class.active-status]="template.active" [class.inactive-status]="!template.active">
+                      {{ template.active ? 'Actif' : 'Inactif' }}
                     </span>
                   </div>
 
-                  @if (isZoneSelected(zone.id!)) {
+                  @if (isZoneSelected(template.id!)) {
                     <div class="zone-allocation">
                       <mat-form-field appearance="outline" class="capacity-field">
                         <mat-label>Capacité allouée</mat-label>
-                        <input matInput type="number" min="1" [max]="zone.maxCapacity"
-                               [value]="getZoneConfiguration(zone.id!)?.allocatedCapacity || zone.maxCapacity"
-                               (change)="updateZoneCapacity(zone.id!, $event)">
+                        <input matInput type="number" min="1" [max]="template.maxCapacity"
+                               [value]="getZoneConfiguration(template.id!)?.allocatedCapacity || template.maxCapacity"
+                               (change)="updateZoneCapacity(template.id!, $event)">
                       </mat-form-field>
                     </div>
                   }

@@ -21,22 +21,21 @@ import {
   StructureCreationResponseDto
 } from '../../../models/structure/structure.model';
 import {StructureTypeModel} from '../../../models/structure/structure-type.model';
-import {StructureAreaModel, AreaCreationDto, AreaUpdateDto} from '../../../models/structure/structure-area.model';
 import {StructureAddressModel} from '../../../models/structure/structure-address.model';
 import {StructureSearchParams} from '../../../models/structure/structure-search-params.model';
 
 // Other Domain Services
 import {NotificationService} from '../utilities/notification.service';
 import {AuthService} from '../user/auth.service';
-import {
-  AudienceZoneCreationDto,
-  AudienceZoneUpdateDto,
-  EventAudienceZone
-} from '../../../models/event/event-audience-zone.model';
 import {ApiConfigService} from '../../api/api-config.service';
 import {Router} from '@angular/router';
 import {StructureSummaryModel} from '../../../models/structure/structure-summary.model';
-import {FileUploadResponse} from '../../../models/files/file-upload-response.model'; // For token updates and user context
+import {FileUploadResponseDto} from '../../../models/files/file-upload-response.model';
+
+import {UserStructureService} from '../user-structure/user-structure.service';
+import {AudienceZoneTemplateModel} from '../../../models/structure/AudienceZoneTemplate.model';
+import {StructureAreaModel} from '../../../models/structure/structure-area.model';
+import {EventAudienceZone} from '../../../models/event/event-audience-zone.model';
 
 @Injectable({
   providedIn: 'root'
@@ -46,8 +45,13 @@ export class StructureService {
   private notification = inject(NotificationService);
   private authService = inject(AuthService);
   private router = inject(Router);
-
   private apiConfig = inject(ApiConfigService);
+
+  // We don't inject UserStructureService directly to avoid circular dependency
+  // Instead, we'll use a method to get it when needed
+  // NOTE: This approach might cause issues if the services are initialized in the wrong order.
+  // A better approach for the future would be to extract the shared functionality into a separate service
+  // that both StructureService and UserStructureService can depend on.
 
   // --- State Management using Signals ---
 
@@ -59,80 +63,12 @@ export class StructureService {
   private currentStructureDetailsSig: WritableSignal<StructureModel | null | undefined> = signal(undefined); // undefined: loading, null: not found
   public readonly currentStructureDetails = computed(() => this.currentStructureDetailsSig());
 
-  // Cache for the areas of the currently selected/managed structure
-  private currentStructureAreasSig: WritableSignal<StructureAreaModel[]> = signal([]);
-  public readonly currentStructureAreas = computed(() => this.currentStructureAreasSig());
-
-  private currentAreaAudienceZonesSig: WritableSignal<EventAudienceZone[]> = signal([]);
-  public readonly currentAreaAudienceZones = computed(() => this.currentAreaAudienceZonesSig());
-
-  private currentStructureAudienceZonesSig: WritableSignal<EventAudienceZone[]> = signal([]);
-  public readonly currentStructureAudienceZones = computed(() => this.currentStructureAudienceZonesSig());
-
   constructor() {
     // Preload structure types on service initialization
     this.loadStructureTypes().subscribe();
   }
 
   // --- Structure CRUD Operations ---
-
-  /**
-   * Creates a new structure.
-   * En mode mock : déconnecte l'utilisateur après création pour forcer une reconnexion.
-   * En mode réel : met à jour le token normalement.
-   * @param structureCreationData - The DTO for creating the structure.
-   * @returns An Observable of the created `StructureModel` or `undefined` on error.
-   */
-  createStructure(structureCreationData: StructureCreationDto): Observable<StructureModel | undefined> {
-    return this.structureApi.createStructure(structureCreationData).pipe(
-      tap((response: StructureCreationResponseDto) => {
-        if (response.createdStructure) {
-          const structureId = response.createdStructure.id;
-
-          // En mode mock : déconnexion pour forcer la reconnexion avec les bonnes données
-          if (this.apiConfig.isMockEnabledForDomain("structures")) {
-            // Mettre à jour les données utilisateur dans le localStorage
-            this.authService.updateUserStructureInfoInMockMode(structureId!);
-
-            // Déconnecter l'utilisateur et rediriger vers la page de connexion
-            this.notification.displayNotification(
-              'Structure créée avec succès ! Vous allez être déconnecté pour mettre à jour vos données.',
-              'valid'
-            );
-
-            setTimeout(() => {
-              this.authService.logout();
-              this.router.navigate(['/auth'], {
-                queryParams: { message: 'Veuillez vous reconnecter pour accéder à votre nouvelle structure.' }
-              });
-            }, 2000);
-
-          } else if (response.newToken) {
-            // En mode réel, utiliser le token fourni par l'API
-            this.authService.updateTokenAndState(response.newToken);
-            this.notification.displayNotification('Structure créée avec succès !', 'valid');
-          }
-
-          // Mise à jour de l'état local
-          const newStructure = response.createdStructure as StructureModel;
-          this.currentStructureDetailsSig.set(newStructure);
-          this.currentStructureAreasSig.set([]);
-
-        } else {
-          this.notification.displayNotification(
-            'Structure créée, mais les détails n\'ont pas pu être récupérés immédiatement.',
-            'warning'
-          );
-        }
-      }),
-      map(response => response.createdStructure as StructureModel | undefined),
-      catchError(error => {
-        this.handleError('Impossible de créer la structure.', error);
-        return of(undefined);
-      })
-    );
-  }
-
   /**
    * Retrieves a list of structures based on search parameters.
    * Transforms raw API DTOs into `StructureModel[]`.
@@ -169,122 +105,13 @@ export class StructureService {
       map(apiStructure => apiStructure ? this.mapApiToStructureModel(apiStructure) : undefined),
       tap(structure => {
         this.currentStructureDetailsSig.set(structure || null); // Set to null if not found by API
-        if (structure && this.authService.userStructureId() === structureId) {
-          // When a new structure is fetched as current, also fetch its areas.
-          this.loadStructureAreas(structureId, true).subscribe();
-        } else {
-          this.currentStructureAreasSig.set([]); // Clear areas if structure not found
-        }
       }),
       catchError(error => {
         this.handleError(`Impossible de récupérer la structure #${structureId}.`, error);
         this.currentStructureDetailsSig.set(null);
-        this.currentStructureAreasSig.set([]);
         return of(undefined);
       })
     );
-  }
-
-  /**
-   * Updates an existing structure.
-   * @param structureId - The ID of the structure to update.
-   * @param structureUpdateData - The DTO containing fields to update.
-   * @returns An Observable of the updated `StructureModel` or `undefined` on error.
-   */
-  updateStructure(structureId: number, structureUpdateData: StructureUpdateDto): Observable<StructureModel | undefined> {
-    // StructureApiService expects Partial<any>, StructureUpdateDto is suitable.
-    return this.structureApi.updateStructure(structureId, structureUpdateData).pipe(
-      map(apiStructure => apiStructure ? this.mapApiToStructureModel(apiStructure) : undefined),
-      tap(updatedStructure => {
-        if (updatedStructure) {
-          if (this.currentStructureDetailsSig()?.id === structureId) {
-            this.currentStructureDetailsSig.set(updatedStructure);
-          }
-          // Optionally update a list cache if you maintain one for getStructures
-          this.notification.displayNotification('Structure mise à jour avec succès.', 'valid');
-        }
-      }),
-      catchError(error => {
-        this.handleError('Impossible de mettre à jour la structure.', error);
-        return of(undefined);
-      })
-    );
-  }
-
-  /**
-   * Deletes a structure by its ID.
-   * If the deleted structure was the current one, clears the current structure and its areas from cache.
-   * @param structureId - The ID of the structure to delete.
-   * @returns An Observable<boolean> indicating success (true) or failure (false).
-   */
-  deleteStructure(structureId: number): Observable<boolean> {
-    return this.structureApi.deleteStructure(structureId).pipe(
-      map(() => true), // API returns void, map to true for success
-      tap(() => {
-        if (this.currentStructureDetailsSig()?.id === structureId) {
-          this.currentStructureDetailsSig.set(null);
-          this.currentStructureAreasSig.set([]);
-        }
-        // Optionally, trigger a refresh of any list that might contain this structure.
-        this.notification.displayNotification('Structure supprimée avec succès.', 'valid');
-      }),
-      catchError(error => {
-        this.handleError('Impossible de supprimer la structure.', error);
-        return of(false);
-      })
-    );
-  }
-
-  /**
-   * Supprime une image de la structure
-   * @param structureId ID de la structure
-   * @param type Le type d'image ('logo' ou 'cover')
-   * @returns Observable vide
-   */
-  deleteStructureImage(structureId: number, type: 'logo' | 'cover'): Observable<void> {
-    return this.structureApi.deleteStructureImage(structureId, type);
-  }
-
-  /**
-   * Upload une image pour la structure (logo ou couverture)
-   * @param structureId ID de la structure
-   * @param file Le fichier image à uploader
-   * @param type Le type d'image ('logo' ou 'cover')
-   * @returns Observable contenant l'URL de l'image uploadée
-   */
-  uploadStructureImage(structureId: number, file: File, type: 'logo' | 'cover'): Observable<{ fileName: string; fileUrl: string; message: string }> {
-    return this.structureApi.uploadStructureImage(structureId, file, type);
-  }
-
-  /**
-   * Upload une image pour la galerie
-   * @param structureId ID de la structure
-   * @param file Le fichier image à uploader
-   * @returns Observable contenant l'URL de l'image uploadée
-   */
-  uploadGalleryImage(structureId: number, file: File): Observable<{ fileName: string; fileUrl: string; message: string }> {
-    return this.structureApi.uploadGalleryImage(structureId, file);
-  }
-
-  /**
-   * Upload multiple images pour la galerie de la structure
-   * @param structureId ID de la structure
-   * @param files Les fichiers images à uploader
-   * @returns Observable contenant la liste des URLs des images uploadées
-   */
-  uploadMultipleGalleryImages(structureId: number, files: File[]): Observable<FileUploadResponse[]> {
-    return this.structureApi.uploadMultipleGalleryImages(structureId, files);
-  }
-
-
-  /**
-   * Supprime une image de la galerie
-   * @param structureId ID de la structure
-   * @param imagePath URL de l'image à supprimer
-   * @returns Observable vide
-   */
-  deleteGalleryImage(structureId: number, imagePath: string): Observable<void> {
-    return this.structureApi.deleteGalleryImage(structureId, imagePath);
   }
 
   // --- Structure Type Operations ---
@@ -322,295 +149,7 @@ export class StructureService {
     );
   }
 
-  // --- Structure Area (Physical Zones) Operations ---
-
-  /**
-   * Retrieves physical areas for a given structure.
-   * Updates the `currentStructureAreasSig` if `structureId` matches the current structure.
-   * @param structureId - The ID of the structure whose areas are to be fetched.
-   * @param forceRefresh - If true, fetches from API even if cached for the current structure.
-   * @returns An Observable of `StructureAreaModel[]`.
-   */
-  loadStructureAreas(structureId: number, forceRefresh = false): Observable<StructureAreaModel[]> {
-    const isCurrentStructure = this.currentStructureDetailsSig()?.id === structureId;
-    if (!forceRefresh && isCurrentStructure && this.currentStructureAreasSig().length > 0) {
-      return of(this.currentStructureAreasSig());
-    }
-    if (isCurrentStructure) {
-      this.currentStructureAreasSig.set([]); // Indicate loading for current structure's areas
-    }
-
-    return this.structureApi.getAreas(structureId).pipe(
-      map((apiAreas: any[]): StructureAreaModel[] =>
-        apiAreas.map(a => this.mapApiToAreaModel(a)) // Assuming API DTO matches StructureAreaModel
-      ),
-      tap(areas => {
-        if (isCurrentStructure) {
-          this.currentStructureAreasSig.set(areas);
-        }
-      }),
-      catchError(error => {
-        this.handleError(`Impossible de récupérer les zones de la structure #${structureId}.`, error);
-        if (isCurrentStructure) {
-          this.currentStructureAreasSig.set([]); // Clear cache on error for current structure
-        }
-        return of([]);
-      })
-    );
-  }
-
-
-  /**
-   * Crée une nouvelle area pour la structure courante
-   */
-  createArea(areaData: AreaCreationDto): Observable<StructureAreaModel | undefined> {
-    const currentStructureId = this.currentStructureDetailsSig()?.id;
-    if (!currentStructureId) {
-      this.notification.displayNotification('Aucune structure sélectionnée', 'error');
-      return of(undefined);
-    }
-
-    return this.structureApi.createArea(currentStructureId, areaData).pipe(
-      tap(createdArea => {
-        if (createdArea) {
-          const currentAreas = this.currentStructureAreasSig();
-          this.currentStructureAreasSig.set([...currentAreas, createdArea]);
-          this.notification.displayNotification('Espace créé avec succès !', 'valid');
-        }
-      }),
-
-      catchError(error => {
-        this.handleError('Impossible de créer l\'espace.', error);
-        return of(undefined);
-      })
-    );
-  }
-
-  /**
-   * Met à jour une area existante
-   */
-  updateArea(areaId: number, areaData: AreaUpdateDto): Observable<StructureAreaModel | undefined> {
-    const currentStructureId = this.currentStructureDetailsSig()?.id;
-    if (!currentStructureId) {
-      this.notification.displayNotification('Aucune structure sélectionnée', 'error');
-      return of(undefined);
-    }
-
-    return this.structureApi.updateArea(currentStructureId, areaId, areaData).pipe(
-      tap(updatedArea => {
-        if (updatedArea) {
-          const currentAreas = this.currentStructureAreasSig();
-          const updatedAreas = currentAreas.map(area =>
-            area.id === areaId ? updatedArea : area
-          );
-          this.currentStructureAreasSig.set(updatedAreas);
-          this.notification.displayNotification('Espace modifié avec succès !', 'valid');
-        }
-      }),
-      catchError(error => {
-        this.handleError('Impossible de modifier l\'espace.', error);
-        return of(undefined);
-      })
-    );
-  }
-
-  /**
-   * Supprime une area
-   */
-  deleteArea(areaId: number): Observable<boolean> {
-    const currentStructureId = this.currentStructureDetailsSig()?.id;
-    if (!currentStructureId) {
-      this.notification.displayNotification('Aucune structure sélectionnée', 'error');
-      return of(false);
-    }
-
-    return this.structureApi.deleteArea(currentStructureId, areaId).pipe(
-      tap(() => {
-        // Retirer l'area du cache
-        const currentAreas = this.currentStructureAreasSig();
-        const filteredAreas = currentAreas.filter(area => area.id !== areaId);
-        this.currentStructureAreasSig.set(filteredAreas);
-        this.notification.displayNotification('Espace supprimé avec succès !', 'valid');
-      }),
-      map(() => true),
-      catchError(error => {
-        this.handleError('Impossible de supprimer l\'espace.', error);
-        return of(false);
-      })
-    );
-  }
-
-  loadAllAudienceZones(forceRefresh = false): Observable<EventAudienceZone[]> {
-    if (!forceRefresh) {
-      const cached = this.currentStructureAudienceZonesSig();
-      if (cached.length > 0) {
-        return of(cached);
-      }
-    }
-
-    const currentStructureId = this.currentStructureDetailsSig()?.id;
-
-    if (!currentStructureId) {
-      return of([]);
-    }
-
-    let allAudienceZones: EventAudienceZone[] = [];
-
-    this.currentStructureAreas().forEach((area) =>
-      this.structureApi.getAreaAudienceZones(currentStructureId, area.id).pipe(
-        map((apiZones: any[]) => apiZones.map(zone => this.mapApiToAudienceZoneModel(zone))),
-        tap(zones => allAudienceZones.push(...zones)),
-        catchError(error => {
-          this.handleError('Impossible de charger les zones d\'audience.', error);
-          return of([]);
-        })
-      )
-    );
-
-    this.currentStructureAudienceZonesSig.set(allAudienceZones);
-    return of(allAudienceZones);
-  }
-
-  /**
-   * Loads audience zones for a specific area
-   */
-  loadAreaAudienceZones(areaId: number, forceRefresh = false): Observable<EventAudienceZone[]> {
-    if (!forceRefresh) {
-      const cached = this.currentAreaAudienceZonesSig();
-      if (cached.length > 0 && cached[0]?.areaId === areaId) {
-        return of(cached);
-      }
-    }
-
-    const currentStructureId = this.currentStructureDetailsSig()?.id;
-    if (!currentStructureId) {
-      return of([]);
-    }
-
-    return this.structureApi.getAreaAudienceZones(currentStructureId, areaId).pipe(
-      map((apiZones: any[]) => apiZones.map(zone => this.mapApiToAudienceZoneModel(zone))),
-      tap(zones => this.currentAreaAudienceZonesSig.set(zones)),
-      catchError(error => {
-        this.handleError('Impossible de charger les zones d\'audience.', error);
-        return of([]);
-      })
-    );
-  }
-
-  /**
-   * Creates a new audience zone for an area
-   */
-  createAudienceZone(areaId: number, zoneData: AudienceZoneCreationDto): Observable<EventAudienceZone | undefined> {
-    const currentStructureId = this.currentStructureDetailsSig()?.id;
-    if (!currentStructureId) {
-      this.notification.displayNotification('Aucune structure sélectionnée', 'error');
-      return of(undefined);
-    }
-
-    return this.structureApi.createAreaAudienceZone(currentStructureId, areaId, zoneData).pipe(
-      map(apiZone => apiZone ? this.mapApiToAudienceZoneModel(apiZone) : undefined),
-      tap(createdZone => {
-        if (createdZone) {
-          const currentZones = this.currentAreaAudienceZonesSig();
-          this.currentAreaAudienceZonesSig.set([...currentZones, createdZone]);
-          this.notification.displayNotification('Zone d\'audience créée avec succès !', 'valid');
-        }
-      }),
-      catchError(error => {
-        this.handleError('Impossible de créer la zone d\'audience.', error);
-        return of(undefined);
-      })
-    );
-  }
-
-  /**
-   * Updates an existing audience zone
-   */
-  updateAudienceZone(areaId: number, zoneId: number, zoneData: AudienceZoneUpdateDto): Observable<EventAudienceZone | undefined> {
-    const currentStructureId = this.currentStructureDetailsSig()?.id;
-    if (!currentStructureId) {
-      this.notification.displayNotification('Aucune structure sélectionnée', 'error');
-      return of(undefined);
-    }
-
-    return this.structureApi.updateAreaAudienceZone(currentStructureId, areaId, zoneId, zoneData).pipe(
-      map(apiZone => apiZone ? this.mapApiToAudienceZoneModel(apiZone) : undefined),
-      tap(updatedZone => {
-        if (updatedZone) {
-          const currentZones = this.currentAreaAudienceZonesSig();
-          const updatedZones = currentZones.map(zone =>
-            zone.id === zoneId ? updatedZone : zone
-          );
-          this.currentAreaAudienceZonesSig.set(updatedZones);
-          this.notification.displayNotification('Zone d\'audience modifiée avec succès !', 'valid');
-        }
-      }),
-      catchError(error => {
-        this.handleError('Impossible de modifier la zone d\'audience.', error);
-        return of(undefined);
-      })
-    );
-  }
-
-  /**
-   * Deletes an audience zone
-   */
-  deleteAudienceZone(areaId: number, zoneId: number): Observable<boolean> {
-    const currentStructureId = this.currentStructureDetailsSig()?.id;
-    if (!currentStructureId) {
-      this.notification.displayNotification('Aucune structure sélectionnée', 'error');
-      return of(false);
-    }
-
-    return this.structureApi.deleteAreaAudienceZone(currentStructureId, areaId, zoneId).pipe(
-      tap(() => {
-        const currentZones = this.currentAreaAudienceZonesSig();
-        const filteredZones = currentZones.filter(zone => zone.id !== zoneId);
-        this.currentAreaAudienceZonesSig.set(filteredZones);
-        this.notification.displayNotification('Zone d\'audience supprimée avec succès !', 'valid');
-      }),
-      map(() => true),
-      catchError(error => {
-        this.handleError('Impossible de supprimer la zone d\'audience.', error);
-        return of(false);
-      })
-    );
-  }
-
-  /**
-   * Clears the audience zones cache
-   */
-  clearAudienceZonesCache(): void {
-    this.currentAreaAudienceZonesSig.set([]);
-  }
-
-// Méthode de transformation privée
-  private mapApiToAudienceZoneModel(apiZone: any): EventAudienceZone {
-    return {
-      id: apiZone.id,
-      name: apiZone.name,
-      areaId: apiZone.areaId,
-      maxCapacity: apiZone.maxCapacity,
-      isActive: apiZone.isActive,
-      seatingType: apiZone.seatingType,
-    };
-  }
-
   // --- Utility Methods ---
-
-  /**
-   * Creates an empty `StructureAddressModel` object, typically for initializing forms.
-   * @returns An empty `StructureAddressModel`.
-   */
-  createEmptyAddress(): StructureAddressModel {
-    return {
-      country: '',
-      city: '',
-      street: '',
-      zipCode: ''
-      // number is optional
-    };
-  }
 
   /**
    * Retrieves the count of events for a given structure.
@@ -623,12 +162,14 @@ export class StructureService {
 
   // --- Data Mapping Utilities (if API DTOs differ from StructureModel) ---
   // Assuming API DTOs mostly match our models. If not, expand these mappers.
-  private mapApiToStructureModel(apiStructure: any): StructureModel {
+  public mapApiToStructureModel(apiStructure: any): StructureModel {
     // Perform transformations if apiStructure is not identical to StructureModel
     // For example, date string to Date objects.
+
     return {
       ...apiStructure,
       types: (apiStructure.types || []).map((t: any) => this.mapApiToStructureTypeModel(t)),
+      // Use UserStructureService's mapping method for areas
       areas: (apiStructure.areas || []).map((a: any) => this.mapApiToAreaModel(a)),
       createdAt: new Date(apiStructure.createdAt), // Ensure dates are Date objects
       updatedAt: apiStructure.updatedAt ? new Date(apiStructure.updatedAt) : undefined,
@@ -640,7 +181,7 @@ export class StructureService {
    * @param dto - The raw data object from the API.
    * @returns A `StructureSummaryModel` instance.
    */
-  private mapApiToStructureSummaryModel(dto: any): StructureSummaryModel {
+  public mapApiToStructureSummaryModel(dto: any): StructureSummaryModel {
     return {
       id: dto.id,
       name: dto.name,
@@ -653,13 +194,54 @@ export class StructureService {
     };
   }
 
-
-  private mapApiToStructureTypeModel(apiType: any): StructureTypeModel {
-    return apiType as StructureTypeModel; // Direct cast if API DTO matches
+  /**
+   * Maps API area data to StructureAreaModel
+   */
+  public mapApiToAreaModel(apiArea: any): StructureAreaModel {
+    return {
+      id: apiArea.id,
+      name: apiArea.name,
+      maxCapacity: apiArea.maxCapacity,
+      active: apiArea.active,
+      description: apiArea.description,
+      structureId: apiArea.structureId,
+      audienceZoneTemplates: apiArea.audienceZoneTemplates?.map((template: any) =>
+        this.mapApiToAudienceZoneTemplateModel(template)
+      )
+    };
   }
 
-  private mapApiToAreaModel(apiArea: any): StructureAreaModel {
-    return apiArea as StructureAreaModel; // Direct cast if API DTO matches
+  /**
+   * Maps API template data to AudienceZoneTemplateModel
+   */
+  public mapApiToAudienceZoneTemplateModel(apiTemplate: any): AudienceZoneTemplateModel {
+    return {
+      id: apiTemplate.id,
+      name: apiTemplate.name,
+      maxCapacity: apiTemplate.maxCapacity,
+      seatingType: apiTemplate.seatingType,
+      areaId: apiTemplate.areaId,
+      active: apiTemplate.active
+    };
+  }
+
+  /**
+   * Maps API zone data to EventAudienceZone
+   */
+  public mapApiToAudienceZoneModel(apiZone: any): EventAudienceZone {
+    return {
+      id: apiZone.id,
+      name: apiZone.name,
+      areaId: apiZone.areaId,
+      maxCapacity: apiZone.maxCapacity,
+      isActive: apiZone.isActive,
+      seatingType: apiZone.seatingType,
+    };
+  }
+
+
+  public mapApiToStructureTypeModel(apiType: any): StructureTypeModel {
+    return apiType as StructureTypeModel; // Direct cast if API DTO matches
   }
 
   /**
@@ -675,5 +257,15 @@ export class StructureService {
       error.message || message, // Use error.message if provided by handleStructureError
       'error'
     );
+  }
+
+  /**
+   * Gets the UserStructureService instance.
+   * This is used to avoid circular dependency issues.
+   * @returns The UserStructureService instance.
+   */
+  private getUserStructureService(): UserStructureService {
+    // Using inject function with the current injector to get the service
+    return inject(UserStructureService);
   }
 }

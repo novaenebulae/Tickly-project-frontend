@@ -11,6 +11,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
 import {Router} from '@angular/router';
 import {StructureService} from '../../../../core/services/domain/structure/structure.service';
+import {UserStructureService} from '../../../../core/services/domain/user-structure/user-structure.service';
 import {NotificationService} from '../../../../core/services/domain/utilities/notification.service';
 import {CommonModule} from '@angular/common';
 import {MatButtonModule} from '@angular/material/button';
@@ -55,6 +56,7 @@ export class StructureCreationComponent implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private structureService = inject(StructureService);
+  private userStructureService = inject(UserStructureService);
   private notification = inject(NotificationService);
   private auth = inject(AuthService);
 
@@ -131,7 +133,7 @@ export class StructureCreationComponent implements OnInit {
 
     console.log('Submitting structure creation:', newStructureValues);
 
-    this.structureService.createStructure(newStructureValues).subscribe({
+    this.userStructureService.createStructure(newStructureValues).subscribe({
       next: () => {
         this.isLoading = false;
 

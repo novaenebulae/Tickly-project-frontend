@@ -15,6 +15,7 @@ import { NotificationService } from '../../../../../../core/services/domain/util
 import {
   StructureGalleryManagerComponent
 } from '../../../../../../shared/domain/structures/structure-gallery-manager/structure-gallery-manager.component';
+import {FileUploadResponseDto} from '../../../../../../core/models/files/file-upload-response.model';
 
 
 @Component({
@@ -147,7 +148,7 @@ export class StructureMediasComponent implements OnInit {
 
     this.isUploadingLogo.set(true);
 
-    this.structureService.uploadStructureImage(currentStructure.id, this.selectedLogoFile, 'logo').pipe(
+    this.userStructureService.uploadStructureImage(currentStructure.id, this.selectedLogoFile, 'logo').pipe(
       finalize(() => {
         this.isUploadingLogo.set(false);
         this.cdRef.markForCheck();
@@ -180,7 +181,7 @@ export class StructureMediasComponent implements OnInit {
 
     this.isUploadingLogo.set(true);
 
-    this.structureService.deleteStructureImage(currentStructure.id, 'logo').pipe(
+    this.userStructureService.deleteStructureImage(currentStructure.id, 'logo').pipe(
       finalize(() => {
         this.isUploadingLogo.set(false);
         this.cdRef.markForCheck();
@@ -232,7 +233,7 @@ export class StructureMediasComponent implements OnInit {
 
     this.isUploadingCover.set(true);
 
-    this.structureService.uploadStructureImage(currentStructure.id, this.selectedCoverFile, 'cover').pipe(
+    this.userStructureService.uploadStructureImage(currentStructure.id, this.selectedCoverFile, 'cover').pipe(
       finalize(() => {
         this.isUploadingCover.set(false);
         this.cdRef.markForCheck();
@@ -265,7 +266,7 @@ export class StructureMediasComponent implements OnInit {
 
     this.isUploadingCover.set(true);
 
-    this.structureService.deleteStructureImage(currentStructure.id, 'cover').pipe(
+    this.userStructureService.deleteStructureImage(currentStructure.id, 'cover').pipe(
       finalize(() => {
         this.isUploadingCover.set(false);
         this.cdRef.markForCheck();
@@ -322,7 +323,7 @@ export class StructureMediasComponent implements OnInit {
 
     this.isUploadingGallery.set(true);
 
-    this.structureService.uploadMultipleGalleryImages(currentStructure.id, this.selectedGalleryFiles).pipe(
+    this.userStructureService.uploadMultipleGalleryImages(currentStructure.id, this.selectedGalleryFiles).pipe(
       finalize(() => {
         this.isUploadingGallery.set(false);
         this.selectedGalleryFiles = [];

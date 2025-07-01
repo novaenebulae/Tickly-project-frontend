@@ -242,7 +242,7 @@ export class StructureEditComponent implements OnInit, OnDestroy {
     }
 
     // Sauvegarder les informations de base uniquement
-    this.structureService.updateStructure(currentStructure.id, updateData).pipe(
+    this.userStructureService.updateStructure(currentStructure.id, updateData).pipe(
       finalize(() => {
         this.isSavingSig.set(false);
         this.cdRef.markForCheck();

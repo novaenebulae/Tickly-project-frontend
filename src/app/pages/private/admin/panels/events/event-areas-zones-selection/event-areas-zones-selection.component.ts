@@ -17,8 +17,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatBadgeModule } from '@angular/material/badge';
 
 import { StructureAreaModel } from '../../../../../../core/models/structure/structure-area.model';
+import { AudienceZoneTemplateModel } from '../../../../../../core/models/structure/AudienceZoneTemplate.model';
 import { EventAudienceZone, SeatingType } from '../../../../../../core/models/event/event-audience-zone.model';
 import { StructureService } from '../../../../../../core/services/domain/structure/structure.service';
+import { UserStructureService } from '../../../../../../core/services/domain/user-structure/user-structure.service';
 import { NotificationService } from '../../../../../../core/services/domain/utilities/notification.service';
 
 /**
@@ -33,7 +35,7 @@ export interface AreaZoneSelection {
  * Interface pour la configuration d'une zone avec sa capacité allouée
  */
 export interface ZoneConfiguration {
-  zone: EventAudienceZone;
+  template: AudienceZoneTemplateModel;
   allocatedCapacity: number;
 }
 
@@ -60,6 +62,7 @@ export interface ZoneConfiguration {
 export class EventAreasZonesSelectionComponent implements OnInit {
   // Services injectés
   private structureService = inject(StructureService);
+  private userStructureService = inject(UserStructureService);
   private notification = inject(NotificationService);
 
   // Propriétés d'entrée
@@ -76,7 +79,7 @@ export class EventAreasZonesSelectionComponent implements OnInit {
   private selectedAreasSig: WritableSignal<StructureAreaModel[]> = signal([]);
   private selectedZonesSig: WritableSignal<ZoneConfiguration[]> = signal([]);
   private allAreasSig: WritableSignal<StructureAreaModel[]> = signal([]);
-  private allZonesByAreaSig: WritableSignal<Record<number, EventAudienceZone[]>> = signal({});
+  private allZonesByAreaSig: WritableSignal<Record<number, AudienceZoneTemplateModel[]>> = signal({});
 
   // Signaux calculés
   public readonly isLoading = computed(() => this.loadingSig());
@@ -121,7 +124,7 @@ export class EventAreasZonesSelectionComponent implements OnInit {
   private loadAreas(): void {
     this.loadingSig.set(true);
 
-    this.structureService.loadStructureAreas(this.structureId).subscribe({
+    this.userStructureService.loadUserStructureAreas().subscribe({
       next: (areas) => {
         this.allAreasSig.set(areas || []);
 
@@ -145,7 +148,7 @@ export class EventAreasZonesSelectionComponent implements OnInit {
    */
   private loadZonesForAllAreas(areas: StructureAreaModel[]): void {
     const zonePromises = areas.map(area =>
-      this.structureService.loadAreaAudienceZones(area.id!).toPromise()
+      this.userStructureService.loadAreaAudienceZoneTemplates(area.id!).toPromise()
         .then(zones => ({ areaId: area.id!, zones: zones || [] }))
         .catch(error => {
           console.error(`Erreur lors du chargement des zones pour l'espace ${area.id}:`, error);
@@ -154,7 +157,7 @@ export class EventAreasZonesSelectionComponent implements OnInit {
     );
 
     Promise.all(zonePromises).then(results => {
-      const zonesByArea: Record<number, EventAudienceZone[]> = {};
+      const zonesByArea: Record<number, AudienceZoneTemplateModel[]> = {};
 
       results.forEach(result => {
         zonesByArea[result.areaId] = result.zones;
@@ -177,10 +180,26 @@ export class EventAreasZonesSelectionComponent implements OnInit {
     }
 
     if (this.existingZones && this.existingZones.length > 0) {
-      const zoneConfigs: ZoneConfiguration[] = this.existingZones.map(zone => ({
-        zone: zone,
-        allocatedCapacity: zone.maxCapacity || 0
-      }));
+      const zoneConfigs: ZoneConfiguration[] = [];
+
+      // Convertir les EventAudienceZone existantes en ZoneConfiguration
+      // en trouvant les templates correspondants
+      this.existingZones.forEach(existingZone => {
+        // Chercher le template correspondant dans les zones chargées
+        const allZones = Object.values(this.allZonesByArea()).flat();
+        const template = allZones.find(t =>
+          t.areaId === existingZone.areaId &&
+          t.name === existingZone.name
+        );
+
+        if (template) {
+          zoneConfigs.push({
+            template: template,
+            allocatedCapacity: existingZone.maxCapacity || 0
+          });
+        }
+      });
+
       this.selectedZonesSig.set(zoneConfigs);
     }
   }
@@ -196,7 +215,7 @@ export class EventAreasZonesSelectionComponent implements OnInit {
    * Vérifie si une zone est sélectionnée
    */
   isZoneSelected(zoneId: number): boolean {
-    return this.selectedZones().some(zoneConfig => zoneConfig.zone.id === zoneId);
+    return this.selectedZones().some(zoneConfig => zoneConfig.template.id === zoneId);
   }
 
   /**
@@ -220,20 +239,19 @@ export class EventAreasZonesSelectionComponent implements OnInit {
   /**
    * Toggle la sélection d'une zone
    */
-  toggleZoneSelection(zone: EventAudienceZone): void {
-
+  toggleZoneSelection(template: AudienceZoneTemplateModel): void {
     const currentSelection = this.selectedZones();
-    const isCurrentlySelected = this.isZoneSelected(zone.id!);
+    const isCurrentlySelected = this.isZoneSelected(template.id!);
 
     if (isCurrentlySelected) {
       // Désélectionner la zone
-      const newSelection = currentSelection.filter(zoneConfig => zoneConfig.zone.id !== zone.id);
+      const newSelection = currentSelection.filter(zoneConfig => zoneConfig.template.id !== template.id);
       this.selectedZonesSig.set(newSelection);
     } else {
       // Sélectionner la zone avec sa capacité par défaut
       const newZoneConfig: ZoneConfiguration = {
-        zone: zone,
-        allocatedCapacity: zone.maxCapacity || 0
+        template: template,
+        allocatedCapacity: template.maxCapacity || 0
       };
       this.selectedZonesSig.set([...currentSelection, newZoneConfig]);
     }
@@ -252,7 +270,7 @@ export class EventAreasZonesSelectionComponent implements OnInit {
   private deselectAllZonesFromArea(areaId: number): void {
     const currentZoneSelection = this.selectedZones();
     const newZoneSelection = currentZoneSelection.filter(
-      zoneConfig => zoneConfig.zone.areaId !== areaId
+      zoneConfig => zoneConfig.template.areaId !== areaId
     );
     this.selectedZonesSig.set(newZoneSelection);
   }
@@ -271,8 +289,8 @@ export class EventAreasZonesSelectionComponent implements OnInit {
 
     const currentSelection = this.selectedZones();
     const updatedSelection = currentSelection.map(zoneConfig => {
-      if (zoneConfig.zone.id === zoneId) {
-        const maxCapacity = zoneConfig.zone.maxCapacity || 0;
+      if (zoneConfig.template.id === zoneId) {
+        const maxCapacity = zoneConfig.template.maxCapacity || 0;
         if (newCapacity > maxCapacity) {
           this.notification.displayNotification(
             `La capacité ne peut pas dépasser ${maxCapacity}`,
@@ -293,7 +311,7 @@ export class EventAreasZonesSelectionComponent implements OnInit {
    * Obtient le nombre de zones sélectionnées pour un espace donné
    */
   getSelectedZonesCountForArea(areaId: number): number {
-    return this.selectedZones().filter(zoneConfig => zoneConfig.zone.areaId === areaId).length;
+    return this.selectedZones().filter(zoneConfig => zoneConfig.template.areaId === areaId).length;
   }
 
   /**
@@ -301,7 +319,7 @@ export class EventAreasZonesSelectionComponent implements OnInit {
    */
   getAllocatedCapacityForArea(areaId: number): number {
     return this.selectedZones()
-      .filter(zoneConfig => zoneConfig.zone.areaId === areaId)
+      .filter(zoneConfig => zoneConfig.template.areaId === areaId)
       .reduce((total, zoneConfig) => total + zoneConfig.allocatedCapacity, 0);
   }
 
@@ -310,7 +328,7 @@ export class EventAreasZonesSelectionComponent implements OnInit {
    */
   getMaxCapacityForArea(areaId: number): number {
     const zonesForArea = this.allZonesByArea()[areaId] || [];
-    return zonesForArea.reduce((total, zone) => total + (zone.maxCapacity || 0), 0);
+    return zonesForArea.reduce((total, template) => total + (template.maxCapacity || 0), 0);
   }
 
   /**
@@ -325,7 +343,7 @@ export class EventAreasZonesSelectionComponent implements OnInit {
    * Obtient la configuration d'une zone sélectionnée
    */
   getZoneConfiguration(zoneId: number): ZoneConfiguration | undefined {
-    return this.selectedZones().find(zoneConfig => zoneConfig.zone.id === zoneId);
+    return this.selectedZones().find(zoneConfig => zoneConfig.template.id === zoneId);
   }
 
   /**
@@ -343,14 +361,14 @@ export class EventAreasZonesSelectionComponent implements OnInit {
     const currentSelection = this.selectedZones();
 
     // Filtrer les zones qui ne sont pas encore sélectionnées
-    const unselectedZones = zonesInArea.filter(zone =>
-      !currentSelection.some(zoneConfig => zoneConfig.zone.id === zone.id)
+    const unselectedTemplates = zonesInArea.filter(template =>
+      !currentSelection.some(zoneConfig => zoneConfig.template.id === template.id)
     );
 
     // Créer les nouvelles configurations pour ces zones
-    const newZoneConfigs = unselectedZones.map(zone => ({
-      zone: zone,
-      allocatedCapacity: zone.maxCapacity || 0
+    const newZoneConfigs = unselectedTemplates.map(template => ({
+      template: template,
+      allocatedCapacity: template.maxCapacity || 0
     }));
 
     // Ajouter ces zones à la sélection actuelle
