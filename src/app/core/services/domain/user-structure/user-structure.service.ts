@@ -253,25 +253,7 @@ export class UserStructureService {
         if (response.createdStructure) {
           const structureId = response.createdStructure.id;
 
-          // En mode mock : déconnexion pour forcer la reconnexion avec les bonnes données
-          if (this.apiConfig.isMockEnabledForDomain("structures")) {
-            // Mettre à jour les données utilisateur dans le localStorage
-            this.authService.updateUserStructureInfoInMockMode(structureId!);
-
-            // Déconnecter l'utilisateur et rediriger vers la page de connexion
-            this.notification.displayNotification(
-              'Structure créée avec succès ! Vous allez être déconnecté pour mettre à jour vos données.',
-              'valid'
-            );
-
-            setTimeout(() => {
-              this.authService.logout();
-              this.router.navigate(['/auth'], {
-                queryParams: { message: 'Veuillez vous reconnecter pour accéder à votre nouvelle structure.' }
-              });
-            }, 2000);
-
-          } else if (response.newToken) {
+          if (response.newToken) {
             // En mode réel, utiliser le token fourni par l'API
             this.authService.updateTokenAndState(response.newToken);
             this.notification.displayNotification('Structure créée avec succès !', 'valid');

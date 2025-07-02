@@ -6,7 +6,7 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject, signal, WritableSignal, computed } from '@angular/core';
+import { Injectable, inject, signal, WritableSignal, computed, Injector } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
@@ -20,7 +20,6 @@ import { UserRegistrationDto } from '../../../models/user/user.model';
 import { UserRole } from '../../../models/user/user-role.enum';
 import { UserModel } from '../../../models/user/user.model';
 import { Location } from '@angular/common';
-import {AuthApiMockService} from '../../api/auth/auth-api-mock.service';
 
 @Injectable({
   providedIn: 'root'
@@ -29,8 +28,7 @@ export class AuthService {
   private authApi = inject(AuthApiService);
   private notification = inject(NotificationService);
   private router = inject(Router);
-  private authApiMock = inject(AuthApiMockService);
-
+  private injector = inject(Injector);
 
   // --- User State Signals ---
   private currentUserSig: WritableSignal<JwtPayload | null> = signal(null);
@@ -47,7 +45,6 @@ export class AuthService {
 
   private userStructureIdSig: WritableSignal<number | null> = signal(null);
   public readonly userStructureId = computed(() => this.userStructureIdSig());
-
 
   private keepLoggedInSig: WritableSignal<boolean> = signal(
     localStorage.getItem(APP_CONFIG.auth.keepLoggedInKey) === 'true'
@@ -108,10 +105,8 @@ export class AuthService {
   register(registrationDto: UserRegistrationDto, keepLoggedIn: boolean): Observable<boolean> {
     return this.authApi.register(registrationDto).pipe(
       tap((response: AuthResponseDto) => {
-        this.keepLoggedInSig.set(keepLoggedIn);
-        localStorage.setItem(APP_CONFIG.auth.keepLoggedInKey, keepLoggedIn.toString());
-        this.handleAuthResponse(response);
-        this.notification.displayNotification("Inscription réussie ! Vous êtes maintenant connecté.", 'valid');
+        this.notification.displayNotification("Inscription réussie ! Validez votre adresse mail afin de pouvoir vous connecter.", 'valid');
+        this.router.navigate(['/']);
       }),
       map(() => true),
       catchError(error => {
@@ -119,8 +114,6 @@ export class AuthService {
       })
     );
   }
-
-  // TODO : Page de validation d'email
 
   /**
    * Logs out the current user, clears authentication data, and navigates to the login page.
@@ -135,18 +128,33 @@ export class AuthService {
   }
 
   /**
+   * Updates the authentication token and user state.
+   * @param newToken - The new JWT token.
+   */
+  public updateTokenAndState(newToken: string): void {
+    try {
+      const decodedToken = jwtDecode<JwtPayload>(newToken);
+      this.storeToken(newToken);
+      this.updateUserState(decodedToken, newToken);
+      this.notification.displayNotification("Session mise à jour.", 'info');
+    } catch (error) {
+      console.error('Failed to update token and state:', error);
+      this.logout();
+      this.notification.displayNotification("Erreur de mise à jour de session. Veuillez vous reconnecter.", 'error');
+    }
+  }
+
+  /**
    * Clears session-specific authentication data if the user did not opt to "keep logged in".
    * This is typically called by BrowserCloseService on `beforeunload`.
    * It only clears the session token, leaving localStorage token intact if "keepLoggedIn" was true.
    */
   public clearSessionDataIfNotKeptLoggedIn(): void {
-    if (!this.keepLoggedInSig()) { // keepLoggedInSig reflects the choice made at login
-      // Only clear session storage token and related session state
+    if (!this.keepLoggedInSig()) {
       sessionStorage.removeItem(APP_CONFIG.auth.tokenKey);
 
-      // If the current state was loaded from session token, clear it
       const tokenInLocalStorage = localStorage.getItem(APP_CONFIG.auth.tokenKey);
-      if (!tokenInLocalStorage) { // Implies current session was from sessionStorage
+      if (!tokenInLocalStorage) {
         this.currentUserSig.set(null);
         this.isLoggedInSig.set(false);
         this.userRoleSig.set(null);
@@ -159,7 +167,6 @@ export class AuthService {
     }
   }
 
-
   /**
    * Requests a password reset for the given email address.
    * The backend is expected to handle sending the reset email.
@@ -167,53 +174,22 @@ export class AuthService {
    * @returns An Observable that completes on success or errors on failure.
    */
   requestPasswordReset(email: string): Observable<void> {
-    // This method will call AuthApiService.requestPasswordReset (to be created)
-    return this.authApi.requestPasswordReset({ email }).pipe( // Assuming DTO {email: string}
+    return this.authApi.requestPasswordReset({ email }).pipe(
       tap(() => {
         this.notification.displayNotification(
-          "Si un compte existe pour cet email, un lien de réinitialisation de mot de passe a été envoyé.", // French
+          "Si un compte existe pour cet email, un lien de réinitialisation de mot de passe a été envoyé.",
           'valid'
         );
       }),
       catchError(error => {
         this.notification.displayNotification(
-          error.message || "Erreur lors de la demande de réinitialisation du mot de passe.", // French
-          'error'
-        );
-        return throwError(() => error); // Rethrow for component handling if needed
-      })
-    );
-  }
-
-  /**
-   * Requests a password change for the currently authenticated user.
-   * The backend is expected to handle sending a password change/confirmation email.
-   * @returns An Observable that completes on success or errors on failure.
-   */
-  requestPasswordChange(): Observable<void> {
-    if (!this.isLoggedIn()) {
-      this.notification.displayNotification("Vous devez être connecté pour demander un changement de mot de passe.", 'warning');
-      return throwError(() => new Error('User not logged in'));
-    }
-
-    // This method will call AuthApiService.requestPasswordChange (to be created)
-    return this.authApi.requestPasswordChange().pipe(
-      tap(() => {
-        this.notification.displayNotification(
-          "Un email vous a été envoyé pour confirmer le changement de votre mot de passe.", // French
-          'valid'
-        );
-      }),
-      catchError(error => {
-        this.notification.displayNotification(
-          error.message || "Erreur lors de la demande de changement de mot de passe.", // French
+          error.message || "Erreur lors de la demande de réinitialisation du mot de passe.",
           'error'
         );
         return throwError(() => error);
       })
     );
   }
-
 
   /**
    * Handles the authentication response by storing the token and updating user state.
@@ -229,7 +205,7 @@ export class AuthService {
         this.navigateAfterLogin(decodedToken);
       } catch (error) {
         console.error('Failed to decode token or update user state:', error);
-        this.clearAuthData(); // Clear data if token is invalid
+        this.clearAuthData();
       }
     } else {
       console.error('Failed to decode token or update user state: No Token found');
@@ -249,7 +225,6 @@ export class AuthService {
     }
   }
 
-
   /**
    * Retrieves the stored authentication token.
    * @returns The token string or null if not found.
@@ -268,164 +243,82 @@ export class AuthService {
   private updateUserState(decodedToken: JwtPayload, token?: string): void {
     this.currentUserSig.set(decodedToken);
     this.isLoggedInSig.set(true);
-    this.userRoleSig.set(decodedToken.role as UserRole); // Assuming role in token matches UserRole enum
+    this.userRoleSig.set(decodedToken.role as UserRole);
     this.needsStructureSetupSig.set(decodedToken.needsStructureSetup || false);
     this.userStructureIdSig.set(decodedToken.structureId || null);
 
-    if (token) { // Ensure token is stored according to keepLoggedIn preference
+    if (token) {
       this.storeToken(token);
     }
   }
 
   /**
-   * Updates the authentication token and user state.
-   * Useful after operations that might return a new token (e.g., structure creation).
-   * @param newToken - The new JWT token.
+   * Met à jour le contexte de structure utilisateur (appelé après changement de structure).
+   * @param structureId - Le nouvel ID de structure.
    */
-  public updateTokenAndState(newToken: string): void {
-    try {
-      const decodedToken = jwtDecode<JwtPayload>(newToken);
-      this.storeToken(newToken); // Store first
-      this.updateUserState(decodedToken, newToken); // Then update state
-      this.notification.displayNotification("Session mise à jour.", 'info');
-    } catch (error) {
-      console.error('Failed to update token and state:', error);
-      this.logout(); // Log out if the new token is invalid
-      this.notification.displayNotification("Erreur de mise à jour de session. Veuillez vous reconnecter.", 'error');
+  public updateUserStructureContext(structureId: number): void {
+    this.userStructureIdSig.set(structureId);
+
+    // Si l'utilisateur avait besoin de configurer une structure, ce n'est plus le cas
+    if (this.needsStructureSetupSig()) {
+      this.needsStructureSetupSig.set(false);
     }
   }
 
   /**
-   * Met à jour les informations de structure de l'utilisateur en mode mock
+   * Navigates the user to the appropriate page after login based on their role and setup status.
+   * @param decodedToken - The decoded JWT payload containing user information.
    */
-  updateUserStructureInfoInMockMode(structureId: number): void {
-    const currentUser = this.currentUserSig();
-    if (!currentUser) {
-      console.error('No current user to update');
-      return;
-    }
-
-    try {
-      // 1. Mettre à jour les données mock de l'utilisateur
-        this.authApiMock.updateUserStructureInfo(currentUser.userId, structureId);
-
-        // 2. Générer un nouveau token avec les informations mises à jour
-        const newToken = this.authApiMock.generateUpdatedToken(currentUser.userId, structureId);
-
-        // 3. Stocker le nouveau token
-        this.storeToken(newToken);
-
-        // 4. Mettre à jour l'état de l'application avec le nouveau token
-        const decodedToken = jwtDecode<JwtPayload>(newToken);
-        this.updateUserState(decodedToken, newToken);
-
-        console.log('User structure info updated successfully in mock mode:', {
-          userId: currentUser.userId,
-          structureId: structureId,
-          needsStructureSetup: false
-        });
-    } catch (error) {
-      console.error('Error updating user structure info in mock mode:', error);
-      this.notification.displayNotification(
-        'Erreur lors de la mise à jour des informations utilisateur.',
-        'error',
-        'Fermer'
-      );
+  private navigateAfterLogin(decodedToken: JwtPayload): void {
+    if (decodedToken.needsStructureSetup) {
+      this.router.navigate(['/manager/structure-setup']);
+    } else if (decodedToken.structureId) {
+      this.router.navigate(['/manager/dashboard']);
+    } else {
+      // Fallback to login or default route
+      this.router.navigate(['/auth/login']);
     }
   }
 
   /**
-   * Clears all authentication-related data from storage and service state.
+   * Clears all authentication data from signals and storage.
    */
   private clearAuthData(): void {
-    localStorage.removeItem(APP_CONFIG.auth.tokenKey);
-    sessionStorage.removeItem(APP_CONFIG.auth.tokenKey);
-    // Don't clear keepLoggedInKey here, as it's a user preference
-    // localStorage.removeItem(APP_CONFIG.auth.keepLoggedInKey); // Only if you want to reset this on manual logout
-
     this.currentUserSig.set(null);
     this.isLoggedInSig.set(false);
     this.userRoleSig.set(null);
     this.needsStructureSetupSig.set(false);
     this.userStructureIdSig.set(null);
 
-    console.log("Auth flushed")
-
-    this.router.navigateByUrl('/', { skipLocationChange: true });
+    // Clear tokens from both storage mechanisms
+    localStorage.removeItem(APP_CONFIG.auth.tokenKey);
+    sessionStorage.removeItem(APP_CONFIG.auth.tokenKey);
+    localStorage.removeItem(APP_CONFIG.auth.keepLoggedInKey);
   }
 
   /**
-   * Navigates the user to the appropriate page after successful login.
-   * @param decodedToken - The decoded JWT payload.
+   * Refreshes the authentication token by making a call to the backend.
+   * @returns An Observable that emits true if the token was refreshed successfully, false otherwise.
    */
-  private navigateAfterLogin(decodedToken: JwtPayload): void {
-    if (decodedToken.role === UserRole.STRUCTURE_ADMINISTRATOR) {
-      if (decodedToken.needsStructureSetup) {
-        this.router.navigate(['/create-structure']);
-      } else {
-        this.router.navigate(['/admin']);
-      }
-    } else {
-      this.router.navigate(['/user']);
+  refreshToken(): Observable<boolean> {
+    const currentToken = this.getToken();
+    if (!currentToken) {
+      return of(false);
     }
-  }
 
-
-  /**
-   * Allows UserService to notify AuthService to refresh its currentUserSig
-   * if profile details (like name, avatar) that might be in JwtPayload are updated.
-   * This is a simple refresh; more complex scenarios might require re-fetching/re-decoding a token.
-   * @param updatedProfile - The partially updated UserModel.
-   */
-  refreshCurrentUserDataFromUpdatedProfile(updatedProfile: Partial<UserModel>): void {
-    const currentUser = this.currentUserSig();
-    if (currentUser && currentUser.userId === updatedProfile.id) {
-      // Create a new object for the signal to trigger change detection
-      const updatedPayload: JwtPayload = { ...currentUser };
-
-      // Update fields if they exist in JwtPayload and were changed
-      // Assuming JwtPayload might contain firstName, lastName for display purposes
-      if (updatedProfile.firstName && 'firstName' in updatedPayload) {
-        (updatedPayload as any).firstName = updatedProfile.firstName;
-      }
-      if (updatedProfile.lastName && 'lastName' in updatedPayload) {
-        (updatedPayload as any).lastName = updatedProfile.lastName;
-      }
-      // Add other updatable fields present in JwtPayload as needed
-
-      this.currentUserSig.set(updatedPayload);
-    }
-  }
-
-  /**
-   * Met à jour le contexte de structure de l'utilisateur.
-   * @param structureId - ID de la structure de l'utilisateur.
-   */
-  updateUserStructureContext(structureId: number): void {
-    this.userStructureIdSig.set(structureId);
-  }
-
-  /**
-   * Efface le contexte de structure.
-   */
-  clearUserStructureContext(): void {
-    this.userStructureIdSig.set(null);
-  }
-
-
-  /**
-   * Checks if the current user has a specific role or one of an array of roles.
-   * @param expectedRole - A single UserRole or an array of UserRoles.
-   * @returns True if the current user has the expected role(s), false otherwise.
-   */
-  hasRole(expectedRole: UserRole | UserRole[]): boolean {
-    const currentRole = this.userRole();
-    if (!currentRole) {
-      return false;
-    }
-    if (Array.isArray(expectedRole)) {
-      return expectedRole.includes(currentRole);
-    }
-    return currentRole === expectedRole;
+    return this.authApi.refreshToken().pipe(
+      tap((response: AuthResponseDto) => {
+        if (response.accessToken) {
+          this.storeToken(response.accessToken);
+          const decodedToken = jwtDecode<JwtPayload>(response.accessToken);
+          this.updateUserState(decodedToken, response.accessToken);
+        }
+      }),
+      map(() => true),
+      catchError(() => {
+        this.clearAuthData();
+        return of(false);
+      })
+    );
   }
 }

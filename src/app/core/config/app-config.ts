@@ -59,9 +59,10 @@ interface AppConfig {
       };
       team: {
         structure: (structureId: number | string) => string; // e.g., `team/structure/${structureId}`
-        roles: string;                                       // e.g., 'team/roles'
-        invite: string;                                      // e.g., 'team/invite'
+        invite: (structureId: number | string) => string;    // e.g., 'team/invite'
+        invitationAccept: string;
         member: (memberId: number | string) => string;      // e.g., `team/member/${memberId}`
+        memberRole: (memberId: number | string) => string;
         myRole: string;                                      // e.g., 'team/me/role'
       };
       ticketing: {
@@ -162,9 +163,10 @@ export const APP_CONFIG: AppConfig = {
 
       team: {
         structure: (structureId: number | string) => `team/structure/${structureId}`,
-        roles: 'team/roles',
-        invite: 'team/invite',
-        member: (memberId: number | string) => `team/member/${memberId}`,
+        invite: (structureId: number | string) => `team/structure/${structureId}/invite`,
+        invitationAccept: 'team/invitations/accept',
+        member: (memberId: number | string) => `team/members/${memberId}`,
+        memberRole: (memberId: number | string) => `team/members/${memberId}/role`,
         myRole: 'team/me/role'
       },
       friendship: {

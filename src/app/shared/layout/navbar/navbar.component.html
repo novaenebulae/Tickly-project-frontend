@@ -53,7 +53,7 @@
             </a>
           </li>
         }
-        @if (isLoggedIn() && currentUser()?.role === UserRole.STRUCTURE_ADMINISTRATOR) {
+        @if (isLoggedIn() && ALLOWED_TEAM_ROLES.includes(currentUser()?.role)) {
           <!-- Espace Personnel Link -->
           <li class="nav-item">
             <a class="nav-link"
@@ -166,8 +166,8 @@
                 <span>Mes amis</span>
               </button>
 
-              <!-- Admin Link (if user is admin) -->
-              @if (currentUser()?.role === UserRole.STRUCTURE_ADMINISTRATOR) {
+              <!-- Staff Link (if user is staff) -->
+              @if (currentUser()?.role !== UserRole.SPECTATOR) {
                 <mat-divider></mat-divider>
                 <a mat-menu-item routerLink="/admin" (click)="navigateAndCloseMenus()">
                   <mat-icon>admin_panel_settings</mat-icon>

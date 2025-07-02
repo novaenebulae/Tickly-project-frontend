@@ -5,7 +5,7 @@
 
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { tap, catchError, finalize, map } from 'rxjs/operators';
+import {tap, catchError, finalize, map, switchMap} from 'rxjs/operators';
 
 // Services API
 import { TeamApiService } from '../../api/team/team-api.service';
@@ -18,7 +18,6 @@ import { AuthService } from '../user/auth.service';
 // Modèles
 import {
   TeamMember,
-  Role,
   InviteTeamMemberDto,
   UpdateTeamMemberDto,
   InviteTeamMemberResponseDto,
@@ -39,17 +38,17 @@ export class TeamManagementService {
 
   // Signals pour la gestion d'état
   private teamMembersSig = signal<TeamMember[]>([]);
-  private availableRolesSig = signal<Role[]>([]);
   private isLoadingSig = signal(false);
   private isInvitingSig = signal(false);
   private isUpdatingSig = signal(false);
+  private storedInvitationTokenSig = signal<string | null>(null);
 
   // Computed signals
   public readonly teamMembers = computed(() => this.teamMembersSig());
-  public readonly availableRoles = computed(() => this.availableRolesSig());
   public readonly isLoading = computed(() => this.isLoadingSig());
   public readonly isInviting = computed(() => this.isInvitingSig());
   public readonly isUpdating = computed(() => this.isUpdatingSig());
+  public readonly storedInvitationToken = computed(() => this.storedInvitationTokenSig());
 
   // Computed signals pour les statistiques
   public readonly activeMembers = computed(() =>
@@ -60,18 +59,8 @@ export class TeamManagementService {
     this.teamMembersSig().filter(member => member.status === TeamMemberStatus.PENDING)
   );
 
-  public readonly inactiveMembers = computed(() =>
-    this.teamMembersSig().filter(member => member.status === TeamMemberStatus.INACTIVE)
-  );
-
   // Computed signals pour les rôles autorisés dans une équipe
-  public readonly allowedTeamRoles = computed(() =>
-    this.availableRolesSig().filter(role => isAllowedTeamRole(role.key))
-  );
-
-  constructor() {
-    this.loadAvailableRoles();
-  }
+  public readonly allowedTeamRoles = computed(() => [...ALLOWED_TEAM_ROLES]);
 
   /**
    * Charge les membres d'équipe pour la structure de l'utilisateur actuel.
@@ -106,25 +95,20 @@ export class TeamManagementService {
   }
 
   /**
-   * Charge les rôles disponibles.
-   */
-  private loadAvailableRoles(): void {
-    this.teamApiService.getAvailableRoles().pipe(
-      tap(roles => this.availableRolesSig.set(roles)),
-      catchError(error => {
-        this.handleError('Impossible de charger les rôles disponibles.', error);
-        return of([]);
-      })
-    ).subscribe();
-  }
-
-  /**
    * Invite un utilisateur à rejoindre l'équipe.
    */
-  inviteTeamMember(email: string, roleId: number): Observable<TeamMember | null> {
-    const role = this.availableRolesSig().find(r => r.id === roleId);
+  inviteTeamMember(email: string, role: UserRole): Observable<TeamMember | null> {
+    const structureId = this.userStructureService.userStructureId();
 
-    if (!role || !isAllowedTeamRole(role.key)) {
+    if (!structureId) {
+      this.notificationService.displayNotification(
+        'Aucune structure associée à votre compte.',
+        'error'
+      );
+      return of(null);
+    }
+
+    if (!role || !isAllowedTeamRole(role)) {
       this.notificationService.displayNotification(
         'Le rôle sélectionné n\'est pas autorisé pour une équipe.',
         'error'
@@ -132,34 +116,82 @@ export class TeamManagementService {
       return of(null);
     }
 
-    const inviteDto: InviteTeamMemberDto = { email, roleId };
+    const inviteDto: InviteTeamMemberDto = { email, role };
 
     this.isInvitingSig.set(true);
 
-    return this.teamApiService.inviteTeamMember(inviteDto).pipe(
-      tap(response => {
-        if (response.success && response.member) {
-          // Ajouter le nouveau membre à la liste
-          const currentMembers = this.teamMembersSig();
-          this.teamMembersSig.set([...currentMembers, response.member]);
+    return this.teamApiService.inviteTeamMember(structureId, inviteDto).pipe(
+      tap(updatedTeamMembers => {
+        // Mettre à jour directement avec la liste complète retournée par l'API
+        this.teamMembersSig.set(updatedTeamMembers);
 
+        // Trouver le nouveau membre invité pour afficher une notification personnalisée
+        const newMember = updatedTeamMembers.find(member =>
+          member.email === email && member.status === TeamMemberStatus.PENDING
+        );
+
+        if (newMember) {
           this.notificationService.displayNotification(
-            response.message || 'Invitation envoyée avec succès !',
+            `Invitation envoyée avec succès à ${email} !`,
             'valid'
           );
         } else {
           this.notificationService.displayNotification(
-            response.message || 'Erreur lors de l\'envoi de l\'invitation.',
-            'error'
+            'Invitation envoyée avec succès !',
+            'valid'
           );
         }
       }),
-      map(response => response.member || null),
+      map(updatedTeamMembers => {
+        // Retourner le nouveau membre invité ou null
+        return updatedTeamMembers.find(member =>
+          member.email === email && member.status === TeamMemberStatus.PENDING
+        ) || null;
+      }),
       catchError(error => {
         this.handleError('Impossible d\'envoyer l\'invitation.', error);
         return of(null);
       }),
       finalize(() => this.isInvitingSig.set(false))
+    );
+  }
+
+  /**
+   * Change le rôle d'un membre d'équipe.
+   */
+  updateTeamMemberRole(memberId: number, role: UserRole): Observable<TeamMember | null> {
+    if (!role || !isAllowedTeamRole(role)) {
+      this.notificationService.displayNotification(
+        'Le rôle sélectionné n\'est pas autorisé pour une équipe.',
+        'error'
+      );
+      return of(null);
+    }
+
+    this.isUpdatingSig.set(true);
+
+    return this.teamApiService.updateTeamMemberRole(memberId, role).pipe(
+      tap(updatedMember => {
+        // Mettre à jour le membre dans la liste
+        const currentMembers = this.teamMembersSig();
+        const memberIndex = currentMembers.findIndex(m => m.id === memberId);
+
+        if (memberIndex !== -1) {
+          const updatedMembers = [...currentMembers];
+          updatedMembers[memberIndex] = updatedMember;
+          this.teamMembersSig.set(updatedMembers);
+
+          this.notificationService.displayNotification(
+            'Rôle du membre mis à jour avec succès !',
+            'valid'
+          );
+        }
+      }),
+      catchError(error => {
+        this.handleError('Impossible de mettre à jour le rôle du membre.', error);
+        return of(null);
+      }),
+      finalize(() => this.isUpdatingSig.set(false))
     );
   }
 
@@ -195,30 +227,6 @@ export class TeamManagementService {
   }
 
   /**
-   * Change le rôle d'un membre d'équipe.
-   */
-  updateTeamMemberRole(memberId: number, roleId: number): Observable<TeamMember | null> {
-    const role = this.availableRolesSig().find(r => r.id === roleId);
-
-    if (!role || !isAllowedTeamRole(role.key)) {
-      this.notificationService.displayNotification(
-        'Le rôle sélectionné n\'est pas autorisé pour une équipe.',
-        'error'
-      );
-      return of(null);
-    }
-
-    return this.updateTeamMember(memberId, { roleId });
-  }
-
-  /**
-   * Change le statut d'un membre d'équipe.
-   */
-  updateTeamMemberStatus(memberId: number, status: TeamMemberStatus): Observable<TeamMember | null> {
-    return this.updateTeamMember(memberId, { status });
-  }
-
-  /**
    * Supprime un membre d'équipe.
    */
   removeTeamMember(memberId: number): Observable<boolean> {
@@ -246,55 +254,11 @@ export class TeamManagementService {
   }
 
   /**
-   * Renvoie une invitation à un membre en attente.
-   */
-  resendInvitation(memberId: number): Observable<boolean> {
-    const member = this.teamMembersSig().find(m => m.id === memberId);
-
-    if (!member || member.status !== TeamMemberStatus.PENDING) {
-      this.notificationService.displayNotification(
-        'Seuls les membres en attente peuvent recevoir une nouvelle invitation.',
-        'error'
-      );
-      return of(false);
-    }
-
-    return this.teamApiService.resendTeamMemberInvitation(memberId).pipe(
-      tap(response => {
-        if (response.success) {
-          // Mettre à jour la date d'invitation dans le cache local
-          const currentMembers = this.teamMembersSig();
-          const memberIndex = currentMembers.findIndex(m => m.id === memberId);
-
-          if (memberIndex !== -1) {
-            const updatedMembers = [...currentMembers];
-            updatedMembers[memberIndex] = {
-              ...updatedMembers[memberIndex],
-              invitedAt: new Date()
-            };
-            this.teamMembersSig.set(updatedMembers);
-          }
-
-          this.notificationService.displayNotification(
-            response.message || 'Invitation renvoyée avec succès !',
-            'valid'
-          );
-        }
-      }),
-      map(response => response.success),
-      catchError(error => {
-        this.handleError('Impossible de renvoyer l\'invitation.', error);
-        return of(false);
-      })
-    );
-  }
-
-  /**
    * Vérifie si l'utilisateur actuel peut gérer l'équipe.
    */
   canManageTeam(): boolean {
-    const userRole = this.authService.currentUser()?.role;
-    return userRole === UserRole.STRUCTURE_ADMINISTRATOR;
+    const currentUser = this.authService.currentUser();
+    return currentUser?.role === UserRole.STRUCTURE_ADMINISTRATOR;
   }
 
   /**
@@ -303,9 +267,9 @@ export class TeamManagementService {
   canEditMember(member: TeamMember): boolean {
     if (!this.canManageTeam()) return false;
 
-    const currentUserId = this.authService.currentUser()?.userId;
+    const currentUser = this.authService.currentUser();
     // Ne pas permettre à un utilisateur de se modifier lui-même
-    return member.userId !== currentUserId;
+    return member.userId !== currentUser?.userId;
   }
 
   /**
@@ -314,31 +278,10 @@ export class TeamManagementService {
   canRemoveMember(member: TeamMember): boolean {
     if (!this.canEditMember(member)) return false;
 
+    const currentUser = this.authService.currentUser();
     // Un administrateur de structure ne peut pas supprimer un autre administrateur
-    const currentUserRole = this.authService.currentUser()?.role;
-    return !(currentUserRole === UserRole.STRUCTURE_ADMINISTRATOR &&
-      member.role.key === UserRole.STRUCTURE_ADMINISTRATOR);
-  }
-
-  /**
-   * Obtient un membre par son ID.
-   */
-  getMemberById(memberId: number): TeamMember | undefined {
-    return this.teamMembersSig().find(member => member.id === memberId);
-  }
-
-  /**
-   * Obtient les membres par statut.
-   */
-  getMembersByStatus(status: TeamMemberStatus): TeamMember[] {
-    return this.teamMembersSig().filter(member => member.status === status);
-  }
-
-  /**
-   * Obtient les membres par rôle.
-   */
-  getMembersByRole(roleKey: UserRole): TeamMember[] {
-    return this.teamMembersSig().filter(member => member.role.key === roleKey);
+    return !(currentUser?.role === UserRole.STRUCTURE_ADMINISTRATOR &&
+      member.role === UserRole.STRUCTURE_ADMINISTRATOR);
   }
 
   /**
@@ -346,13 +289,6 @@ export class TeamManagementService {
    */
   refreshTeamMembers(): Observable<TeamMember[]> {
     return this.loadTeamMembers(true);
-  }
-
-  /**
-   * Nettoie le cache.
-   */
-  clearCache(): void {
-    this.teamMembersSig.set([]);
   }
 
   /**

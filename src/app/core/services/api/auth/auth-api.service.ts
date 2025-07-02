@@ -11,7 +11,6 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
 import { ApiConfigService } from '../api-config.service';
-import { AuthApiMockService } from './auth-api-mock.service'; // Import the mock service
 import { APP_CONFIG } from '../../../config/app-config';
 import { LoginCredentials, AuthResponseDto } from '../../../models/auth/auth.model';
 import { UserRegistrationDto } from '../../../models/user/user.model';
@@ -24,7 +23,6 @@ export class AuthApiService {
 
   private apiConfig = inject(ApiConfigService);
   private http = inject(HttpClient); // Direct access to HttpClient for more control
-  private mockService = inject(AuthApiMockService); // Inject the mock service
   private notificationService = inject(NotificationService);
 
   /**
@@ -33,9 +31,6 @@ export class AuthApiService {
    * @returns Observable qui complète en cas de succès ou émet une erreur
    */
   requestPasswordReset(dto: { email: string }): Observable<void> {
-    if (this.apiConfig.isMockEnabledForDomain('auth')) {
-      return this.mockService.mockRequestPasswordReset(dto.email);
-    }
 
     this.apiConfig.logApiRequest('POST', 'forgot-password', { email: dto.email });
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.auth.passwordResetRequest);
@@ -53,9 +48,6 @@ export class AuthApiService {
    * @returns Observable qui complète en cas de succès ou émet une erreur
    */
   resetPassword(dto: { token: string, newPassword: string }): Observable<void> {
-    if (this.apiConfig.isMockEnabledForDomain('auth')) {
-      return this.mockService.mockResetPassword(dto);
-    }
 
     this.apiConfig.logApiRequest('POST', 'reset-password', { token: dto.token, newPassword: '***' });
     const url = this.apiConfig.getUrl('auth/reset-password');
@@ -79,9 +71,6 @@ export class AuthApiService {
    * @returns Un Observable qui complète en cas de succès ou échoue en cas d'erreur
    */
   validateEmail(token: string): Observable<void> {
-    if (this.apiConfig.isMockEnabledForDomain('auth')) {
-      return this.mockService.mockValidateEmail(token);
-    }
 
     this.apiConfig.logApiRequest('GET', 'validate-email', { token });
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.auth.validateToken);
@@ -101,18 +90,23 @@ export class AuthApiService {
    */
   login(credentials: LoginCredentials): Observable<AuthResponseDto> {
 
-    if (this.apiConfig.isMockEnabledForDomain('auth')) {
-      return this.mockService.mockLogin(credentials);
-    }
-
-    this.apiConfig.logApiRequest('POST', 'login', credentials);
+    this.apiConfig.logApiRequest('POST', 'login', {
+      email: credentials.email,
+      password: '***' // Ne pas logger le mot de passe en clair
+    });
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.auth.login);
     const headers = this.apiConfig.createHeaders();
+
     return this.http.post<AuthResponseDto>(url, credentials, { headers }).pipe(
-      tap(response => this.apiConfig.logApiResponse('POST', 'login', response)),
+      tap(response => this.apiConfig.logApiResponse('POST', 'login', {
+        success: true,
+        userId: response.userId || 'N/A', // Logger l'ID utilisateur si disponible
+        hasToken: !!response.accessToken
+      })),
       catchError(error => this.handleAuthError(error, 'login'))
     );
   }
+
 
   /**
    * Calls the register API or uses mocks depending on the configuration.
@@ -120,10 +114,6 @@ export class AuthApiService {
    * @returns An Observable of AuthResponseDto.
    */
   register(userRegistrationDto: UserRegistrationDto): Observable<AuthResponseDto> {
-
-    if (this.apiConfig.isMockEnabledForDomain('auth')) {
-      return this.mockService.mockRegister(userRegistrationDto);
-    }
 
     this.apiConfig.logApiRequest('POST', 'register', userRegistrationDto);
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.auth.register);
@@ -140,10 +130,6 @@ export class AuthApiService {
    */
   refreshToken(): Observable<AuthResponseDto> {
     this.apiConfig.logApiRequest('POST', 'refresh-token', {});
-
-    if (this.apiConfig.isMockEnabledForDomain('auth')) {
-      return this.mockService.mockRefreshToken();
-    }
 
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.auth.refreshToken ?? '');
     const token = this.getStoredToken();

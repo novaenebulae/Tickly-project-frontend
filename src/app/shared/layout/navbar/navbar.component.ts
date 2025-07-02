@@ -18,6 +18,7 @@ import { NotificationService } from '../../../core/services/domain/utilities/not
 
 // Models
 import { UserModel } from '../../../core/models/user/user.model';
+import {ALLOWED_TEAM_ROLES} from '../../../core/models/user/team-member.model';
 
 /**
  * Composant Navbar modernisé utilisant les signaux et la nouvelle architecture
@@ -333,4 +334,5 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   protected readonly UserRole = UserRole;
+  protected readonly ALLOWED_TEAM_ROLES = ALLOWED_TEAM_ROLES;
 }

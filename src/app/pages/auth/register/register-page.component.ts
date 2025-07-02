@@ -129,7 +129,6 @@ export class RegisterPageComponent implements OnInit {
         console.log(
           'RegisterPageComponent: Registration successful.'
         );
-        this.notificationService.displayNotification("Compte créé avec succès, validez votre compte en cliquant sur le lien reçu par email", 'valid')
         // Si la navigation réussit, ce composant sera détruit.
         // Si elle échoue, on arrête le spinner.
         this.isLoading.set(false);

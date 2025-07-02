@@ -23,7 +23,6 @@ import { Observable, throwError } from 'rxjs';
 
 
 import { ApiConfigService } from '../api-config.service';
-import { UserApiMockService } from './user-api-mock.service';
 import { APP_CONFIG } from '../../../config/app-config';
 import { UserModel } from '../../../models/user/user.model';
 import { UserProfileUpdateDto } from '../../../models/user/user-profile-update.dto';
@@ -36,7 +35,6 @@ import {catchError, map, tap} from 'rxjs/operators';
 export class UserApiService {
   private apiConfig = inject(ApiConfigService);
   private http = inject(HttpClient);
-  private mockService = inject(UserApiMockService);
 
   /**
    * Retrieves the profile of the currently authenticated user.
@@ -58,10 +56,6 @@ export class UserApiService {
    */
   getCurrentUserProfile(): Observable<UserModel> {
     const endpointContext = APP_CONFIG.api.endpoints.users.profile;
-
-    if (this.apiConfig.isMockEnabledForDomain('users')) {
-      return this.mockService.mockGetCurrentUserProfile();
-    }
 
     this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
@@ -87,10 +81,6 @@ export class UserApiService {
   getUserProfileById(userId: number): Observable<UserModel> { // Changed return type
     const endpointContext = APP_CONFIG.api.endpoints.users.byId(userId);
 
-    if (this.apiConfig.isMockEnabledForDomain('users')) {
-      return this.mockService.mockGetUserProfileById(userId);
-    }
-
     this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
@@ -114,10 +104,6 @@ export class UserApiService {
    */
   updateCurrentUserProfile(profileUpdateDto: UserProfileUpdateDto): Observable<UserModel> {
     const endpointContext = APP_CONFIG.api.endpoints.users.updateProfile;
-
-    if (this.apiConfig.isMockEnabledForDomain('users')) {
-      return this.mockService.mockUpdateCurrentUserProfile(profileUpdateDto);
-    }
 
     this.apiConfig.logApiRequest('PUT', endpointContext, profileUpdateDto);
     const url = this.apiConfig.getUrl(endpointContext);
@@ -217,10 +203,6 @@ export class UserApiService {
   searchUsers(query: string): Observable<Partial<UserModel>[]> {
     const endpointContext = APP_CONFIG.api.endpoints.users.search;
 
-    if (this.apiConfig.isMockEnabledForDomain('users')) {
-      return this.mockService.mockSearchUsers(query);
-    }
-
     this.apiConfig.logApiRequest('GET', endpointContext, { q: query });
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
@@ -239,10 +221,6 @@ export class UserApiService {
    */
   getUserFavoriteStructures(): Observable<UserFavoriteStructureModel[]> {
     const endpointContext = APP_CONFIG.api.endpoints.users.favorites.structures;
-
-    if (this.apiConfig.isMockEnabledForDomain('users')) {
-      return this.mockService.mockGetUserFavoriteStructures();
-    }
 
     this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);

@@ -196,10 +196,6 @@ export class UserService {
             this.activeUserProfileSig.set(updatedProfile);
           }
 
-          // Notify AuthService to potentially update its internal representation if needed
-          // (e.g., if name/avatar stored in JWT payload's mirror needs refresh display-wise)
-          this.authService.refreshCurrentUserDataFromUpdatedProfile(updatedProfile);
-
           this.notification.displayNotification("Votre profil a été mis à jour avec succès.", 'valid');
         }
       }),

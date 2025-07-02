@@ -26,9 +26,10 @@ import { MatDividerModule } from '@angular/material/divider';
 import { TeamManagementService } from '../../../../../../core/services/domain/team-management/team-management.service';
 import { UserStructureService } from '../../../../../../core/services/domain/user-structure/user-structure.service';
 import { NotificationService } from '../../../../../../core/services/domain/utilities/notification.service';
+import { AuthService } from '../../../../../../core/services/domain/user/auth.service';
 
 // Models
-import { TeamMember, TeamMemberStatus, Role, TEAM_ROLES_DISPLAY } from '../../../../../../core/models/user/team-member.model';
+import { TeamMember, TeamMemberStatus, TEAM_ROLES_DISPLAY, getRoleDisplayName } from '../../../../../../core/models/user/team-member.model';
 import { UserRole } from '../../../../../../core/models/user/user-role.enum';
 
 // Dialogs
@@ -66,11 +67,12 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   private teamService = inject(TeamManagementService);
   private userStructureService = inject(UserStructureService);
   private notification = inject(NotificationService);
+  private authService = inject(AuthService);
   private destroy$ = new Subject<void>();
 
   // ✅ Signaux du service
   protected readonly teamMembers = this.teamService.teamMembers;
-  protected readonly availableRoles = this.teamService.allowedTeamRoles;
+  protected readonly allowedTeamRoles = this.teamService.allowedTeamRoles;
   protected readonly isLoading = this.teamService.isLoading;
   protected readonly isInviting = this.teamService.isInviting;
   protected readonly isUpdating = this.teamService.isUpdating;
@@ -78,7 +80,6 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   // ✅ Statistiques calculées
   protected readonly activeMembers = this.teamService.activeMembers;
   protected readonly pendingMembers = this.teamService.pendingMembers;
-  protected readonly inactiveMembers = this.teamService.inactiveMembers;
 
   // ✅ Signaux locaux pour l'UI
   private showInviteFormSig = signal(false);
@@ -93,7 +94,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   inviteForm: FormGroup;
 
   // ✅ Colonnes pour la table
-  protected displayedColumns: string[] = ['member', 'role', 'status', 'lastActivity', 'actions'];
+  protected displayedColumns: string[] = ['member', 'role', 'status', 'actions'];
 
   // ✅ Données filtrées selon le mode de vue
   protected readonly filteredMembers = computed(() => {
@@ -105,8 +106,6 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
         return members.filter(m => m.status === TeamMemberStatus.ACTIVE);
       case 'pending':
         return members.filter(m => m.status === TeamMemberStatus.PENDING);
-      case 'inactive':
-        return members.filter(m => m.status === TeamMemberStatus.INACTIVE);
       default:
         return members;
     }
@@ -120,7 +119,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   constructor() {
     this.inviteForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
-      roleId: ['', [Validators.required]]
+      role: ['', [Validators.required]]
     });
   }
 
@@ -140,10 +139,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
     this.teamService.loadTeamMembers().pipe(
       takeUntil(this.destroy$)
     ).subscribe({
-      next: value => this.teamMembers,
-      complete: () => {
-        console.log('Team data loaded');}
-    });
+      next: value => this.teamMembers});
   }
 
   /**
@@ -177,9 +173,9 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
    */
   sendInvitation(): void {
     if (this.inviteForm.valid) {
-      const { email, roleId } = this.inviteForm.value;
+      const { email, role } = this.inviteForm.value;
 
-      this.teamService.inviteTeamMember(email, roleId).pipe(
+      this.teamService.inviteTeamMember(email, role).pipe(
         takeUntil(this.destroy$)
       ).subscribe({
         next: (member) => {
@@ -202,36 +198,13 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   /**
    * ✅ Change le rôle d'un membre
    */
-  updateMemberRole(member: TeamMember, newRoleId: number): void {
+  updateMemberRole(member: TeamMember, newRole: UserRole): void {
     if (!this.teamService.canEditMember(member)) {
       this.notification.displayNotification('Vous n\'avez pas les permissions pour modifier ce membre', 'error');
       return;
     }
 
-    this.teamService.updateTeamMemberRole(member.id, newRoleId).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe();
-  }
-
-  /**
-   * ✅ Change le statut d'un membre
-   */
-  updateMemberStatus(member: TeamMember, newStatus: TeamMemberStatus): void {
-    if (!this.teamService.canEditMember(member)) {
-      this.notification.displayNotification('Vous n\'avez pas les permissions pour modifier ce membre', 'error');
-      return;
-    }
-
-    this.teamService.updateTeamMemberStatus(member.id, newStatus).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe();
-  }
-
-  /**
-   * ✅ Renvoie une invitation
-   */
-  resendInvitation(member: TeamMember): void {
-    this.teamService.resendInvitation(member.id).pipe(
+    this.teamService.updateTeamMemberRole(member.id, newRole).pipe(
       takeUntil(this.destroy$)
     ).subscribe();
   }
@@ -280,28 +253,11 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
         return 'check_circle';
       case TeamMemberStatus.PENDING:
         return 'schedule';
-      case TeamMemberStatus.INACTIVE:
-        return 'cancel';
       default:
         return 'help';
     }
   }
 
-  /**
-   * ✅ Obtient la couleur pour le statut
-   */
-  getStatusColor(status: TeamMemberStatus): string {
-    switch (status) {
-      case TeamMemberStatus.ACTIVE:
-        return 'primary';
-      case TeamMemberStatus.PENDING:
-        return 'accent';
-      case TeamMemberStatus.INACTIVE:
-        return 'warn';
-      default:
-        return '';
-    }
-  }
 
   /**
    * ✅ Obtient le nom d'affichage d'un membre
@@ -311,6 +267,13 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
       return `${member.firstName} ${member.lastName}`;
     }
     return member.email;
+  }
+
+  /**
+   * ✅ Obtient le nom d'affichage d'un rôle
+   */
+  getRoleDisplayName(role: UserRole): string {
+    return getRoleDisplayName(role);
   }
 
   /**
@@ -335,20 +298,85 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * ✅ Formate la date de dernière activité
+   * ✅ Vérifie si le membre est l'utilisateur connecté
    */
-  formatLastActivity(date: Date | undefined): string {
-    if (!date) return 'Jamais';
+  isCurrentUser(member: TeamMember): boolean {
+    const currentUserId = this.authService.currentUser()?.userId;
+    return member.userId === currentUserId;
+  }
 
-    const now = new Date();
-    const diff = now.getTime() - new Date(date).getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  /**
+   * ✅ Vérifie si un membre a des actions disponibles
+   */
+  hasAvailableActions(member: TeamMember): boolean {
+    // L'utilisateur connecté ne peut pas avoir d'actions sur lui-même
+    if (this.isCurrentUser(member)) {
+      return false;
+    }
 
-    if (days === 0) return 'Aujourd\'hui';
-    if (days === 1) return 'Hier';
-    if (days < 7) return `Il y a ${days} jours`;
-    if (days < 30) return `Il y a ${Math.floor(days / 7)} semaines`;
+    // Vérifier s'il y a au moins une action possible
+    const canResend = member.status === TeamMemberStatus.PENDING;
+    const canRemove = this.canRemoveMember(member);
 
-    return new Date(date).toLocaleDateString('fr-FR');
+    return canResend || canRemove;
+  }
+
+  /**
+   * ✅ Obtient l'icône d'action pour un membre
+   */
+  getActionIcon(member: TeamMember): string {
+    if (this.isCurrentUser(member)) {
+      return 'block'; // Icône interdite pour l'utilisateur connecté
+    }
+
+    if (this.canRemoveMember(member)) {
+      return 'delete'; // Icône de suppression
+    }
+
+    return 'block'; // Icône interdite par défaut
+  }
+
+  /**
+   * ✅ Obtient le tooltip pour l'action
+   */
+  getActionTooltip(member: TeamMember): string {
+    if (this.isCurrentUser(member)) {
+      return 'Vous ne pouvez pas vous supprimer vous-même';
+    }
+
+    if (this.canRemoveMember(member)) {
+      return 'Supprimer ce membre';
+    }
+
+    return 'Action non autorisée';
+  }
+
+  /**
+   * ✅ Obtient la couleur de l'icône d'action
+   */
+  getActionColor(member: TeamMember): string {
+    if (this.isCurrentUser(member) || !this.canRemoveMember(member)) {
+      return 'disabled'; // Couleur grisée
+    }
+
+    return 'warn'; // Rouge pour la suppression
+  }
+
+  /**
+   * ✅ Vérifie si l'action est cliquable
+   */
+  isActionClickable(member: TeamMember): boolean {
+    return !this.isCurrentUser(member) && this.canRemoveMember(member);
+  }
+
+  /**
+   * ✅ Gère le clic sur l'action
+   */
+  onActionClick(member: TeamMember): void {
+    if (!this.isActionClickable(member)) {
+      return;
+    }
+
+    this.removeMember(member);
   }
 }

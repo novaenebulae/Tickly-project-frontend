@@ -60,6 +60,13 @@ export const routes: Routes = [
   },
 
   {
+    path: 'team/accept-invitation',
+    loadComponent: () => import('./pages/auth/team-accept-invitation/team-accept-invitation.component')
+      .then(m => m.TeamAcceptInvitationComponent),
+    title: 'Accepter l\'invitation'
+  },
+
+  {
     path: 'users/confirm-deletion', // Ce chemin correspond au lien dans l'email
     component: AccountDeletionConfirmationComponent,
     title: 'Confirmation de suppression de compte'
