@@ -129,3 +129,19 @@ mat-snack-bar-container {
 .mat-mdc-icon-button {
   display: flex !important;
 }
+
+/* === DISABLED FORM FIELDS === */
+.mdc-text-field--disabled .mdc-text-field__input,
+.mat-mdc-form-field-disabled .mat-mdc-input-element,
+.mat-mdc-select-disabled .mat-mdc-select-value,
+.mat-mdc-form-field-disabled .mat-mdc-form-field-label {
+  color: rgba(0, 0, 0, 0.6) !important; /* Darker color for better visibility */
+}
+
+.mat-mdc-form-field-disabled .mdc-line-ripple::before {
+  border-bottom-color: rgba(0, 0, 0, 0.3) !important; /* Darker border color */
+}
+
+.mat-mdc-form-field-disabled {
+  opacity: 0.8; /* Increase overall opacity for better contrast */
+}

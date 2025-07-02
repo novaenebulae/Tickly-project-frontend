@@ -47,6 +47,31 @@ export class UserStructureService {
   private router = inject(Router);
   private apiConfig = inject(ApiConfigService);
 
+  /**
+   * Checks if the current user has permission to manage structures.
+   * Only users with STRUCTURE_ADMINISTRATOR role can manage structures.
+   * @returns True if the user has permission, false otherwise.
+   */
+  hasStructureManagementPermission(): boolean {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return false;
+
+    return currentUser.role === UserRole.STRUCTURE_ADMINISTRATOR;
+  }
+
+  /**
+   * Checks if the current user has permission to manage areas and audience zones.
+   * Users with STRUCTURE_ADMINISTRATOR or ORGANIZATION_SERVICE roles can manage areas and audience zones.
+   * @returns True if the user has permission, false otherwise.
+   */
+  hasAreaManagementPermission(): boolean {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return false;
+
+    return currentUser.role === UserRole.STRUCTURE_ADMINISTRATOR ||
+           currentUser.role === UserRole.ORGANIZATION_SERVICE;
+  }
+
   // Signal pour la structure de l'utilisateur
   private userStructureSig: WritableSignal<StructureModel | null | undefined> = signal(undefined);
   public readonly userStructure = computed(() => this.userStructureSig());
@@ -248,6 +273,14 @@ export class UserStructureService {
    * @returns An Observable of the created `StructureModel` or `undefined` on error.
    */
   createStructure(structureCreationData: StructureCreationDto): Observable<StructureModel | undefined> {
+    // Check if user has permission to manage structures
+    if (!this.hasStructureManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour créer une structure.',
+        'error'
+      );
+      return of(undefined);
+    }
     return this.structureApi.createStructure(structureCreationData).pipe(
       tap((response: StructureCreationResponseDto) => {
         if (response.createdStructure) {
@@ -290,6 +323,14 @@ export class UserStructureService {
    * @returns An Observable of the updated `StructureModel` or `undefined` on error.
    */
   updateStructure(structureId: number, structureUpdateData: StructureUpdateDto): Observable<StructureModel | undefined> {
+    // Check if user has permission to manage structures
+    if (!this.hasStructureManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour modifier une structure.',
+        'error'
+      );
+      return of(undefined);
+    }
     return this.structureApi.updateStructure(structureId, structureUpdateData).pipe(
       // map(apiStructure => apiStructure ? this.mapApiToStructureModel(apiStructure) : undefined),
       tap(updatedStructure => {
@@ -314,6 +355,14 @@ export class UserStructureService {
    * @returns An Observable<boolean> indicating success (true) or failure (false).
    */
   deleteStructure(structureId: number): Observable<boolean> {
+    // Check if user has permission to manage structures
+    if (!this.hasStructureManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour supprimer une structure.',
+        'error'
+      );
+      return of(false);
+    }
     return this.structureApi.deleteStructure(structureId).pipe(
       map(() => true), // API returns void, map to true for success
       tap(() => {
@@ -414,6 +463,15 @@ export class UserStructureService {
       return of(undefined);
     }
 
+    // Check if user has permission to manage areas
+    if (!this.hasAreaManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour créer un espace.',
+        'error'
+      );
+      return of(undefined);
+    }
+
     return this.structureApi.createArea(structureId, areaCreationData).pipe(
       map(apiArea => apiArea ? this.structureService.mapApiToAreaModel(apiArea) : undefined),
       tap(area => {
@@ -439,6 +497,15 @@ export class UserStructureService {
     const structureId = this.userStructureId();
     if (!structureId) {
       this.notification.displayNotification('Aucune structure associée.', 'error');
+      return of(undefined);
+    }
+
+    // Check if user has permission to manage areas
+    if (!this.hasAreaManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour modifier un espace.',
+        'error'
+      );
       return of(undefined);
     }
 
@@ -469,6 +536,15 @@ export class UserStructureService {
     const structureId = this.userStructureId();
     if (!structureId) {
       this.notification.displayNotification('Aucune structure associée.', 'error');
+      return of(false);
+    }
+
+    // Check if user has permission to manage areas
+    if (!this.hasAreaManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour supprimer un espace.',
+        'error'
+      );
       return of(false);
     }
 
@@ -555,6 +631,15 @@ export class UserStructureService {
       return of(undefined);
     }
 
+    // Check if user has permission to manage areas and audience zones
+    if (!this.hasAreaManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour créer une zone d\'audience.',
+        'error'
+      );
+      return of(undefined);
+    }
+
     return this.structureApi.createAudienceZoneTemplate(structureId, areaId, templateCreationData).pipe(
       map(apiTemplate => apiTemplate ? this.structureService.mapApiToAudienceZoneTemplateModel(apiTemplate) : undefined),
       tap(template => {
@@ -597,6 +682,15 @@ export class UserStructureService {
     const structureId = this.userStructureId();
     if (!structureId) {
       this.notification.displayNotification('Aucune structure associée.', 'error');
+      return of(undefined);
+    }
+
+    // Check if user has permission to manage areas and audience zones
+    if (!this.hasAreaManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour modifier une zone d\'audience.',
+        'error'
+      );
       return of(undefined);
     }
 
@@ -646,6 +740,15 @@ export class UserStructureService {
     const structureId = this.userStructureId();
     if (!structureId) {
       this.notification.displayNotification('Aucune structure associée.', 'error');
+      return of(false);
+    }
+
+    // Check if user has permission to manage areas and audience zones
+    if (!this.hasAreaManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour supprimer une zone d\'audience.',
+        'error'
+      );
       return of(false);
     }
 

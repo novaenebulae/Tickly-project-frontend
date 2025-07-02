@@ -19,7 +19,9 @@
             Gestion des médias
           </h1>
           <p class="page-subtitle">
-            Gérez le logo, l'image de couverture et la galerie de votre structure
+            <!-- 🔥 AJOUT : Message adapté selon les droits -->
+            <span *ngIf="!isReadonly()">Gérez le logo, l'image de couverture et la galerie de votre structure</span>
+            <span *ngIf="isReadonly()">Visualisez le logo, l'image de couverture et la galerie de la structure (mode lecture seule)</span>
           </p>
         </div>
       </mat-card-content>
@@ -60,7 +62,11 @@
           <mat-icon class="section-icon">image</mat-icon>
           <div class="section-title-group">
             <h3 class="section-title">Images de la structure</h3>
-            <p class="section-subtitle">Gérez le logo, l'image de couverture et la galerie de votre structure</p>
+            <p class="section-subtitle">
+              <!-- 🔥 AJOUT : Message adapté selon les droits -->
+              <span *ngIf="!isReadonly()">Gérez le logo, l'image de couverture et la galerie de votre structure</span>
+              <span *ngIf="isReadonly()">Visualisez le logo, l'image de couverture et la galerie de la structure</span>
+            </p>
           </div>
         </div>
 
@@ -92,7 +98,7 @@
                     mat-raised-button
                     color="primary"
                     (click)="logoInput.click()"
-                    [disabled]="isUploadingLogo()">
+                    [disabled]="isUploadingLogo() || isReadonly()">
                     <mat-icon>upload</mat-icon>
                     {{ logoPreviewUrl ? 'Changer' : 'Ajouter' }}
                   </button>
@@ -102,7 +108,7 @@
                     mat-raised-button
                     color="warn"
                     (click)="deleteLogo()"
-                    [disabled]="isUploadingLogo()">
+                    [disabled]="isUploadingLogo() || isReadonly()">
                     <mat-icon>delete</mat-icon>
                     Supprimer
                   </button>
@@ -135,7 +141,7 @@
                     mat-raised-button
                     color="primary"
                     (click)="coverInput.click()"
-                    [disabled]="isUploadingCover()">
+                    [disabled]="isUploadingCover() || isReadonly()">
                     <mat-icon>upload</mat-icon>
                     {{ coverPreviewUrl ? 'Changer' : 'Ajouter' }}
                   </button>
@@ -145,7 +151,7 @@
                     mat-raised-button
                     color="warn"
                     (click)="deleteCover()"
-                    [disabled]="isUploadingCover()">
+                    [disabled]="isUploadingCover() || isReadonly()">
                     <mat-icon>delete</mat-icon>
                     Supprimer
                   </button>
@@ -168,13 +174,17 @@
                   mat-raised-button
                   color="accent"
                   (click)="galleryInput.click()"
-                  [disabled]="isUploadingGallery()">
+                  [disabled]="isUploadingGallery() || isReadonly()">
                   <mat-icon>add_photo_alternate</mat-icon>
                   {{ isUploadingGallery() ? 'Upload en cours...' : 'Ajouter des images' }}
                 </button>
-                <button type="button" mat-raised-button color="primary" (click)="openGalleryManager()">
-                  <mat-icon>edit</mat-icon>
-                  Gérer la galerie
+                <button
+                  type="button"
+                  mat-raised-button
+                  color="primary"
+                  (click)="openGalleryManager()">
+                  <mat-icon>{{ isReadonly() ? 'visibility' : 'edit' }}</mat-icon>
+                  {{ isReadonly() ? 'Voir la galerie' : 'Gérer la galerie' }}
                 </button>
               </div>
             </div>
@@ -202,6 +212,7 @@
               <mat-icon>photo_library</mat-icon>
               <p>Aucune image dans la galerie</p>
               <button
+                *ngIf="!isReadonly()"
                 type="button"
                 mat-raised-button
                 color="primary"

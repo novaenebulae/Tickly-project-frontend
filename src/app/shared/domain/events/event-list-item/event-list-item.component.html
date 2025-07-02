@@ -17,15 +17,17 @@
     <div class="event-list-item__content-area" (click)="viewEventDetails($event)">
       <div class="event-list-item__header">
         <div class="event-list-item__header-top">
+          <div class="event-list-item__category-container">
           @if (event.categories && Array.isArray(event.categories) && event.categories.length > 0) {
-            @for (category of event.categories; track category.id; let isLast = $last) {
+            @for (category of event.categories; track category.id) {
               <span class="event-list-item__category">
-          {{ category.name }}@if (!isLast) {<span>, </span>}
+          {{ category.name }}
         </span>
             }
           } @else {
             <span class="event-card__category">Non catégorisé</span>
           }
+            </div>
 
           <h3 class="event-list-item__title">{{ event.name }}</h3>
         </div>

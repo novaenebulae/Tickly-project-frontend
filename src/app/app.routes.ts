@@ -13,6 +13,7 @@ import {ValidateEmailComponent} from './pages/auth/validate-email/validate-email
 import {
   AccountDeletionConfirmationComponent
 } from './pages/auth/account-deletion-confirmation/account-deletion-confirmation.component';
+import {StaffGuard} from './core/guards/staff.guards';
 
 /**
  * Main application routes configuration
@@ -87,11 +88,11 @@ export const routes: Routes = [
     title: 'Créer une structure | Tickly'
   },
 
-  // Admin private area (requires authentication)
+  // Admin private area (requires authentication and staff role)
   {
     path: 'admin',
     loadChildren: () => import('./pages/private/admin/admin.routes').then(m => m.adminRoutes),
-    canActivate: [LoginGuard], // AdminGuard ici
+    canActivate: [LoginGuard, StaffGuard], // Both guards to ensure user is logged in and has a staff role
     title: 'Administration | Tickly'
   },
 

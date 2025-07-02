@@ -8,13 +8,7 @@ import {UserStructureService} from '../../../../../core/services/domain/user-str
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent {
 
-  private userStructureService = inject(UserStructureService);
-
-  ngOnInit(): void {
-    this.userStructureService.loadUserStructure(true);
-    this.userStructureService.loadUserStructureAreas(true);
-  }
 
 }

@@ -12,11 +12,12 @@ import { finalize } from 'rxjs/operators';
 import { StructureService } from '../../../../../../core/services/domain/structure/structure.service';
 import { UserStructureService } from '../../../../../../core/services/domain/user-structure/user-structure.service';
 import { NotificationService } from '../../../../../../core/services/domain/utilities/notification.service';
+import { AuthService } from '../../../../../../core/services/domain/user/auth.service'; // 🔥 AJOUT
+import { UserRole } from '../../../../../../core/models/user/user-role.enum'; // 🔥 AJOUT
 import {
   StructureGalleryManagerComponent
 } from '../../../../../../shared/domain/structures/structure-gallery-manager/structure-gallery-manager.component';
 import {FileUploadResponseDto} from '../../../../../../core/models/files/file-upload-response.model';
-
 
 @Component({
   selector: 'app-structure-medias',
@@ -38,6 +39,7 @@ export class StructureMediasComponent implements OnInit {
   private structureService = inject(StructureService);
   private userStructureService = inject(UserStructureService);
   private notificationService = inject(NotificationService);
+  private authService = inject(AuthService); // 🔥 AJOUT
   private dialog = inject(MatDialog);
   private cdRef = inject(ChangeDetectorRef);
   private location = inject(Location);
@@ -52,6 +54,14 @@ export class StructureMediasComponent implements OnInit {
 
   // Signal pour la structure courante
   public readonly currentStructure = this.userStructureService.userStructure;
+
+  // 🔥 AJOUT : Computed signal pour déterminer si l'utilisateur est en mode readonly
+  public readonly isReadonly = computed(() => {
+    const currentUser = this.authService.currentUser();
+    return currentUser?.role === UserRole.ORGANIZATION_SERVICE ||
+      currentUser?.role === UserRole.RESERVATION_SERVICE;
+  });
+
 
   // Gestion des fichiers et aperçus
   logoPreviewUrl: string | null = null;
@@ -121,6 +131,12 @@ export class StructureMediasComponent implements OnInit {
    * Gestionnaire pour la sélection du logo
    */
   onLogoSelected(event: Event): void {
+    // 🔥 AJOUT : Vérification des droits
+    if (this.isReadonly()) {
+      this.notificationService.displayNotification('Vous n\'avez pas les droits nécessaires pour modifier les médias de la structure.', 'error');
+      return;
+    }
+
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
@@ -176,6 +192,12 @@ export class StructureMediasComponent implements OnInit {
    * Suppression du logo
    */
   deleteLogo(): void {
+    // 🔥 AJOUT : Vérification des droits
+    if (this.isReadonly()) {
+      this.notificationService.displayNotification('Vous n\'avez pas les droits nécessaires pour supprimer les médias de la structure.', 'error');
+      return;
+    }
+
     const currentStructure = this.currentStructure();
     if (!currentStructure?.id) return;
 
@@ -206,6 +228,12 @@ export class StructureMediasComponent implements OnInit {
    * Gestionnaire pour la sélection de la couverture
    */
   onCoverSelected(event: Event): void {
+    // 🔥 AJOUT : Vérification des droits
+    if (this.isReadonly()) {
+      this.notificationService.displayNotification('Vous n\'avez pas les droits nécessaires pour modifier les médias de la structure.', 'error');
+      return;
+    }
+
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
@@ -261,6 +289,12 @@ export class StructureMediasComponent implements OnInit {
    * Suppression de la couverture
    */
   deleteCover(): void {
+    // 🔥 AJOUT : Vérification des droits
+    if (this.isReadonly()) {
+      this.notificationService.displayNotification('Vous n\'avez pas les droits nécessaires pour supprimer les médias de la structure.', 'error');
+      return;
+    }
+
     const currentStructure = this.currentStructure();
     if (!currentStructure?.id) return;
 
@@ -291,6 +325,12 @@ export class StructureMediasComponent implements OnInit {
    * Gestionnaire pour la sélection de plusieurs images de galerie
    */
   onGallerySelected(event: Event): void {
+    // 🔥 AJOUT : Vérification des droits
+    if (this.isReadonly()) {
+      this.notificationService.displayNotification('Vous n\'avez pas les droits nécessaires pour modifier les médias de la structure.', 'error');
+      return;
+    }
+
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedGalleryFiles = Array.from(input.files);
@@ -357,6 +397,7 @@ export class StructureMediasComponent implements OnInit {
    * Ouverture du gestionnaire de galerie
    */
   openGalleryManager(): void {
+    // 🔥 AJOUT : Vérification des droits pour l'ouverture en readonly
     const currentStructure = this.currentStructure();
     if (!currentStructure) return;
 
@@ -364,7 +405,10 @@ export class StructureMediasComponent implements OnInit {
       width: '800px',
       maxWidth: '90vw',
       maxHeight: '90vh',
-      data: { structure: currentStructure }
+      data: {
+        structure: currentStructure,
+        readonly: this.isReadonly() // 🔥 Passer le mode readonly au dialog
+      }
     });
 
     dialogRef.afterClosed().subscribe(() => {

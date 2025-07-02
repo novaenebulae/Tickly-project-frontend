@@ -7,7 +7,7 @@
         <div class="d-flex-column">
           <h1 class="mat-headline-3">Calendrier des événements</h1>
         </div>
-        <button mat-raised-button color="primary" (click)="addEvent()">
+        <button mat-raised-button color="primary" (click)="addEvent()" *ngIf="canEditEvents">
           <mat-icon>add</mat-icon>
           Ajouter un événement
         </button>

@@ -7,14 +7,15 @@
  */
 
 import {computed, inject, Injectable, signal, WritableSignal} from '@angular/core';
-import {Observable, of} from 'rxjs';
-import {catchError, map, tap} from 'rxjs/operators';
+import {Observable, of, throwError} from 'rxjs';
+import {catchError, map, tap, switchMap} from 'rxjs/operators';
 
 // API and Domain Services
 import {EventApiService} from '../../api/event/event-api.service';
 import {CategoryService} from './category.service';
 import {NotificationService} from '../utilities/notification.service';
 import {AuthService} from '../user/auth.service';
+import {UserRole} from '../../../models/user/user-role.enum';
 
 // Models and DTOs
 import {EventDataDto, EventModel, EventStatus, EventSummaryModel} from '../../../models/event/event.model';
@@ -116,6 +117,15 @@ export class EventService {
    * @returns An Observable of the created `EventModel` or `undefined` on error.
    */
   createEvent(eventData: EventDataDto, forceRefresh: boolean = true): Observable<EventModel | undefined> {
+    // Check if user has permission to manage events
+    if (!this.hasEventManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour créer un événement.',
+        'error'
+      );
+      return of(undefined);
+    }
+
     const apiEventData = this.mapEventDataDtoToApiDto(eventData);
     return this.eventApi.createEvent(apiEventData, forceRefresh).pipe(
       map(apiEvent => this.mapApiEventToEventModel(apiEvent)),
@@ -143,21 +153,48 @@ export class EventService {
    * @returns An Observable of the updated `EventModel` or `undefined` on error.
    */
   updateEvent(eventId: number, eventUpdateData: Partial<EventDataDto>, forceRefresh: boolean = true): Observable<EventModel | undefined> {
-    const apiEventData = this.mapEventDataDtoToApiDto(eventUpdateData, eventId);
-    return this.eventApi.updateEvent(eventId, apiEventData, forceRefresh).pipe(
-      map(apiEvent => this.mapApiEventToEventModel(apiEvent)),
-      tap(updatedEvent => {
-        if (updatedEvent) {
-          this.eventDetailsCache.set(eventId, updatedEvent);
-          if (forceRefresh) {
-            this.refreshRelevantCachedLists(updatedEvent);
-          }
-          this.notification.displayNotification('Événement mis à jour avec succès.', 'valid');
+    // Check if user has permission to manage events
+    if (!this.hasEventManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour modifier un événement.',
+        'error'
+      );
+      return of(undefined);
+    }
+
+    // Get the event to check if the user can edit it
+    return this.getEventById(eventId).pipe(
+      switchMap(event => {
+        if (!event) {
+          this.notification.displayNotification(`Événement #${eventId} non trouvé.`, 'error');
+          return of(undefined);
         }
-      }),
-      catchError(error => {
-        this.handleError(`Impossible de mettre à jour l'événement #${eventId}.`, error);
-        return of(undefined);
+
+        if (!this.canEditEvent(event)) {
+          this.notification.displayNotification(
+            'Vous ne pouvez pas modifier cet événement car il n\'appartient pas à votre structure.',
+            'error'
+          );
+          return of(undefined);
+        }
+
+        const apiEventData = this.mapEventDataDtoToApiDto(eventUpdateData, eventId);
+        return this.eventApi.updateEvent(eventId, apiEventData, forceRefresh).pipe(
+          map(apiEvent => this.mapApiEventToEventModel(apiEvent)),
+          tap(updatedEvent => {
+            if (updatedEvent) {
+              this.eventDetailsCache.set(eventId, updatedEvent);
+              if (forceRefresh) {
+                this.refreshRelevantCachedLists(updatedEvent);
+              }
+              this.notification.displayNotification('Événement mis à jour avec succès.', 'valid');
+            }
+          }),
+          catchError(error => {
+            this.handleError(`Impossible de mettre à jour l'événement #${eventId}.`, error);
+            return of(undefined);
+          })
+        );
       })
     );
   }
@@ -168,22 +205,49 @@ export class EventService {
    * @returns An Observable<boolean> indicating success (true) or failure (false).
    */
   deleteEvent(eventId: number): Observable<boolean> {
-    return this.eventApi.deleteEvent(eventId).pipe(
-      map(() => true),
-      tap(() => {
-        const deletedEvent = this.eventDetailsCache.get(eventId);
-        this.eventDetailsCache.delete(eventId);
-        if (deletedEvent) { // If we had details, use them to know if lists need refresh
-          this.refreshRelevantCachedLists(deletedEvent, true); // Mark as deleted for refresh logic
-        } else { // If no details, refresh all potentially affected lists
-          this.refreshHomePageEvents(true).subscribe();
-          this.refreshFeaturedEvents(true).subscribe();
+    // Check if user has permission to manage events
+    if (!this.hasEventManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour supprimer un événement.',
+        'error'
+      );
+      return of(false);
+    }
+
+    // Get the event to check if the user can delete it
+    return this.getEventById(eventId).pipe(
+      switchMap(event => {
+        if (!event) {
+          this.notification.displayNotification(`Événement #${eventId} non trouvé.`, 'error');
+          return of(false);
         }
-        this.notification.displayNotification('Événement supprimé avec succès.', 'valid');
-      }),
-      catchError(error => {
-        this.handleError(`Impossible de supprimer l'événement #${eventId}.`, error);
-        return of(false);
+
+        if (!this.canEditEvent(event)) {
+          this.notification.displayNotification(
+            'Vous ne pouvez pas supprimer cet événement car il n\'appartient pas à votre structure.',
+            'error'
+          );
+          return of(false);
+        }
+
+        return this.eventApi.deleteEvent(eventId).pipe(
+          map(() => true),
+          tap(() => {
+            const deletedEvent = this.eventDetailsCache.get(eventId);
+            this.eventDetailsCache.delete(eventId);
+            if (deletedEvent) { // If we had details, use them to know if lists need refresh
+              this.refreshRelevantCachedLists(deletedEvent, true); // Mark as deleted for refresh logic
+            } else { // If no details, refresh all potentially affected lists
+              this.refreshHomePageEvents(true).subscribe();
+              this.refreshFeaturedEvents(true).subscribe();
+            }
+            this.notification.displayNotification('Événement supprimé avec succès.', 'valid');
+          }),
+          catchError(error => {
+            this.handleError(`Impossible de supprimer l'événement #${eventId}.`, error);
+            return of(false);
+          })
+        );
       })
     );
   }
@@ -195,18 +259,45 @@ export class EventService {
    * @returns An Observable of the updated `EventModel` or `undefined` on error.
    */
   updateEventStatus(eventId: number, status: EventStatus): Observable<EventModel | undefined> {
-    return this.eventApi.updateEventStatus(eventId, status).pipe(
-      map(apiEvent => this.mapApiEventToEventModel(apiEvent)),
-      tap(updatedEvent => {
-        if (updatedEvent) {
-          this.eventDetailsCache.set(eventId, updatedEvent);
-          this.refreshRelevantCachedLists(updatedEvent);
-          this.notification.displayNotification(`Statut de l'événement mis à jour en : ${status}`, 'valid');
+    // Check if user has permission to manage events
+    if (!this.hasEventManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour modifier le statut d\'un événement.',
+        'error'
+      );
+      return of(undefined);
+    }
+
+    // Get the event to check if the user can update its status
+    return this.getEventById(eventId).pipe(
+      switchMap(event => {
+        if (!event) {
+          this.notification.displayNotification(`Événement #${eventId} non trouvé.`, 'error');
+          return of(undefined);
         }
-      }),
-      catchError(error => {
-        this.handleError(`Impossible de mettre à jour le statut de l'événement #${eventId}.`, error);
-        return of(undefined);
+
+        if (!this.canEditEvent(event)) {
+          this.notification.displayNotification(
+            'Vous ne pouvez pas modifier le statut de cet événement car il n\'appartient pas à votre structure.',
+            'error'
+          );
+          return of(undefined);
+        }
+
+        return this.eventApi.updateEventStatus(eventId, status).pipe(
+          map(apiEvent => this.mapApiEventToEventModel(apiEvent)),
+          tap(updatedEvent => {
+            if (updatedEvent) {
+              this.eventDetailsCache.set(eventId, updatedEvent);
+              this.refreshRelevantCachedLists(updatedEvent);
+              this.notification.displayNotification(`Statut de l'événement mis à jour en : ${status}`, 'valid');
+            }
+          }),
+          catchError(error => {
+            this.handleError(`Impossible de mettre à jour le statut de l'événement #${eventId}.`, error);
+            return of(undefined);
+          })
+        );
       })
     );
   }
@@ -546,17 +637,32 @@ export class EventService {
   // --- Utility and Helper Methods ---
 
   /**
+   * Checks if the current user has permission to manage events.
+   * Only users with STRUCTURE_ADMINISTRATOR or ORGANIZATION_SERVICE roles can manage events.
+   * @returns True if the user has permission, false otherwise.
+   */
+  hasEventManagementPermission(): boolean {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return false;
+
+    return currentUser.role === UserRole.STRUCTURE_ADMINISTRATOR ||
+           currentUser.role === UserRole.ORGANIZATION_SERVICE;
+  }
+
+  /**
    * Checks if the current user can edit the given event.
-   * (This logic might involve checking against AuthService.currentUser's structureId)
+   * User must have event management permission and belong to the structure that created the event.
    * @param event - The event to check.
    * @returns True if the user can edit the event, false otherwise.
    */
   canEditEvent(event: EventModel): boolean {
     if (!event || !event.id) return false;
+    if (!this.hasEventManagementPermission()) return false;
+
     const currentAuthUser = this.authService.currentUser();
     if (!currentAuthUser || !currentAuthUser.structureId) return false; // User not logged in or no structureId
 
-    // Example: User can edit if they belong to the structure that created/hosts the event
+    // User can edit if they belong to the structure that created/hosts the event
     return event.structure === currentAuthUser.structureId;
   }
 

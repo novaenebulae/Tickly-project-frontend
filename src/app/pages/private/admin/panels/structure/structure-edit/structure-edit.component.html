@@ -86,7 +86,7 @@
             <div class="form-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Types de structure *</mat-label>
-                <mat-select formControlName="typeIds" multiple>
+                <mat-select formControlName="typeIds" multiple >
                   <mat-option
                     *ngFor="let type of structureTypes()"
                     [value]="type.id">
@@ -105,7 +105,8 @@
                   matInput
                   formControlName="description"
                   rows="4"
-                  placeholder="Décrivez votre structure, ses activités...">
+                  placeholder="Décrivez votre structure, ses activités..."
+                  >
                 </textarea>
                 <mat-hint>Maximum 1000 caractères</mat-hint>
                 <mat-error>{{ getFieldErrorMessage('description') }}</mat-error>
@@ -128,14 +129,14 @@
             <div class="form-row">
               <mat-form-field appearance="outline" class="half-width">
                 <mat-label>Pays *</mat-label>
-                <input matInput formControlName="country" placeholder="France">
+                <input matInput formControlName="country" placeholder="France" >
                 <mat-icon matSuffix>public</mat-icon>
                 <mat-error>{{ getFieldErrorMessage('address.country') }}</mat-error>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="half-width">
                 <mat-label>Ville *</mat-label>
-                <input matInput formControlName="city" placeholder="Paris">
+                <input matInput formControlName="city" placeholder="Paris" >
                 <mat-icon matSuffix>location_city</mat-icon>
                 <mat-error>{{ getFieldErrorMessage('address.city') }}</mat-error>
               </mat-form-field>
@@ -144,20 +145,20 @@
             <div class="form-row">
               <mat-form-field appearance="outline" class="half-width">
                 <mat-label>Rue *</mat-label>
-                <input matInput formControlName="street" placeholder="123 Rue de la République">
+                <input matInput formControlName="street" placeholder="123 Rue de la République" >
                 <mat-icon matSuffix>home</mat-icon>
                 <mat-error>{{ getFieldErrorMessage('address.street') }}</mat-error>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="quarter-width">
                 <mat-label>Numéro</mat-label>
-                <input matInput formControlName="number" placeholder="123">
+                <input matInput formControlName="number" placeholder="123" >
                 <mat-error>{{ getFieldErrorMessage('address.number') }}</mat-error>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="quarter-width">
                 <mat-label>Code postal</mat-label>
-                <input matInput formControlName="zipCode" placeholder="75001">
+                <input matInput formControlName="zipCode" placeholder="75001" >
                 <mat-error>{{ getFieldErrorMessage('address.zipCode') }}</mat-error>
               </mat-form-field>
             </div>
@@ -178,14 +179,14 @@
             <div class="form-row">
               <mat-form-field appearance="outline" class="half-width">
                 <mat-label>Téléphone</mat-label>
-                <input matInput formControlName="phone" placeholder="+33 1 23 45 67 89">
+                <input matInput formControlName="phone" placeholder="+33 1 23 45 67 89" >
                 <mat-icon matSuffix>phone</mat-icon>
                 <mat-error>{{ getFieldErrorMessage('phone') }}</mat-error>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="half-width">
                 <mat-label>E-mail</mat-label>
-                <input matInput formControlName="email" type="email" placeholder="contact@structure.com">
+                <input matInput formControlName="email" type="email" placeholder="contact@structure.com" >
                 <mat-icon matSuffix>email</mat-icon>
                 <mat-error>{{ getFieldErrorMessage('email') }}</mat-error>
               </mat-form-field>
@@ -194,7 +195,7 @@
             <div class="form-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Site web</mat-label>
-                <input matInput formControlName="websiteUrl" placeholder="https://www.structure.com">
+                <input matInput formControlName="websiteUrl" placeholder="https://www.structure.com" >
                 <mat-icon matSuffix>language</mat-icon>
                 <mat-error>{{ getFieldErrorMessage('websiteUrl') }}</mat-error>
               </mat-form-field>
@@ -204,7 +205,7 @@
             <div class="social-urls-section">
               <div class="social-urls-header">
                 <h4>Réseaux sociaux</h4>
-                <button type="button" mat-icon-button color="primary" (click)="addSocialUrl()" matTooltip="Ajouter un réseau social">
+                <button type="button" mat-icon-button color="primary" (click)="addSocialUrl()" matTooltip="Ajouter un réseau social" [disabled]="isReadonly()">
                   <mat-icon>add</mat-icon>
                 </button>
               </div>
@@ -213,10 +214,10 @@
                 <div *ngFor="let socialControl of socialsUrlArray.controls; let i = index" class="social-url-row">
                   <mat-form-field appearance="outline" class="social-url-field">
                     <mat-label>Réseau social {{ i + 1 }}</mat-label>
-                    <input matInput [formControlName]="i" placeholder="https://www.facebook.com/votre-page">
+                    <input matInput [formControlName]="i" placeholder="https://www.facebook.com/votre-page" >
                     <mat-icon matSuffix>share</mat-icon>
                   </mat-form-field>
-                  <button type="button" mat-icon-button color="warn" (click)="removeSocialUrl(i)" matTooltip="Supprimer">
+                  <button type="button" mat-icon-button color="warn" (click)="removeSocialUrl(i)" matTooltip="Supprimer" [disabled]="isReadonly()">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
@@ -226,7 +227,7 @@
         </div>
 
         <!-- Boutons de sauvegarde intégrés dans le formulaire -->
-        <div class="form-actions-section">
+        <div class="form-actions-section" [hidden]="isReadonly()">
           <div class="actions-content">
             <div class="actions-info">
               <mat-icon class="info-icon">save</mat-icon>
@@ -239,7 +240,7 @@
               <button type="button" mat-button (click)="onCancel()" [disabled]="isSaving()">
                 Annuler
               </button>
-              <button type="submit" mat-raised-button color="primary" [disabled]="structureForm.invalid || isSaving()">
+              <button type="submit" mat-raised-button color="primary" [disabled]="structureForm.invalid || isSaving() || isReadonly()">
                 <mat-progress-spinner *ngIf="isSaving()" diameter="20" color="primary"></mat-progress-spinner>
                 <mat-icon *ngIf="!isSaving()">save</mat-icon>
                 {{ isSaving() ? 'Sauvegarde...' : 'Sauvegarder' }}

@@ -28,6 +28,8 @@ import {
   AudienceZoneTemplateUpdateDto
 } from '../../../../../../core/models/structure/AudienceZoneTemplate.model';
 import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service';
+import {UserRole} from '../../../../../../core/models/user/user-role.enum';
+import {AuthService} from '../../../../../../core/services/domain/user/auth.service';
 
 @Component({
   selector: 'app-areas-management',
@@ -43,6 +45,8 @@ export class AreasManagementComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+
 
   // Signals for component state
   private structureIdSig: WritableSignal<number | null> = signal(null);
@@ -64,6 +68,12 @@ export class AreasManagementComponent implements OnInit {
   public readonly showAudienceZoneForm = computed(() => this.showAudienceZoneFormSig());
   public readonly editingArea = computed(() => this.editingAreaSig());
   public readonly editingAudienceZone = computed(() => this.editingAudienceZoneTemplateSig());
+
+  public readonly isReadonly = computed(() => {
+    const currentUser = this.authService.currentUser();
+    return currentUser?.role === UserRole.RESERVATION_SERVICE;
+  });
+
 
   // Forms
   areaForm: FormGroup = new FormGroup({});

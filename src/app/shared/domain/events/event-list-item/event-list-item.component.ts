@@ -58,6 +58,9 @@ export class EventListItemComponent implements OnInit {
     return ''; // Retourne une chaîne vide si pas d'adresse
   }
 
+  get formattedCategories () {
+    return this.event.categories.map(cat => cat.name).join(', ');
+  }
 
   // On arrête la propagation du clic si l'utilisateur clique spécifiquement sur le bouton,
   // car l'item entier est déjà cliquable.

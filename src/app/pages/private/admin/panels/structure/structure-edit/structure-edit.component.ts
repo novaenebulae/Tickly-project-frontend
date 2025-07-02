@@ -1,4 +1,14 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy, signal, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  OnDestroy,
+  signal,
+  computed,
+  effect
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
@@ -22,9 +32,11 @@ import { TextFieldModule } from '@angular/cdk/text-field';
 import { StructureService } from '../../../../../../core/services/domain/structure/structure.service';
 import { UserStructureService } from '../../../../../../core/services/domain/user-structure/user-structure.service';
 import { NotificationService } from '../../../../../../core/services/domain/utilities/notification.service';
+import { AuthService } from '../../../../../../core/services/domain/user/auth.service';
 import { StructureModel, StructureUpdateDto } from '../../../../../../core/models/structure/structure.model';
 import { StructureTypeModel } from '../../../../../../core/models/structure/structure-type.model';
 import { StructureAddressModel } from '../../../../../../core/models/structure/structure-address.model';
+import { UserRole } from '../../../../../../core/models/user/user-role.enum';
 import {MatDialog} from '@angular/material/dialog';
 import {
   StructureGalleryManagerComponent
@@ -54,6 +66,7 @@ export class StructureEditComponent implements OnInit, OnDestroy {
   private structureService = inject(StructureService);
   private userStructureService = inject(UserStructureService);
   private notificationService = inject(NotificationService);
+  private authService = inject(AuthService);
   private dialog = inject(MatDialog);
 
   // --- Signals pour la gestion d'état ---
@@ -67,6 +80,14 @@ export class StructureEditComponent implements OnInit, OnDestroy {
   public readonly errorLoading = computed(() => this.errorLoadingSig());
   public readonly currentStructure = this.userStructureService.userStructure;
   public readonly structureTypes = this.structureService.structureTypes;
+
+  // Computed signal to determine if the form should be readonly
+  public readonly isReadonly = computed(() => {
+    const currentUser = this.authService.currentUser();
+    return currentUser?.role === UserRole.ORGANIZATION_SERVICE ||
+      currentUser?.role === UserRole.RESERVATION_SERVICE;
+  });
+
 
   // État du formulaire (sans les images)
   structureForm: FormGroup;
@@ -86,7 +107,19 @@ export class StructureEditComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.structureForm = this.createStructureForm();
+
+    // 🔥 Effect pour mettre à jour l'état disabled du formulaire
+    effect(() => {
+      const readonly = this.isReadonly();
+
+      if (readonly) {
+        this.structureForm.disable();
+      } else {
+        this.structureForm.enable();
+      }
+    });
   }
+
 
   ngOnInit(): void {
     this.loadInitialData();
@@ -96,11 +129,10 @@ export class StructureEditComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  // --- Création du formulaire (sans les champs images) ---
   private createStructureForm(): FormGroup {
     return this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
-      typeIds: [[], Validators.required], // Array d'IDs pour les types
+      typeIds: [[], Validators.required],
       description: [''],
       address: this.fb.group({
         country: ['', Validators.required],
@@ -112,9 +144,39 @@ export class StructureEditComponent implements OnInit, OnDestroy {
       phone: [''],
       email: ['', Validators.email],
       websiteUrl: ['', this.urlValidator()],
-      socialsUrl: this.fb.array([]) // FormArray pour les URLs sociales
+      socialsUrl: this.fb.array([])
     });
   }
+
+  // --- Population du formulaire ---
+  private populateForm(structure: StructureModel): void {
+    // Types - extraire les IDs
+    const typeIds = structure.types?.map(type => type.id) || [];
+
+    // URLs sociales
+    this.populateSocialsArray(structure.socialsUrl || []);
+
+    this.structureForm.patchValue({
+      name: structure.name,
+      typeIds: typeIds,
+      description: structure.description || '',
+      address: {
+        country: structure.address.country,
+        city: structure.address.city,
+        street: structure.address.street,
+        number: structure.address.number || '',
+        zipCode: structure.address.zipCode || ''
+      },
+      phone: structure.phone || '',
+      email: structure.email || '',
+      websiteUrl: structure.websiteUrl || ''
+    });
+
+    if (this.isReadonly()) {
+      this.structureForm.disable();
+    }
+  }
+
 
   // --- Getters pour accéder aux contrôles du formulaire ---
   get socialsUrlArray(): FormArray {
@@ -159,31 +221,6 @@ export class StructureEditComponent implements OnInit, OnDestroy {
     }
   }
 
-  // --- Population du formulaire avec les données existantes (sans les images) ---
-  private populateForm(structure: StructureModel): void {
-    // Types - extraire les IDs
-    const typeIds = structure.types?.map(type => type.id) || [];
-
-    // URLs sociales
-    this.populateSocialsArray(structure.socialsUrl || []);
-
-    this.structureForm.patchValue({
-      name: structure.name,
-      typeIds: typeIds,
-      description: structure.description || '',
-      address: {
-        country: structure.address.country,
-        city: structure.address.city,
-        street: structure.address.street,
-        number: structure.address.number || '',
-        zipCode: structure.address.zipCode || ''
-      },
-      phone: structure.phone || '',
-      email: structure.email || '',
-      websiteUrl: structure.websiteUrl || ''
-    });
-  }
-
   // --- Gestion des URLs sociales ---
   private populateSocialsArray(socialsUrl: string[]): void {
     this.socialsUrlArray.clear();
@@ -213,6 +250,12 @@ export class StructureEditComponent implements OnInit, OnDestroy {
    * Sauvegarde uniquement les informations du formulaire (pas les images)
    */
   onSave(): void {
+    // Prevent ORGANIZATION_SERVICE users from saving changes
+    if (this.isReadonly()) {
+      this.notificationService.displayNotification('Vous n\'avez pas les droits nécessaires pour modifier la structure.', 'error');
+      return;
+    }
+
     if (this.structureForm.invalid) {
       this.markFormGroupTouched(this.structureForm);
       this.notificationService.displayNotification('Veuillez corriger les erreurs dans le formulaire.', 'error');

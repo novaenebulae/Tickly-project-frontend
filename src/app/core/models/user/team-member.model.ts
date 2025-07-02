@@ -61,7 +61,7 @@ export const ALLOWED_TEAM_ROLES = [
   UserRole.STRUCTURE_ADMINISTRATOR,
   UserRole.RESERVATION_SERVICE,
   UserRole.ORGANIZATION_SERVICE
-] as const;
+] as UserRole[];
 
 // Helper simplifié
 export function isAllowedTeamRole(role: UserRole): boolean {

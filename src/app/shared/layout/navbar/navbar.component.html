@@ -53,7 +53,7 @@
             </a>
           </li>
         }
-        @if (isLoggedIn() && ALLOWED_TEAM_ROLES.includes(currentUser()?.role)) {
+        @if (isLoggedIn() && ALLOWED_TEAM_ROLES.includes(currentUser()?.role!)) {
           <!-- Espace Personnel Link -->
           <li class="nav-item">
             <a class="nav-link"

@@ -138,6 +138,12 @@ $section-bg-darker: #f0f4f8;
     margin-bottom: 0.5rem;
   }
 
+  &__category-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 0.5rem;
+  }
+
   &__category {
     display: inline-block;
     font-size: 0.7rem;

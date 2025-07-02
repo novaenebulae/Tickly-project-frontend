@@ -16,7 +16,8 @@
         <h3>Espaces Physiques</h3>
         <button
           class="btn btn-primary btn-sm"
-          (click)="onShowCreateAreaForm()">
+          (click)="onShowCreateAreaForm()"
+          *ngIf="!isReadonly()">
           <mat-icon>add</mat-icon> Ajouter un Espace
         </button>
       </div>
@@ -47,7 +48,7 @@
                 <p class="area-description">{{ area.description }}</p>
               }
             </div>
-            <div class="area-actions">
+            <div class="area-actions" *ngIf="!isReadonly()">
               <button
                 class="btn btn-outline-primary btn-sm"
                 (click)="onEditArea(area); $event.stopPropagation()">
@@ -71,7 +72,8 @@
         @if (selectedArea()) {
           <button
             class="btn btn-primary btn-sm"
-            (click)="onShowCreateAudienceZoneTemplateForm()">
+            (click)="onShowCreateAudienceZoneTemplateForm()"
+            *ngIf="!isReadonly()">
             <mat-icon>add</mat-icon>Ajouter une Zone
           </button>
         }
@@ -110,7 +112,7 @@
                   </span>
                 </div>
               </div>
-              <div class="zone-actions">
+              <div class="zone-actions" *ngIf="!isReadonly()">
                 <button
                   class="btn btn-outline-primary btn-sm"
                   (click)="onEditAudienceZoneTemplate(zone)">

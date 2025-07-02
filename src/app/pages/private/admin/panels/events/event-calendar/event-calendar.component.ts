@@ -26,6 +26,8 @@ import {StructureService} from '../../../../../../core/services/domain/structure
 import {EventService} from '../../../../../../core/services/domain/event/event.service';
 import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service';
 import {EventModel, EventSummaryModel} from '../../../../../../core/models/event/event.model';
+import {AuthService} from '../../../../../../core/services/domain/user/auth.service';
+import {UserRole} from '../../../../../../core/models/user/user-role.enum';
 
 @Component({
   selector: 'app-event-calendar',
@@ -54,6 +56,16 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
   router = inject(Router);
   eventService = inject(EventService);
   userStructureService = inject(UserStructureService);
+  authService = inject(AuthService);
+
+  // Check if the user has permission to edit events
+  get canEditEvents(): boolean {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return false;
+
+    return currentUser.role === UserRole.STRUCTURE_ADMINISTRATOR ||
+           currentUser.role === UserRole.ORGANIZATION_SERVICE;
+  }
 
   // État de chargement
   isLoading: boolean = false;
@@ -79,22 +91,8 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
   // Subscriptions pour le nettoyage
   private subscriptions: Subscription[] = [];
 
-  actions: CalendarEventAction[] = [
-    {
-      label: '<img src="icons/edit.svg">',
-      a11yLabel: 'Edit',
-      onClick: ({event}: { event: CalendarEvent }): void => {
-        this.handleEvent('Edited', event);
-      },
-    },
-    {
-      label: '<img src="icons/show.svg">',
-      a11yLabel: 'View',
-      onClick: ({event}: { event: CalendarEvent }): void => {
-        this.handleEvent('View', event);
-      },
-    },
-  ];
+  // Actions will be set in ngOnInit based on user role
+  actions: CalendarEventAction[] = [];
 
   refresh = new Subject<void>();
 
@@ -139,8 +137,38 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Set up actions based on user role
+    this.setupActions();
+
     this.loadEvents();
     this.applyGapCorrectionClass(3, 9);
+  }
+
+  /**
+   * Sets up the calendar event actions based on user role
+   */
+  private setupActions(): void {
+    // Always add the view action
+    this.actions = [
+      {
+        label: '<img src="icons/show.svg">',
+        a11yLabel: 'View',
+        onClick: ({event}: { event: CalendarEvent }): void => {
+          this.handleEvent('View', event);
+        },
+      }
+    ];
+
+    // Only add the edit action if the user has permission
+    if (this.canEditEvents) {
+      this.actions.unshift({
+        label: '<img src="icons/edit.svg">',
+        a11yLabel: 'Edit',
+        onClick: ({event}: { event: CalendarEvent }): void => {
+          this.handleEvent('Edited', event);
+        },
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -248,8 +276,15 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
     const eventId = event.meta?.id;
 
     if (action === 'Edited' && eventId) {
-      // Rediriger vers la page d'édition de l'événement
-      this.router.navigate(['/admin/events', eventId, 'edit']);
+      // Check if user has permission to edit events
+      if (this.canEditEvents) {
+        // Rediriger vers la page d'édition de l'événement
+        this.router.navigate(['/admin/events', eventId, 'edit']);
+      } else {
+        // Show notification that user doesn't have permission
+        // For now, just open the view dialog instead
+        this.handleEvent('View', event);
+      }
       return;
     } else if (action === 'View' && eventId) {
       // Rediriger vers la page de détails de l'événement
@@ -267,7 +302,11 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
   }
 
   addEvent(): void {
-    this.router.navigateByUrl('admin/events/create');
+    // Check if user has permission to create events
+    if (this.canEditEvents) {
+      this.router.navigateByUrl('admin/events/create');
+    }
+    // If not, do nothing or show a notification
   }
 
   refreshEvents(): void {

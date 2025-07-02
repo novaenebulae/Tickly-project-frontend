@@ -136,7 +136,6 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
    * ✅ Charge les statistiques (simulées pour le moment)
    */
   private loadStatistics(): void {
-    console.log(this.teamManagementService.teamMembers().length);
     this.teamCountSig.set(this.teamManagementService.teamMembers().length);
     this.eventCountSig.set(this.userStructureData?.eventsCount!)
 
