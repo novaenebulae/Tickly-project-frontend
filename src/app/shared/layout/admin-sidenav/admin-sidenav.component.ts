@@ -112,6 +112,13 @@ export class AdminSidenavComponent {
     // Events menu item with filtered subitems
     const eventsSubItems: MenuItem[] = [];
 
+    // Calendar menu item - available to all staff
+    eventsSubItems.push({
+      icon: 'calendar_month',
+      label: 'Calendrier',
+      route: 'calendar',
+    });
+
     // Create event menu item - only for STRUCTURE_ADMINISTRATOR and ORGANIZATION_SERVICE
     if (this.hasRole([UserRole.STRUCTURE_ADMINISTRATOR, UserRole.ORGANIZATION_SERVICE])) {
       eventsSubItems.push({
@@ -120,13 +127,6 @@ export class AdminSidenavComponent {
         route: 'create',
       });
     }
-
-    // Calendar menu item - available to all staff
-    eventsSubItems.push({
-      icon: 'calendar_month',
-      label: 'Calendrier',
-      route: 'calendar',
-    });
 
     // Add events menu item if it has subitems
     if (eventsSubItems.length > 0) {

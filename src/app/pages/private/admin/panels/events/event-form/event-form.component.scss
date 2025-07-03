@@ -174,6 +174,27 @@
       color: #667eea;
     }
   }
+
+  // Field hint block for disabled fields
+  .field-hint-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #f8f9fa;
+    border-left: 4px solid #6c757d;
+    padding: 12px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    color: #6c757d;
+    font-size: 0.9rem;
+
+    mat-icon {
+      color: #6c757d;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
 }
 
 // Form Layout
@@ -282,10 +303,29 @@
         box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.25);
       }
 
+      &:disabled {
+        background-color: #f8f9fa;
+        border-color: #e2e8f0;
+        color: #adb5bd;
+        cursor: not-allowed;
+        box-shadow: none;
+
+        &:hover {
+          border-color: #e2e8f0;
+        }
+      }
+
       &::-webkit-calendar-picker-indicator {
         cursor: pointer;
         filter: invert(60%) sepia(96%) saturate(1261%) hue-rotate(359deg) brightness(100%) contrast(94%);
       }
+    }
+
+    .field-hint {
+      color: #6c757d;
+      font-size: 0.85rem;
+      margin-top: 4px;
+      font-style: italic;
     }
 
     .validation-error {
@@ -315,6 +355,16 @@
 
 // Photo Upload
 .photo-upload {
+  &.disabled {
+    opacity: 0.7;
+    pointer-events: none;
+
+    .photo-preview, .photo-placeholder {
+      border-color: #e2e8f0;
+      box-shadow: none;
+    }
+  }
+
   .photo-preview {
     position: relative;
     display: inline-block;
@@ -342,6 +392,12 @@
         &:hover {
           background: rgba(0, 0, 0, 0.8);
         }
+
+        &:disabled {
+          background: rgba(0, 0, 0, 0.3);
+          color: rgba(255, 255, 255, 0.5);
+          cursor: not-allowed;
+        }
       }
     }
   }
@@ -365,6 +421,19 @@
       color: #667eea;
     }
 
+    &.disabled {
+      cursor: not-allowed;
+      border-color: #e2e8f0;
+      background: #f8f9fa;
+      color: #adb5bd;
+
+      &:hover {
+        border-color: #e2e8f0;
+        background: #f8f9fa;
+        color: #adb5bd;
+      }
+    }
+
     mat-icon {
       font-size: 48px;
       width: 48px;
@@ -383,6 +452,16 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
+
+  &.disabled {
+    opacity: 0.7;
+    pointer-events: none;
+
+    .photo-item, .add-photo-button {
+      border-color: #e2e8f0;
+      box-shadow: none;
+    }
+  }
 
   .photo-item {
     position: relative;
@@ -408,6 +487,12 @@
         &:hover {
           background: rgba(0, 0, 0, 0.8);
         }
+
+        &:disabled {
+          background: rgba(0, 0, 0, 0.3);
+          color: rgba(255, 255, 255, 0.5);
+          cursor: not-allowed;
+        }
       }
     }
   }
@@ -428,6 +513,19 @@
       border-color: #667eea;
       background: #f8fafc;
       color: #667eea;
+    }
+
+    &.disabled {
+      cursor: not-allowed;
+      border-color: #e2e8f0;
+      background: #f8f9fa;
+      color: #adb5bd;
+
+      &:hover {
+        border-color: #e2e8f0;
+        background: #f8f9fa;
+        color: #adb5bd;
+      }
     }
 
     mat-icon {

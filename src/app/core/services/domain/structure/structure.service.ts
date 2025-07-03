@@ -225,20 +225,6 @@ export class StructureService {
     };
   }
 
-  /**
-   * Maps API zone data to EventAudienceZone
-   */
-  public mapApiToAudienceZoneModel(apiZone: any): EventAudienceZone {
-    return {
-      id: apiZone.id,
-      name: apiZone.name,
-      areaId: apiZone.areaId,
-      maxCapacity: apiZone.maxCapacity,
-      isActive: apiZone.isActive,
-      seatingType: apiZone.seatingType,
-    };
-  }
-
 
   public mapApiToStructureTypeModel(apiType: any): StructureTypeModel {
     return apiType as StructureTypeModel; // Direct cast if API DTO matches

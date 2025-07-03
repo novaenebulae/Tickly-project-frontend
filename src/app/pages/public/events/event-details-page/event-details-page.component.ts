@@ -130,7 +130,7 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
           this.titleService.setTitle(`${eventData.name} | Tickly`);
 
           // Charger les données de la structure
-          this.loadStructureData(eventData.structure);
+          this.loadStructureData(eventData.structure.id);
 
           // Charger les événements similaires
           this.loadSimilarEvents(eventData.id!, eventData.categories);

@@ -60,21 +60,6 @@ export class EventInfoSectionComponent {
     return this.structure?.logoUrl || 'assets/images/structure-placeholder.jpg';
   }
 
-  /**
-   * Retourne une description du type de placement
-   */
-  getSeatingTypeDescription(): string {
-    switch (this.event.defaultSeatingType) {
-      case SeatingType.SEATED:
-        return 'Places numérotées';
-      case SeatingType.STANDING:
-        return 'Placement libre';
-      case SeatingType.MIXED:
-        return 'Placement mixte';
-      default:
-        return 'Placement non spécifié';
-    }
-  }
 
   /**
    * Obtient l'adresse complète formatée

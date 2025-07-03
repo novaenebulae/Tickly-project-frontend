@@ -88,35 +88,6 @@
           </div>
           <h3>Réservation</h3>
         </div>
-
-        <div class="card-content">
-          <div class="price-info">
-            <div class="price-status">
-              <ng-container *ngIf="event.isFreeEvent">
-                <div class="free-badge">
-                  <mat-icon>check_circle</mat-icon>
-                  <span>Gratuit</span>
-                </div>
-              </ng-container>
-            </div>
-
-            <div class="seating-info">
-              <mat-icon>event_seat</mat-icon>
-              <span>{{ getSeatingTypeDescription() }}</span>
-            </div>
-
-            <div class="availability-info">
-              <p>Réservez maintenant pour garantir votre place</p>
-            </div>
-
-            <div class="w-100 d-flex justify-content-end mt-3">
-              <button mat-flat-button color="accent" class="reservation-button" (click)="onBookEvent()">
-                <span>Réserver</span>
-                <mat-icon>event_seat</mat-icon>
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>

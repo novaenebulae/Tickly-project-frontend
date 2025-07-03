@@ -11,7 +11,7 @@
       <div class="event-card__date-month">{{ (this.event.startDate | date: 'MMM')!.toUpperCase().replace('.', '') }}</div>
     </div>
 
-    @if (event.featuredEvent) {
+    @if (event.isFeaturedEvent) {
       <div class="event-card__featured-badge">
         <mat-icon>star</mat-icon>
       </div>

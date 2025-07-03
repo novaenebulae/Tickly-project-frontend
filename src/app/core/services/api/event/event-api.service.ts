@@ -8,13 +8,13 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, tap, map } from 'rxjs/operators';
 
 import { ApiConfigService } from '../api-config.service';
-import { EventApiMockService } from './event-api-mock.service';
 import { APP_CONFIG } from '../../../config/app-config';
 import {EventModel, EventStatus, EventSummaryModel} from '../../../models/event/event.model';
 import { EventSearchParams } from '../../../models/event/event-search-params.model';
+import { FileUploadResponseDto } from '../../../models/files/file-upload-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +22,6 @@ import { EventSearchParams } from '../../../models/event/event-search-params.mod
 export class EventApiService {
   private apiConfig = inject(ApiConfigService);
   private http = inject(ApiConfigService).http;
-  private mockService = inject(EventApiMockService); // Inject the mock service
 
   /**
    * Retrieves a list of events based on search parameters.
@@ -82,9 +81,6 @@ export class EventApiService {
    * @param forceRefresh - If true, the UI should refresh the event list after creation
    */
   createEvent(eventApiDto: any, forceRefresh: boolean = true): Observable<any> {
-    if (this.apiConfig.isMockEnabledForDomain('events')) {
-      return this.mockService.mockCreateEvent(eventApiDto);
-    }
 
     this.apiConfig.logApiRequest('POST', 'create-event', eventApiDto);
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base);
@@ -98,20 +94,18 @@ export class EventApiService {
   /**
    * Updates an existing event.
    * Expects a partial raw API DTO with fields to update.
+   * Uses PATCH to send only the modified fields.
    * @param id - The ID of the event to update.
    * @param eventApiDto - The partial raw API DTO with updated data.
    * @param forceRefresh - If true, the UI should refresh the event list after update
    */
   updateEvent(id: number, eventApiDto: Partial<any>, forceRefresh: boolean = true): Observable<any> {
-    if (this.apiConfig.isMockEnabledForDomain('events')) {
-      return this.mockService.mockUpdateEvent(id, eventApiDto);
-    }
 
-    this.apiConfig.logApiRequest('PUT', `update-event/${id}`, eventApiDto);
+    this.apiConfig.logApiRequest('PATCH', `update-event/${id}`, eventApiDto);
     const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base)}/${id}`;
     const headers = this.apiConfig.createHeaders();
-    return this.http.put<any>(url, eventApiDto, { headers }).pipe(
-      tap(response => this.apiConfig.logApiResponse('PUT', `update-event/${id}`, response)),
+    return this.http.patch<any>(url, eventApiDto, { headers }).pipe(
+      tap(response => this.apiConfig.logApiResponse('PATCH', `update-event/${id}`, response)),
       catchError(error => this.handleEventError(error, 'updateEvent'))
     );
   }
@@ -121,10 +115,6 @@ export class EventApiService {
    * @param id - The ID of the event to delete.
    */
   deleteEvent(id: number): Observable<void> {
-    if (this.apiConfig.isMockEnabledForDomain('events')) {
-      return this.mockService.mockDeleteEvent(id);
-    }
-
     this.apiConfig.logApiRequest('DELETE', `delete-event/${id}`);
     const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base)}/${id}`;
     const headers = this.apiConfig.createHeaders();
@@ -155,9 +145,6 @@ export class EventApiService {
    * @param status - The new status to set.
    */
   updateEventStatus(id: number, status: EventStatus): Observable<any> {
-    if (this.apiConfig.isMockEnabledForDomain('events')) {
-      return this.mockService.mockUpdateEventStatus(id, status);
-    }
 
     this.apiConfig.logApiRequest('PATCH', `update-event-status/${id}`, { status });
     const url = `${this.apiConfig.getUrl(APP_CONFIG.api.endpoints.events.base)}/${id}/status`;
@@ -272,10 +259,87 @@ export class EventApiService {
   }
 
   /**
-   * Handles errors from event API calls.
-   * @param error - The HttpErrorResponse.
-   * @param context - A string describing the context of the error.
+   * Uploads the main photo for an event.
+   * @param eventId - The ID of the event.
+   * @param file - The file to upload.
+   * @returns An Observable of the upload response.
    */
+  uploadMainPhoto(eventId: number, file: File): Observable<FileUploadResponseDto> {
+    const endpointContext = `events/${eventId}/main-photo`;
+
+    const url = this.apiConfig.getUrl(endpointContext);
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    const headers = this.apiConfig.createFormDataHeaders();
+
+    this.apiConfig.logApiRequest('POST', endpointContext, 'FormData with file');
+    return this.http.post<FileUploadResponseDto>(url, formData, { headers }).pipe(
+      tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),
+      catchError(error => this.handleEventError(error, 'uploadMainPhoto'))
+    );
+  }
+
+  /**
+   * Uploads multiple gallery images for an event.
+   * @param eventId - The ID of the event.
+   * @param files - The array of files to upload.
+   * @returns An Observable of the upload responses.
+   */
+  uploadGalleryImages(eventId: number, files: File[]): Observable<FileUploadResponseDto[]> {
+    const endpointContext = `events/${eventId}/gallery`;
+
+    const url = this.apiConfig.getUrl(endpointContext);
+    const formData = new FormData();
+
+    // Append each file to the formData with the 'files' key
+    files.forEach(file => {
+      formData.append('files', file, file.name);
+    });
+
+    const headers = this.apiConfig.createFormDataHeaders();
+
+    this.apiConfig.logApiRequest('POST', endpointContext, 'FormData with multiple files');
+    return this.http.post<FileUploadResponseDto[]>(url, formData, { headers }).pipe(
+      tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),
+      catchError(error => this.handleEventError(error, 'uploadGalleryImages'))
+    );
+  }
+
+  /**
+   * Uploads a single gallery image for an event.
+   * @deprecated Use uploadGalleryImages instead as the backend expects an array of files.
+   * @param eventId - The ID of the event.
+   * @param file - The file to upload.
+   * @returns An Observable of the upload response.
+   */
+  uploadGalleryImage(eventId: number, file: File): Observable<FileUploadResponseDto> {
+    return this.uploadGalleryImages(eventId, [file]).pipe(
+      map(responses => responses[0]),
+      catchError(error => this.handleEventError(error, 'uploadGalleryImage'))
+    );
+  }
+
+  /**
+   * Deletes a gallery image for an event.
+   * @param eventId - The ID of the event.
+   * @param imagePath - The path of the image to delete.
+   * @returns An Observable of void.
+   */
+  deleteGalleryImage(eventId: number, imagePath: string): Observable<void> {
+    const endpointContext = `events/${eventId}/gallery`;
+
+    // Create URL with query parameter for the image path
+    const url = `${this.apiConfig.getUrl(endpointContext)}?imagePath=${encodeURIComponent(imagePath)}`;
+    const headers = this.apiConfig.createHeaders();
+
+    this.apiConfig.logApiRequest('DELETE', endpointContext, { imagePath });
+    return this.http.delete<void>(url, { headers }).pipe(
+      tap(() => this.apiConfig.logApiResponse('DELETE', endpointContext, 'Image deletion successful')),
+      catchError(error => this.handleEventError(error, 'deleteGalleryImage'))
+    );
+  }
+
   private handleEventError(error: HttpErrorResponse, context: string): Observable<never> {
     this.apiConfig.logApiError('EVENT-API', context, error);
     // Default user message, can be overridden by specific status codes

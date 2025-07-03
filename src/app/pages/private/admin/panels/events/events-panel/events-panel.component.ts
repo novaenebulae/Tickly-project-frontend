@@ -98,7 +98,6 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
   filterStatus: FilterStatus = {
     'draft': false,
     'published': true,
-    'pending_approval': false,
     'cancelled': false,
     'completed': false
   };
@@ -228,7 +227,6 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
     this.filterStatus = {
       'draft': false,
       'published': true,
-      'pending_approval': false,
       'cancelled': false,
       'completed': false
     };
@@ -245,8 +243,19 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
   processEvents(): void {
     let events = [...this.allEvents];
 
+    // Convert lowercase status strings to EventStatus enum values
     const activeStatusFilters = Object.keys(this.filterStatus)
-      .filter(status => this.filterStatus[status]) as EventStatus[];
+      .filter(status => this.filterStatus[status])
+      .map(status => {
+        switch(status) {
+          case 'draft': return EventStatus.DRAFT;
+          case 'published': return EventStatus.PUBLISHED;
+          case 'cancelled': return EventStatus.CANCELLED;
+          case 'completed': return EventStatus.COMPLETED;
+          default: return null;
+        }
+      })
+      .filter(status => status !== null) as EventStatus[];
 
     if (activeStatusFilters.length > 0) {
       events = events.filter(event => activeStatusFilters.includes(event.status));
@@ -344,7 +353,6 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
       case EventStatus.DRAFT: return 'accent';
       case EventStatus.CANCELLED: return 'warn';
       case EventStatus.COMPLETED: return undefined;
-      case EventStatus.PENDING_APPROVAL: return 'accent';
       default: return undefined;
     }
   }
@@ -355,7 +363,6 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
       case 'draft': return 'Brouillon';
       case 'cancelled': return 'Annulé';
       case 'completed': return 'Terminé';
-      case 'pending_approval': return 'En attente';
       default: return status;
     }
   }
@@ -366,7 +373,6 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
       case 'draft': return 'edit';
       case 'cancelled': return 'cancel';
       case 'completed': return 'done_all';
-      case 'pending_approval': return 'schedule';
       default: return 'help';
     }
   }

@@ -70,6 +70,7 @@ export class EventAreasZonesSelectionComponent implements OnInit {
   @Input() existingAreas?: StructureAreaModel[];
   @Input() existingZones?: EventAudienceZone[];
   @Input() defaultSeatingType?: SeatingType;
+  @Input() disabled: boolean = false;
 
   // Propriétés de sortie
   @Output() selectionChange = new EventEmitter<AreaZoneSelection>();
@@ -195,7 +196,7 @@ export class EventAreasZonesSelectionComponent implements OnInit {
         if (template) {
           zoneConfigs.push({
             template: template,
-            allocatedCapacity: existingZone.maxCapacity || 0
+            allocatedCapacity: existingZone.allocatedCapacity || 0
           });
         }
       });
@@ -222,6 +223,11 @@ export class EventAreasZonesSelectionComponent implements OnInit {
    * Toggle la sélection d'un espace
    */
   toggleAreaSelection(area: StructureAreaModel): void {
+    // If component is disabled, don't allow selection changes
+    if (this.disabled) {
+      return;
+    }
+
     const currentSelection = this.selectedAreas();
     const isCurrentlySelected = this.isAreaSelected(area.id!);
 
@@ -240,6 +246,11 @@ export class EventAreasZonesSelectionComponent implements OnInit {
    * Toggle la sélection d'une zone
    */
   toggleZoneSelection(template: AudienceZoneTemplateModel): void {
+    // If component is disabled, don't allow selection changes
+    if (this.disabled) {
+      return;
+    }
+
     const currentSelection = this.selectedZones();
     const isCurrentlySelected = this.isZoneSelected(template.id!);
 
@@ -279,6 +290,11 @@ export class EventAreasZonesSelectionComponent implements OnInit {
    * Met à jour la capacité allouée pour une zone
    */
   updateZoneCapacity(zoneId: number, event: Event): void {
+    // If component is disabled, don't allow capacity updates
+    if (this.disabled) {
+      return;
+    }
+
     const input = event.target as HTMLInputElement;
     const newCapacity = parseInt(input.value, 10);
 
@@ -350,6 +366,11 @@ export class EventAreasZonesSelectionComponent implements OnInit {
    * Sélectionne toutes les zones d'un espace
    */
   selectAllZonesInArea(areaId: number): void {
+    // If component is disabled, don't allow selection changes
+    if (this.disabled) {
+      return;
+    }
+
     // Empêcher la propagation pour éviter de fermer la carte
     event?.stopPropagation();
 

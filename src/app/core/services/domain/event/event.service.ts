@@ -21,11 +21,16 @@ import {UserRole} from '../../../models/user/user-role.enum';
 import {EventDataDto, EventModel, EventStatus, EventSummaryModel} from '../../../models/event/event.model';
 import {EventCategoryModel} from '../../../models/event/event-category.model';
 import {EventSearchParams} from '../../../models/event/event-search-params.model';
-import {EventAudienceZone, SeatingType} from '../../../models/event/event-audience-zone.model';
+import {
+  EventAudienceZone,
+  EventAudienceZoneConfigDto,
+  SeatingType
+} from '../../../models/event/event-audience-zone.model';
 import {StructureAddressModel} from '../../../models/structure/structure-address.model'; // For address
 import {StructureAreaModel} from '../../../models/structure/structure-area.model'; // For event.areas
 // Configuration
 import {APP_CONFIG} from '../../../config/app-config';
+import {FileUploadResponseDto} from '../../../models/files/file-upload-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -504,9 +509,10 @@ export class EventService {
       id: az.id,
       name: az.name,
       areaId: az.areaId,
-      maxCapacity: az.maxCapacity,
+      allocatedCapacity: az.allocatedCapacity,
       isActive: az.isActive,
-      seatingType: az.seatingType as SeatingType
+      seatingType: az.seatingType as SeatingType,
+      templateId: az.templateId
     }));
 
     return {
@@ -519,10 +525,8 @@ export class EventService {
       startDate: new Date(apiEvent.startDate),
       endDate: new Date(apiEvent.endDate),
       address: apiEvent.address as StructureAddressModel || this.createEmptyAddress(),
-      structure: apiEvent.structure.id,
+      structure: apiEvent.structure, // Now expecting a StructureSummaryModel object
       areas: (apiEvent.areas || []) as StructureAreaModel[], // Assuming API returns StructureAreaModel like objects
-      isFreeEvent: apiEvent.isFreeEvent,
-      defaultSeatingType: apiEvent.defaultSeatingType as SeatingType || SeatingType.MIXED,
       audienceZones: audienceZones,
       displayOnHomepage: apiEvent.displayOnHomepage || false,
       isFeaturedEvent: apiEvent.isFeaturedEvent || false,
@@ -544,17 +548,6 @@ export class EventService {
 
   private mapApiEventToEventSummaryModel(apiEvent: any): EventSummaryModel | undefined {
     if (!apiEvent) return undefined;
-    // Resolve category: API sends category as an object {id, name}
-    // or it might send categoryId. CategoryService helps resolve.
-    // let categoryModel: EventCategoryModel;
-    // if (apiEvent.category && typeof apiEvent.category === 'object') {
-    //   categoryModel = { id: apiEvent.category.id, name: apiEvent.category.name };
-    // } else if (apiEvent.categoryId) {
-    //   categoryModel = this.categoryService.getCategoryById(apiEvent.categoryId) ||
-    //     { id: apiEvent.categoryId, name: 'Catégorie Inconnue' };
-    // } else {
-    //   categoryModel = { id: 0, name: 'Non Catégorisé' }; // Fallback
-    // }
 
     return {
       id: apiEvent.id,
@@ -563,11 +556,18 @@ export class EventService {
       shortDescription: apiEvent.shortDescription,
       startDate: new Date(apiEvent.startDate),
       endDate: new Date(apiEvent.endDate),
-      city: apiEvent.city,
-      structureName: apiEvent.structureName,
-      structureId: apiEvent.structureId,
-      freeEvent: apiEvent.isFreeEvent,
-      featuredEvent: apiEvent.isFeaturedEvent || false,
+      address: apiEvent.address ? {
+        city: apiEvent.address.city,
+        street: apiEvent.address.street,
+        postalCode: apiEvent.address.postalCode,
+        country: apiEvent.address.country
+      } : { city: apiEvent.city || '' },
+      structure: {
+        id: apiEvent.structure?.id || apiEvent.structureId,
+        name: apiEvent.structure?.name || apiEvent.structureName || ''
+      },
+      displayOnHomepage: apiEvent.displayOnHomepage || false,
+      isFeaturedEvent: apiEvent.isFeaturedEvent || false,
       mainPhotoUrl: apiEvent.mainPhotoUrl,
       status: apiEvent.status as EventStatus,
     };
@@ -589,25 +589,21 @@ export class EventService {
   private mapEventDataDtoToApiDto(eventData: Partial<EventDataDto> | EventDataDto, eventIdForUpdate?: number): any {
     const apiDto: any = { ...eventData }; // Start with a shallow copy
 
-    // Ensure categoryId is present if category object was in eventData
-    if (typeof eventData.categoryId === 'number') { // If category was already an ID
-      apiDto.categoryId = eventData.categoryId;
+    // Ensure categoryIds is present and in the correct format
+    if (eventData.categoryIds && Array.isArray(eventData.categoryIds)) {
+      apiDto.categoryIds = eventData.categoryIds;
+    } else if (typeof eventData.categoryIds === 'number') { // Handle case where it might be a single number
+      apiDto.categoryIds = [eventData.categoryIds];
     }
-    delete apiDto.category; // API DTO should not have the 'category' object, only 'categoryId'
 
-    // Ensure audienceZones are in the correct format (without client-side only properties)
-    // and omit 'id' for new zones when creating an event.
-    // For updates, 'id' should be present for existing zones.
+    // Ensure audienceZones are in the correct format (using EventAudienceZoneConfigDto)
     if (apiDto.audienceZones) {
-      apiDto.audienceZones = apiDto.audienceZones.map((zone: EventAudienceZone | Omit<EventAudienceZone, 'id'>) => {
+      apiDto.audienceZones = apiDto.audienceZones.map((zone: EventAudienceZoneConfigDto) => {
         const apiZone: any = {
-          name: zone.name,
-          areaId: zone.areaId,
-          maxCapacity: zone.maxCapacity,
-          isActive: zone.isActive,
-          seatingType: zone.seatingType
+          templateId: zone.templateId,
+          allocatedCapacity: zone.allocatedCapacity
         };
-        if ('id' in zone && zone.id !== undefined && eventIdForUpdate) { // Only include ID for existing zones during an update
+        if (zone.id !== undefined && eventIdForUpdate) { // Only include ID for existing zones during an update
           apiZone.id = zone.id;
         }
         return apiZone;
@@ -618,14 +614,9 @@ export class EventService {
     if (apiDto.startDate && !(apiDto.startDate instanceof Date)) delete apiDto.startDate;
     if (apiDto.endDate && !(apiDto.endDate instanceof Date)) delete apiDto.endDate;
 
-
-    // Structure ID: Your previous code had createdByStructureId for new events.
-    // If API differentiates, handle it. If structureId is always just structureId:
-    // if (eventData.structureId && !eventIdForUpdate) { // For new events
-    //   apiDto.structureId = eventData.structureId;
-    // }
-    // If API uses 'createdByStructureId' for new events, and 'structureId' for existing.
-    // The EventDataDto already has structureId. EventApiService will send this as is.
+    // Remove any properties that shouldn't be sent to the API
+    delete apiDto.category; // API DTO should not have the 'category' object, only 'categoryIds'
+    delete apiDto.categoryId; // Use categoryIds instead
 
     return apiDto;
   }
@@ -663,7 +654,7 @@ export class EventService {
     if (!currentAuthUser || !currentAuthUser.structureId) return false; // User not logged in or no structureId
 
     // User can edit if they belong to the structure that created/hosts the event
-    return event.structure === currentAuthUser.structureId;
+    return event.structure.id === currentAuthUser.structureId;
   }
 
   /**
@@ -678,6 +669,118 @@ export class EventService {
     }
     const now = new Date();
     return events.filter(event => new Date(event.endDate) >= now);
+  }
+
+  /**
+   * Uploads the main photo for an event.
+   * @param eventId - The ID of the event.
+   * @param file - The file to upload.
+   * @returns An Observable of the upload response.
+   */
+  uploadMainPhoto(eventId: number, file: File): Observable<FileUploadResponseDto> {
+    // Check if user has permission to manage events
+    if (!this.hasEventManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour modifier un événement.',
+        'error'
+      );
+      return throwError(() => new Error('Permission denied'));
+    }
+
+    return this.eventApi.uploadMainPhoto(eventId, file).pipe(
+      tap(response => {
+        // Only display notification if there's a message in the response
+        if (response && response.message) {
+          this.notification.displayNotification(response.message, 'valid');
+        } else {
+          this.notification.displayNotification('Photo principale téléchargée avec succès', 'valid');
+        }
+        // Refresh the event details cache if needed
+        this.getEventById(eventId, true).subscribe();
+      }),
+      catchError(error => {
+        this.handleError('Impossible de télécharger la photo principale', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Uploads multiple gallery images for an event.
+   * @param eventId - The ID of the event.
+   * @param files - The array of files to upload.
+   * @returns An Observable of the upload responses.
+   */
+  uploadGalleryImages(eventId: number, files: File[]): Observable<FileUploadResponseDto[]> {
+    // Check if user has permission to manage events
+    if (!this.hasEventManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour modifier un événement.',
+        'error'
+      );
+      return throwError(() => new Error('Permission denied'));
+    }
+
+    return this.eventApi.uploadGalleryImages(eventId, files).pipe(
+      tap(responses => {
+        this.notification.displayNotification(
+          `${responses.length} image(s) de galerie téléchargée(s) avec succès`,
+          'valid'
+        );
+        // Refresh the event details cache if needed
+        this.getEventById(eventId, true).subscribe();
+      }),
+      catchError(error => {
+        this.handleError('Impossible de télécharger les images de galerie', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Uploads a single gallery image for an event.
+   * @deprecated Use uploadGalleryImages instead as the backend expects an array of files.
+   * @param eventId - The ID of the event.
+   * @param file - The file to upload.
+   * @returns An Observable of the upload response.
+   */
+  uploadGalleryImage(eventId: number, file: File): Observable<FileUploadResponseDto> {
+    return this.uploadGalleryImages(eventId, [file]).pipe(
+      map(responses => responses[0]),
+      catchError(error => {
+        this.handleError('Impossible de télécharger l\'image de galerie', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Deletes a gallery image for an event.
+   * @param eventId - The ID of the event.
+   * @param imagePath - The path of the image to delete.
+   * @returns An Observable of void.
+   */
+  deleteGalleryImage(eventId: number, imagePath: string): Observable<void> {
+    // Check if user has permission to manage events
+    if (!this.hasEventManagementPermission()) {
+      this.notification.displayNotification(
+        'Vous n\'avez pas les droits nécessaires pour modifier un événement.',
+        'error'
+      );
+      return throwError(() => new Error('Permission denied'));
+    }
+
+    return this.eventApi.deleteGalleryImage(eventId, imagePath).pipe(
+      tap(() => {
+        this.notification.displayNotification('Image de galerie supprimée avec succès', 'valid');
+        // Refresh the event details cache if needed
+        this.getEventById(eventId, true).subscribe();
+      }),
+      catchError(error => {
+        this.handleError('Impossible de supprimer l\'image de galerie', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   private handleError(userMessage: string, error: any): void {

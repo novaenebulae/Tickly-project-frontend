@@ -307,6 +307,6 @@ export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
   }
 
   getSelectedZoneCapacity(): number {
-    return this.selectedZone()?.maxCapacity || 0;
+    return this.selectedZone()?.allocatedCapacity || 0;
   }
 }

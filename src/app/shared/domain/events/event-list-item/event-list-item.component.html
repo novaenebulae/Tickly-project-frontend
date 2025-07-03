@@ -5,7 +5,7 @@
       <img [src]="event.mainPhotoUrl || 'https://picsum.photos/seed/' + event.id + '/300/200'"
            [alt]="'Image pour ' + event.name"
            class="event-list-item__image">
-      @if (event.featuredEvent) {
+      @if (event.isFeaturedEvent) {
         <div class="event-list-item__featured-banner">
           <mat-icon>star</mat-icon>
           <span>À la une</span>

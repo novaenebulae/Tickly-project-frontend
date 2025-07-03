@@ -30,6 +30,7 @@ export enum SeatingType {
  * Represents a specific zone configured for the audience at an event.
  * This is distinct from a `StructureAreaModel` which is a permanent physical area of a structure.
  * An `EventAudienceZone` is a setup within a `StructureAreaModel` for a particular event.
+ * Matches the EventAudienceZoneDto from the API.
  */
 export interface EventAudienceZone {
   /**
@@ -45,15 +46,14 @@ export interface EventAudienceZone {
   name: string;
 
   /**
-   * The ID of the `StructureAreaModel` (physical area within the structure)
-   * where this audience zone is located/configured.
+   * The allocated capacity for this audience zone.
    */
-  areaId: number;
+  allocatedCapacity: number;
 
   /**
-   * The maximum number of attendees this audience zone can accommodate for the event.
+   * The type of seating or placement offered in this zone for the event.
    */
-  maxCapacity: number;
+  seatingType: SeatingType;
 
   /**
    * Indicates if this audience zone is active and available for booking for the event.
@@ -61,14 +61,36 @@ export interface EventAudienceZone {
   isActive: boolean;
 
   /**
-   * The type of seating or placement offered in this zone for the event.
+   * The ID of the `StructureAreaModel` (physical area within the structure)
+   * where this audience zone is located/configured.
    */
-  seatingType: SeatingType;
+  areaId: number;
 
+  /**
+   * The ID of the template used for this audience zone.
+   */
+  templateId: number;
+}
 
-  // ticketPrice: number; // Removed - no price management
-  // rowCount?: number; // Removed - no seat numbering
-  // seatsPerRow?: number; // Removed - no seat numbering
+/**
+ * Configuration for an audience zone when creating or updating an event.
+ * Matches the EventAudienceZoneConfigDto from the API.
+ */
+export interface EventAudienceZoneConfigDto {
+  /**
+   * The ID of the audience zone. Optional, only used for updates.
+   */
+  id?: number;
+
+  /**
+   * The ID of the template to use for this audience zone.
+   */
+  templateId: number;
+
+  /**
+   * The allocated capacity for this audience zone.
+   */
+  allocatedCapacity: number;
 }
 
 /**
@@ -80,4 +102,3 @@ export type AudienceZoneCreationDto = Omit<EventAudienceZone, 'id'>;
  * DTO for updating an existing audience zone template.
  */
 export type AudienceZoneUpdateDto = Partial<Omit<EventAudienceZone, 'id' | 'areaId'>>;
-

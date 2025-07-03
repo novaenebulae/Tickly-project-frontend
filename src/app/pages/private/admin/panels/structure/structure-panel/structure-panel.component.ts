@@ -129,16 +129,41 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
    */
   private loadStructureData(): void {
     // Surveiller les changements de structure pour charger les areas
-    this.userStructureData = this.userStructure()
+    this.userStructureData = this.userStructure();
+
+    // Charger les espaces de la structure
+    this.userStructureService.loadUserStructureAreas().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe();
   }
 
   /**
-   * ✅ Charge les statistiques (simulées pour le moment)
+   * ✅ Charge les statistiques
    */
   private loadStatistics(): void {
-    this.teamCountSig.set(this.teamManagementService.teamMembers().length);
-    this.eventCountSig.set(this.userStructureData?.eventsCount!)
+    // Charger le nombre de membres d'équipe
+    this.teamManagementService.loadTeamMembers().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (members) => {
+        this.teamCountSig.set(members.length);
+      },
+      error: () => {
+        this.teamCountSig.set(0);
+      }
+    });
 
+    // Charger le nombre d'événements
+    this.userStructureService.getUserStructureEvents(true).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (events) => {
+        this.eventCountSig.set(events.length);
+      },
+      error: () => {
+        this.eventCountSig.set(0);
+      }
+    });
   }
 
   /**
@@ -149,6 +174,7 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: () => {
+        this.loadStructureData();
         this.loadStatistics();
         this.notification.displayNotification('Données mises à jour', 'valid');
       },

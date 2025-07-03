@@ -222,7 +222,7 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
           type: event.categories?.map(c => c.name).join(', '),
           // artists: event. || [],
           description: event.shortDescription || '',
-          location: event.city || ''
+          location: event.address?.city || ''
         }
       } as CalendarEvent;
     });

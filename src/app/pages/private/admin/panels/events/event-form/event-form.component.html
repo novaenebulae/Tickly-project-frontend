@@ -74,6 +74,7 @@
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Nom de l'événement</mat-label>
                 <input matInput formControlName="name" required>
+                <mat-hint *ngIf="isNameDisabled()">Le nom ne peut pas être modifié dans ce statut</mat-hint>
                 <mat-error *ngIf="generalInfoForm.get('name')?.invalid">
                   {{ getFormErrorMessage(generalInfoForm, 'name') }}
                 </mat-error>
@@ -88,21 +89,20 @@
                     <mat-option [value]="category.id">{{ category.name }}</mat-option>
                   }
                 </mat-select>
+                <mat-hint *ngIf="isCategoryDisabled()">La catégorie ne peut pas être modifiée dans ce statut</mat-hint>
                 <mat-error *ngIf="generalInfoForm.get('categoryId')?.invalid">
                   La catégorie est obligatoire
                 </mat-error>
               </mat-form-field>
 
-              <mat-checkbox formControlName="isFreeEvent" class="half-width free-event-checkbox">
-                Événement gratuit
-              </mat-checkbox>
             </div>
 
             <div class="form-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Description courte</mat-label>
                 <input matInput formControlName="shortDescription" maxlength="200">
-                <mat-hint>Description succincte pour l'aperçu (max 200 caractères)</mat-hint>
+                <mat-hint *ngIf="isDescriptionDisabled()">La description ne peut pas être modifiée dans ce statut</mat-hint>
+                <mat-hint *ngIf="!isDescriptionDisabled()">Description succincte pour l'aperçu (max 200 caractères)</mat-hint>
               </mat-form-field>
             </div>
 
@@ -110,6 +110,7 @@
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Description complète</mat-label>
                 <textarea matInput formControlName="fullDescription" rows="4" required></textarea>
+                <mat-hint *ngIf="isDescriptionDisabled()">La description ne peut pas être modifiée dans ce statut</mat-hint>
                 <mat-error *ngIf="generalInfoForm.get('fullDescription')?.invalid">
                   {{ getFormErrorMessage(generalInfoForm, 'fullDescription') }}
                 </mat-error>
@@ -122,7 +123,8 @@
                 <mat-label>Mots-clés (séparés par des virgules)</mat-label>
                 <input matInput formControlName="tagsInput" placeholder="ex: concert, musique, rock">
                 <mat-icon matSuffix>local_offer</mat-icon>
-                <mat-hint>Entrez vos mots-clés séparés par des virgules</mat-hint>
+                <mat-hint *ngIf="isTagsDisabled()">Les mots-clés ne peuvent pas être modifiés dans ce statut</mat-hint>
+                <mat-hint *ngIf="!isTagsDisabled()">Entrez vos mots-clés séparés par des virgules</mat-hint>
               </mat-form-field>
 
               @if (parsedTags().length > 0) {
@@ -146,6 +148,9 @@
               <div class="date-time-picker half-width">
                 <label for="startDate">Date de début</label>
                 <input type="date" id="startDate" formControlName="startDatePart" required>
+                @if (isDateDisabled()) {
+                  <div class="field-hint">La date ne peut pas être modifiée dans ce statut</div>
+                }
                 @if (generalInfoForm.get('startDatePart')?.invalid && (generalInfoForm.get('startDatePart')?.dirty || generalInfoForm.get('startDatePart')?.touched)) {
                   <div class="validation-error">La date de début est obligatoire</div>
                 }
@@ -154,6 +159,9 @@
               <div class="date-time-picker half-width">
                 <label for="startTime">Heure de début</label>
                 <input type="time" id="startTime" formControlName="startTimePart" required>
+                @if (isDateDisabled()) {
+                  <div class="field-hint">L'heure ne peut pas être modifiée dans ce statut</div>
+                }
                 @if (generalInfoForm.get('startTimePart')?.invalid && (generalInfoForm.get('startTimePart')?.dirty || generalInfoForm.get('startTimePart')?.touched)) {
                   <div class="validation-error">L'heure de début est obligatoire</div>
                 }
@@ -164,6 +172,9 @@
               <div class="date-time-picker half-width">
                 <label for="endDate">Date de fin</label>
                 <input type="date" id="endDate" formControlName="endDatePart" required>
+                @if (isDateDisabled()) {
+                  <div class="field-hint">La date ne peut pas être modifiée dans ce statut</div>
+                }
                 @if (generalInfoForm.get('endDatePart')?.invalid && (generalInfoForm.get('endDatePart')?.dirty || generalInfoForm.get('endDatePart')?.touched)) {
                   <div class="validation-error">La date de fin est obligatoire</div>
                 }
@@ -172,6 +183,9 @@
               <div class="date-time-picker half-width">
                 <label for="endTime">Heure de fin</label>
                 <input type="time" id="endTime" formControlName="endTimePart" required>
+                @if (isDateDisabled()) {
+                  <div class="field-hint">L'heure ne peut pas être modifiée dans ce statut</div>
+                }
                 @if (generalInfoForm.get('endTimePart')?.invalid && (generalInfoForm.get('endTimePart')?.dirty || generalInfoForm.get('endTimePart')?.touched)) {
                   <div class="validation-error">L'heure de fin est obligatoire</div>
                 }
@@ -206,10 +220,17 @@
               Adresse
             </h3>
 
+            @if (isAddressDisabled()) {
+              <div class="field-hint-block">
+                <mat-icon>info</mat-icon>
+                L'adresse ne peut pas être modifiée dans ce statut
+              </div>
+            }
+
             <div class="form-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Rue</mat-label>
-                <input matInput formControlName="street" [disabled]="true">
+                <input matInput formControlName="street">
                 <mat-hint>Adresse définie au niveau de la structure</mat-hint>
               </mat-form-field>
             </div>
@@ -217,13 +238,13 @@
             <div class="form-row">
               <mat-form-field appearance="outline" class="half-width">
                 <mat-label>Code postal</mat-label>
-                <input matInput [disabled]="true" formControlName="postalCode">
+                <input matInput formControlName="postalCode">
                 <mat-hint>Défini au niveau de la structure</mat-hint>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="half-width">
                 <mat-label>Ville</mat-label>
-                <input matInput formControlName="city" [disabled]="true">
+                <input matInput formControlName="city">
                 <mat-hint>Définie au niveau de la structure</mat-hint>
               </mat-form-field>
             </div>
@@ -231,29 +252,12 @@
             <div class="form-row">
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Pays</mat-label>
-                <input matInput formControlName="country" [disabled]="true">
+                <input matInput formControlName="country">
                 <mat-hint>Défini au niveau de la structure</mat-hint>
               </mat-form-field>
             </div>
           </div>
 
-          <div class="form-section">
-            <h3>
-              <mat-icon>event_seat</mat-icon>
-              Configuration du placement
-            </h3>
-
-            <div class="form-row">
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Type de placement par défaut</mat-label>
-                <mat-select formControlName="defaultSeatingType" required>
-                  @for (option of seatingTypeOptions; track option.value) {
-                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </div>
-          </div>
 
           <!-- Areas and Zones Selection -->
           <div class="form-section">
@@ -262,9 +266,18 @@
               Sélection des espaces et zones
             </h3>
 
+            @if (isAudienceZonesDisabled()) {
+              <div class="field-hint-block">
+                <mat-icon>info</mat-icon>
+                Les zones d'audience ne peuvent pas être modifiées dans ce statut
+              </div>
+            }
+
             <app-event-areas-zones-selection
               [structureId]="userStructureId()!"
-              [defaultSeatingType]="locationForm.get('defaultSeatingType')?.value"
+              [existingAreas]="existingAreas()"
+              [existingZones]="existingZones()"
+              [disabled]="isAudienceZonesDisabled()"
               (selectionChange)="onAreaZoneSelectionChange($event)">
             </app-event-areas-zones-selection>
           </div>
@@ -283,27 +296,34 @@
               Photo principale
             </h3>
 
-            <div class="photo-upload">
+            @if (isImagesDisabled()) {
+              <div class="field-hint-block">
+                <mat-icon>info</mat-icon>
+                Les images ne peuvent pas être modifiées dans ce statut
+              </div>
+            }
+
+            <div class="photo-upload" [class.disabled]="isImagesDisabled()">
               @if (previewMainPhoto()) {
                 <div class="photo-preview">
                   <img [src]="previewMainPhoto()" alt="Photo principale">
                   <div class="photo-actions">
-                    <button type="button" mat-icon-button color="primary" (click)="triggerMainPhotoUpload()">
+                    <button type="button" mat-icon-button color="primary" (click)="triggerMainPhotoUpload()" [disabled]="isImagesDisabled()">
                       <mat-icon>edit</mat-icon>
                     </button>
-                    <button type="button" mat-icon-button color="warn" (click)="removeMainPhoto()">
+                    <button type="button" mat-icon-button color="warn" (click)="removeMainPhoto()" [disabled]="isImagesDisabled()">
                       <mat-icon>delete</mat-icon>
                     </button>
                   </div>
                 </div>
               } @else {
-                <div class="photo-placeholder" (click)="triggerMainPhotoUpload()">
+                <div class="photo-placeholder" (click)="!isImagesDisabled() && triggerMainPhotoUpload()">
                   <mat-icon>add_photo_alternate</mat-icon>
                   <span>Ajouter une photo principale</span>
                 </div>
               }
 
-              <input #mainPhotoInput type="file" accept="image/*" (change)="onMainPhotoSelected($event)" hidden>
+              <input #mainPhotoInput type="file" accept="image/*" (change)="onMainPhotoSelected($event)" hidden [disabled]="isImagesDisabled()">
             </div>
           </div>
 
@@ -314,104 +334,28 @@
               Photos supplémentaires
             </h3>
 
-            <div class="photos-grid">
+            <div class="photos-grid" [class.disabled]="isImagesDisabled()">
               @for (photo of additionalPhotosPreview(); track $index) {
                 <div class="photo-item">
                   <img [src]="photo" alt="Photo {{ $index + 1 }}">
                   <div class="photo-actions">
-                    <button type="button" mat-icon-button color="warn" (click)="removePhoto($index)">
+                    <button type="button" mat-icon-button color="warn" (click)="removePhoto($index)" [disabled]="isImagesDisabled()">
                       <mat-icon>delete</mat-icon>
                     </button>
                   </div>
                 </div>
               }
 
-              <div class="add-photo-button" (click)="triggerAdditionalPhotoUpload()">
+              <div class="add-photo-button" (click)="!isImagesDisabled() && triggerAdditionalPhotoUpload()" [class.disabled]="isImagesDisabled()">
                 <mat-icon>add</mat-icon>
                 <span>Ajouter</span>
               </div>
             </div>
 
-            <input #additionalPhotoInput type="file" accept="image/*" multiple (change)="onAdditionalPhotosSelected($event)" hidden>
+            <input #additionalPhotoInput type="file" accept="image/*" multiple (change)="onAdditionalPhotosSelected($event)" hidden [disabled]="isImagesDisabled()">
           </div>
 
-          <!-- Event Actors -->
-          <div class="form-section">
-            <h3>
-              <mat-icon>people</mat-icon>
-              Intervenants/Artistes
-            </h3>
 
-            <div formArrayName="eventActors">
-              @for (actor of eventActorsFormArray.controls; track $index) {
-                <div [formGroupName]="$index" class="actor-form">
-                  <div class="actor-photo">
-                    @if (actorPhotosPreview()[$index]) {
-                      <img [src]="actorPhotosPreview()[$index]" alt="Photo de l'intervenant">
-                    } @else {
-                      <div class="photo-placeholder-small">
-                        <mat-icon>person</mat-icon>
-                      </div>
-                    }
-                    <button type="button" mat-icon-button (click)="changeActorPhoto($index)">
-                      <mat-icon>edit</mat-icon>
-                    </button>
-                  </div>
-
-                  <div class="actor-info">
-                    <mat-form-field appearance="outline">
-                      <mat-label>Nom</mat-label>
-                      <input matInput formControlName="name" required>
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline">
-                      <mat-label>Rôle/Fonction</mat-label>
-                      <input matInput formControlName="role" required>
-                    </mat-form-field>
-                  </div>
-
-                  <button type="button" mat-icon-button color="warn" (click)="removeEventActor($index)">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-              }
-            </div>
-
-            <button type="button" mat-stroked-button (click)="addEventActor()">
-              <mat-icon>add</mat-icon>
-              Ajouter un intervenant
-            </button>
-
-            <input #actorPhotoInput type="file" accept="image/*" (change)="onActorPhotoSelected($event)" hidden>
-          </div>
-
-          <!-- External Links -->
-          <div class="form-section">
-            <h3>
-              <mat-icon>link</mat-icon>
-              Liens externes
-            </h3>
-
-            <div formArrayName="links">
-              @for (link of linksFormArray.controls; track $index) {
-                <div class="link-input">
-                  <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Lien {{ $index + 1 }}</mat-label>
-                    <input matInput [formControlName]="$index" placeholder="https://...">
-                    <mat-icon matSuffix>link</mat-icon>
-                  </mat-form-field>
-                  <button type="button" mat-icon-button color="warn" (click)="removeExternalLink($index)">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-              }
-            </div>
-
-            <button type="button" mat-stroked-button (click)="addExternalLink()">
-              <mat-icon>add</mat-icon>
-              Ajouter un lien
-            </button>
-          </div>
         </form>
       }
 
@@ -425,6 +369,13 @@
               <mat-icon>visibility</mat-icon>
               Visibilité
             </h3>
+
+            @if (isVisibilityDisabled()) {
+              <div class="field-hint-block">
+                <mat-icon>info</mat-icon>
+                Les options de visibilité ne peuvent pas être modifiées dans ce statut
+              </div>
+            }
 
             <div class="config-options">
               <mat-checkbox formControlName="displayOnHomepage">

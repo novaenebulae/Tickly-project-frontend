@@ -5,7 +5,7 @@
  */
 
 import { EventCategoryModel } from './event-category.model';
-import { EventAudienceZone, SeatingType } from './event-audience-zone.model'; // Updated import
+import {EventAudienceZone, EventAudienceZoneConfigDto, SeatingType} from './event-audience-zone.model'; // Updated import
 import { StructureAddressModel } from '../structure/structure-address.model'; // Using the renamed AddressModel
 import { StructureAreaModel } from '../structure/structure-area.model';
 import {StructureSummaryModel} from '../structure/structure-summary.model'; // Using the renamed AreaModel
@@ -31,6 +31,7 @@ export enum EventStatus {
 
 /**
  * Represents an event in the application.
+ * Matches the EventDetailResponseDto from the API.
  */
 export interface EventModel {
   /**
@@ -44,8 +45,8 @@ export interface EventModel {
   name: string;
 
   /**
-   * The category of the event (e.g., concert, theater).
-   * This is an object for easy display in the application.
+   * The categories of the event (e.g., concert, theater).
+   * This is an array of objects for easy display in the application.
    */
   categories: EventCategoryModel[];
 
@@ -81,9 +82,9 @@ export interface EventModel {
   address: StructureAddressModel;
 
   /**
-   * The ID of the structure (venue) hosting the event.
+   * The structure (venue) hosting the event.
    */
-  structure: number;
+  structure: StructureSummaryModel;
 
   /**
    * Optional list of general physical areas of the host structure
@@ -91,18 +92,6 @@ export interface EventModel {
    * These are `StructureAreaModel` instances.
    */
   areas?: StructureAreaModel[]; // References to physical areas of the structure
-
-  /**
-   * Indicates whether the event is free of charge.
-   * Ticket prices are not managed in this application.
-   */
-  isFreeEvent: boolean; // A SUPPRIMER
-
-  /**
-   * The default type of seating/placement for this event,
-   * can be overridden by specific `EventAudienceZone` configurations.
-   */
-  defaultSeatingType: SeatingType;
 
   /**
    * A list of specific audience zones configured for this event.
@@ -124,7 +113,6 @@ export interface EventModel {
    * Optional list of external links related to the event (e.g., artist website, social media).
    */
   links?: string[];
-
 
   /**
    * URL of the main promotional photo or poster for the event.
@@ -156,15 +144,73 @@ export interface EventModel {
 
 
 /**
- * Data Transfer Object for creating or updating an Event.
+ * Data Transfer Object for creating an Event.
+ * Matches the EventCreationDto from the API.
+ */
+export interface EventCreationDto {
+  name: string;
+  /**
+   * The IDs of the event's categories. Sent to the API.
+   */
+  categoryIds: number[];
+  shortDescription?: string;
+  fullDescription: string;
+  tags?: string[];
+  startDate: Date;
+  endDate: Date;
+  address: StructureAddressModel; // Sending the full address object
+  structureId: number;
+  /**
+   * Configuration for audience zones.
+   */
+  audienceZones: EventAudienceZoneConfigDto[];
+  displayOnHomepage: boolean;
+  isFeaturedEvent: boolean;
+}
+
+/**
+ * Data Transfer Object for updating an Event.
+ * Matches the EventUpdateDto from the API.
  * For updates, most fields are optional. 'id' is not part of this DTO as it's usually in the URL.
+ */
+export interface EventUpdateDto {
+  name?: string;
+  /**
+   * The IDs of the event's categories. Sent to the API.
+   */
+  categoryIds: number[];
+  shortDescription?: string;
+  fullDescription?: string;
+  tags?: string[];
+  startDate?: Date;
+  endDate?: Date;
+  address?: StructureAddressModel; // Sending the full address object
+  /**
+   * Configuration for audience zones.
+   */
+  audienceZones: EventAudienceZoneConfigDto[];
+  displayOnHomepage?: boolean;
+  isFeaturedEvent?: boolean;
+}
+
+/**
+ * Data Transfer Object for updating an Event's status.
+ * Matches the EventStatusUpdateDto from the API.
+ */
+export interface EventStatusUpdateDto {
+  status: EventStatus;
+}
+
+/**
+ * Generic Data Transfer Object for creating or updating an Event.
+ * Used internally by the application.
  */
 export interface EventDataDto {
   name: string;
   /**
-   * The ID of the event's category. Sent to the API.
+   * The IDs of the event's categories. Sent to the API.
    */
-  categoryId: number;
+  categoryIds: number[];
   shortDescription?: string;
   fullDescription: string;
   tags?: string[];
@@ -176,14 +222,10 @@ export interface EventDataDto {
    * Optional array of IDs of `StructureAreaModel` where the event takes place.
    */
   areaIds?: number[];
-  isFreeEvent: boolean; // A SUPPRIMER
-  defaultSeatingType: SeatingType;
   /**
-   * Audience zones for the event. For creation, `id` within `EventAudienceZone` is omitted.
-   * For update, `id` should be present for existing zones to be modified,
-   * and omitted for new zones to be added.
+   * Configuration for audience zones.
    */
-  audienceZones: (Omit<EventAudienceZone, 'id'> | EventAudienceZone)[]; // Allows new and existing zones for update
+  audienceZones: EventAudienceZoneConfigDto[];
   displayOnHomepage?: boolean;
   isFeaturedEvent?: boolean;
   links?: string[];
@@ -192,18 +234,29 @@ export interface EventDataDto {
   status?: EventStatus; // Status might be updatable separately or along with other fields
 }
 
+/**
+ * Simplified model for event summaries in lists.
+ * Based on the API's response format.
+ */
 export interface EventSummaryModel {
   id: number;
   name: string;
   categories: EventCategoryModel[];
   shortDescription: string;
-  startDate: Date; // Garder en string pour le moment, la conversion se fera dans le composant
+  startDate: Date;
   endDate: Date;
-  city: string;
-  structureId: number;
-  structureName: string;
+  address?: {
+    city: string;
+    street?: string;
+    postalCode?: string;
+    country?: string;
+  };
+  structure: {
+    id: number;
+    name: string;
+  };
   mainPhotoUrl?: string;
   status: EventStatus;
-  freeEvent: boolean;
-  featuredEvent: boolean;
+  displayOnHomepage: boolean;
+  isFeaturedEvent: boolean;
 }

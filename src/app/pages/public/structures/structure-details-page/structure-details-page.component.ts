@@ -132,7 +132,7 @@ export class StructureDetailsPageComponent implements OnInit, OnDestroy {
 
           events = eventsResult;
 
-          const featuredEvents = events.filter((event) => event.featuredEvent);
+          const featuredEvents = events.filter((event) => event.isFeaturedEvent);
           this.allEvents.set(events);
           this.totalEvents.set(events.length || 0);
 

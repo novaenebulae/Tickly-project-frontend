@@ -116,13 +116,6 @@ export class EventBannerComponent implements OnChanges {
           icon: 'edit'
         };
         break;
-      case 'PENDING_APPROVAL':
-        this.statusInfo = {
-          label: 'En attente d\'approbation',
-          class: 'status-pending',
-          icon: 'pending'
-        };
-        break;
       default:
         this.statusInfo = {
           label: 'Places disponibles',

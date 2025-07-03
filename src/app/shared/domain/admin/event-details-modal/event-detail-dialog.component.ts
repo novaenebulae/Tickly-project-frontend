@@ -118,7 +118,6 @@ export class EventDetailDialogComponent implements OnInit, OnDestroy {
       endDate: event.endDate,
       description: event.fullDescription || event.shortDescription,
       location: this.formatAddress(event.address),
-      isFreeEvent: event.isFreeEvent,
       status: event.status,
       tags: event.tags || [],
       mainPhotoUrl: event.mainPhotoUrl

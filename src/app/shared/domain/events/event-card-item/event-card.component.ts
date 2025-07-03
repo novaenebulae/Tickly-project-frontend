@@ -67,15 +67,15 @@ export class EventCardComponent implements OnInit {
    * Retourne l'adresse formatée de l'événement
    */
   get displayLocation(): string {
-    if (this.event && this.event.city) {
-      return `${this.event.city}`;
+    if (this.event && this.event.address?.city) {
+      return `${this.event.address.city}`;
     }
     return 'Lieu à déterminer';
   }
 
   get displayStructure(): string {
-    if (this.event && this.event.structureName) {
-      return `${this.event.structureName}`;
+    if (this.event && this.event.structure.name) {
+      return `${this.event.structure.name}`;
     }
     return 'Lieu à déterminer';
   }

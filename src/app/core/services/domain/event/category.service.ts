@@ -14,9 +14,6 @@ import { EventCategoryModel } from '../../../models/event/event-category.model';
 import { EventApiService } from '../../api/event/event-api.service';
 import { NotificationService } from '../utilities/notification.service'; // Optional, if notifications needed
 
-// Mock data for fallback if API fails (as in your original service)
-import { mockCategories } from '../../../mocks/events/categories.mock';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -81,9 +78,7 @@ export class CategoryService {
           'error'
         );
         this.isLoadingSig.set(false);
-        // Fallback to mock categories as per original logic
-        this.categoriesSig.set(mockCategories);
-        return of(mockCategories); // Return mockCategories as an Observable
+        return of(); // Return mockCategories as an Observable
       })
     );
   }
@@ -119,11 +114,7 @@ export class CategoryService {
     if (category) {
       return category;
     }
-    // Fallback to mocks if not found in the current cache (as per original logic,
-    // though ideally, all categories should be loaded from API).
-    // This fallback might be less useful if API is the single source of truth.
-    // Consider removing mock fallback if API is reliable.
-    return mockCategories.find(cat => cat.id === id);
+    return undefined;
   }
 
   /**

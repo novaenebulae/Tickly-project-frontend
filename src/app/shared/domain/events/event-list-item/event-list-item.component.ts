@@ -52,8 +52,8 @@ export class EventListItemComponent implements OnInit {
   }
 
   get displayLocation(): string {
-    if (this.event && this.event.city) {
-      return `${this.event.city}`;
+    if (this.event && this.event.address?.city) {
+      return `${this.event.address.city}`;
     }
     return ''; // Retourne une chaîne vide si pas d'adresse
   }
