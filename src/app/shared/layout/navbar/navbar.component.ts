@@ -65,6 +65,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   readonly currentUserProfile = this.userService.currentUserProfileData;
   readonly pendingRequestsCount = this.friendshipService.pendingRequestsCount;
 
+
   // ✅ Computed values pour l'interface utilisateur
   readonly userInitial = computed(() => {
     const profile = this.currentUserProfile();

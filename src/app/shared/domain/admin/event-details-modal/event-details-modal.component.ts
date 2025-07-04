@@ -465,8 +465,6 @@ export class EventDetailsModalComponent implements OnInit {
         return 'Terminé';
       case EventStatus.ARCHIVED:
         return 'Archivé';
-      case EventStatus.PENDING_APPROVAL:
-        return 'En attente d\'approbation';
       default:
         return status;
     }

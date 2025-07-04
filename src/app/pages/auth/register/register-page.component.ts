@@ -10,6 +10,7 @@ import {
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -41,6 +42,7 @@ import {NotificationService} from '../../../core/services/domain/utilities/notif
     MatSlideToggleModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    MatCheckboxModule,
   ],
   templateUrl: './register-page.component.html',
   styleUrls: ['./register-page.component.scss'],
@@ -69,7 +71,7 @@ export class RegisterPageComponent implements OnInit {
         email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required, Validators.minLength(8)]],
         confirmPassword: ['', [Validators.required]], // Validation passwordMatch s'en occupe
-        createStructure: [false],
+        termsAccepted: [false, [Validators.requiredTrue]], // Consentement RGPD obligatoire
       },
       { validators: this.passwordMatchValidator } // Validateur pour le groupe
     );
@@ -118,7 +120,7 @@ export class RegisterPageComponent implements OnInit {
       lastName: this.registerForm.get('lastName')?.value,
       email: this.registerForm.get('email')?.value,
       password: this.registerForm.get('password')?.value,
-      createStructure: this.registerForm.get('createStructure')?.value ?? false,
+      termsAccepted: this.registerForm.get('termsAccepted')?.value ?? false,
     };
 
     console.log('Submitting registration:', newUserRegistration);

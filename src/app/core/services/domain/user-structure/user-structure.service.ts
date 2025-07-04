@@ -271,57 +271,6 @@ export class UserStructureService {
   // }
 
   /**
-   * Creates a new structure.
-   * En mode mock : déconnecte l'utilisateur après création pour forcer une reconnexion.
-   * En mode réel : met à jour le token normalement.
-   * @param structureCreationData - The DTO for creating the structure.
-   * @returns An Observable of the created `StructureModel` or `undefined` on error.
-   */
-  createStructure(structureCreationData: StructureCreationDto): Observable<StructureModel | undefined> {
-    // Check if user has permission to manage structures
-    if (!this.hasStructureManagementPermission()) {
-      this.notification.displayNotification(
-        'Vous n\'avez pas les droits nécessaires pour créer une structure.',
-        'error'
-      );
-      return of(undefined);
-    }
-    return this.structureApi.createStructure(structureCreationData).pipe(
-      tap((response: StructureCreationResponseDto) => {
-        if (response.createdStructure) {
-          const structureId = response.createdStructure.id;
-
-          if (response.newToken) {
-            // En mode réel, utiliser le token fourni par l'API
-            this.authService.updateTokenAndState(response.newToken);
-            this.notification.displayNotification('Structure créée avec succès !', 'valid');
-          }
-
-          // Mise à jour de l'état local
-          const newStructure = response.createdStructure as StructureModel;
-          this.userStructureSig.set(newStructure);
-
-          // Initialize areas
-          if (structureId) {
-            this.loadUserStructureAreas(true).subscribe();
-          }
-
-        } else {
-          this.notification.displayNotification(
-            'Structure créée, mais les détails n\'ont pas pu être récupérés immédiatement.',
-            'warning'
-          );
-        }
-      }),
-      map(response => response.createdStructure as StructureModel | undefined),
-      catchError(error => {
-        this.handleError('Impossible de créer la structure.', error);
-        return of(undefined);
-      })
-    );
-  }
-
-  /**
    * Updates an existing structure.
    * @param structureId - The ID of the structure to update.
    * @param structureUpdateData - The DTO containing fields to update.

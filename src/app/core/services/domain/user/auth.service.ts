@@ -40,9 +40,6 @@ export class AuthService {
   private userRoleSig: WritableSignal<UserRole | null> = signal(null);
   public readonly userRole = computed(() => this.userRoleSig());
 
-  private needsStructureSetupSig: WritableSignal<boolean> = signal(false);
-  public readonly needsStructureSetup = computed(() => this.needsStructureSetupSig());
-
   private userStructureIdSig: WritableSignal<number | null> = signal(null);
   public readonly userStructureId = computed(() => this.userStructureIdSig());
 
@@ -105,8 +102,26 @@ export class AuthService {
   register(registrationDto: UserRegistrationDto, keepLoggedIn: boolean): Observable<boolean> {
     return this.authApi.register(registrationDto).pipe(
       tap((response: AuthResponseDto) => {
-        this.notification.displayNotification("Inscription réussie ! Validez votre adresse mail afin de pouvoir vous connecter.", 'valid');
-        this.router.navigate(['/']);
+        // Store the keepLoggedIn preference
+        this.keepLoggedInSig.set(keepLoggedIn);
+        localStorage.setItem(APP_CONFIG.auth.keepLoggedInKey, keepLoggedIn.toString());
+
+        // Handle the auth response (store token, update user state)
+        if (response.accessToken) {
+          this.handleAuthResponse(response);
+          // Show the standard message
+          this.notification.displayNotification(
+            "Inscription réussie ! Bienvenue sur Tickly.",
+            'valid'
+          );
+        } else {
+          // If no token is returned (e.g., email verification required)
+          this.notification.displayNotification(
+            "Inscription réussie ! Validez votre adresse mail afin de pouvoir vous connecter.",
+            'valid'
+          );
+          this.router.navigate(['/']);
+        }
       }),
       map(() => true),
       catchError(error => {
@@ -132,10 +147,19 @@ export class AuthService {
    * @param newToken - The new JWT token.
    */
   public updateTokenAndState(newToken: string): void {
+    console.log('updateTokenAndState called');
     try {
       const decodedToken = jwtDecode<JwtPayload>(newToken);
+      console.log('Token decoded successfully:', decodedToken);
+
+      // Stocker le token avant de mettre à jour l'état
       this.storeToken(newToken);
-      this.updateUserState(decodedToken, newToken);
+      console.log('Token stored');
+
+      // Mettre à jour l'état utilisateur
+      this.updateUserState(decodedToken);
+      console.log('User state updated');
+
       this.notification.displayNotification("Session mise à jour.", 'info');
     } catch (error) {
       console.error('Failed to update token and state:', error);
@@ -143,6 +167,7 @@ export class AuthService {
       this.notification.displayNotification("Erreur de mise à jour de session. Veuillez vous reconnecter.", 'error');
     }
   }
+
 
   /**
    * Clears session-specific authentication data if the user did not opt to "keep logged in".
@@ -158,7 +183,6 @@ export class AuthService {
         this.currentUserSig.set(null);
         this.isLoggedInSig.set(false);
         this.userRoleSig.set(null);
-        this.needsStructureSetupSig.set(false);
         this.userStructureIdSig.set(null);
         console.log('AuthService: Session data cleared because "keep me logged in" was not active.');
       }
@@ -214,25 +238,43 @@ export class AuthService {
   }
 
   /**
-   * Stores the authentication token in localStorage or sessionStorage.
-   * @param token - The JWT token string.
-   */
-  private storeToken(token: string): void {
-    if (this.keepLoggedInSig()) {
-      localStorage.setItem(APP_CONFIG.auth.tokenKey, token);
-    } else {
-      sessionStorage.setItem(APP_CONFIG.auth.tokenKey, token);
-    }
-  }
-
-  /**
    * Retrieves the stored authentication token.
    * @returns The token string or null if not found.
    */
   public getToken(): string | null {
-    return this.keepLoggedInSig()
+    // Toujours vérifier la valeur actuelle dans localStorage pour keepLoggedIn
+    const keepLoggedIn = localStorage.getItem(APP_CONFIG.auth.keepLoggedInKey) === 'true';
+
+    let token = keepLoggedIn
       ? localStorage.getItem(APP_CONFIG.auth.tokenKey)
       : sessionStorage.getItem(APP_CONFIG.auth.tokenKey);
+
+    // Fallback: chercher dans les deux stockages si pas trouvé
+    if (!token) {
+      token = localStorage.getItem(APP_CONFIG.auth.tokenKey) ||
+        sessionStorage.getItem(APP_CONFIG.auth.tokenKey);
+    }
+
+    return token;
+  }
+
+  /**
+   * Stores the authentication token in localStorage or sessionStorage.
+   * @param token - The JWT token string.
+   */
+  private storeToken(token: string): void {
+    // Toujours vérifier la valeur actuelle dans localStorage pour keepLoggedIn
+    const keepLoggedIn = localStorage.getItem(APP_CONFIG.auth.keepLoggedInKey) === 'true';
+
+    // Nettoyer les anciens tokens des deux stockages
+    localStorage.removeItem(APP_CONFIG.auth.tokenKey);
+    sessionStorage.removeItem(APP_CONFIG.auth.tokenKey);
+
+    if (keepLoggedIn) {
+      localStorage.setItem(APP_CONFIG.auth.tokenKey, token);
+    } else {
+      sessionStorage.setItem(APP_CONFIG.auth.tokenKey, token);
+    }
   }
 
   /**
@@ -244,12 +286,8 @@ export class AuthService {
     this.currentUserSig.set(decodedToken);
     this.isLoggedInSig.set(true);
     this.userRoleSig.set(decodedToken.role as UserRole);
-    this.needsStructureSetupSig.set(decodedToken.needsStructureSetup || false);
     this.userStructureIdSig.set(decodedToken.structureId || null);
 
-    if (token) {
-      this.storeToken(token);
-    }
   }
 
   /**
@@ -259,10 +297,6 @@ export class AuthService {
   public updateUserStructureContext(structureId: number): void {
     this.userStructureIdSig.set(structureId);
 
-    // Si l'utilisateur avait besoin de configurer une structure, ce n'est plus le cas
-    if (this.needsStructureSetupSig()) {
-      this.needsStructureSetupSig.set(false);
-    }
   }
 
   /**
@@ -270,10 +304,8 @@ export class AuthService {
    * @param decodedToken - The decoded JWT payload containing user information.
    */
   private navigateAfterLogin(decodedToken: JwtPayload): void {
-    if (decodedToken.needsStructureSetup) {
-      this.router.navigate(['/manager/structure-setup']);
-    } else if (decodedToken.structureId) {
-      this.router.navigate(['/manager/dashboard']);
+    if (decodedToken.structureId) {
+      this.router.navigate(['/admin/dashboard']);
     } else {
       // Fallback to login or default route
       this.router.navigate(['/auth/login']);
@@ -287,13 +319,11 @@ export class AuthService {
     this.currentUserSig.set(null);
     this.isLoggedInSig.set(false);
     this.userRoleSig.set(null);
-    this.needsStructureSetupSig.set(false);
     this.userStructureIdSig.set(null);
 
     // Clear tokens from both storage mechanisms
     localStorage.removeItem(APP_CONFIG.auth.tokenKey);
     sessionStorage.removeItem(APP_CONFIG.auth.tokenKey);
-    localStorage.removeItem(APP_CONFIG.auth.keepLoggedInKey);
   }
 
   /**

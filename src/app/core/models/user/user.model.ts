@@ -46,11 +46,6 @@ export interface UserModel {
   updatedAt?: Date;
 
   /**
-   * Indicates whether the user needs to set up their structure (e.g., after initial registration).
-   */
-  needsStructureSetup?: boolean;
-
-  /**
    * URL of the user's avatar image (optional).
    */
   avatarUrl?: string;
@@ -83,7 +78,8 @@ export interface UserRegistrationDto {
   password: string;
 
   /**
-   * Indicates whether the user wants to create a new structure during registration.
+   * Indicates whether the user has consented to the processing of their personal data.
+   * Required for GDPR compliance.
    */
-  createStructure: boolean;
+  termsAccepted: boolean;
 }

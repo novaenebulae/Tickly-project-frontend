@@ -1,0 +1,188 @@
+<div class="structure-setup-container p-md-4">
+    <div class="card setup-card">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-8 form-section">
+                    <h3 class="form-title">Configuration de votre structure</h3>
+
+                    <form *ngIf="structureForm" [formGroup]="structureForm" (ngSubmit)="onSubmit()" class="structure-form">
+                        <h4 class="section-title">Informations de base</h4>
+
+                        <div class="row">
+                            <div class="col-md-12 form-group">
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Nom de la structure</mat-label>
+                                    <mat-icon matPrefix>business</mat-icon>
+                                    <input matInput formControlName="name" required>
+                                    @if (structureForm.get('name')?.hasError('required') && structureForm.get('name')?.touched) {
+                                        <mat-error>
+                                            Nom requis
+                                        </mat-error>
+                                    }
+                                </mat-form-field>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 form-group">
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Types de structure</mat-label>
+                                    <mat-icon matPrefix>category</mat-icon>
+                                    <mat-select formControlName="typeIds" multiple required>
+                                        @for (type of structureTypes(); track type.id) {
+                                            <mat-option [value]="type.id">{{ type.name }}</mat-option>
+                                        }
+                                    </mat-select>
+                                    @if (structureForm.get('typeIds')?.hasError('required') && structureForm.get('typeIds')?.touched) {
+                                        <mat-error>
+                                            Sélectionnez au moins un type
+                                        </mat-error>
+                                    }
+                                </mat-form-field>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 form-group">
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Description</mat-label>
+                                    <textarea matInput formControlName="description" rows="3"></textarea>
+                                </mat-form-field>
+                            </div>
+                        </div>
+
+                        <h4 class="section-title">Adresse</h4>
+                        <div formGroupName="address">
+                            <div class="row">
+                                <div class="col-md-12 form-group">
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Rue</mat-label>
+                                        <mat-icon matPrefix>location_on</mat-icon>
+                                        <input matInput formControlName="street" required>
+                                        @if (structureForm.get('address.street')?.hasError('required') && structureForm.get('address.street')?.touched) {
+                                            <mat-error>
+                                                Rue requise
+                                            </mat-error>
+                                        }
+                                    </mat-form-field>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Ville</mat-label>
+                                        <input matInput formControlName="city" required>
+                                        @if (structureForm.get('address.city')?.hasError('required') && structureForm.get('address.city')?.touched) {
+                                            <mat-error>
+                                                Ville requise
+                                            </mat-error>
+                                        }
+                                    </mat-form-field>
+                                </div>
+
+                                <div class="col-md-6 form-group">
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Code postal</mat-label>
+                                        <input matInput formControlName="zipCode" required>
+                                        @if (structureForm.get('address.zipCode')?.hasError('required') && structureForm.get('address.zipCode')?.touched) {
+                                            <mat-error>
+                                                Code postal requis
+                                            </mat-error>
+                                        }
+                                    </mat-form-field>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 form-group">
+                                    <mat-form-field appearance="outline">
+                                        <mat-label>Pays</mat-label>
+                                        <input matInput formControlName="country" required>
+                                        @if (structureForm.get('address.country')?.hasError('required') && structureForm.get('address.country')?.touched) {
+                                            <mat-error>
+                                                Pays requis
+                                            </mat-error>
+                                        }
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 class="section-title">Informations de contact</h4>
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Téléphone</mat-label>
+                                    <mat-icon matPrefix>phone</mat-icon>
+                                    <input matInput formControlName="phone">
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-md-6 form-group">
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Email de contact</mat-label>
+                                    <mat-icon matPrefix>email</mat-icon>
+                                    <input matInput formControlName="email" type="email">
+                                    @if (structureForm.get('email')?.hasError('email') && structureForm.get('email')?.touched) {
+                                        <mat-error>
+                                            Format d'email invalide
+                                        </mat-error>
+                                    }
+                                </mat-form-field>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 form-group">
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Site web</mat-label>
+                                    <mat-icon matPrefix>language</mat-icon>
+                                    <input matInput formControlName="websiteUrl">
+                                </mat-form-field>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button mat-stroked-button class="back-btn" type="button" (click)="onCancel()">
+                                <mat-icon>arrow_back</mat-icon>
+                                Annuler
+                            </button>
+                            <button mat-flat-button class="save-btn" type="submit" [disabled]="structureForm.invalid || isLoading()">
+                                @if (!isLoading()) {
+                                    Créer la structure
+                                } @else {
+                                    <mat-spinner diameter="24"></mat-spinner>
+                                }
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-md-4 info-section order-first">
+                    <div class="content-wrapper">
+                        <div class="step-indicator">
+                            <span>Étape 2/2</span>
+                        </div>
+
+                        <div class="title-content">
+                            <h2>Configuration de votre structure</h2>
+                            <p>
+                                Vous êtes sur le point de configurer votre structure sur Tickly.
+                                <br>
+                                Ces informations permettront aux spectateurs de trouver et d'identifier votre lieu.
+                            </p>
+                            <p>
+                                Après cette étape, vous pourrez accéder à votre tableau de bord pour gérer vos événements.
+                            </p>
+                        </div>
+
+                        <div class="brand-logo">
+                            <img src="logos/tickly-logo.svg" alt="Logo de la plateforme">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

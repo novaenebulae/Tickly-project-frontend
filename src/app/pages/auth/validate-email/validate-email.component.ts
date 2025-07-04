@@ -6,6 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthApiService } from '../../../core/services/api/auth/auth-api.service';
+import { AuthService } from '../../../core/services/domain/user/auth.service';
 
 @Component({
   selector: 'app-validate-email',
@@ -25,6 +26,7 @@ export class ValidateEmailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private authApiService = inject(AuthApiService);
+  private authService = inject(AuthService);
 
   isLoading = signal(true);
   isSuccess = signal(false);
@@ -48,9 +50,18 @@ export class ValidateEmailComponent implements OnInit {
    */
   private validateEmail(token: string): void {
     this.authApiService.validateEmail(token).subscribe({
-      next: () => {
+      next: (response) => {
         this.isLoading.set(false);
         this.isSuccess.set(true);
+
+        // Si un token est retourné, mettre à jour l'état de l'utilisateur
+        if (response.accessToken) {
+          // Stocker le token et mettre à jour l'état de l'utilisateur
+          this.authService.updateTokenAndState(response.accessToken);
+
+          // Si l'utilisateur a besoin de configurer une structure, il sera redirigé
+          // vers la page de configuration de structure par le AuthService.navigateAfterLogin
+        }
       },
       error: (error) => {
         this.isLoading.set(false);

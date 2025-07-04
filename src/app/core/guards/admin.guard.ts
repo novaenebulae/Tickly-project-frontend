@@ -24,13 +24,11 @@ export const AdminGuard: CanActivateFn = (state): boolean | UrlTree => {
 
   // Récupérer les données utilisateur depuis le token JWT (disponibles immédiatement)
   const currentUser = authService.currentUser();
-  const needsStructureSetup = authService.needsStructureSetup();
   const userStructureId = authService.userStructureId();
 
   console.log('AdminGuard: Current user data:', {
     userId: currentUser?.userId,
     role: currentUser?.role,
-    needsStructureSetup,
     structureId: currentUser?.structureId,
   });
 
@@ -45,19 +43,6 @@ export const AdminGuard: CanActivateFn = (state): boolean | UrlTree => {
     return router.createUrlTree(['']);
   }
 
-  // Si l'utilisateur a besoin de configurer sa structure
-  if (needsStructureSetup) {
-    if (targetUrl.includes('/create-structure')) {
-      // L'utilisateur va vers la page de création, autorisé
-      console.log('AdminGuard: User going to structure creation. Access GRANTED.');
-      return true;
-    } else {
-      // L'utilisateur essaie d'accéder à autre chose, rediriger vers création
-      console.log('AdminGuard: User needs to set up structure. Redirecting to /create-structure.');
-      return router.createUrlTree(['/create-structure']);
-    }
-  }
-
   // Si l'utilisateur n'a pas de structure associée (et n'a pas besoin de setup)
   if (!userStructureId) {
     console.log('AdminGuard: User is not associated with a structure. Redirecting to home.');
@@ -69,8 +54,8 @@ export const AdminGuard: CanActivateFn = (state): boolean | UrlTree => {
     return router.createUrlTree(['']);
   }
 
-  // Si l'utilisateur essaie d'accéder à la création alors qu'il a déjà une structure
-  if (targetUrl.includes('/create-structure') && userStructureId && !needsStructureSetup) {
+  // Si l'utilisateur essaie d'accéder à la configuration alors qu'il a déjà une structure
+  if (targetUrl.includes('/create-structure') && userStructureId) {
     console.log('AdminGuard: User already has a structure. Redirecting to admin dashboard.');
     return router.createUrlTree(['/admin']);
   }

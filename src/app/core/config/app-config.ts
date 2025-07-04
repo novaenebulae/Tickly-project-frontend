@@ -129,7 +129,7 @@ export const APP_CONFIG: AppConfig = {
         register: 'auth/register',
         validateToken: 'auth/validate-email',
         passwordResetRequest: 'auth/forgot-password',
-
+        refreshToken: 'auth/refresh-token',
       },
       events: {
         base: 'events',

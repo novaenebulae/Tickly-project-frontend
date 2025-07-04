@@ -116,17 +116,27 @@ export interface StructureCreationDto {
 
 /**
  * Data Transfer Object for the response received after creating a new Structure.
- * It typically includes the newly created structure and potentially an updated authentication token.
+ * Based on the API documentation.
  */
 export interface StructureCreationResponseDto {
   /**
-   * A new JWT token, possibly granted if creating a structure completes user setup.
+   * The unique ID of the newly created structure.
    */
-  newToken: string;
+  structureId: number;
+
   /**
-   * The structure entity that was successfully created.
+   * A success message.
    */
-  createdStructure?: StructureModel; // API might return the created object
+  message: string;
+
+  /**
+   * Flag indicating if the frontend should perform a "silent" re-login
+   * to get a new JWT that includes the structureId.
+   */
+  accessToken: string;
+
+  expiresIn: number;
+
 }
 
 /**

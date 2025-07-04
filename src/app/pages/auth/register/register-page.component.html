@@ -101,12 +101,18 @@
               </div>
             </div>
 
-            <div class="row mt-1 mb-1">
-              <div class="col-md-12 form-group account-type-toggle">
-                <div class="toggle-container">
-                  <span [class.active]="!registerForm.get('createStructure')?.value">Compte spectateur</span>
-                  <mat-slide-toggle formControlName="createStructure" color="primary"></mat-slide-toggle>
-                  <span [class.active]="registerForm.get('createStructure')?.value">Compte structure</span>
+
+            <div class="row mt-3">
+              <div class="col-md-12 form-group">
+                <div class="consent-checkbox">
+                  <mat-checkbox formControlName="termsAccepted" color="primary" required>
+                    J'accepte le traitement de mes données personnelles conformément à la politique de confidentialité
+                  </mat-checkbox>
+                  @if (registerForm.get('termsAccepted')?.hasError('required') && registerForm.get('termsAccepted')?.touched) {
+                    <mat-error class="consent-error">
+                      Vous devez accepter le traitement de vos données pour créer un compte
+                    </mat-error>
+                  }
                 </div>
               </div>
             </div>
@@ -131,28 +137,18 @@
         <div class="col-md-4 info-section order-first">
           <div class="content-wrapper">
             <div class="step-indicator">
-              @if (registerForm.get('createStructure')?.value) {
-                <span>Étape 1/2</span>
-              } @else {
-                <span>Étape 1/1</span>
-              }
+              <span>Étape 1/1</span>
             </div>
 
             <div class="title-content">
               <h2>Rejoignez Tickly</h2>
-              @if (!registerForm.get('createStructure')?.value) {
-                <p>
-                  Vous vous inscrivez en tant que spectateur.
-                  <br>
-                  Vous pourrez réserver des billets pour les événements disponibles sur la plateforme.
-                </p>
-              } @else {
-                <p>
-                  Vous vous inscrivez en tant qu'administrateur de structure.
-                  <br>
-                  Vous pourrez configurer votre structure après la création de votre compte.
-                </p>
-              }
+              <p>
+                Vous vous inscrivez en tant que spectateur.
+                <br>
+                Vous pourrez réserver des billets pour les événements disponibles sur la plateforme.
+                <br>
+                Après validation de votre compte, vous pourrez également créer ou rejoindre une structure.
+              </p>
             </div>
 
             <div class="brand-logo">

@@ -1,0 +1,122 @@
+.structure-setup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+.setup-card {
+  width: 100%;
+  max-width: 1200px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-section {
+  padding: 30px;
+  background-color: white;
+}
+
+.info-section {
+  background-color: #3f51b5;
+  color: white;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.content-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.form-title {
+  margin-bottom: 24px;
+  color: #333;
+  font-weight: 500;
+}
+
+.section-title {
+  margin-top: 24px;
+  margin-bottom: 16px;
+  color: #555;
+  font-weight: 500;
+  font-size: 18px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 32px;
+}
+
+.save-btn {
+  background-color: #3f51b5;
+  color: white;
+  min-width: 150px;
+}
+
+.back-btn {
+  color: #666;
+}
+
+.step-indicator {
+  margin-bottom: 24px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.title-content {
+  margin-bottom: 32px;
+}
+
+.title-content h2 {
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.brand-logo {
+  text-align: center;
+  margin-top: auto;
+}
+
+.brand-logo img {
+  max-width: 120px;
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .info-section {
+    order: -1;
+    padding: 20px;
+  }
+
+  .form-section {
+    padding: 20px;
+  }
+
+  .action-buttons {
+    flex-direction: column-reverse;
+    gap: 16px;
+  }
+
+  .save-btn, .back-btn {
+    width: 100%;
+  }
+}

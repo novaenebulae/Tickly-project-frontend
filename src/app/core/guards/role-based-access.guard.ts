@@ -43,13 +43,11 @@ export function createRoleBasedGuard(config: RoleAccessConfig): CanActivateFn {
 
     // Récupérer les données utilisateur
     const currentUser = authService.currentUser();
-    const needsStructureSetup = authService.needsStructureSetup();
     const userStructureId = authService.userStructureId();
 
     console.log(`${guardName}: Current user data:`, {
       userId: currentUser?.userId,
       role: currentUser?.role,
-      needsStructureSetup,
       structureId: currentUser?.structureId,
     });
 
@@ -62,17 +60,6 @@ export function createRoleBasedGuard(config: RoleAccessConfig): CanActivateFn {
         'Vous n\'avez pas les droits nécessaires pour accéder à cette page.';
       notification.displayNotification(message, 'warning', 'Fermer');
       return router.createUrlTree(['']);
-    }
-
-    // Gestion de la configuration de structure
-    if (needsStructureSetup) {
-      if (targetUrl.includes('/create-structure')) {
-        console.log(`${guardName}: User going to structure creation. Access GRANTED.`);
-        return true;
-      } else {
-        console.log(`${guardName}: User needs to set up structure. Redirecting to /create-structure.`);
-        return router.createUrlTree(['/create-structure']);
-      }
     }
 
     // Vérifier l'association à une structure
@@ -90,4 +77,3 @@ export function createRoleBasedGuard(config: RoleAccessConfig): CanActivateFn {
     return true;
   };
 }
-

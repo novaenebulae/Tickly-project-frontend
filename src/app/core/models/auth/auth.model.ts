@@ -21,11 +21,6 @@ export interface JwtPayload {
   role: UserRole;
 
   /**
-   * Indicates whether the user needs to set up their structure (optional).
-   */
-  needsStructureSetup?: boolean;
-
-  /**
    * The ID of the structure associated with the user (optional).
    */
   structureId?: number;
@@ -57,11 +52,6 @@ export interface AuthResponseDto {
   lastName: string;
 
   email: string;
-
-  /**
-   * Indicates whether the user needs to set up their structure.
-   */
-  needsStructureSetup: boolean;
 
   /**
    * The unique identifier of the user.

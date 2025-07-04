@@ -68,16 +68,20 @@ export class AuthApiService {
   /**
    * Valide l'email d'un utilisateur avec le token fourni.
    * @param token - Le token de validation reçu par email
-   * @returns Un Observable qui complète en cas de succès ou échoue en cas d'erreur
+   * @returns Un Observable contenant la réponse d'authentification avec le token JWT
    */
-  validateEmail(token: string): Observable<void> {
+  validateEmail(token: string): Observable<AuthResponseDto> {
 
     this.apiConfig.logApiRequest('GET', 'validate-email', { token });
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.auth.validateToken);
     const headers = this.apiConfig.createHeaders();
 
-    return this.http.get<void>(`${url}?token=${token}`, { headers }).pipe(
-      tap(() => this.apiConfig.logApiResponse('GET', 'validate-email', { success: true })),
+    return this.http.get<AuthResponseDto>(`${url}?token=${token}`, { headers }).pipe(
+      tap(response => this.apiConfig.logApiResponse('GET', 'validate-email', {
+        success: true,
+        userId: response.userId || 'N/A',
+        hasToken: !!response.accessToken
+      })),
       catchError(error => this.handleAuthError(error, 'validate'))
     );
   }

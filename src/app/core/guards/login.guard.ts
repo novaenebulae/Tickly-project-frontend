@@ -24,18 +24,7 @@ export const LoginGuard: CanActivateFn = (state): boolean | UrlTree => {
     return router.createUrlTree(['/login']);
   }
 
-  // Récupérer le profil utilisateur courant
-  const currentUser = userService.currentUserProfileData();
-
-  // Vérifie si l'utilisateur a besoin de configurer sa structure et redirige vers la page appropriée
-  if (currentUser?.needsStructureSetup && !targetUrl.includes('/create-structure')) {
-    console.log('LoginGuard: User needs to set up structure. Redirecting to /create-structure.');
-    return router.createUrlTree(['/create-structure']);
-  }
-
   // Autorisé si : (connecté ET n'a pas besoin de setup) OU (connecté ET a besoin de setup ET va vers la page de setup)
   console.log('LoginGuard: Access GRANTED.');
   return true;
 };
-
-

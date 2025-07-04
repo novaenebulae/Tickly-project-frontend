@@ -50,7 +50,6 @@ export class UserApiService {
    *   "avatarUrl": "string",
    *   "createdAt": "2025-06-24T09:53:23.562Z",
    *   "updatedAt": "2025-06-24T09:53:23.562Z",
-   *   "needsStructureSetup": true
    * }
    * @returns An Observable of `UserModel` or undefined if an error occurs.
    */

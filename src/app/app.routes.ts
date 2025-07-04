@@ -8,12 +8,12 @@ import {userRoutes} from './pages/private/user/user.routes';
 import {adminRoutes} from './pages/private/admin/admin.routes';
 import {MainLayoutComponent} from './shared/layout/main-layout/main-layout.component';
 import {AdminGuard} from './core/guards/admin.guard';
-import {StructureCreationComponent} from './pages/private/admin/structure-creation/structure-creation.component';
 import {ValidateEmailComponent} from './pages/auth/validate-email/validate-email.component';
 import {
   AccountDeletionConfirmationComponent
 } from './pages/auth/account-deletion-confirmation/account-deletion-confirmation.component';
 import {StaffGuard} from './core/guards/staff.guards';
+import {StructureSetupComponent} from './pages/private/admin/structure-setup/structure-setup.component';
 
 /**
  * Main application routes configuration
@@ -80,12 +80,13 @@ export const routes: Routes = [
     canActivate: [LoginGuard],
     children: userRoutes
   },
+
+  // Manager area (for structure administrators)
   {
     path: 'create-structure',
-    loadComponent: () => import('./pages/private/admin/structure-creation/structure-creation.component')
-      .then(m => m.StructureCreationComponent),
-    canActivate: [LoginGuard], // Seul LoginGuard, PAS AdminGuard
-    title: 'Créer une structure | Tickly'
+    component: StructureSetupComponent,
+    canActivate: [LoginGuard], // Requires authentication
+    title: 'Configuration de structure | Tickly'
   },
 
   // Admin private area (requires authentication and staff role)

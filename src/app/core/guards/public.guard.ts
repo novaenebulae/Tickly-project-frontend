@@ -42,12 +42,7 @@ export class PublicGuard implements CanActivate {
 
       let redirectUrl: string;
 
-      if (currentUser?.needsStructureSetup === true) {
-        redirectUrl = '/create-structure';
-        console.log(
-          `PublicGuard: Redirecting to ${redirectUrl} (needs setup).`
-        );
-      } else if (currentUser?.role === UserRole.STRUCTURE_ADMINISTRATOR) {
+      if (currentUser?.role === UserRole.STRUCTURE_ADMINISTRATOR) {
         redirectUrl = '/admin';
         console.log(`PublicGuard: Redirecting to ${redirectUrl} (admin).`);
       } else {

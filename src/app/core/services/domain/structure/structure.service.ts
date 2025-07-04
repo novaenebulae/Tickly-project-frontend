@@ -7,7 +7,7 @@
  */
 
 import {Injectable, inject, signal, computed, WritableSignal} from '@angular/core';
-import {Observable, of} from 'rxjs';
+import {Observable, of, throwError} from 'rxjs';
 import {map, tap, catchError, switchMap} from 'rxjs/operators';
 
 // API Service
@@ -69,6 +69,55 @@ export class StructureService {
   }
 
   // --- Structure CRUD Operations ---
+  /**
+   * Creates a new structure.
+   * This is used as part of the structure administrator registration flow.
+   * @param structureData - The data for the new structure.
+   * @returns An Observable of the creation response.
+   */
+  createStructure(structureData: StructureCreationDto): Observable<StructureCreationResponseDto> {
+    return this.structureApi.createStructure(structureData).pipe(
+      tap(response => {
+        this.notification.displayNotification(
+          `Structure créée avec succès.`,
+          'valid'
+        );
+
+        // If the response indicates we need to re-authenticate to get a new token with structureId
+        if (response.accessToken) {
+          console.log('Refreshing token after structure creation...');
+          // Refresh the token to get a new one with the structureId
+          try {
+            this.authService.updateTokenAndState(response.accessToken);
+
+            this.notification.displayNotification(
+              'Session mise à jour avec les informations de structure.',
+              'info'
+            );
+            // Navigate to the dashboard or another appropriate page
+            this.router.navigate(['/admin/dashboard']);
+          } catch (error) {
+            console.error('Error refreshing token after structure creation:');
+            this.notification.displayNotification(
+              'Erreur lors de la mise à jour de la session. Veuillez vous reconnecter.',
+              'error'
+            );
+            this.router.navigate(['/auth/login']);
+          }
+        }
+      }),
+      catchError(error => {
+        console.error('Error creating structure:', error);
+        this.notification.displayNotification(
+          'Erreur lors de la création de la structure.',
+          'error'
+        );
+        return throwError(() => error);
+      })
+
+    );
+  }
+
   /**
    * Retrieves a list of structures based on search parameters.
    * Transforms raw API DTOs into `StructureModel[]`.
