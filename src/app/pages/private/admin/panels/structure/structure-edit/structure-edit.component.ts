@@ -28,6 +28,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { TextFieldModule } from '@angular/cdk/text-field';
+import { MatDividerModule } from '@angular/material/divider';
 
 import { StructureService } from '../../../../../../core/services/domain/structure/structure.service';
 import { UserStructureService } from '../../../../../../core/services/domain/user-structure/user-structure.service';
@@ -37,10 +38,13 @@ import { StructureModel, StructureUpdateDto } from '../../../../../../core/model
 import { StructureTypeModel } from '../../../../../../core/models/structure/structure-type.model';
 import { StructureAddressModel } from '../../../../../../core/models/structure/structure-address.model';
 import { UserRole } from '../../../../../../core/models/user/user-role.enum';
-import {MatDialog} from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import {
   StructureGalleryManagerComponent
 } from '../../../../../../shared/domain/structures/structure-gallery-manager/structure-gallery-manager.component';
+import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
+import { EventService } from '../../../../../../core/services/domain/event/event.service';
+import { EventStatus } from '../../../../../../core/models/event/event.model';
 
 
 @Component({
@@ -49,7 +53,7 @@ import {
   imports: [
     CommonModule, ReactiveFormsModule, MatCardModule, MatButtonModule, MatIconModule,
     MatProgressSpinnerModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatTooltipModule, MatSnackBarModule, MatChipsModule, TextFieldModule
+    MatTooltipModule, MatSnackBarModule, MatChipsModule, TextFieldModule, MatDividerModule
   ],
   templateUrl: './structure-edit.component.html',
   styleUrls: ['./structure-edit.component.scss'],
@@ -68,24 +72,37 @@ export class StructureEditComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
+  private eventService = inject(EventService);
 
   // --- Signals pour la gestion d'état ---
   private isLoadingSig = signal(false);
   private isSavingSig = signal(false);
+  private isDeletingSig = signal(false);
   private errorLoadingSig = signal<string | null>(null);
+  private hasPublishedEventsSig = signal(false);
+  private isCheckingEventsSig = signal(false);
 
   // Signals pour les données
   public readonly isLoading = computed(() => this.isLoadingSig());
   public readonly isSaving = computed(() => this.isSavingSig());
+  public readonly isDeleting = computed(() => this.isDeletingSig());
+  public readonly isCheckingEvents = computed(() => this.isCheckingEventsSig());
   public readonly errorLoading = computed(() => this.errorLoadingSig());
   public readonly currentStructure = this.userStructureService.userStructure;
   public readonly structureTypes = this.structureService.structureTypes;
+  public readonly hasPublishedEvents = computed(() => this.hasPublishedEventsSig());
 
   // Computed signal to determine if the form should be readonly
   public readonly isReadonly = computed(() => {
     const currentUser = this.authService.currentUser();
     return currentUser?.role === UserRole.ORGANIZATION_SERVICE ||
       currentUser?.role === UserRole.RESERVATION_SERVICE;
+  });
+
+  // Computed signal to determine if the current user is a structure administrator
+  public readonly isStructureAdmin = computed(() => {
+    const currentUser = this.authService.currentUser();
+    return currentUser?.role === UserRole.STRUCTURE_ADMINISTRATOR;
   });
 
 
@@ -123,10 +140,37 @@ export class StructureEditComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadInitialData();
+    this.checkForPublishedEvents();
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  /**
+   * Vérifie si la structure a des événements publiés, ce qui empêcherait sa suppression
+   */
+  checkForPublishedEvents(): void {
+    const structure = this.currentStructure();
+    if (!structure?.id) return;
+
+    this.isCheckingEventsSig.set(true);
+
+    this.eventService.getEventsByStructure(structure.id, { status: EventStatus.PUBLISHED }).pipe(
+      finalize(() => {
+        this.isCheckingEventsSig.set(false);
+        this.cdRef.markForCheck();
+      })
+    ).subscribe({
+      next: (events) => {
+        this.hasPublishedEventsSig.set(events.length > 0);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la vérification des événements publiés:', error);
+        // En cas d'erreur, on suppose qu'il y a des événements publiés par sécurité
+        this.hasPublishedEventsSig.set(true);
+      }
+    });
   }
 
   private createStructureForm(): FormGroup {
@@ -366,6 +410,87 @@ export class StructureEditComponent implements OnInit, OnDestroy {
   goBack(): void {
     this.location.back();
   }
+
+  /**
+   * Ouvre une boîte de dialogue de confirmation pour supprimer la structure
+   */
+  onDeleteStructure(): void {
+    const structure = this.currentStructure();
+    if (!structure?.id) {
+      this.notificationService.displayNotification('Aucune structure à supprimer.', 'error');
+      return;
+    }
+
+    // Vérifier si l'utilisateur est un administrateur de structure
+    if (!this.isStructureAdmin()) {
+      this.notificationService.displayNotification('Vous n\'avez pas les droits nécessaires pour supprimer cette structure.', 'error');
+      return;
+    }
+
+    // Vérifier si la structure a des événements publiés
+    if (this.hasPublishedEvents()) {
+      this.notificationService.displayNotification(
+        'Impossible de supprimer la structure car elle contient des événements publiés. Veuillez d\'abord annuler tous les événements publiés.',
+        'error'
+      );
+      return;
+    }
+
+    // Configurer la boîte de dialogue de confirmation
+    const dialogData: ConfirmationDialogData = {
+      title: 'Supprimer la structure',
+      message: `Êtes-vous sûr de vouloir supprimer définitivement la structure "${structure.name}" ? Cette action est irréversible et supprimera également toutes les données associées.`,
+      confirmButtonText: 'Supprimer',
+      cancelButtonText: 'Annuler',
+      confirmButtonColor: 'warn'
+    };
+
+    // Ouvrir la boîte de dialogue de confirmation
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '500px',
+      data: dialogData
+    });
+
+    // Gérer la réponse de la boîte de dialogue
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.deleteStructure(structure.id!);
+      }
+    });
+  }
+
+  /**
+   * Supprime la structure après confirmation
+   */
+  private deleteStructure(structureId: number): void {
+    this.isDeletingSig.set(true);
+
+    this.userStructureService.deleteStructure(structureId).pipe(
+      finalize(() => {
+        this.isDeletingSig.set(false);
+        this.cdRef.markForCheck();
+      })
+    ).subscribe({
+      next: (success) => {
+        if (success) {
+          this.notificationService.displayNotification('Structure supprimée avec succès.', 'valid');
+
+          // Ne pas naviguer immédiatement car UserStructureService gère déjà la navigation
+          // après la mise à jour des données utilisateur
+        } else {
+          this.notificationService.displayNotification('Échec de la suppression de la structure.', 'error');
+        }
+      },
+      error: (error) => {
+        console.error('Erreur lors de la suppression de la structure:', error);
+        this.notificationService.displayNotification(
+          'Une erreur est survenue lors de la suppression de la structure.',
+          'error'
+        );
+      }
+    });
+  }
+
 
   // Getters pour les signals d'upload
   get isUploadingLogoSig() {

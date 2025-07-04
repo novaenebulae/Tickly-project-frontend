@@ -319,25 +319,53 @@ export class UserApiService {
    */
   private handleUserError(error: HttpErrorResponse, context: string): Observable<never> {
     this.apiConfig.logApiError('USER-API', context, error);
-    let userMessage = "Une erreur est survenue lors de l'opération sur l'utilisateur."; // Default message in French
 
-    if (error.status === 404) {
-      userMessage = "Utilisateur non trouvé.";
-    } else if (error.status === 403) {
-      userMessage = "Vous n'êtes pas autorisé à effectuer cette action.";
-    } else if (error.status === 400) {
-      userMessage = "Les données fournies pour l'utilisateur sont incorrectes.";
-    } else if (error.status === 409) { // Conflict, e.g., email already exists if API handles it this way
-      userMessage = error.error?.message || "Un conflit de données est survenu (ex: email déjà utilisé).";
+    let userMessage = "Une erreur est survenue lors de l'opération sur l'utilisateur.";
+
+    // Extraire le message d'erreur du backend avec plusieurs chemins possibles
+    const backendMessage = error.error?.message ||
+      error.error?.error ||
+      error.message;
+
+    if (backendMessage && typeof backendMessage === 'string' && backendMessage.trim()) {
+      userMessage = backendMessage;
+    } else {
+      // Messages par défaut selon le statut HTTP
+      switch (error.status) {
+        case 400:
+          userMessage = "Les données fournies pour l'utilisateur sont incorrectes.";
+          break;
+        case 401:
+          userMessage = "Vous devez être connecté pour effectuer cette action.";
+          break;
+        case 403:
+          userMessage = "Vous n'êtes pas autorisé à effectuer cette action.";
+          break;
+        case 404:
+          userMessage = "Utilisateur non trouvé.";
+          break;
+        case 409:
+          userMessage = "Un conflit de données est survenu (ex: email déjà utilisé).";
+          break;
+        case 422:
+          userMessage = "Les données fournies ne sont pas valides.";
+          break;
+        case 500:
+        case 502:
+        case 503:
+        case 504:
+          userMessage = "Erreur serveur. Veuillez réessayer plus tard.";
+          break;
+        default:
+          userMessage = `Erreur ${error.status}: ${error.statusText || 'Erreur inconnue'}`;
+      }
     }
-    // For other errors, the default message is used.
 
     return throwError(() => ({
       status: error.status,
-      message: userMessage, // User-friendly message for display
-      originalError: error  // The original HttpErrorResponse for debugging or more detailed handling
+      message: userMessage,
+      originalError: error
     }));
   }
-
 
 }

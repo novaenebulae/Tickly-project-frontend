@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TeamApiService } from '../../../core/services/api/team/team-api.service';
 import { AuthService } from '../../../core/services/domain/user/auth.service';
 import { NotificationService } from '../../../core/services/domain/utilities/notification.service';
+import {UserService} from '../../../core/services/domain/user/user.service';
 
 @Component({
   selector: 'app-team-accept-invitation',
@@ -166,6 +167,7 @@ export class TeamAcceptInvitationComponent implements OnInit {
   private teamApiService = inject(TeamApiService);
   private authService = inject(AuthService);
   private notification = inject(NotificationService);
+  private userService = inject(UserService);
 
   protected isLoading = signal(true);
   protected invitationStatus = signal<'success' | 'error' | 'already-accepted' | null>(null);
@@ -199,6 +201,9 @@ export class TeamAcceptInvitationComponent implements OnInit {
           'valid'
         );
         console.log(`Invitation acceptée pour la structure: ${response.structureName}`);
+
+        this.authService.updateTokenAndState(response.accessToken);
+        this.userService.getCurrentUserProfile(true)
       },
       error: (error) => {
         // Vérifier si c'est une invitation déjà acceptée

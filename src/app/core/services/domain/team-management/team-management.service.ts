@@ -156,6 +156,10 @@ export class TeamManagementService {
     );
   }
 
+  setTeamMembers(teamMember: TeamMember[]): void {
+    this.teamMembersSig.set(teamMember);
+  }
+
   /**
    * Change le rôle d'un membre d'équipe.
    */

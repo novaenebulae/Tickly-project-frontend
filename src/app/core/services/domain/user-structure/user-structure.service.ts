@@ -29,6 +29,7 @@ import {FileUploadResponseDto} from '../../../models/files/file-upload-response.
 import {Router} from '@angular/router';
 import {ApiConfigService} from '../../api/api-config.service';
 import {log} from '@angular-devkit/build-angular/src/builders/ssr-dev-server';
+import {UserModel} from '../../../models/user/user.model';
 
 
 /**
@@ -72,6 +73,9 @@ export class UserStructureService {
     return currentUser.role === UserRole.STRUCTURE_ADMINISTRATOR ||
            currentUser.role === UserRole.ORGANIZATION_SERVICE;
   }
+
+  private currentUserSig: WritableSignal<UserModel | null | undefined> = signal(undefined);
+  public readonly currentUser = computed(() => this.currentUserSig());
 
   // Signal pour la structure de l'utilisateur
   private userStructureSig: WritableSignal<StructureModel | null | undefined> = signal(undefined);
@@ -317,20 +321,57 @@ export class UserStructureService {
       );
       return of(false);
     }
+
     return this.structureApi.deleteStructure(structureId).pipe(
       map(() => true), // API returns void, map to true for success
       tap(() => {
+        // Clear local structure data
         if (this.userStructureSig()?.id === structureId) {
           this.userStructureSig.set(null);
           this.userStructureAreasSig.set([]);
+          this.userStructureEventsSig.set([]);
         }
+
         this.notification.displayNotification('Structure supprimée avec succès.', 'valid');
+
+        // Force refresh of authentication and user data
+        this.refreshUserDataAfterStructureChange();
       }),
       catchError(error => {
         this.handleError('Impossible de supprimer la structure.', error);
         return of(false);
       })
     );
+  }
+
+  /**
+   * Refreshes user data after structure changes
+   * Updates token, user profile, and triggers UI refresh
+   */
+  private refreshUserDataAfterStructureChange(): void {
+    // Refresh token to get updated claims
+    this.authService.refreshToken().pipe(
+      switchMap(() => {
+        // Refresh user profile to get updated structureId
+        return this.userService.getCurrentUserProfile(true);
+      }),
+      tap(() => {
+        // Navigate to appropriate page based on user's new state
+        const currentUser = this.authService.currentUser();
+        if (currentUser && !currentUser.structureId) {
+          // User no longer has a structure, redirect to dashboard
+          this.router.navigate(['/admin/dashboard']);
+        }
+      })
+    ).subscribe({
+      error: (error) => {
+        console.error('Erreur lors de la mise à jour des données utilisateur:', error);
+        this.notification.displayNotification(
+          'Erreur lors de la mise à jour. Veuillez vous reconnecter.',
+          'error'
+        );
+      }
+    });
   }
 
   /**

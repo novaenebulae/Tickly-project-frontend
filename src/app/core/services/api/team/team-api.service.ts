@@ -30,7 +30,7 @@ export class TeamApiService {
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
 
-    return this.http.get<TeamMember[]>(url, { headers }).pipe(
+    return this.http.get<TeamMember[]>(url, {headers}).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
       catchError(error => this.handleTeamError(error, 'getStructureTeamMembers'))
     );
@@ -46,7 +46,7 @@ export class TeamApiService {
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
 
-    return this.http.post<TeamMember[]>(url, inviteDto, { headers }).pipe(
+    return this.http.post<TeamMember[]>(url, inviteDto, {headers}).pipe(
       tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),
       catchError(error => this.handleTeamError(error, 'inviteTeamMember'))
     );
@@ -59,14 +59,14 @@ export class TeamApiService {
   acceptInvitation(token: string): Observable<TeamInvitationAcceptanceResponseDto> {
     const endpointContext = APP_CONFIG.api.endpoints.team.invitationAccept;
 
-    this.apiConfig.logApiRequest('POST', endpointContext, { token });
+    this.apiConfig.logApiRequest('POST', endpointContext, {token});
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
 
     // Construire l'URL avec le paramètre token
     const urlWithToken = `${url}?token=${encodeURIComponent(token)}`;
 
-    return this.http.post<TeamInvitationAcceptanceResponseDto>(urlWithToken, {}, { headers }).pipe(
+    return this.http.post<TeamInvitationAcceptanceResponseDto>(urlWithToken, {}, {headers}).pipe(
       tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),
       catchError(error => this.handleTeamError(error, 'acceptInvitation'))
     );
@@ -87,7 +87,7 @@ export class TeamApiService {
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
 
-    return this.http.put<TeamMember>(url, updateDto, { headers }).pipe(
+    return this.http.put<TeamMember>(url, updateDto, {headers}).pipe(
       tap(response => this.apiConfig.logApiResponse('PUT', endpointContext, response)),
       catchError(error => this.handleTeamError(error, 'updateTeamMember'))
     );
@@ -99,11 +99,11 @@ export class TeamApiService {
   updateTeamMemberRole(memberId: number, role: UserRole): Observable<TeamMember> {
     const endpointContext = APP_CONFIG.api.endpoints.team.memberRole(memberId);
 
-    this.apiConfig.logApiRequest('PUT', endpointContext, { role });
+    this.apiConfig.logApiRequest('PUT', endpointContext, {role});
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
 
-    return this.http.put<TeamMember>(url, { role }, { headers }).pipe(
+    return this.http.put<TeamMember>(url, {role}, {headers}).pipe(
       tap(response => this.apiConfig.logApiResponse('PUT', endpointContext, response)),
       catchError(error => this.handleTeamError(error, 'updateTeamMemberRole'))
     );
@@ -119,7 +119,7 @@ export class TeamApiService {
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
 
-    return this.http.delete<void>(url, { headers }).pipe(
+    return this.http.delete<void>(url, {headers}).pipe(
       tap(() => this.apiConfig.logApiResponse('DELETE', endpointContext, 'Suppression réussie')),
       catchError(error => this.handleTeamError(error, 'removeTeamMember'))
     );
@@ -135,7 +135,7 @@ export class TeamApiService {
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
 
-    return this.http.post<{ success: boolean; message?: string }>(url, {}, { headers }).pipe(
+    return this.http.post<{ success: boolean; message?: string }>(url, {}, {headers}).pipe(
       tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),
       catchError(error => this.handleTeamError(error, 'resendTeamMemberInvitation'))
     );
@@ -143,24 +143,57 @@ export class TeamApiService {
 
   /**
    * Gère les erreurs des appels API Team.
+   * @param error - La HttpErrorResponse reçue du client HTTP.
+   * @param context - Une chaîne décrivant l'opération durant laquelle l'erreur s'est produite.
+   * @returns Un Observable qui émet un objet d'erreur personnalisé.
    */
   private handleTeamError(error: HttpErrorResponse, context: string): Observable<never> {
     this.apiConfig.logApiError('TEAM-API', context, error);
 
-    let errorMessage = 'Une erreur est survenue lors de l\'opération sur l\'équipe.';
+    let userMessage = 'Une erreur est survenue lors de l\'opération sur l\'équipe.'; // Message par défaut
 
-    if (error.status === 400) {
-      errorMessage = error.error?.message || 'Données invalides pour cette opération.';
-    } else if (error.status === 401) {
-      errorMessage = 'Vous n\'êtes pas autorisé à effectuer cette opération.';
-    } else if (error.status === 403) {
-      errorMessage = 'Vous n\'avez pas les permissions nécessaires pour cette opération.';
-    } else if (error.status === 409) {
-      errorMessage = error.error?.message || 'Conflit : cette opération ne peut pas être effectuée.';
-    } else if (error.status >= 500) {
-      errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
+    const backendMessage = error.error?.message ||
+      error.error?.error ||
+      error.message;
+
+    if (backendMessage && typeof backendMessage === 'string' && backendMessage.trim()) {
+      userMessage = backendMessage;
+    } else {
+      switch (error.status) {
+        case 400:
+          userMessage = 'Données invalides pour cette opération.';
+          break;
+        case 401:
+          userMessage = 'Vous n\'êtes pas autorisé à effectuer cette opération.';
+          break;
+        case 403:
+          userMessage = 'Vous n\'avez pas les permissions nécessaires pour cette opération.';
+          break;
+        case 404:
+          userMessage = 'Membre ou équipe non trouvé(e).';
+          break;
+        case 409:
+          userMessage = 'Conflit : cette opération ne peut pas être effectuée.';
+          break;
+        case 422:
+          userMessage = 'Les données fournies ne sont pas valides.';
+          break;
+        case 500:
+        case 502:
+        case 503:
+        case 504:
+          userMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
+          break;
+        default:
+          userMessage = `Erreur ${error.status}: ${error.statusText || 'Erreur inconnue'}`;
+      }
     }
 
-    return throwError(() => new Error(errorMessage));
+    return throwError(() => ({
+      status: error.status,
+      message: userMessage,
+      originalError: error
+    }));
   }
+
 }

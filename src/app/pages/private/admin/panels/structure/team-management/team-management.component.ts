@@ -135,28 +135,48 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   /**
    * ✅ Charge les données de l'équipe
    */
-  private loadTeamData(): void {
+  protected loadTeamData(): void {
     this.teamService.loadTeamMembers().pipe(
       takeUntil(this.destroy$)
     ).subscribe({
-      next: value => this.teamMembers});
-  }
+      next: (members: TeamMember[]) => {
+        // Trier les membres pour placer l'utilisateur actuel en premier
+        const sortedMembers = this.sortMembersWithCurrentUserFirst(members);
 
-  /**
-   * ✅ Rafraîchit les données
-   */
-  refreshData(): void {
-    this.teamService.refreshTeamMembers().pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: () => {
-        this.notification.displayNotification('Données mises à jour', 'valid');
+        // Mettre à jour le signal avec les membres triés
+        this.teamService.setTeamMembers(sortedMembers);
+
+        this.notification.displayNotification('Équipe chargée avec succès', 'valid');
       },
-      error: () => {
-        this.notification.displayNotification('Erreur lors de la mise à jour', 'error');
+      error: (error) => {
+        console.error('Erreur lors du chargement de l\'équipe:', error);
+        this.notification.displayNotification('Erreur lors du chargement de l\'équipe', 'error');
       }
     });
   }
+
+  private sortMembersWithCurrentUserFirst(members: TeamMember[]): TeamMember[] {
+    const currentUserId = this.authService.currentUser()?.userId;
+
+    if (!currentUserId) {
+      return members; // Retourner tel quel si pas d'utilisateur connecté
+    }
+
+    // Séparer l'utilisateur actuel des autres membres
+    const currentUserMember = members.find(member => member.userId === currentUserId);
+    const otherMembers = members.filter(member => member.userId !== currentUserId);
+
+    // Trier les autres membres par nom/email pour une présentation cohérente
+    otherMembers.sort((a, b) => {
+      const nameA = this.getMemberDisplayName(a).toLowerCase();
+      const nameB = this.getMemberDisplayName(b).toLowerCase();
+      return nameA.localeCompare(nameB);
+    });
+
+    // Retourner l'utilisateur actuel en premier, suivi des autres
+    return currentUserMember ? [currentUserMember, ...otherMembers] : otherMembers;
+  }
+
 
   /**
    * ✅ Affiche/masque le formulaire d'invitation

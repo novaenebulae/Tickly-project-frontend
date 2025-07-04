@@ -330,6 +330,10 @@ export class UserService {
         return true;
       }),
       catchError(error => {
+        console.log('Error object in UserService:', error);
+        console.log('error.message:', error.message);
+        console.log('error.error?.message:', error.error?.message);
+
         this.notification.displayNotification(
           error.message || "Erreur lors de la demande de suppression du compte.",
           'error'

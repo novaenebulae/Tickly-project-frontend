@@ -317,6 +317,7 @@ export class EditProfileDialogComponent implements OnInit {
         this.isRequestingAccountDeletion.set(false);
         if (success) {
           // Fermer le dialogue après succès
+          this.authService.logout();
           this.dialogRef.close();
         }
       },
