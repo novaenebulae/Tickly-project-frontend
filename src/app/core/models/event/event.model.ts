@@ -251,5 +251,5 @@ export interface EventSummaryModel {
   mainPhotoUrl?: string;
   status: EventStatus;
   displayOnHomepage: boolean;
-  isFeaturedEvent: boolean;
+  featuredEvent: boolean;
 }

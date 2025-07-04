@@ -518,7 +518,7 @@ export class EventService {
       areas: (apiEvent.areas || []) as StructureAreaModel[], // Assuming API returns StructureAreaModel like objects
       audienceZones: audienceZones,
       displayOnHomepage: apiEvent.displayOnHomepage || false,
-      isFeaturedEvent: apiEvent.isFeaturedEvent || false,
+      isFeaturedEvent: apiEvent.featuredEvent || false,
       links: apiEvent.links || [],
       mainPhotoUrl: apiEvent.mainPhotoUrl,
       eventPhotoUrls: apiEvent.eventPhotoUrls || [],
@@ -556,7 +556,7 @@ export class EventService {
         name: apiEvent.structure?.name || apiEvent.structureName || ''
       },
       displayOnHomepage: apiEvent.displayOnHomepage || false,
-      isFeaturedEvent: apiEvent.isFeaturedEvent || false,
+      featuredEvent: apiEvent.featuredEvent || false,
       mainPhotoUrl: apiEvent.mainPhotoUrl,
       status: apiEvent.status as EventStatus,
     };
