@@ -372,9 +372,9 @@ export class EventService {
 
   // TODO : Voir pour supprimer
   getFeaturedEvents(forceRefresh = false, count = APP_CONFIG.events.defaultFeaturedCount): Observable<EventSummaryModel[]> {
-    // if (!forceRefresh && this.featuredEventsSig().length > 0 && this.featuredEventsSig().length >= count) {
-    //   return of(this.featuredEventsSig().slice(0, count));
-    // }
+    if (!forceRefresh && this.featuredEventsSig().length > 0 && this.featuredEventsSig().length >= count) {
+      return of(this.featuredEventsSig().slice(0, count));
+    }
     return this.eventApi.getFeaturedEvents(count).pipe(
       map((response: any) => {
         if (response && Array.isArray(response.items)) {
@@ -390,8 +390,6 @@ export class EventService {
       })
     );
   }
-
-
 
 
   getStructureFeaturedEvents(structureId: number, count = APP_CONFIG.events.defaultFeaturedCount) {
@@ -416,6 +414,7 @@ export class EventService {
   }
 
   getEventsByStructure(structureId: number, params: Partial<EventSearchParams> = {}): Observable<EventSummaryModel[]> {
+
     const searchParams: EventSearchParams = { ...params, structureId: structureId };
     return this.eventApi.getEventsByStructure(structureId, searchParams).pipe(
       map((response: any) => {
@@ -442,16 +441,6 @@ export class EventService {
     };
     return this.getEvents(params);
   }
-
-  // /**
-  //  * Récupère l'événement principal à la une (le plus proche avec featured: true)
-  //  */
-  // getFeaturedEvent(structureId: number, count = APP_CONFIG.events.defaultFeaturedCount): Observable<EventModel | null> {
-  //
-  //   return this.getEvents(searchParams).pipe(
-  //     map(result => result.events && result.events.length > 0 ? result.events[0] : null)
-  //   );
-  // }
 
   // --- Cache Refresh Logic ---
 

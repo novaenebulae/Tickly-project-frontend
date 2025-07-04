@@ -38,7 +38,7 @@
                 <mat-icon>event</mat-icon>
               </div>
               <div class="stat-details">
-                <div class="stat-number">{{ totalEvents }}</div>
+                <div class="stat-number">{{ totalEvents() }}</div>
                 <div class="stat-label">Total des événements</div>
               </div>
             </div>
@@ -51,7 +51,7 @@
                 <mat-icon>check_circle</mat-icon>
               </div>
               <div class="stat-details">
-                <div class="stat-number">{{ publishedEvents }}</div>
+                <div class="stat-number">{{ publishedEvents() }}</div>
                 <div class="stat-label">Événements publiés</div>
               </div>
             </div>
@@ -64,7 +64,7 @@
                 <mat-icon>edit</mat-icon>
               </div>
               <div class="stat-details">
-                <div class="stat-number">{{ draftEvents }}</div>
+                <div class="stat-number">{{ draftEvents() }}</div>
                 <div class="stat-label">Brouillons</div>
               </div>
             </div>
@@ -77,7 +77,7 @@
                 <mat-icon>schedule</mat-icon>
               </div>
               <div class="stat-details">
-                <div class="stat-number">{{ upcomingEvents }}</div>
+                <div class="stat-number">{{ upcomingEvents() }}</div>
                 <div class="stat-label">À venir</div>
               </div>
             </div>
@@ -89,13 +89,13 @@
 
   <!-- Filters Section - Collapsible -->
   <mat-card class="filters-card mb-4">
-    <mat-expansion-panel [expanded]="filtersExpanded" hideToggle>
-      <mat-expansion-panel-header (click)="filtersExpanded = !filtersExpanded">
+    <mat-expansion-panel [expanded]="filtersExpanded()" hideToggle>
+      <mat-expansion-panel-header (click)="filtersExpandedSig.set(!filtersExpanded())">
         <mat-panel-title>
           <div class="d-flex align-items-center gap-2">
             <mat-icon>filter_list</mat-icon>
             <span class="filters-btn-text">Filtres et recherche</span>
-            @if (!filtersExpanded && (searchTerm || selectedCategoryIds.length > 0 || dateRangeStart || dateRangeEnd)) {
+            @if (!filtersExpanded() && (searchTerm() || selectedCategoryIds().length > 0 || dateRangeStart() || dateRangeEnd())) {
               <mat-chip class="active-filters-chip">
                 Filtres actifs
               </mat-chip>
@@ -115,7 +115,7 @@
 <!--                  (input)="onSearchTermChange()">-->
 <!--              </mat-form-field>-->
 <!--            }-->
-            <mat-icon>{{ filtersExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+            <mat-icon>{{ filtersExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
           </div>
         </mat-panel-description>
       </mat-expansion-panel-header>
@@ -130,10 +130,10 @@
               <input
                 matInput
                 type="search"
-                [(ngModel)]="searchTerm"
-                (input)="onSearchTermChange()"
+                [ngModel]="searchTerm()"
+                (ngModelChange)="searchTermSig.set($event); onSearchTermChange()"
                 placeholder="Nom, description...">
-              @if (searchTerm) {
+              @if (searchTerm()) {
                 <button matSuffix mat-icon-button (click)="clearSearch()" aria-label="Effacer">
                   <mat-icon>close</mat-icon>
                 </button>
@@ -147,9 +147,9 @@
               <mat-label>Catégories</mat-label>
               <mat-select
                 multiple
-                [(ngModel)]="selectedCategoryIds"
-                (selectionChange)="onCategoryChange()">
-                @for (category of categories; track category.id) {
+                [ngModel]="selectedCategoryIds()"
+                (ngModelChange)="selectedCategoryIdsSig.set($event); onCategoryChange()">
+                @for (category of categories(); track category.id) {
                   <mat-option [value]="category.id">{{ category.name }}</mat-option>
                 }
               </mat-select>
@@ -163,8 +163,8 @@
               <input
                 matInput
                 type="date"
-                [(ngModel)]="dateRangeStart"
-                (change)="onDateRangeChange()">
+                [ngModel]="dateRangeStart()"
+                (ngModelChange)="dateRangeStartSig.set($event); onDateRangeChange()">
             </mat-form-field>
           </div>
           <div class="col-md-2">
@@ -173,8 +173,8 @@
               <input
                 matInput
                 type="date"
-                [(ngModel)]="dateRangeEnd"
-                (change)="onDateRangeChange()">
+                [ngModel]="dateRangeEnd()"
+                (ngModelChange)="dateRangeEndSig.set($event); onDateRangeChange()">
             </mat-form-field>
           </div>
 
@@ -182,7 +182,7 @@
           <div class="col-md-2">
             <mat-form-field appearance="outline" class="w-100">
               <mat-label>Trier par</mat-label>
-              <mat-select [(ngModel)]="sortOption" (selectionChange)="processEvents()">
+              <mat-select [ngModel]="sortOption()" (ngModelChange)="sortOptionSig.set($event); processEvents()">
                 <mat-option value="startDate_asc">Date (Plus ancien)</mat-option>
                 <mat-option value="startDate_desc">Date (Plus récent)</mat-option>
                 <mat-option value="name_asc">Nom (A-Z)</mat-option>
@@ -197,10 +197,10 @@
         <div class="status-filters mb-4">
           <div class="d-flex flex-wrap align-items-center gap-3">
             <span class="fw-medium text-muted">Statuts :</span>
-            @for (status of ['published', 'draft', 'cancelled', 'completed']; track status) {
+            @for (status of [EventStatus.PUBLISHED, EventStatus.DRAFT, EventStatus.CANCELLED, EventStatus.COMPLETED]; track status) {
               <mat-checkbox
-                [(ngModel)]="filterStatus[status]"
-                (ngModelChange)="onStatusFilterChange()"
+                [ngModel]="filterStatus()[status]"
+                (ngModelChange)="updateFilterStatus(status, $event)"
                 class="status-checkbox">
                 <div class="d-flex align-items-center gap-1">
                   <mat-icon class="small-icon">{{ getStatusIcon(status) }}</mat-icon>
@@ -214,7 +214,7 @@
         <!-- Results info and clear filters -->
         <div class="d-flex justify-content-between align-items-center pt-3 border-top">
           <span class="text-muted">
-            <strong>{{ totalItems }}</strong> résultat{{ totalItems !== 1 ? 's' : '' }} trouvé{{ totalItems !== 1 ? 's' : '' }}
+            <strong>{{ totalItems() }}</strong> résultat{{ totalItems() !== 1 ? 's' : '' }} trouvé{{ totalItems() !== 1 ? 's' : '' }}
           </span>
           <button
             mat-stroked-button
@@ -230,7 +230,7 @@
   </mat-card>
 
   <!-- Loading -->
-  @if (isLoading) {
+  @if (isLoading()) {
     <div class="text-center py-5">
       <mat-progress-spinner
         mode="indeterminate"
@@ -242,10 +242,10 @@
   }
 
   <!-- Error -->
-  @if (error) {
+  @if (error()) {
     <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
       <mat-icon>error_outline</mat-icon>
-      <span class="flex-grow-1">{{ error }}</span>
+      <span class="flex-grow-1">{{ error() }}</span>
       <button mat-button color="primary" (click)="loadEvents()">
         <mat-icon>refresh</mat-icon>
         Réessayer
@@ -254,15 +254,15 @@
   }
 
   <!-- Events Display -->
-  @if (!isLoading && !error) {
-    @if (totalItems === 0) {
+  @if (!isLoading() && !error()) {
+    @if (totalItems() === 0) {
       <!-- Empty State -->
       <mat-card class="empty-state-card">
         <mat-card-content class="text-center py-5">
           <mat-icon class="empty-icon mb-3">event_busy</mat-icon>
           <h3 class="mat-h3 mb-3">Aucun événement trouvé</h3>
           <p class="text-muted mb-4">
-            @if (searchTerm || selectedCategoryIds.length > 0 || dateRangeStart || dateRangeEnd) {
+            @if (searchTerm() || selectedCategoryIds().length > 0 || dateRangeStart() || dateRangeEnd()) {
               Aucun événement ne correspond à vos critères de recherche.
             } @else {
               Vous n'avez pas encore créé d'événement.
@@ -279,21 +279,15 @@
       <mat-card class="events-list-card">
         <!-- Events List -->
         <div class="events-list">
-          @for (event of paginatedEvents; track event.id) {
+          @for (event of paginatedEvents(); track event.id) {
             <div class="event-item">
               <div class="event-content">
                 <!-- Event Image -->
                 <div class="event-image">
                   <img
-                    [src]="event.mainPhotoUrl || defaultImage"
+                    [src]="event.mainPhotoUrl || defaultImage()"
                     [alt]="'Image ' + event.name"
                     class="event-thumbnail">
-                  <div class="status-badge">
-                    <mat-chip [color]="getStatusColor(event.status)" class="status-chip">
-                      <mat-icon matChipAvatar>{{ getStatusIcon(event.status) }}</mat-icon>
-                      {{ getStatusText(event.status) }}
-                    </mat-chip>
-                  </div>
                 </div>
 
                 <!-- Event Details -->
@@ -317,7 +311,7 @@
                     @if (event.categories) {
                       <div class="meta-item">
                         <mat-icon class="meta-icon">category</mat-icon>
-                        <span>{{ formattedEventCategories }}</span>
+                        <span>{{ getFormattedEventCategories(event) }}</span>
                       </div>
                     }
                   </div>
@@ -329,6 +323,13 @@
 
                 <!-- Event Actions -->
                 <div class="event-actions">
+                  <div class="status-badge-inline">
+                    <mat-chip [ngClass]="getStatusCssClass(event.status)" class="status-chip">
+                      <mat-icon>{{ getStatusIcon(event.status) }}</mat-icon>
+                      {{ getStatusText(event.status) }}
+                    </mat-chip>
+                  </div>
+
                   <div class="action-buttons">
                     <button
                       mat-raised-button
@@ -341,6 +342,7 @@
                     <button
                       mat-raised-button
                       (click)="editEvent(event)"
+                      *ngIf="event.status !== 'COMPLETED' && event.status !== 'CANCELLED'"
                       class="action-btn secondary-action">
                       <mat-icon>edit</mat-icon>
                       Modifier
@@ -362,9 +364,13 @@
                         <span>Page publique</span>
                       </button>
                       <mat-divider></mat-divider>
-                      <button mat-menu-item (click)="deleteEvent(event)" class="delete-action">
+                      <button mat-menu-item (click)="deleteEvent(event)" *ngIf="event.status === 'DRAFT'" class="delete-action">
                         <mat-icon>delete</mat-icon>
                         <span>Supprimer</span>
+                      </button>
+                      <button mat-menu-item (click)="cancelEvent(event)" *ngIf="event.status === 'PUBLISHED'" class="cancel-action">
+                        <mat-icon>cancel</mat-icon>
+                        <span>Annuler</span>
                       </button>
                     </mat-menu>
                   </div>
@@ -377,10 +383,10 @@
         <!-- Pagination -->
         <div class="pagination-wrapper">
           <mat-paginator
-            [length]="totalItems"
-            [pageSize]="pageSize"
-            [pageIndex]="currentPage"
-            [pageSizeOptions]="pageSizeOptions"
+            [length]="totalItems()"
+            [pageSize]="pageSize()"
+            [pageIndex]="currentPage()"
+            [pageSizeOptions]="pageSizeOptions()"
             (page)="onPageChange($event)"
             [showFirstLastButtons]="true"
             aria-label="Sélectionnez une page">

@@ -2,6 +2,152 @@
   min-height: 100vh;
 }
 
+
+.status-badge {
+  .status-chip {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &.status-published {
+      background-color: #4caf50 !important;
+      color: white !important;
+    }
+
+    &.status-draft {
+      background-color: #ff9800 !important;
+      color: white !important;
+    }
+
+    &.status-cancelled {
+      background-color: #f44336 !important;
+      color: white !important;
+    }
+
+    &.status-completed {
+      background-color: #9e9e9e !important;
+      color: white !important;
+    }
+
+    &.status-pending-approval {
+      background-color: #2196f3 !important;
+      color: white !important;
+    }
+
+    &.status-archived {
+      background-color: #795548 !important;
+      color: white !important;
+    }
+  }
+}
+
+// === Status Badge Inline (dans les actions) ===
+.status-badge-inline {
+  margin-right: 12px;
+
+  .status-chip {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    &.status-published {
+      background-color: #4caf50 !important;
+      color: white !important;
+    }
+
+    &.status-draft {
+      background-color: #ff9800 !important;
+      color: white !important;
+    }
+
+    &.status-cancelled {
+      background-color: #f44336 !important;
+      color: white !important;
+    }
+
+    &.status-completed {
+      background-color: #9e9e9e !important;
+      color: white !important;
+    }
+
+    &.status-pending-approval {
+      background-color: #2196f3 !important;
+      color: white !important;
+    }
+
+    &.status-archived {
+      background-color: #795548 !important;
+      color: white !important;
+    }
+
+    mat-icon {
+      font-size: 0.75rem;
+      width: 0.75rem;
+      height: 0.75rem;
+    }
+  }
+}
+
+
+
+// === Status Checkbox Filters ===
+.status-filters {
+  .status-checkbox {
+    margin-right: 1rem;
+
+    &.status-published {
+      .mdc-checkbox__background {
+        border-color: #4caf50;
+      }
+
+      .mdc-checkbox--checked .mdc-checkbox__background {
+        background-color: #4caf50;
+        border-color: #4caf50;
+      }
+    }
+
+    &.status-draft {
+      .mdc-checkbox__background {
+        border-color: #ff9800;
+      }
+
+      .mdc-checkbox--checked .mdc-checkbox__background {
+        background-color: #ff9800;
+        border-color: #ff9800;
+      }
+    }
+
+    &.status-cancelled {
+      .mdc-checkbox__background {
+        border-color: #f44336;
+      }
+
+      .mdc-checkbox--checked .mdc-checkbox__background {
+        background-color: #f44336;
+        border-color: #f44336;
+      }
+    }
+
+    &.status-completed {
+      .mdc-checkbox__background {
+        border-color: #9e9e9e;
+      }
+
+      .mdc-checkbox--checked .mdc-checkbox__background {
+        background-color: #9e9e9e;
+        border-color: #9e9e9e;
+      }
+    }
+  }
+}
+
 // === Header Styles ===
 .header-card {
   border: none;
@@ -173,12 +319,6 @@
   .filters-content {
     background-color: white;
   }
-
-  .status-filters {
-    .status-checkbox {
-      margin-right: 1rem;
-    }
-  }
 }
 
 // === Events List ===
@@ -243,26 +383,6 @@
     object-fit: cover;
     border-radius: 8px;
     border: 1px solid #e0e0e0;
-  }
-
-  .status-badge {
-    position: absolute;
-    top: -4px;
-    left: -4px;
-    z-index: 1;
-
-    .status-chip {
-      font-size: 0.7rem;
-      height: auto;
-      background: #00a8e8;
-
-
-      mat-icon {
-        font-size: 0.75rem;
-        width: 0.75rem;
-        height: 0.75rem;
-      }
-    }
   }
 }
 

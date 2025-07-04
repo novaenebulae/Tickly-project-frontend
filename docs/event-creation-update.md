@@ -1001,3 +1001,14 @@ files: [large_image_15mb.jpg]
 6. **Confirmation Dialogs**: Implement for destructive operations (delete, cancel)
 
 This complete guide provides all necessary information for robust frontend integration with proper error handling and user experience considerations.
+
+
+FIX TODO :
+
+- Area Selection Component fields are not disabled in updating a published or cancelled event.
+
+- Can't Delete Multiple Gallery Pictures in same batch
+
+- Status change errors : doesn't use status update endpoint.
+
+- CANCELLED and DRAFT Events can be seen in public event page.

@@ -1,4 +1,15 @@
-import {ChangeDetectorRef, Component, inject, LOCALE_ID, OnDestroy, OnInit} from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  effect,
+  inject,
+  LOCALE_ID,
+  OnDestroy,
+  OnInit,
+  signal,
+  computed,
+  WritableSignal
+} from '@angular/core';
 import {CommonModule, DatePipe, registerLocaleData} from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import {FormsModule} from '@angular/forms';
@@ -55,7 +66,7 @@ interface FilterStatus {
   styleUrls: ['./events-panel.component.scss'],
   providers: [
     DatePipe,
-    { provide: LOCALE_ID, useValue: 'fr-FR' }
+    {provide: LOCALE_ID, useValue: 'fr-FR'}
   ]
 })
 export class EventsPanelComponent implements OnInit, OnDestroy {
@@ -70,64 +81,108 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
   private datePipe = inject(DatePipe);
   private cdRef = inject(ChangeDetectorRef);
 
-  // UI State
-  isLoading: boolean = false;
-  error: string | null = null;
-  defaultImage: string = 'images/no-image.jpg';
-  filtersExpanded: boolean = false;
+  // UI State Signals
+  private isLoadingSig: WritableSignal<boolean> = signal(false);
+  public readonly isLoading = computed(() => this.isLoadingSig());
 
-  // Data
-  private allEvents: EventSummaryModel[] = [];
-  filteredEvents: EventSummaryModel[] = [];
-  paginatedEvents: EventSummaryModel[] = [];
-  categories: EventCategoryModel[] = [];
+  private errorSig: WritableSignal<string | null> = signal(null);
+  public readonly error = computed(() => this.errorSig());
 
-  // Pagination
-  pageSize: number = 10;
-  currentPage: number = 0;
-  totalItems: number = 0;
-  pageSizeOptions: number[] = [5, 10, 20, 50];
+  private defaultImageSig: WritableSignal<string> = signal('images/no-image.jpg');
+  public readonly defaultImage = computed(() => this.defaultImageSig());
 
-  // Filters and Search
-  sortOption: string = 'startDate_asc';
-  searchTerm: string = '';
-  selectedCategoryIds: number[] = [];
-  dateRangeStart: string = '';
-  dateRangeEnd: string = '';
+  public filtersExpandedSig: WritableSignal<boolean> = signal(false);
+  public readonly filtersExpanded = computed(() => this.filtersExpandedSig());
 
-  filterStatus: FilterStatus = {
-    'draft': false,
-    'published': true,
-    'cancelled': false,
-    'completed': false
-  };
+  // Data Signals
+  private allEventsSig: WritableSignal<EventSummaryModel[]> = signal([]);
+  private filteredEventsSig: WritableSignal<EventSummaryModel[]> = signal([]);
+  public readonly filteredEvents = computed(() => this.filteredEventsSig());
 
-  // Statistics
-  totalEvents: number = 0;
-  publishedEvents: number = 0;
-  draftEvents: number = 0;
-  upcomingEvents: number = 0;
+  private paginatedEventsSig: WritableSignal<EventSummaryModel[]> = signal([]);
+  public readonly paginatedEvents = computed(() => this.paginatedEventsSig());
 
-  // Structure events signal subscription
-  private structureEventsSubscription: Subscription | null = null;
+  private categoriesSig: WritableSignal<EventCategoryModel[]> = signal([]);
+  public readonly categories = computed(() => this.categoriesSig());
+
+  // Pagination Signals
+  private pageSizeSig: WritableSignal<number> = signal(10);
+  public readonly pageSize = computed(() => this.pageSizeSig());
+
+  private currentPageSig: WritableSignal<number> = signal(0);
+  public readonly currentPage = computed(() => this.currentPageSig());
+
+  private totalItemsSig: WritableSignal<number> = signal(0);
+  public readonly totalItems = computed(() => this.totalItemsSig());
+
+  private pageSizeOptionsSig: WritableSignal<number[]> = signal([5, 10, 20, 50]);
+  public readonly pageSizeOptions = computed(() => this.pageSizeOptionsSig());
+
+  // Filters and Search Signals
+  public sortOptionSig: WritableSignal<string> = signal('startDate_asc');
+  public readonly sortOption = computed(() => this.sortOptionSig());
+
+  public searchTermSig: WritableSignal<string> = signal('');
+  public readonly searchTerm = computed(() => this.searchTermSig());
+
+  public selectedCategoryIdsSig: WritableSignal<number[]> = signal([]);
+  public readonly selectedCategoryIds = computed(() => this.selectedCategoryIdsSig());
+
+  public dateRangeStartSig: WritableSignal<string> = signal('');
+  public readonly dateRangeStart = computed(() => this.dateRangeStartSig());
+
+  public dateRangeEndSig: WritableSignal<string> = signal('');
+  public readonly dateRangeEnd = computed(() => this.dateRangeEndSig());
+
+  private filterStatusSig: WritableSignal<FilterStatus> = signal({
+    'DRAFT': true,
+    'PUBLISHED': true,
+    'CANCELLED': false,
+    'COMPLETED': false
+  });
+  public readonly filterStatus = computed(() => this.filterStatusSig());
+
+  // Statistics Signals
+  private totalEventsSig: WritableSignal<number> = signal(0);
+  public readonly totalEvents = computed(() => this.totalEventsSig());
+
+  private publishedEventsSig: WritableSignal<number> = signal(0);
+  public readonly publishedEvents = computed(() => this.publishedEventsSig());
+
+  private draftEventsSig: WritableSignal<number> = signal(0);
+  public readonly draftEvents = computed(() => this.draftEventsSig());
+
+  private upcomingEventsSig: WritableSignal<number> = signal(0);
+  public readonly upcomingEvents = computed(() => this.upcomingEventsSig());
 
   // Search debounce
   private searchSubject = new Subject<string>();
   private searchSubscription: Subscription | null = null;
   private subscriptions: Subscription[] = [];
 
-  constructor() {}
+  constructor() {
+    // Effect to process events when allEventsSig changes
+    effect(() => {
+      // Get the current value of allEventsSig
+      const events = this.allEventsSig();
+
+      // Only process if we have events
+      if (events.length > 0) {
+        this.calculateStatistics();
+        this.processEvents();
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.setupSearchDebounce();
     this.loadCategories();
-    this.loadEvents();
+    this.loadEvents(true);
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.searchSubscription?.unsubscribe();
-    this.structureEventsSubscription?.unsubscribe();
   }
 
   // === Data Loading ===
@@ -135,7 +190,7 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
   loadCategories(): void {
     const categoriesSub = this.categoryService.loadCategories().subscribe({
       next: (categories) => {
-        this.categories = categories;
+        this.categoriesSig.set(categories);
       },
       error: (error) => {
         console.error('Erreur lors du chargement des catégories:', error);
@@ -145,42 +200,36 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
   }
 
   loadEvents(forceRefresh: boolean = false): void {
-    this.isLoading = true;
-    this.error = null;
+    this.isLoadingSig.set(true);
+    this.errorSig.set(null);
 
-    // Annuler la souscription précédente si elle existe
-    if (this.structureEventsSubscription) {
-      this.structureEventsSubscription.unsubscribe();
-      this.structureEventsSubscription = null;
-    }
-
-    // S'abonner au signal des événements de la structure
-    this.structureEventsSubscription = this.userStructureService.getUserStructureEvents(forceRefresh).subscribe({
-      next: (events) => {
-        this.allEvents = events;
-        this.calculateStatistics();
-        this.processEvents();
-        this.isLoading = false;
+    // Trigger the API call to load events
+    const loadSub = this.userStructureService.getUserStructureEvents(forceRefresh).subscribe({
+      next: () => {
+        // Now we can access the events through the signal
+        this.allEventsSig.set(this.userStructureService.userStructureEvents());
+        this.isLoadingSig.set(false);
       },
       error: (error) => {
         console.error('Erreur lors du chargement des événements:', error);
-        this.error = "Erreur lors du chargement des événements.";
-        this.isLoading = false;
+        this.errorSig.set("Erreur lors du chargement des événements.");
+        this.isLoadingSig.set(false);
       }
     });
 
-    this.subscriptions.push(this.structureEventsSubscription);
+    this.subscriptions.push(loadSub);
   }
 
   // === Statistics ===
 
   calculateStatistics(): void {
-    this.totalEvents = this.allEvents.length;
-    this.publishedEvents = this.allEvents.filter(e => e.status === EventStatus.PUBLISHED).length;
-    this.draftEvents = this.allEvents.filter(e => e.status === EventStatus.DRAFT).length;
-    this.upcomingEvents = this.allEvents.filter(e =>
+    const events = this.allEventsSig();
+    this.totalEventsSig.set(events.length);
+    this.publishedEventsSig.set(events.filter(e => e.status === EventStatus.PUBLISHED).length);
+    this.draftEventsSig.set(events.filter(e => e.status === EventStatus.DRAFT).length);
+    this.upcomingEventsSig.set(events.filter(e =>
       e.status === EventStatus.PUBLISHED && new Date(e.startDate) > new Date()
-    ).length;
+    ).length);
   }
 
   // === Search and Filtering ===
@@ -198,11 +247,11 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
   }
 
   onSearchTermChange(): void {
-    this.searchSubject.next(this.searchTerm || '');
+    this.searchSubject.next(this.searchTerm() || '');
   }
 
   clearSearch(): void {
-    this.searchTerm = '';
+    this.searchTermSig.set('');
     this.processEvents();
   }
 
@@ -218,87 +267,94 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
     this.processEvents();
   }
 
-  clearAllFilters(): void {
-    this.searchTerm = '';
-    this.selectedCategoryIds = [];
-    this.dateRangeStart = '';
-    this.dateRangeEnd = '';
+  updateFilterStatus(status: string, value: boolean): void {
+    const currentFilterStatus = this.filterStatus();
+    this.filterStatusSig.set({
+      ...currentFilterStatus,
+      [status]: value
+    });
+    this.onStatusFilterChange();
+  }
 
-    this.filterStatus = {
-      'draft': false,
-      'published': true,
-      'cancelled': false,
-      'completed': false
-    };
+  clearAllFilters(): void {
+    this.searchTermSig.set('');
+    this.selectedCategoryIdsSig.set([]);
+    this.dateRangeStartSig.set('');
+    this.dateRangeEndSig.set('');
+
+    this.filterStatusSig.set({
+      'DRAFT': true,
+      'PUBLISHED': true,
+      'CANCELLED': false,
+      'COMPLETED': false
+    });
 
     this.processEvents();
   }
 
-  get formattedEventCategories(): string {
-    return this.categories.map(c => c.name).join(', ');
+  getFormattedEventCategories(event: EventSummaryModel): string {
+    if (!event.categories || event.categories.length === 0) {
+      return 'Aucune catégorie';
+    }
+    return event.categories.map(c => c.name).join(', ');
   }
 
   // === Event Processing ===
 
   processEvents(): void {
-    let events = [...this.allEvents];
+    let events = [...this.allEventsSig()];
 
     // Convert lowercase status strings to EventStatus enum values
-    const activeStatusFilters = Object.keys(this.filterStatus)
-      .filter(status => this.filterStatus[status])
-      .map(status => {
-        switch(status) {
-          case 'draft': return EventStatus.DRAFT;
-          case 'published': return EventStatus.PUBLISHED;
-          case 'cancelled': return EventStatus.CANCELLED;
-          case 'completed': return EventStatus.COMPLETED;
-          default: return null;
-        }
-      })
-      .filter(status => status !== null) as EventStatus[];
+    const filterStatusObj = this.filterStatus();
+    const activeStatusFilters = Object.keys(filterStatusObj)
+      .filter(status => filterStatusObj[status]).map(status => status as EventStatus);
+
+    console.log(activeStatusFilters);
 
     if (activeStatusFilters.length > 0) {
       events = events.filter(event => activeStatusFilters.includes(event.status));
-    } else {
-      events = [];
     }
 
-    if (this.searchTerm) {
-      const lowerSearchTerm = this.searchTerm.toLowerCase().trim();
+    const searchTermValue = this.searchTerm();
+    if (searchTermValue) {
+      const lowerSearchTerm = searchTermValue.toLowerCase().trim();
       events = events.filter(event =>
         event.name.toLowerCase().includes(lowerSearchTerm) ||
         event.shortDescription?.toLowerCase().includes(lowerSearchTerm) ||
-        event.categories?.map(c=>c.name).join(' ').toLowerCase().includes(lowerSearchTerm)
+        event.categories?.map(c => c.name).join(' ').toLowerCase().includes(lowerSearchTerm)
       );
     }
 
-    if (this.selectedCategoryIds.length > 0) {
+    const selectedCategoryIdsValue = this.selectedCategoryIds();
+    if (selectedCategoryIdsValue.length > 0) {
       events = events.filter(event =>
-        event.categories && event.categories.some(cat => this.selectedCategoryIds.includes(cat.id))
+        event.categories && event.categories.some(cat => selectedCategoryIdsValue.includes(cat.id))
       );
     }
 
-    if (this.dateRangeStart) {
-      const startDate = new Date(this.dateRangeStart);
+    const dateRangeStartValue = this.dateRangeStart();
+    if (dateRangeStartValue) {
+      const startDate = new Date(dateRangeStartValue);
       events = events.filter(event => new Date(event.startDate) >= startDate);
     }
 
-    if (this.dateRangeEnd) {
-      const endDate = new Date(this.dateRangeEnd);
+    const dateRangeEndValue = this.dateRangeEnd();
+    if (dateRangeEndValue) {
+      const endDate = new Date(dateRangeEndValue);
       events = events.filter(event => new Date(event.startDate) <= endDate);
     }
 
     this.sortEvents(events);
 
-    this.filteredEvents = events;
-    this.totalItems = events.length;
+    this.filteredEventsSig.set(events);
+    this.totalItemsSig.set(events.length);
 
-    this.currentPage = 0;
+    this.currentPageSig.set(0);
     this.updatePaginatedEvents();
   }
 
   sortEvents(events: EventSummaryModel[]): void {
-    const [field, direction] = this.sortOption.split('_');
+    const [field, direction] = this.sortOption().split('_');
 
     events.sort((a, b) => {
       let valueA: any;
@@ -334,46 +390,62 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
   // === Pagination ===
 
   onPageChange(event: PageEvent): void {
-    this.currentPage = event.pageIndex;
-    this.pageSize = event.pageSize;
+    this.currentPageSig.set(event.pageIndex);
+    this.pageSizeSig.set(event.pageSize);
     this.updatePaginatedEvents();
   }
 
   private updatePaginatedEvents(): void {
-    const startIndex = this.currentPage * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.paginatedEvents = this.filteredEvents.slice(startIndex, endIndex);
+    const startIndex = this.currentPage() * this.pageSize();
+    const endIndex = startIndex + this.pageSize();
+    this.paginatedEventsSig.set(this.filteredEvents().slice(startIndex, endIndex));
   }
 
   // === UI Helpers ===
 
-  getStatusColor(status: EventStatus): 'primary' | 'accent' | 'warn' | undefined {
+  // Modifiée pour retourner des classes CSS au lieu des couleurs Material
+  getStatusCssClass(status: EventStatus): string {
     switch (status) {
-      case EventStatus.PUBLISHED: return 'primary';
-      case EventStatus.DRAFT: return 'accent';
-      case EventStatus.CANCELLED: return 'warn';
-      case EventStatus.COMPLETED: return undefined;
-      default: return undefined;
+      case EventStatus.PUBLISHED:
+        return 'status-published';
+      case EventStatus.DRAFT:
+        return 'status-draft';
+      case EventStatus.CANCELLED:
+        return 'status-cancelled';
+      case EventStatus.COMPLETED:
+        return 'status-completed';
+      default:
+        return 'status-draft';
     }
   }
 
-  getStatusText(status: string): string {
+  getStatusText(status: EventStatus): string {
     switch (status) {
-      case 'published': return 'Publié';
-      case 'draft': return 'Brouillon';
-      case 'cancelled': return 'Annulé';
-      case 'completed': return 'Terminé';
-      default: return status;
+      case EventStatus.PUBLISHED:
+        return 'Publié';
+      case EventStatus.DRAFT:
+        return 'Brouillon';
+      case EventStatus.CANCELLED:
+        return 'Annulé';
+      case EventStatus.COMPLETED:
+        return 'Terminé';
+      default:
+        return status.toString();
     }
   }
 
-  getStatusIcon(status: string): string {
+  getStatusIcon(status: EventStatus): string {
     switch (status) {
-      case 'published': return 'check_circle';
-      case 'draft': return 'edit';
-      case 'cancelled': return 'cancel';
-      case 'completed': return 'done_all';
-      default: return 'help';
+      case EventStatus.PUBLISHED:
+        return 'check_circle';
+      case EventStatus.DRAFT:
+        return 'edit';
+      case EventStatus.CANCELLED:
+        return 'cancel';
+      case EventStatus.COMPLETED:
+        return 'done_all';
+      default:
+        return 'help';
     }
   }
 
@@ -407,6 +479,7 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
 
   deleteEvent(event: EventSummaryModel): void {
     if (confirm(`Êtes-vous sûr de vouloir supprimer l'événement "${event.name}" ?`)) {
+      this.isLoadingSig.set(true);
       const deleteSub = this.eventService.deleteEvent(event.id!).subscribe({
         next: (success) => {
           if (success) {
@@ -415,6 +488,8 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
             this.snackBar.open('Événement supprimé avec succès', 'Fermer', {
               duration: 3000
             });
+          } else {
+            this.isLoadingSig.set(false);
           }
         },
         error: (error) => {
@@ -422,6 +497,7 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
           this.snackBar.open('Erreur lors de la suppression', 'Fermer', {
             duration: 3000
           });
+          this.isLoadingSig.set(false);
         }
       });
       this.subscriptions.push(deleteSub);
@@ -431,4 +507,33 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
   openEventPage(event: EventSummaryModel): void {
     this.router.navigate(['/events', event.id]);
   }
+
+  cancelEvent(event: EventSummaryModel): void {
+    if (confirm(`Êtes-vous sûr de vouloir annuler l'événement "${event.name}" ?`)) {
+      this.isLoadingSig.set(true);
+      const cancelSub = this.eventService.updateEventStatus(event.id!, EventStatus.CANCELLED).subscribe({
+        next: (updatedEvent) => {
+          if (updatedEvent) {
+            // Forcer le rafraîchissement des événements après annulation
+            this.loadEvents(true);
+            this.snackBar.open('Événement annulé avec succès', 'Fermer', {
+              duration: 3000
+            });
+          } else {
+            this.isLoadingSig.set(false);
+          }
+        },
+        error: (error) => {
+          console.error('Erreur lors de l\'annulation:', error);
+          this.snackBar.open('Erreur lors de l\'annulation', 'Fermer', {
+            duration: 3000
+          });
+          this.isLoadingSig.set(false);
+        }
+      });
+      this.subscriptions.push(cancelSub);
+    }
+  }
+
+  protected readonly EventStatus = EventStatus;
 }

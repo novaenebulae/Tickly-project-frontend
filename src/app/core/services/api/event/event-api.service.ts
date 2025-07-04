@@ -209,6 +209,7 @@ export class EventApiService {
    * @param params - Additional search parameters.
    */
   getEventsByStructure(structureId: number, params: EventSearchParams = {}): Observable<any[]> {
+
     return this.getEvents({
       ...params,
       structureId

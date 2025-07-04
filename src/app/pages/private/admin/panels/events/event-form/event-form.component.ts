@@ -19,6 +19,10 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+
+// Shared Components
+import { ConfirmationDialogComponent } from '../../../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
 
 import { NotificationService } from '../../../../../../core/services/domain/utilities/notification.service';
 import { EventService } from '../../../../../../core/services/domain/event/event.service';
@@ -65,6 +69,7 @@ interface FieldModificationMatrix {
     MatDividerModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatDialogModule,
     EventAreasZonesSelectionComponent,
   ],
   templateUrl: './event-form.component.html',
@@ -83,6 +88,7 @@ export class EventFormComponent implements OnInit {
   private userStructureService = inject(UserStructureService);
   private structureService = inject(StructureService);
   private notification = inject(NotificationService);
+  private dialog = inject(MatDialog);
 
   // Inputs
   @Input() eventId?: number;
@@ -119,9 +125,16 @@ export class EventFormComponent implements OnInit {
   public readonly formProgress = computed(() => ((this.currentStep() + 1) / 4) * 100);
   public readonly isLoading = computed(() => this.isLoadingEventSig());
   public readonly isSubmitting = computed(() => this.isSubmittingSig());
-  public readonly pageTitle = computed(() =>
-    this.modeSig() === 'create' ? 'Créer un événement' : 'Modifier l\'événement'
-  );
+  public readonly pageTitle = computed(() => {
+    if (this.modeSig() === 'create') {
+      return 'Créer un événement';
+    } else {
+      const eventName = this.generalInfoForm?.get('name')?.value || '';
+      const status = this.currentEventStatusSig();
+      const statusLabel = status ? this.getStatusLabel(status) : '';
+      return `Modifier l'événement: ${eventName} (${statusLabel})`;
+    }
+  });
   public readonly submitButtonText = computed(() =>
     this.modeSig() === 'create' ? 'Créer l\'événement' : 'Enregistrer les modifications'
   );
@@ -161,7 +174,6 @@ export class EventFormComponent implements OnInit {
   eventStatusOptions = [
     { value: EventStatus.DRAFT, label: 'Brouillon' },
     { value: EventStatus.PUBLISHED, label: 'Publié' },
-    { value: EventStatus.PENDING_APPROVAL, label: 'En attente d\'approbation' },
     { value: EventStatus.CANCELLED, label: 'Annulé' },
     { value: EventStatus.COMPLETED, label: 'Terminé' },
     { value: EventStatus.ARCHIVED, label: 'Archivé' }
@@ -196,20 +208,6 @@ export class EventFormComponent implements OnInit {
       displayOnHomepage: true,
       isFeaturedEvent: true,
       images: true
-    },
-    [EventStatus.PENDING_APPROVAL]: {
-      name: false,
-      categoryIds: false,
-      shortDescription: false,
-      fullDescription: false,
-      tags: false,
-      startDate: false,
-      endDate: false,
-      address: false,
-      audienceZones: false,
-      displayOnHomepage: false,
-      isFeaturedEvent: false,
-      images: false
     },
     [EventStatus.CANCELLED]: {
       name: false,
@@ -517,6 +515,25 @@ export class EventFormComponent implements OnInit {
       isFeaturedEvent: event.isFeaturedEvent,
       status: event.status
     });
+
+    // Update form validity after populating the forms
+    // This ensures that steps can be accessed manually when updating an existing event
+    setTimeout(() => {
+      const generalValid = this.generalInfoForm.valid || false;
+      const locationValid = true; // Assume location is valid for existing events
+      const mediaValid = this.mediaForm.valid || false;
+      const configValid = this.configForm.valid || false;
+
+      this.formValiditySig.set([generalValid, locationValid, mediaValid, configValid]);
+
+      // Set selected area zones to ensure location step is valid
+      if (event.areas && event.areas.length > 0 && event.audienceZones && event.audienceZones.length > 0) {
+        this.selectedAreaZonesSig.set({
+          selectedAreas: event.areas,
+          selectedZones: event.audienceZones
+        });
+      }
+    }, 0);
   }
 
   // Form Array getters
@@ -600,7 +617,13 @@ export class EventFormComponent implements OnInit {
 
   goToStep(stepIndex: number): void {
     if (stepIndex >= 0 && stepIndex <= 3) {
-      // Vérifier que les étapes précédentes sont valides
+      // If in edit mode, allow navigation to any step without validation
+      if (this.modeSig() === 'edit') {
+        this.currentStepSig.set(stepIndex);
+        return;
+      }
+
+      // In create mode, verify that previous steps are valid
       let canNavigate = true;
       for (let i = 0; i < stepIndex; i++) {
         if (!this.formValiditySig()[i]) {
@@ -797,8 +820,74 @@ export class EventFormComponent implements OnInit {
       case EventStatus.PUBLISHED: return 'public';
       case EventStatus.CANCELLED: return 'cancel';
       case EventStatus.COMPLETED: return 'check_circle';
+      case EventStatus.ARCHIVED: return 'archive';
       default: return 'help';
     }
+  }
+
+  /**
+   * Gets a human-readable label for an event status
+   * @param status The event status
+   * @returns A human-readable label
+   */
+  getStatusLabel(status: EventStatus): string {
+    switch (status) {
+      case EventStatus.DRAFT: return 'Brouillon';
+      case EventStatus.PUBLISHED: return 'Publié';
+      case EventStatus.CANCELLED: return 'Annulé';
+      case EventStatus.COMPLETED: return 'Terminé';
+      case EventStatus.ARCHIVED: return 'Archivé';
+      default: return 'Inconnu';
+    }
+  }
+
+  /**
+   * Updates the event status using the dedicated endpoint
+   * @param eventId The ID of the event
+   * @param newStatus The new status to set
+   * @returns A promise that resolves when the status is updated
+   */
+  private updateEventStatus(eventId: number, newStatus: EventStatus): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      this.eventService.updateEventStatus(eventId, newStatus).subscribe({
+        next: (result) => {
+          if (result) {
+            this.notification.displayNotification(`Statut de l'événement mis à jour en : ${newStatus}`, 'valid');
+            resolve();
+          } else {
+            reject(new Error('Failed to update event status'));
+          }
+        },
+        error: (error) => {
+          this.notification.displayNotification('Erreur lors de la mise à jour du statut de l\'événement', 'error');
+          reject(error);
+        }
+      });
+    });
+  }
+
+  /**
+   * Shows a confirmation dialog for event creation or update
+   * @returns A promise that resolves to true if confirmed, false otherwise
+   */
+  private showConfirmationDialog(): Promise<boolean> {
+    const isCreating = this.modeSig() === 'create';
+    const eventName = this.generalInfoForm.get('name')?.value || 'cet événement';
+
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: isCreating ? 'Créer l\'événement' : 'Modifier l\'événement',
+        message: isCreating
+          ? `Êtes-vous sûr de vouloir créer l'événement "${eventName}" ?`
+          : `Êtes-vous sûr de vouloir enregistrer les modifications de l'événement "${eventName}" ?`,
+        confirmButtonText: isCreating ? 'Créer' : 'Enregistrer',
+        cancelButtonText: 'Annuler',
+        confirmButtonColor: 'primary'
+      }
+    });
+
+    return dialogRef.afterClosed().toPromise();
   }
 
   // Form submission
@@ -823,60 +912,107 @@ export class EventFormComponent implements OnInit {
       return;
     }
 
-    this.isSubmittingSig.set(true);
+    // Show confirmation dialog before proceeding
+    this.showConfirmationDialog().then(confirmed => {
+      if (!confirmed) {
+        return; // User cancelled the action
+      }
 
-    // Construire l'objet données sans upload de fichiers
-    const eventData = this.buildEventDataDto('', []);
+      this.isSubmittingSig.set(true);
 
-    // Différentes logiques pour création et mise à jour
-    if (this.modeSig() === 'create') {
-      // Pour la création, on crée d'abord l'événement, puis on upload les fichiers
-      this.eventService.createEvent(eventData).subscribe({
-        next: (createdEvent) => {
-          if (createdEvent?.id) {
-            // Stocker l'ID de l'événement créé
-            this.eventId = createdEvent.id;
+      // Get the selected status from the form
+      const selectedStatus = this.configForm.get('status')?.value;
 
-            // Maintenant qu'on a un ID d'événement, on peut uploader les fichiers
-            this.uploadEventFiles(this.eventId).then(() => {
+      // Construire l'objet données sans upload de fichiers
+      const eventData = this.buildEventDataDto('', []);
+
+      // Différentes logiques pour création et mise à jour
+      if (this.modeSig() === 'create') {
+        // Pour la création, on crée d'abord l'événement, puis on upload les fichiers
+        this.eventService.createEvent(eventData).subscribe({
+          next: (createdEvent) => {
+            if (createdEvent?.id) {
+              // Stocker l'ID de l'événement créé
+              this.eventId = createdEvent.id;
+
+              // Maintenant qu'on a un ID d'événement, on peut uploader les fichiers
+              this.uploadEventFiles(this.eventId).then(() => {
+                // Check if we need to update the status (if it's not DRAFT)
+                if (selectedStatus && selectedStatus !== EventStatus.DRAFT) {
+                  // Update the status using the dedicated endpoint
+                  this.updateEventStatus(this.eventId!, selectedStatus)
+                    .then(() => {
+                      this.notification.displayNotification(`Événement créé et statut défini à : ${this.getStatusLabel(selectedStatus)}`, 'valid');
+                      this.isSubmittingSig.set(false);
+                      this.router.navigate(['/admin/events']);
+                    })
+                    .catch(() => {
+                      this.notification.displayNotification('Événement créé, mais erreur lors de la définition du statut', 'warning');
+                      this.isSubmittingSig.set(false);
+                      this.router.navigate(['/admin/events']);
+                    });
+                } else {
+                  this.notification.displayNotification('Événement créé avec succès !', 'valid');
+                  this.isSubmittingSig.set(false);
+                  this.router.navigate(['/admin/events']);
+                }
+              }).catch(error => {
+                console.error('Error uploading files after event creation:', error);
+                this.isSubmittingSig.set(false);
+                this.router.navigate(['/admin/events']);
+              });
+            } else {
+              this.notification.displayNotification('Erreur lors de la création de l\'événement', 'error');
               this.isSubmittingSig.set(false);
-              this.router.navigate(['/admin/events']);
-            }).catch(error => {
-              console.error('Error uploading files after event creation:', error);
-              this.isSubmittingSig.set(false);
-              this.router.navigate(['/admin/events']);
-            });
-          } else {
+            }
+          },
+          error: (error) => {
             this.notification.displayNotification('Erreur lors de la création de l\'événement', 'error');
             this.isSubmittingSig.set(false);
           }
-        },
-        error: (error) => {
-          this.notification.displayNotification('Erreur lors de la création de l\'événement', 'error');
-          this.isSubmittingSig.set(false);
-        }
-      });
-    } else {
-      // Pour la mise à jour, on peut uploader les fichiers en même temps
-      this.uploadFilesAndBuildEventData().then(eventDataWithFiles => {
-        this.eventService.updateEvent(this.eventId!, eventDataWithFiles).subscribe({
-          next: (result) => {
-            if (result) {
-              this.notification.displayNotification('Événement modifié avec succès !', 'valid');
-              this.router.navigate(['/admin/events']);
-            }
-            this.isSubmittingSig.set(false);
-          },
-          error: (error) => {
-            this.notification.displayNotification('Erreur lors de la modification de l\'événement', 'error');
-            this.isSubmittingSig.set(false);
-          }
         });
-      }).catch(error => {
-        this.notification.displayNotification('Erreur lors de l\'upload des fichiers', 'error');
-        this.isSubmittingSig.set(false);
-      });
-    }
+      } else {
+        // Pour la mise à jour, on peut uploader les fichiers en même temps
+        this.uploadFilesAndBuildEventData().then(eventDataWithFiles => {
+          // First update the event data
+          this.eventService.updateEvent(this.eventId!, eventDataWithFiles).subscribe({
+            next: (result) => {
+              if (result) {
+                // Check if the status has changed
+                const originalStatus = this.eventToEditSig()?.status;
+                if (selectedStatus && originalStatus && selectedStatus !== originalStatus) {
+                  // Update the status using the dedicated endpoint
+                  this.updateEventStatus(this.eventId!, selectedStatus)
+                    .then(() => {
+                      this.notification.displayNotification('Événement et statut modifiés avec succès !', 'valid');
+                      this.isSubmittingSig.set(false);
+                      this.router.navigate(['/admin/events']);
+                    })
+                    .catch(() => {
+                      this.notification.displayNotification('Événement modifié, mais erreur lors de la mise à jour du statut', 'warning');
+                      this.isSubmittingSig.set(false);
+                      this.router.navigate(['/admin/events']);
+                    });
+                } else {
+                  this.notification.displayNotification('Événement modifié avec succès !', 'valid');
+                  this.isSubmittingSig.set(false);
+                  this.router.navigate(['/admin/events']);
+                }
+              } else {
+                this.isSubmittingSig.set(false);
+              }
+            },
+            error: (error) => {
+              this.notification.displayNotification('Erreur lors de la modification de l\'événement', 'error');
+              this.isSubmittingSig.set(false);
+            }
+          });
+        }).catch(error => {
+          this.notification.displayNotification('Erreur lors de l\'upload des fichiers', 'error');
+          this.isSubmittingSig.set(false);
+        });
+      }
+    });
   }
 
   private async uploadFilesAndBuildEventData(): Promise<EventDataDto> {
@@ -911,31 +1047,58 @@ export class EventFormComponent implements OnInit {
 
   /**
    * Deletes gallery images that were removed during editing
+   * Uses a sequential approach to ensure each deletion completes before starting the next one
    */
   private async deleteRemovedGalleryImages(): Promise<void> {
     if (!this.eventId || this.removedGalleryImages.length === 0) return;
 
-    const deletePromises = this.removedGalleryImages.map(imageUrl => {
-      return new Promise<void>((resolve, reject) => {
+    // Show notification about deletion process
+    if (this.removedGalleryImages.length > 1) {
+      this.notification.displayNotification(
+        `Suppression de ${this.removedGalleryImages.length} images en cours...`,
+        'info'
+      );
+    }
+
+    // Process deletions sequentially instead of in parallel
+    for (const imageUrl of this.removedGalleryImages) {
+      try {
         // Extract the image path from the URL
         const imagePath = this.extractImagePathFromUrl(imageUrl);
         if (!imagePath) {
           console.warn('Could not extract image path from URL:', imageUrl);
-          resolve(); // Skip this image
-          return;
+          continue; // Skip this image
         }
 
-        this.eventService.deleteGalleryImage(this.eventId!, imagePath).subscribe({
-          next: () => resolve(),
-          error: (err) => {
-            console.error('Error deleting gallery image:', err);
-            resolve(); // Continue even if there's an error
-          }
+        // Wait for each deletion to complete before moving to the next
+        await new Promise<void>((resolve, reject) => {
+          this.eventService.deleteGalleryImage(this.eventId!, imagePath).subscribe({
+            next: () => {
+              console.log(`Successfully deleted image: ${imagePath}`);
+              resolve();
+            },
+            error: (err) => {
+              console.error('Error deleting gallery image:', err);
+              resolve(); // Continue even if there's an error
+            }
+          });
         });
-      });
-    });
+      } catch (error) {
+        console.error('Error in deletion process:', error);
+        // Continue with next image even if there's an error
+      }
+    }
 
-    await Promise.all(deletePromises);
+    // Show success notification after all deletions
+    if (this.removedGalleryImages.length > 1) {
+      this.notification.displayNotification(
+        `${this.removedGalleryImages.length} images supprimées avec succès`,
+        'valid'
+      );
+    }
+
+    // Clear the removed images array after processing
+    this.removedGalleryImages = [];
   }
 
   /**
@@ -1061,6 +1224,20 @@ export class EventFormComponent implements OnInit {
   }
 
   protected validateAllSteps(): boolean {
+    // If in edit mode, bypass validation
+    if (this.modeSig() === 'edit') {
+      // Still update form validity for UI indicators
+      const generalValid = this.generalInfoForm.valid || false;
+      const locationValid = this.selectedAreaZonesSig() !== null;
+      const mediaValid = this.mediaForm.valid || false;
+      const configValid = this.configForm.valid || false;
+      this.formValiditySig.set([generalValid, locationValid, mediaValid, configValid]);
+
+      // Always return true in edit mode to allow submission
+      return true;
+    }
+
+    // In create mode, perform normal validation
     // Marquer tous les champs comme touchés pour afficher les erreurs
     this.generalInfoForm.markAllAsTouched();
     this.locationForm.markAllAsTouched();
@@ -1120,10 +1297,11 @@ export class EventFormComponent implements OnInit {
   private buildEventDataDto(mainPhotoUrl: string, additionalPhotoUrls: string[]): EventDataDto {
     // Combiner les parties date et heure
     this.combineFormDateTimeValues();
-    const generalInfo = this.generalInfoForm.value;
-    const location = this.locationForm.value;
-    const media = this.mediaForm.value;
-    const config = this.configForm.value;
+    // Get the raw form values (including disabled fields)
+    const generalInfo = this.generalInfoForm.getRawValue();
+    const location = this.locationForm.getRawValue();
+    const media = this.mediaForm.getRawValue();
+    const config = this.configForm.getRawValue();
     const areaZoneSelection = this.selectedAreaZonesSig();
 
     const userStructureId = this.structureId || this.userStructureId();
@@ -1136,10 +1314,11 @@ export class EventFormComponent implements OnInit {
       ? generalInfo.categoryId
       : (generalInfo.categoryId ? [generalInfo.categoryId] : []);
 
-    // Create base DTO
+    // Create base DTO with required fields that should always be included
+    // Note: status is not included in the DTO as it should be set separately using the dedicated endpoint
     const eventData: Partial<EventDataDto> = {
       structureId: userStructureId,
-      status: config.status
+      name: generalInfo.name // Always include name
     };
 
     // In edit mode, only include fields that are allowed to be modified based on event status
@@ -1148,7 +1327,6 @@ export class EventFormComponent implements OnInit {
       const matrix = this.fieldModificationMatrix[status];
 
       // Only include fields that are allowed to be modified
-      if (matrix.name) eventData.name = generalInfo.name;
       if (matrix.categoryIds) eventData.categoryIds = categoryIds;
       if (matrix.shortDescription) eventData.shortDescription = generalInfo.shortDescription;
       if (matrix.fullDescription) eventData.fullDescription = generalInfo.fullDescription;
@@ -1171,7 +1349,6 @@ export class EventFormComponent implements OnInit {
       }
     } else {
       // In create mode, include all fields
-      eventData.name = generalInfo.name;
       eventData.categoryIds = categoryIds;
       eventData.shortDescription = generalInfo.shortDescription;
       eventData.fullDescription = generalInfo.fullDescription;
@@ -1189,6 +1366,9 @@ export class EventFormComponent implements OnInit {
       eventData.mainPhotoUrl = mainPhotoUrl;
       eventData.eventPhotoUrls = additionalPhotoUrls;
     }
+
+    // Log the event data to help with debugging
+    console.log('Event data being sent to API:', eventData);
 
     return eventData as EventDataDto;
   }

@@ -1,4 +1,4 @@
-<div class="areas-zones-selection-container">
+<div class="areas-zones-selection-container" [class.disabled-container]="disabled">
   <!-- Spinner de chargement -->
   @if (isLoading()) {
     <div class="loading-container">
@@ -25,6 +25,12 @@
         {{ selectedAreas().length }} espace(s) sélectionné(s) |
         {{ selectedZones().length }} zone(s) sélectionnée(s)
       </p>
+      @if (disabled) {
+        <div class="disabled-message">
+          <mat-icon>lock</mat-icon>
+          <span>Les zones d'audience ne peuvent pas être modifiées dans ce statut</span>
+        </div>
+      }
     </div>
 
     <div class="areas-grid">
@@ -32,12 +38,14 @@
         <mat-card
           class="area-card"
           [class.selected]="isAreaSelected(area.id)"
-          (click)="toggleAreaSelection(area)">
+          [class.disabled-card]="disabled"
+          (click)="!disabled && toggleAreaSelection(area)">
 
           <mat-card-header>
             <mat-card-title>
               <mat-checkbox
                 [checked]="isAreaSelected(area.id)"
+                [disabled]="disabled"
                 (click)="$event.stopPropagation()"
                 (change)="toggleAreaSelection(area)">
                 {{ area.name }}
@@ -76,7 +84,9 @@
             <div class="zones-list">
               <div class="zones-header">
                 <h4>Zones d'audience</h4>
-                <button type="button" mat-button color="primary" (click)="selectAllZonesInArea(area.id!); $event.stopPropagation()">
+                <button type="button" mat-button color="primary"
+                        [disabled]="disabled"
+                        (click)="selectAllZonesInArea(area.id!); $event.stopPropagation()">
                   <mat-icon>done_all</mat-icon> Tout sélectionner
                 </button>
               </div>
@@ -86,11 +96,12 @@
               }
 
               @for (template of allZonesByArea()[area.id]; track template.id) {
-                <div class="zone-item" [class.selected-zone]="isZoneSelected(template.id!)" (click)="$event.stopPropagation()">
+                <div class="zone-item" [class.selected-zone]="isZoneSelected(template.id!)" [class.disabled-zone]="disabled" (click)="$event.stopPropagation()">
                   <div class="zone-selection">
                     <mat-checkbox
                       class="zone-checkbox"
                       [checked]="isZoneSelected(template.id!)"
+                      [disabled]="disabled"
                       (change)="toggleZoneSelection(template)"
                       (click)="$event.stopPropagation()">
                       {{ template.name }}
@@ -116,6 +127,7 @@
                       <mat-form-field appearance="outline" class="capacity-field">
                         <mat-label>Capacité allouée</mat-label>
                         <input matInput type="number" min="1" [max]="template.maxCapacity"
+                               [disabled]="disabled"
                                [value]="getZoneConfiguration(template.id!)?.allocatedCapacity || template.maxCapacity"
                                (change)="updateZoneCapacity(template.id!, $event)">
                       </mat-form-field>

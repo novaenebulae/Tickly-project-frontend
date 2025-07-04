@@ -1,14 +1,14 @@
-import { Component, OnDestroy, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { EventsDisplayComponent } from '../../../../shared/domain/events/events-display/events-display.component';
-import {EventModel, EventSummaryModel} from '../../../../core/models/event/event.model';
-import { EventService } from '../../../../core/services/domain/event/event.service';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { Subject, takeUntil } from 'rxjs';
-import { Title } from '@angular/platform-browser';
-import { EventSearchParams } from '../../../../core/models/event/event-search-params.model';
-import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
+import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterModule} from '@angular/router';
+import {EventsDisplayComponent} from '../../../../shared/domain/events/events-display/events-display.component';
+import {EventStatus, EventSummaryModel} from '../../../../core/models/event/event.model';
+import {EventService} from '../../../../core/services/domain/event/event.service';
+import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
+import {Subject, takeUntil} from 'rxjs';
+import {Title} from '@angular/platform-browser';
+import {EventSearchParams} from '../../../../core/models/event/event-search-params.model';
+import {NotificationService} from '../../../../core/services/domain/utilities/notification.service';
 
 @Component({
   selector: 'app-all-events-page',
@@ -38,7 +38,6 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
   // Listes d'événements
   events = signal<EventSummaryModel[]>([]);
 
-  // TODO : Comprendre à quoi ca sert mais à rien je crois
   displayedEvents = computed(() => {
     const startIndex = (this.currentPage() - 1) * this.pageSize();
     const endIndex = startIndex + this.pageSize();
@@ -46,7 +45,7 @@ export class AllEventsPageComponent implements OnInit, OnDestroy {
   });
 
   // Filtres
-  currentFilters = signal<EventSearchParams>({sortBy: 'startDate', sortDirection: 'asc'});
+  currentFilters = signal<EventSearchParams>({sortBy: 'startDate', sortDirection: 'asc', status: EventStatus.PUBLISHED});
 
   // Subject pour gérer la désinscription aux observables
   private destroy$ = new Subject<void>();

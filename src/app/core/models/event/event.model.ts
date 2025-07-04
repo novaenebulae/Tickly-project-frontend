@@ -13,17 +13,10 @@ import {StructureSummaryModel} from '../structure/structure-summary.model'; // U
 /**
  * Defines the possible statuses of an event.
  */
-// export type EventStatus =
-//   | 'draft'     // Event is being prepared, not yet visible to the public.
-//   | 'published' // Event is live and visible.
-//   | 'pending_approval' // Event is awaiting approval from an admin/moderator.
-//   | 'cancelled' // Event has been cancelled.
-//   | 'completed'; // Event has finished.
 
 export enum EventStatus {
   DRAFT = 'DRAFT',
   PUBLISHED = 'PUBLISHED',
-  PENDING_APPROVAL = 'PENDING_APPROVAL',
   CANCELLED = 'CANCELLED',
   COMPLETED = 'COMPLETED',
   ARCHIVED = 'ARCHIVED'

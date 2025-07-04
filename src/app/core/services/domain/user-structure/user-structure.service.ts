@@ -28,6 +28,7 @@ import {EventAudienceZone} from '../../../models/event/event-audience-zone.model
 import {FileUploadResponseDto} from '../../../models/files/file-upload-response.model';
 import {Router} from '@angular/router';
 import {ApiConfigService} from '../../api/api-config.service';
+import {log} from '@angular-devkit/build-angular/src/builders/ssr-dev-server';
 
 
 /**
@@ -125,6 +126,10 @@ export class UserStructureService {
         });
       }
     });
+  }
+
+  displayStructureEvents() {
+    console.log(this.userStructureEventsSig());
   }
 
   /**

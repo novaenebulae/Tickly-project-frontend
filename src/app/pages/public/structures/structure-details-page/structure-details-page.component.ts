@@ -1,21 +1,21 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {CommonModule, ViewportScroller} from '@angular/common';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatTabsModule } from '@angular/material/tabs';
-import { PageEvent } from '@angular/material/paginator';
-import {Subject, takeUntil, switchMap, combineLatest, filter} from 'rxjs';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatTabsModule} from '@angular/material/tabs';
+import {PageEvent} from '@angular/material/paginator';
+import {Subject, takeUntil} from 'rxjs';
 import {EventBannerComponent} from '../../../../shared/domain/events/event-banner/event-banner.component';
 import {EventsCarouselComponent} from '../../../../shared/domain/events/events-carousel/events-carousel.component';
 import {EventsDisplayComponent} from '../../../../shared/domain/events/events-display/events-display.component';
 import {StructureService} from '../../../../core/services/domain/structure/structure.service';
 import {EventService} from '../../../../core/services/domain/event/event.service';
 import {StructureModel} from '../../../../core/models/structure/structure.model';
-import {EventModel, EventSummaryModel} from '../../../../core/models/event/event.model';
+import {EventStatus, EventSummaryModel} from '../../../../core/models/event/event.model';
 import {EventSearchParams} from '../../../../core/models/event/event-search-params.model';
 
 @Component({
@@ -123,7 +123,7 @@ export class StructureDetailsPageComponent implements OnInit, OnDestroy {
     this.isLoadingEvents.set(true);
     this.eventsError.set(null);
 
-    this.eventService.getEventsByStructure(structureId)
+    this.eventService.getEventsByStructure(structureId, {status: EventStatus.PUBLISHED})
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (eventsResult) => {
