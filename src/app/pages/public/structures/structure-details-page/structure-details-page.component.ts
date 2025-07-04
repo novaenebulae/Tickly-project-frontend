@@ -12,6 +12,7 @@ import {Subject, takeUntil} from 'rxjs';
 import {EventBannerComponent} from '../../../../shared/domain/events/event-banner/event-banner.component';
 import {EventsCarouselComponent} from '../../../../shared/domain/events/events-carousel/events-carousel.component';
 import {EventsDisplayComponent} from '../../../../shared/domain/events/events-display/events-display.component';
+import {StructureGalleryComponent} from '../../../../shared/domain/structures/structure-gallery/structure-gallery.component';
 import {StructureService} from '../../../../core/services/domain/structure/structure.service';
 import {EventService} from '../../../../core/services/domain/event/event.service';
 import {StructureModel} from '../../../../core/models/structure/structure.model';
@@ -32,6 +33,7 @@ import {EventSearchParams} from '../../../../core/models/event/event-search-para
     EventBannerComponent,
     EventsCarouselComponent,
     EventsDisplayComponent,
+    StructureGalleryComponent,
     RouterLink
   ],
   templateUrl: './structure-details-page.component.html',

@@ -144,6 +144,16 @@
       </div>
     </section>
 
+    <!-- Section galerie photos -->
+    <section class="gallery-section" *ngIf="structure() && structure()!.galleryImageUrls && structure()!.galleryImageUrls!.length > 0">
+      <div class="container">
+        <app-structure-gallery
+          [galleryImages]="structure()!.galleryImageUrls!"
+          [structureName]="structure()!.name">
+        </app-structure-gallery>
+      </div>
+    </section>
+
     <!-- Section événements -->
     <section class="events-section" id="events-section">
       <div class="container">

@@ -1,0 +1,48 @@
+<div class="structure-gallery-container" *ngIf="galleryImages && galleryImages.length > 0">
+  <div class="gallery-header">
+    <mat-icon>photo_library</mat-icon>
+    <h3>Galerie photos</h3>
+  </div>
+
+  <div class="gallery-grid">
+    <div class="gallery-item" *ngFor="let image of galleryImages; let i = index" (click)="openLightbox(i)">
+      <img [src]="image" [alt]="structureName + ' image ' + (i + 1)" class="gallery-image">
+      <div class="gallery-overlay">
+        <mat-icon>zoom_in</mat-icon>
+      </div>
+    </div>
+
+    <!-- Message if no images -->
+    <div *ngIf="galleryImages.length === 0" class="no-images">
+      <mat-icon>photo_library</mat-icon>
+      <p>Aucune image disponible</p>
+    </div>
+  </div>
+
+  <!-- Lightbox overlay -->
+  <div class="lightbox-overlay" *ngIf="showLightbox" (click)="closeLightbox()">
+    <div class="lightbox-container" (click)="$event.stopPropagation()">
+      <button mat-icon-button class="close-button" (click)="closeLightbox()">
+        <mat-icon>close</mat-icon>
+      </button>
+
+      <div class="lightbox-content">
+        <button mat-icon-button class="nav-button prev-button" (click)="prevImage()" *ngIf="galleryImages.length > 1">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+
+        <div class="lightbox-image-container">
+          <img [src]="galleryImages[selectedImageIndex]" [alt]="structureName + ' image ' + (selectedImageIndex + 1)" class="lightbox-image">
+        </div>
+
+        <button mat-icon-button class="nav-button next-button" (click)="nextImage()" *ngIf="galleryImages.length > 1">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+      <div class="image-counter" *ngIf="galleryImages.length > 1">
+        {{ selectedImageIndex + 1 }} / {{ galleryImages.length }}
+      </div>
+    </div>
+  </div>
+</div>
