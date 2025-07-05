@@ -55,7 +55,6 @@ export class EventBannerComponent implements OnChanges {
     }
   }
 
-  // TODO : INUTILE SI DATEPIPE
   /**
    * Formatte la date et l'heure de l'événement
    */
@@ -69,19 +68,7 @@ export class EventBannerComponent implements OnChanges {
     }
   }
 
-  /**
-   * Charge le nom de la structure organisatrice
-   */
-  // private loadStructureName(): void {
-  //   if (this.event.structureId) {
-  //     this.structureService.getStructureById(this.event.structureId)
-  //       .subscribe(structure => {
-  //         if (structure) {
-  //           this.structureName = structure.name;
-  //         }
-  //       });
-  //   }
-  // }
+
 
   /**
    * Configure les informations de statut en fonction du statut de l'événement

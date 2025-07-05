@@ -451,34 +451,6 @@ export class EventDetailsPanelComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-  // --- Méthodes pour le tableau des participants ---
-  applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
-  }
-
-  exportParticipants(): void {
-    this.snackBar.open('Fonctionnalité d\'exportation bientôt disponible.', 'Fermer', { duration: 3000 });
-  }
-
-  viewParticipantDetails(participant: Participant): void {
-    console.log('Voir détails du participant:', participant);
-    this.snackBar.open(`Affichage des détails pour ${participant.name}. (Simulation)`, 'Fermer', { duration: 2000 });
-  }
-
-  resendConfirmationEmail(participant: Participant): void {
-    console.log('Renvoyer email de confirmation à:', participant.email);
-    this.snackBar.open(`Email de confirmation renvoyé à ${participant.email}. (Simulation)`, 'Fermer', { duration: 3000 });
-  }
-
-  downloadTickets(participant: Participant): void {
-    console.log('Télécharger PDF des billets pour:', participant.orderId);
-    this.snackBar.open(`Téléchargement des billets pour ${participant.orderId}. (Simulation)`, 'Fermer', { duration: 3000 });
-  }
-
   // --- Méthodes pour les outils de communication ---
   openEmailComposer(): void {
     console.log('Ouverture du compositeur d\'email...');
@@ -513,24 +485,4 @@ export class EventDetailsPanelComponent implements OnInit, AfterViewInit, OnDest
     }
   }
 
-  getReservationStatusClass(status: string | undefined): string {
-    if (!status) return 'badge-light-grey';
-    switch (status.toLowerCase().trim()) {
-      case 'confirmée': return 'badge-success-light';
-      case 'en attente de validation': return 'badge-warning-light';
-      case 'modifiée': return 'badge-info-light';
-      case 'annulée par l\'organisateur': return 'badge-danger-light';
-      default: return 'badge-light-grey';
-    }
-  }
-
-  getScanStatusClass(status: string | undefined): string {
-    if (!status) return 'badge-light-grey';
-    switch (status.toLowerCase().trim()) {
-      case 'non scanné': return 'badge-light-grey';
-      case 'scanné': return 'badge-success-light';
-      case 'entrée multiple refusée': return 'badge-danger-light';
-      default: return 'badge-light-grey';
-    }
-  }
 }

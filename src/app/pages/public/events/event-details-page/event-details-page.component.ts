@@ -22,12 +22,9 @@ import { EventBannerComponent } from '../../../../shared/domain/events/event-ban
 import { EventDescriptionSectionComponent } from '../../../../shared/domain/events/event-description-section/event-description-section.component';
 import { EventInfoSectionComponent } from '../../../../shared/domain/events/event-info-section/event-info-section.component';
 import { EventGallerySectionComponent } from '../../../../shared/domain/events/event-gallery-section/event-gallery-section.component';
-import { EventTicketsSectionComponent } from '../../../../shared/domain/events/event-tickets-section/event-tickets-section.component';
 import { EventSocialSectionComponent } from '../../../../shared/domain/events/event-social-section/event-social-section.component';
-import { SimilarEventsSectionComponent } from '../../../../shared/domain/events/similar-events-section/similar-events-section.component';
 import {MatIcon} from '@angular/material/icon';
 import {MatButton} from '@angular/material/button';
-import {tap} from 'rxjs/operators';
 import {EventsCarouselComponent} from '../../../../shared/domain/events/events-carousel/events-carousel.component';
 import {EventCategoryModel} from '../../../../core/models/event/event-category.model';
 

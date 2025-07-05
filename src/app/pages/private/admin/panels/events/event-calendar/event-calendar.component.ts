@@ -279,7 +279,7 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
       // Check if user has permission to edit events
       if (this.canEditEvents) {
         // Rediriger vers la page d'édition de l'événement
-        this.router.navigate(['/admin/events', eventId, 'edit']);
+        this.router.navigate(['/admin/event', eventId, 'edit']);
       } else {
         // Show notification that user doesn't have permission
         // For now, just open the view dialog instead
@@ -288,7 +288,7 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
       return;
     } else if (action === 'View' && eventId) {
       // Rediriger vers la page de détails de l'événement
-      this.router.navigate(['/admin/events/details', eventId]);
+      this.router.navigate(['/admin/event/details', eventId]);
       return;
     }
 

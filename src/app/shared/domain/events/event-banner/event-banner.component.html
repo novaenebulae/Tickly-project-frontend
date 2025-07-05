@@ -21,21 +21,20 @@
 
       <div class="event-info mx-sm-2 mx-md-3 mx-5 ">
         <h1 class="event-title">{{ event.name }}</h1>
-
-        <div class="structure-name" *ngIf="structureName">
+        <div class="structure-name">
           <mat-icon>business</mat-icon>
-          <span>{{ structureName }}</span>
+          <span>{{ this.event.structure.name }}, {{ this.event.address?.city }}</span>
         </div>
 
         <div class="event-datetime">
           <div class="date-info">
             <mat-icon>calendar_today</mat-icon>
-            <span>{{ event.startDate | date }}</span>
+            <span>{{ formattedDate }}</span>
           </div>
 
           <div class="time-info">
             <mat-icon>access_time</mat-icon>
-            <span>{{ event.startDate | date }}</span>
+            <span>{{ formattedTime }}</span>
           </div>
         </div>
       </div>
