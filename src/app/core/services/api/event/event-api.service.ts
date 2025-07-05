@@ -15,6 +15,7 @@ import {APP_CONFIG} from '../../../config/app-config';
 import {EventStatus, EventSummaryModel} from '../../../models/event/event.model';
 import {EventSearchParams} from '../../../models/event/event-search-params.model';
 import {FileUploadResponseDto} from '../../../models/files/file-upload-response.model';
+import {ErrorHandlingService} from '../../error-handling.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,7 @@ import {FileUploadResponseDto} from '../../../models/files/file-upload-response.
 export class EventApiService {
   private apiConfig = inject(ApiConfigService);
   private http = inject(ApiConfigService).http;
+  private errorHandler = inject(ErrorHandlingService);
 
   /**
    * Retrieves a list of events based on search parameters.
@@ -326,9 +328,8 @@ export class EventApiService {
   }
 
   private handleEventError(error: HttpErrorResponse, context: string): Observable<never> {
-    this.apiConfig.logApiError('EVENT-API', context, error);
-    // Default user message, can be overridden by specific status codes
-    let userMessage = 'Une erreur est survenue lors de la communication avec le serveur pour les événements.';
+    // Déterminer le message d'erreur en fonction du statut
+    let userMessage: string;
 
     if (error.status === 404) {
       userMessage = 'Événement non trouvé.';
@@ -336,13 +337,12 @@ export class EventApiService {
       userMessage = 'Vous n\'avez pas les droits nécessaires pour cette action sur l\'événement.';
     } else if (error.status === 400) {
       userMessage = 'Les données fournies pour l\'événement sont invalides.';
+    } else {
+      // Si aucun cas spécifique n'est trouvé, utiliser le message par défaut du service
+      return this.errorHandler.handleHttpError(error, `event-${context}`);
     }
-    // You can add more specific error messages based on error.error.message from backend if available
 
-    return throwError(() => ({
-      status: error.status,
-      message: userMessage, // User-friendly message
-      originalError: error // The original HttpErrorResponse for further debugging
-    }));
+    // Utiliser le service d'erreur avec le message personnalisé
+    return this.errorHandler.handleGeneralError(userMessage, error, `event-${context}`);
   }
 }

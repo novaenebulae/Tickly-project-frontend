@@ -28,6 +28,7 @@ import {UserModel} from '../../../models/user/user.model';
 import {UserProfileUpdateDto} from '../../../models/user/user-profile-update.dto';
 import {FavoriteStructureDto, UserFavoriteStructureModel} from '../../../models/user/user-favorite-structure.model';
 import {catchError, map, tap} from 'rxjs/operators';
+import {ErrorHandlingService} from '../../error-handling.service';
 
 @Injectable({
   providedIn: 'root'
@@ -35,6 +36,7 @@ import {catchError, map, tap} from 'rxjs/operators';
 export class UserApiService {
   private apiConfig = inject(ApiConfigService);
   private http = inject(HttpClient);
+  private errorHandler = inject(ErrorHandlingService);
 
   /**
    * Retrieves the profile of the currently authenticated user.
@@ -67,7 +69,7 @@ export class UserApiService {
         updatedAt: response.updatedAt ? new Date(response.updatedAt) : undefined
       })),
       tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
-      catchError(error => this.handleUserError(error, 'getCurrentUserProfile'))
+      catchError(error => this.errorHandler.handleHttpError(error, 'getCurrentUserProfile'))
     );
   }
 
@@ -85,7 +87,7 @@ export class UserApiService {
     const headers = this.apiConfig.createHeaders();
     return this.http.get<UserModel>(url, { headers }).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
-      catchError(error => this.handleUserError(error, 'getUserProfileById'))
+      catchError(error => this.errorHandler.handleHttpError(error, 'getUserProfileById'))
     );
   }
 
@@ -115,7 +117,7 @@ export class UserApiService {
         updatedAt: response.updatedAt ? new Date(response.updatedAt) : undefined
       })),
       tap(response => this.apiConfig.logApiResponse('PUT', endpointContext, response)),
-      catchError(error => this.handleUserError(error, 'updateCurrentUserProfile'))
+      catchError(error => this.errorHandler.handleHttpError(error, 'updateCurrentUserProfile'))
     );
   }
 
@@ -138,7 +140,7 @@ export class UserApiService {
     this.apiConfig.logApiRequest('POST', url, 'FormData with file');
     return this.http.post<AvatarUploadResponse>(url, formData, { headers }).pipe(
       tap(response => this.apiConfig.logApiResponse('POST', url, response)),
-      catchError(error => this.handleUserError(error, 'uploadAvatar'))
+      catchError(error => this.errorHandler.handleHttpError(error, 'uploadAvatar'))
     );
   }
 
@@ -156,7 +158,7 @@ export class UserApiService {
     const headers = this.apiConfig.createHeaders();
     return this.http.delete<void>(url, { headers }).pipe(
       tap(() => this.apiConfig.logApiResponse('DELETE', endpointContext, 'OK')),
-      catchError(error => this.handleUserError(error, 'requestAccountDeletion'))
+      catchError(error => this.errorHandler.handleHttpError(error, 'requestAccountDeletion'))
     );
   }
 
@@ -186,7 +188,7 @@ export class UserApiService {
     // La réponse attendue est probablement un 200 OK avec un corps vide ou un message.
     return this.http.delete(url, { headers, params, responseType: 'json' }).pipe(
       tap(response => this.apiConfig.logApiResponse('DELETE', endpointContext, response)),
-      catchError(error => this.handleUserError(error, 'confirmAccountDeletion'))
+      catchError(error => this.errorHandler.handleHttpError(error, 'confirmAccountDeletion'))
     );
   }
 
@@ -209,7 +211,7 @@ export class UserApiService {
         addedAt: new Date(fav.addedAt)
       }))),
       tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
-      catchError(error => this.handleUserError(error, 'getUserFavoriteStructures'))
+      catchError(error => this.errorHandler.handleHttpError(error, 'getUserFavoriteStructures'))
     );
   }
 
@@ -233,7 +235,7 @@ export class UserApiService {
         addedAt: new Date(newFavorite.addedAt)
       })),
       tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),
-      catchError(error => this.handleUserError(error, 'addFavoriteStructure'))
+      catchError(error => this.errorHandler.handleHttpError(error, 'addFavoriteStructure'))
     );
   }
 
@@ -253,7 +255,7 @@ export class UserApiService {
 
     return this.http.delete<void>(url, { headers }).pipe(
       tap(() => this.apiConfig.logApiResponse('DELETE', endpointContext, { status: 'Success' })),
-      catchError(error => this.handleUserError(error, 'removeFavoriteStructure'))
+      catchError(error => this.errorHandler.handleHttpError(error, 'removeFavoriteStructure'))
     );
   }
 
@@ -265,11 +267,7 @@ export class UserApiService {
   isStructureFavorite(structureId: number): Observable<boolean> {
     // Validation du paramètre
     if (!structureId || structureId <= 0) {
-      return throwError(() => ({
-        status: 400,
-        message: 'ID de structure invalide',
-        originalError: null
-      }));
+      return this.errorHandler.handleGeneralError('ID de structure invalide', null, 'isStructureFavorite');
     }
 
     const endpointContext = `users/favorites/${structureId}/exists`;
@@ -281,68 +279,12 @@ export class UserApiService {
 
     return this.http.get<{ isFavorite: boolean }>(url, { headers }).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
-      catchError(error => this.handleUserError(error, 'isStructureFavorite')),
+      catchError(error => this.errorHandler.handleHttpError(error, 'isStructureFavorite')),
       map(response => response?.isFavorite ?? false)
     );
   }
 
 
 
-  /**
-   * Handles errors from User API calls.
-   * @param error - The HttpErrorResponse received from the HTTP client.
-   * @param context - A string describing the operation during which the error occurred.
-   * @returns An Observable that emits a custom error object.
-   */
-  private handleUserError(error: HttpErrorResponse, context: string): Observable<never> {
-    this.apiConfig.logApiError('USER-API', context, error);
-
-    let userMessage = "Une erreur est survenue lors de l'opération sur l'utilisateur.";
-
-    // Extraire le message d'erreur du backend avec plusieurs chemins possibles
-    const backendMessage = error.error?.message ||
-      error.error?.error ||
-      error.message;
-
-    if (backendMessage && typeof backendMessage === 'string' && backendMessage.trim()) {
-      userMessage = backendMessage;
-    } else {
-      // Messages par défaut selon le statut HTTP
-      switch (error.status) {
-        case 400:
-          userMessage = "Les données fournies pour l'utilisateur sont incorrectes.";
-          break;
-        case 401:
-          userMessage = "Vous devez être connecté pour effectuer cette action.";
-          break;
-        case 403:
-          userMessage = "Vous n'êtes pas autorisé à effectuer cette action.";
-          break;
-        case 404:
-          userMessage = "Utilisateur non trouvé.";
-          break;
-        case 409:
-          userMessage = "Un conflit de données est survenu (ex: email déjà utilisé).";
-          break;
-        case 422:
-          userMessage = "Les données fournies ne sont pas valides.";
-          break;
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          userMessage = "Erreur serveur. Veuillez réessayer plus tard.";
-          break;
-        default:
-          userMessage = `Erreur ${error.status}: ${error.statusText || 'Erreur inconnue'}`;
-      }
-    }
-
-    return throwError(() => ({
-      status: error.status,
-      message: userMessage,
-      originalError: error
-    }));
-  }
 
 }

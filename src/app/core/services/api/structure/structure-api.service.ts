@@ -17,6 +17,7 @@ import {StructureCreationResponseDto} from '../../../models/structure/structure.
 import {StructureSearchParams} from '../../../models/structure/structure-search-params.model';
 import {FileUploadResponseDto} from '../../../models/files/file-upload-response.model';
 import {StructureAreaModel} from '../../../models/structure/structure-area.model';
+import {ErrorHandlingService} from '../../error-handling.service';
 
 
 @Injectable({
@@ -25,6 +26,7 @@ import {StructureAreaModel} from '../../../models/structure/structure-area.model
 export class StructureApiService {
   private apiConfig = inject(ApiConfigService);
   private http = inject(ApiConfigService).http;
+  private errorHandler = inject(ErrorHandlingService);
 
   /**
    * Retrieves structures based on search parameters.
@@ -385,12 +387,14 @@ export class StructureApiService {
 
   /**
    * Handles errors from structure API calls.
+   * Uses the centralized ErrorHandlingService to provide consistent error handling.
    * @param error - The HttpErrorResponse.
    * @param context - A string describing the context of the error.
    */
   private handleStructureError(error: HttpErrorResponse, context: string): Observable<never> {
-    this.apiConfig.logApiError('STRUCTURE-API', context, error);
-    let userMessage = 'Une erreur est survenue concernant les structures.'; // Message en français
+    // Déterminer le message d'erreur en fonction du statut
+    let userMessage: string;
+
     if (error.status === 404) {
       userMessage = 'Structure ou ressource associée non trouvée.';
     } else if (error.status === 403) {
@@ -399,11 +403,12 @@ export class StructureApiService {
       userMessage = 'Données de structure invalides.';
     } else if (error.status === 409) {
       userMessage = error.error?.message || 'Un conflit est survenu (ex: nom déjà utilisé).';
+    } else {
+      // Si aucun cas spécifique n'est trouvé, utiliser le message par défaut du service
+      return this.errorHandler.handleHttpError(error, `structure-${context}`);
     }
-    return throwError(() => ({
-      status: error.status,
-      message: userMessage,
-      originalError: error
-    }));
+
+    // Utiliser le service d'erreur avec le message personnalisé
+    return this.errorHandler.handleGeneralError(userMessage, error, `structure-${context}`);
   }
 }

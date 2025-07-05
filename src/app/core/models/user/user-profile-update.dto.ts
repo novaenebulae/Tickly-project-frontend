@@ -8,7 +8,7 @@
 
 /**
  * Data Transfer Object for updating a user's profile.
- * Conforme au endpoint PUT /api/v1/users/me
+ * Conforms to the PUT /api/v1/users/me endpoint.
  */
 export interface UserProfileUpdateDto {
   /**
@@ -26,6 +26,6 @@ export interface UserProfileUpdateDto {
    */
   email?: string;
 
-  // L'avatarUrl est géré par un endpoint spécifique (/api/v1/users/me/avatar)
+  // The avatarUrl is managed by a specific endpoint (/api/v1/users/me/avatar)
 
 }

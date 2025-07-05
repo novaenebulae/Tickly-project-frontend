@@ -21,6 +21,7 @@ import {
 import {UserModel} from '../../../models/user/user.model'; // For search results
 import {FriendParticipantDto} from '../../../models/friendship/friend-participant.dto';
 import {FriendsData} from '../../domain/user/friendship.service';
+import {ErrorHandlingService} from '../../error-handling.service';
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +29,7 @@ import {FriendsData} from '../../domain/user/friendship.service';
 export class FriendshipApiService {
   private apiConfig = inject(ApiConfigService);
   private http = inject(ApiConfigService).http;
+  private errorHandler = inject(ErrorHandlingService);
 
   /**
    * Retrieves all friends data (friends, pending requests, sent requests) in a single call.
@@ -137,24 +139,28 @@ export class FriendshipApiService {
 
   /**
    * Handles errors from friendship API calls.
+   * Uses the centralized ErrorHandlingService to provide consistent error handling.
    * @param error - The HttpErrorResponse.
    * @param context - A string describing the context of the error.
    */
    handleFriendshipError(error: HttpErrorResponse, context: string): Observable<never> {
-    this.apiConfig.logApiError('FRIENDSHIP-API', context, error);
-    // if (error.status === 404) {
-    //   userMessage = 'Utilisateur ou relation non trouvé(e).';
-    // } else if (error.status === 403) {
-    //   userMessage = 'Action non autorisée.';
-    // } else if (error.status === 400) {
-    //   userMessage = 'Données invalides pour la requête d\'amitié.';
-    // } else if (error.status === 409) {
-    //   userMessage = error.error?.message || 'Cette relation existe déjà ou est en conflit avec un état existant.';
-    // }
-    return throwError(() => ({
-      status: error.status,
-      message: error.error.message,
-      originalError: error
-    }));
+    // Déterminer le message d'erreur en fonction du statut
+    let userMessage: string;
+
+    if (error.status === 404) {
+      userMessage = 'Utilisateur ou relation non trouvé(e).';
+    } else if (error.status === 403) {
+      userMessage = 'Action non autorisée.';
+    } else if (error.status === 400) {
+      userMessage = 'Données invalides pour la requête d\'amitié.';
+    } else if (error.status === 409) {
+      userMessage = error.error?.message || 'Cette relation existe déjà ou est en conflit avec un état existant.';
+    } else {
+      // Si aucun cas spécifique n'est trouvé, utiliser le message par défaut du service
+      return this.errorHandler.handleHttpError(error, `friendship-${context}`);
+    }
+
+    // Utiliser le service d'erreur avec le message personnalisé
+    return this.errorHandler.handleGeneralError(userMessage, error, `friendship-${context}`);
   }
 }

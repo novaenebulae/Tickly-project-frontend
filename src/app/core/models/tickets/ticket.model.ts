@@ -8,27 +8,76 @@ import {TicketStatus} from './ticket-status.enum';
 import {ParticipantInfoModel} from './participant-info.model';
 
 /**
- * Event snapshot as received from the API
+ * Event snapshot as received from the API.
+ * Contains essential event information that is stored with the ticket.
  */
 export interface EventSnapshotModel {
+  /**
+   * The unique identifier of the event.
+   */
   eventId: number;
+
+  /**
+   * The name or title of the event.
+   */
   name: string;
+
+  /**
+   * The start date and time of the event as an ISO string.
+   */
   startDate: string; // ISO string from API
+
+  /**
+   * The physical address where the event takes place.
+   */
   address: {
+    /**
+     * The street name and number.
+     */
     street: string;
+
+    /**
+     * The city of the address.
+     */
     city: string;
+
+    /**
+     * The postal code or zip code.
+     */
     zipCode: string;
+
+    /**
+     * The country of the address.
+     */
     country: string;
   };
+
+  /**
+   * URL of the main promotional photo or poster for the event.
+   */
   mainPhotoUrl?: string;
 }
 
 /**
- * Audience zone snapshot as received from the API
+ * Audience zone snapshot as received from the API.
+ * Contains essential information about the audience zone that is stored with the ticket.
  */
 export interface AudienceZoneSnapshotModel {
+  /**
+   * The unique identifier of the audience zone.
+   */
   audienceZoneId: number;
+
+  /**
+   * The name of the audience zone.
+   * @example "Fosse Or", "Balcon Rangée A", "Zone Debout Scène Gauche"
+   */
   name: string;
+
+  /**
+   * The type of seating or placement offered in this zone.
+   * @example "SEATED", "STANDING", "MIXED"
+   */
   seatingType: string;
 }
 

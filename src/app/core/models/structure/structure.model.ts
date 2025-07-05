@@ -69,6 +69,9 @@ export interface StructureModel {
    */
   coverUrl?: string;
 
+  /**
+   * Array of URLs to images in the structure's gallery.
+   */
   galleryImageUrls?: string[];
 
   /**
@@ -99,18 +102,55 @@ export interface StructureModel {
  * Data Transfer Object for creating a new Structure.
  */
 export interface StructureCreationDto {
+  /**
+   * The name of the structure.
+   * @example "Grand Théâtre de la Ville"
+   */
   name: string;
+
   /**
    * Array of IDs for the structure types.
    */
   typeIds: number[];
+
+  /**
+   * A detailed description of the structure.
+   */
   description?: string;
+
+  /**
+   * The physical address of the structure.
+   */
   address: StructureAddressModel;
+
+  /**
+   * Contact phone number for the structure.
+   */
   phone?: string;
+
+  /**
+   * Contact email address for the structure.
+   */
   email?: string;
+
+  /**
+   * URL of the structure's official website.
+   */
   websiteUrl?: string;
+
+  /**
+   * Array of URLs to the structure's social media profiles.
+   */
   socialsUrl?: string[];
+
+  /**
+   * URL to the structure's logo image.
+   */
   logoUrl?: string;
+
+  /**
+   * URL to a cover image for the structure.
+   */
   coverUrl?: string;
 }
 
@@ -135,15 +175,36 @@ export interface StructureCreationResponseDto {
    */
   accessToken: string;
 
+  /**
+   * The number of seconds until the token expires.
+   */
   expiresIn: number;
 
 }
 
 /**
  * Data Transfer Object for updating an existing Structure.
- * All properties are optional for partial updates.
+ * All properties are optional for partial updates, allowing for targeted updates of specific fields.
  * 'id' is typically provided via URL parameter and not in the body.
+ *
+ * This type extends Partial<Omit<StructureCreationDto, 'typeIds'>> to make all properties from StructureCreationDto
+ * optional except 'typeIds', which is handled separately to allow it to be optional for updates.
+ *
+ * Properties inherited from StructureCreationDto:
+ * - name: The name of the structure
+ * - description: A detailed description of the structure
+ * - address: The physical address of the structure
+ * - phone: Contact phone number for the structure
+ * - email: Contact email address for the structure
+ * - websiteUrl: URL of the structure's official website
+ * - socialsUrl: Array of URLs to the structure's social media profiles
+ * - logoUrl: URL to the structure's logo image
+ * - coverUrl: URL to a cover image for the structure
  */
-export type StructureUpdateDto = Partial<Omit<StructureCreationDto, 'typeIds'>> & { typeIds?: number[] };
-// For update, typeIds might be optional if not changing types.
-// Omit 'id' and other non-updatable fields like createdAt, eventsCount, importance from the DTO if they are never sent.
+export type StructureUpdateDto = Partial<Omit<StructureCreationDto, 'typeIds'>> & {
+  /**
+   * Optional array of IDs for the structure types.
+   * Only needs to be included if updating the structure's types.
+   */
+  typeIds?: number[]
+};

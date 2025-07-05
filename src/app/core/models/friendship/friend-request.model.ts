@@ -9,9 +9,24 @@
  * matching the data sent by the API.
  */
 export interface FriendRequestParticipant {
+  /**
+   * The unique identifier of the user.
+   */
   id: number;
+
+  /**
+   * The first name of the user.
+   */
   firstName: string;
+
+  /**
+   * The last name of the user.
+   */
   lastName: string;
+
+  /**
+   * URL to the user's avatar image. Optional.
+   */
   avatarUrl?: string;
 }
 

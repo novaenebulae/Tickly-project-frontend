@@ -1,34 +1,34 @@
 /**
- * @file Modèle pour la réponse d'acceptation d'invitation d'équipe.
+ * @file Model for the team invitation acceptance response.
  * @licence Proprietary
  */
 
 /**
- * Réponse de l'API lors de l'acceptation d'une invitation d'équipe.
+ * API response when accepting a team invitation.
  */
 export interface TeamInvitationAcceptanceResponseDto {
   /**
-   * Le nouveau token JWT avec les informations mises à jour.
+   * The new JWT token with updated information.
    */
   accessToken: string;
 
   /**
-   * Durée de validité du token en millisecondes.
+   * Token validity duration in milliseconds.
    */
   expiresIn: number;
 
   /**
-   * ID de la structure à laquelle l'utilisateur a été ajouté.
+   * ID of the structure to which the user has been added.
    */
   structureId: number;
 
   /**
-   * Nom de la structure.
+   * Name of the structure.
    */
   structureName: string;
 
   /**
-   * Message de confirmation.
+   * Confirmation message.
    */
   message: string;
 }

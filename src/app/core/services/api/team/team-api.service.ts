@@ -7,6 +7,7 @@ import {catchError, tap} from 'rxjs/operators';
 import {HttpErrorResponse} from '@angular/common/http';
 import {UserRole} from '../../../models/user/user-role.enum';
 import {TeamInvitationAcceptanceResponseDto} from '../../../models/user/team-invitation-acceptance-response.dto';
+import {ErrorHandlingService} from '../../error-handling.service';
 
 
 @Injectable({
@@ -15,6 +16,7 @@ import {TeamInvitationAcceptanceResponseDto} from '../../../models/user/team-inv
 export class TeamApiService {
   private apiConfig = inject(ApiConfigService);
   private http = inject(ApiConfigService).http;
+  private errorHandler = inject(ErrorHandlingService);
 
   /**
    * Récupère les membres d'équipe d'une structure.
@@ -139,57 +141,32 @@ export class TeamApiService {
 
   /**
    * Gère les erreurs des appels API Team.
+   * Uses the centralized ErrorHandlingService to provide consistent error handling.
    * @param error - La HttpErrorResponse reçue du client HTTP.
    * @param context - Une chaîne décrivant l'opération durant laquelle l'erreur s'est produite.
    * @returns Un Observable qui émet un objet d'erreur personnalisé.
    */
   private handleTeamError(error: HttpErrorResponse, context: string): Observable<never> {
-    this.apiConfig.logApiError('TEAM-API', context, error);
+    // Déterminer le message d'erreur en fonction du statut
+    let userMessage: string;
 
-    let userMessage = 'Une erreur est survenue lors de l\'opération sur l\'équipe.'; // Message par défaut
-
-    const backendMessage = error.error?.message ||
-      error.error?.error ||
-      error.message;
-
-    if (backendMessage && typeof backendMessage === 'string' && backendMessage.trim()) {
-      userMessage = backendMessage;
+    if (error.status === 404) {
+      userMessage = 'Membre ou équipe non trouvé(e).';
+    } else if (error.status === 403) {
+      userMessage = 'Vous n\'avez pas les permissions nécessaires pour cette opération.';
+    } else if (error.status === 400) {
+      userMessage = 'Données invalides pour cette opération.';
+    } else if (error.status === 409) {
+      userMessage = 'Conflit : cette opération ne peut pas être effectuée.';
+    } else if (error.status === 422) {
+      userMessage = 'Les données fournies ne sont pas valides.';
     } else {
-      switch (error.status) {
-        case 400:
-          userMessage = 'Données invalides pour cette opération.';
-          break;
-        case 401:
-          userMessage = 'Vous n\'êtes pas autorisé à effectuer cette opération.';
-          break;
-        case 403:
-          userMessage = 'Vous n\'avez pas les permissions nécessaires pour cette opération.';
-          break;
-        case 404:
-          userMessage = 'Membre ou équipe non trouvé(e).';
-          break;
-        case 409:
-          userMessage = 'Conflit : cette opération ne peut pas être effectuée.';
-          break;
-        case 422:
-          userMessage = 'Les données fournies ne sont pas valides.';
-          break;
-        case 500:
-        case 502:
-        case 503:
-        case 504:
-          userMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
-          break;
-        default:
-          userMessage = `Erreur ${error.status}: ${error.statusText || 'Erreur inconnue'}`;
-      }
+      // Si aucun cas spécifique n'est trouvé, utiliser le message par défaut du service
+      return this.errorHandler.handleHttpError(error, `team-${context}`);
     }
 
-    return throwError(() => ({
-      status: error.status,
-      message: userMessage,
-      originalError: error
-    }));
+    // Utiliser le service d'erreur avec le message personnalisé
+    return this.errorHandler.handleGeneralError(userMessage, error, `team-${context}`);
   }
 
 }

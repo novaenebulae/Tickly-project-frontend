@@ -50,9 +50,25 @@ export interface StructureAreaModel {
  * 'structureId' will be provided contextually (e.g., from the URL parameter).
  */
 export type AreaCreationDto = {
+  /**
+   * The name of the area.
+   * @example "Main Stage", "Exhibition Hall A", "Room 101"
+   */
   name: string;
+
+  /**
+   * Optional description of the area.
+   */
   description?: string;
+
+  /**
+   * The maximum capacity of this area.
+   */
   maxCapacity: number;
+
+  /**
+   * Indicates if the area is currently active and available for use.
+   */
   isActive: boolean;
 };
 
@@ -60,5 +76,12 @@ export type AreaCreationDto = {
  * Data Transfer Object for updating an existing Area.
  * All properties are optional for partial updates.
  * 'id' and 'structureId' are typically not updatable or provided via URL.
+ *
+ * This type uses Partial<AreaCreationDto> to make all properties optional.
+ * The properties have the same meaning as in AreaCreationDto:
+ * - name: The name of the area
+ * - description: Optional description of the area
+ * - maxCapacity: The maximum capacity of this area
+ * - isActive: Indicates if the area is currently active and available for use
  */
 export type AreaUpdateDto = Partial<AreaCreationDto>;

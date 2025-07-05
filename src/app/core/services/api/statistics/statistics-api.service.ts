@@ -11,6 +11,7 @@ import {ApiConfigService} from '../api-config.service';
 import {StructureDashboardStatsDto} from '../../../models/statistics/structure-dashboard-stats.model';
 import {EventStatisticsDto} from '../../../models/statistics/event-statistics.model';
 import {APP_CONFIG} from '../../../config/app-config'; // Adjusted path
+import {ErrorHandlingService} from '../../error-handling.service';
 
 /**
  * Service for API communication with statistics endpoints.
@@ -21,6 +22,7 @@ import {APP_CONFIG} from '../../../config/app-config'; // Adjusted path
 })
 export class StatisticsApiService {
   private apiConfig = inject(ApiConfigService);
+  private errorHandler = inject(ErrorHandlingService);
 
   /**
    * Fetches dashboard statistics for a specific structure.
@@ -42,10 +44,7 @@ export class StatisticsApiService {
       { headers: this.apiConfig.createHeaders() }
     ).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', url, response)),
-      catchError(error => {
-        this.apiConfig.logApiError('GET', url, error);
-        throw error;
-      })
+      catchError(error => this.errorHandler.handleHttpError(error, 'getStructureDashboardStats'))
     );
   }
 
@@ -70,10 +69,7 @@ export class StatisticsApiService {
       { headers: this.apiConfig.createHeaders() }
     ).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', url, response)),
-      catchError(error => {
-        this.apiConfig.logApiError('GET', url, error);
-        throw error;
-      })
+      catchError(error => this.errorHandler.handleHttpError(error, 'getEventStatistics'))
     );
   }
 

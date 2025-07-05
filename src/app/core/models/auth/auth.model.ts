@@ -45,12 +45,24 @@ export interface AuthResponseDto {
    */
   accessToken?: string;
 
+  /**
+   * The number of seconds until the token expires.
+   */
   expiresIn: number;
 
+  /**
+   * The first name of the authenticated user.
+   */
   firstName: string;
 
+  /**
+   * The last name of the authenticated user.
+   */
   lastName: string;
 
+  /**
+   * The email address of the authenticated user.
+   */
   email: string;
 
   /**

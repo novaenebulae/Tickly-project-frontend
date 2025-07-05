@@ -14,6 +14,7 @@ import {catchError, tap} from 'rxjs/operators';
 
 import {ApiConfigService} from '../api-config.service';
 import {APP_CONFIG} from '../../../config/app-config';
+import {ErrorHandlingService} from '../../error-handling.service';
 
 import {ReservationConfirmationModel, ReservationRequestDto} from '../../../models/tickets/reservation.model';
 import {TicketModel} from '../../../models/tickets/ticket.model';
@@ -24,6 +25,7 @@ import {TicketModel} from '../../../models/tickets/ticket.model';
 export class TicketApiService {
   private apiConfig = inject(ApiConfigService);
   private http = inject(ApiConfigService).http;
+  private errorHandler = inject(ErrorHandlingService);
 
   /**
    * Creates a new reservation and issues tickets.
@@ -119,12 +121,13 @@ export class TicketApiService {
 
   /**
    * Handles errors from Ticketing API calls.
+   * Uses the centralized ErrorHandlingService to provide consistent error handling.
    * @param error - The HttpErrorResponse.
    * @param context - A string describing the context of the error.
    */
   private handleTicketingError(error: HttpErrorResponse, context: string): Observable<never> {
-    this.apiConfig.logApiError('TICKETING-API', context, error);
-    let userMessage = 'Une erreur est survenue avec le service de billetterie.'; // Message en français
+    // Déterminer le message d'erreur en fonction du statut
+    let userMessage: string;
 
     if (error.status === 404) {
       userMessage = 'Billet ou réservation non trouvé(e).';
@@ -134,11 +137,12 @@ export class TicketApiService {
       userMessage = 'Données de réservation ou de billet invalides.';
     } else if (error.status === 409) { // Conflict, e.g., ticket already used, no capacity
       userMessage = error.error?.message || 'Conflit lors de l\'opération de billetterie (ex: plus de places disponibles, billet déjà utilisé).';
+    } else {
+      // Si aucun cas spécifique n'est trouvé, utiliser le message par défaut du service
+      return this.errorHandler.handleHttpError(error, `ticket-${context}`);
     }
-    return throwError(() => ({
-      status: error.status,
-      message: userMessage,
-      originalError: error
-    }));
+
+    // Utiliser le service d'erreur avec le message personnalisé
+    return this.errorHandler.handleGeneralError(userMessage, error, `ticket-${context}`);
   }
 }

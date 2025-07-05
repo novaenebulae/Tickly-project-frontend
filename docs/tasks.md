@@ -4,13 +4,13 @@ API documentation : 'docs/api-documentation.md'
 
 ## Code Quality and Consistency
 
-1. [ ] **Standardize Error Handling**
-   - [ ] Implement a global error handling service that centralizes error processing
-   - [ ] Create consistent error messages and user notifications
-   - [ ] Remove logging for production environment
+1. [x] **Standardize Error Handling**
+   - [x] Implement a global error handling service that centralizes error processing
+   - [x] Create consistent error messages and user notifications
+   - [x] Remove logging for production environment
 
-2. [ ] **TypeScript Model Consistency**
-   - [ ] Add comprehensive JSDoc comments to all model interfaces
+2. [x] **TypeScript Model Consistency**
+   - [x] Add comprehensive JSDoc comments to all model interfaces
 
 3. [ ] **Component Lifecycle Management**
    - [ ] Ensure proper subscription cleanup in all components
@@ -58,6 +58,7 @@ API documentation : 'docs/api-documentation.md'
     - [ ] Implement consistent spacing and layout patterns
     - Note : A full Material Theme is located in 'src/styles/_theme.scss'
     - The goal is to have a consistent and uniformized design of the app.
+    - WARNING :  darken() and lighten are deprecated.
 
 IMPORTANT : Here are some guidelines of how the style should be : 'docs/design-guidelines.md'
 
@@ -84,5 +85,3 @@ IMPORTANT : Here are some guidelines of how the style should be : 'docs/design-g
 
 16. [ ] **Security Enhancements**
     - [ ] Implement Content Security Policy
-
-

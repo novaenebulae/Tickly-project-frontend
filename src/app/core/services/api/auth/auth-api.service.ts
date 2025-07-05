@@ -15,6 +15,7 @@ import {APP_CONFIG} from '../../../config/app-config';
 import {AuthResponseDto, LoginCredentials} from '../../../models/auth/auth.model';
 import {UserRegistrationDto} from '../../../models/user/user.model';
 import {NotificationService} from '../../domain/utilities/notification.service';
+import {ErrorHandlingService} from '../../error-handling.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +25,7 @@ export class AuthApiService {
   private apiConfig = inject(ApiConfigService);
   private http = inject(HttpClient); // Direct access to HttpClient for more control
   private notificationService = inject(NotificationService);
+  private errorHandler = inject(ErrorHandlingService);
 
   /**
    * Envoie une requête pour réinitialiser le mot de passe
@@ -155,13 +157,10 @@ export class AuthApiService {
 
   /**
    * Gère de façon centralisée les erreurs liées à l'authentification.
-   * Cette méthode:
-   * 1. Génère un message d'erreur adapté au contexte et au code HTTP
-   * 2. Affiche une notification à l'utilisateur via le service de notification
-   * 3. Retourne un Observable d'erreur contenant des informations structurées
-   *
-   * Note importante: Les composants utilisant cette méthode n'ont pas besoin de réafficher
-   * le message d'erreur via le service de notification, car c'est déjà fait ici.
+   * Cette méthode utilise le service ErrorHandlingService pour:
+   * 1. Générer un message d'erreur adapté au contexte et au code HTTP
+   * 2. Afficher une notification à l'utilisateur
+   * 3. Retourner un Observable d'erreur contenant des informations structurées
    *
    * @param error - La réponse HTTP d'erreur
    * @param context - Le contexte dans lequel l'erreur s'est produite ('login', 'register', etc.)
@@ -171,9 +170,9 @@ export class AuthApiService {
     error: HttpErrorResponse,
     context: 'login' | 'register' | 'refresh' | 'validate' | 'forgot-password' | 'reset-password'
   ): Observable<never> {
-    this.apiConfig.logApiError('AUTH-API', context, error);
-
+    // Déterminer le message d'erreur en fonction du contexte et du code d'erreur
     let userMessage: string;
+
     if (error.status === 404 && context === 'login') {
       userMessage = 'Échec de la connexion. Utilisateur non trouvé';
     } else if (error.status === 401 && context === 'login') {
@@ -205,15 +204,11 @@ export class AuthApiService {
         error.error?.message ||
         'Échec de l\'inscription. Veuillez réessayer.';
     } else {
-      userMessage =
-        'Une erreur inattendue s\'est produite, merci de réessayer plus tard';
+      // Si aucun cas spécifique n'est trouvé, utiliser le message par défaut du service
+      return this.errorHandler.handleHttpError(error, `auth-${context}`);
     }
 
-    this.notificationService.displayNotification(userMessage, 'error');
-    return throwError(() => ({
-      status: error.status,
-      message: userMessage, // User-friendly message
-      originalError: error // The original HttpErrorResponse for debugging
-    }));
+    // Utiliser le service d'erreur avec le message personnalisé
+    return this.errorHandler.handleGeneralError(userMessage, error, `auth-${context}`);
   }
 }

@@ -50,7 +50,10 @@ export interface UserModel {
    */
   avatarUrl?: string;
 
-  favoriteStructureIds?: number[]; // IDs des structures favorites
+  /**
+   * Array of IDs of structures that the user has marked as favorites.
+   */
+  favoriteStructureIds?: number[];
 }
 
 /**
