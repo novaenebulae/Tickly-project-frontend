@@ -5,16 +5,16 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject } from '@angular/core';
-import { HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap, map } from 'rxjs/operators';
+import {inject, Injectable} from '@angular/core';
+import {HttpErrorResponse, HttpParams} from '@angular/common/http';
+import {Observable, throwError} from 'rxjs';
+import {catchError, map, tap} from 'rxjs/operators';
 
-import { ApiConfigService } from '../api-config.service';
-import { APP_CONFIG } from '../../../config/app-config';
-import {EventModel, EventStatus, EventSummaryModel} from '../../../models/event/event.model';
-import { EventSearchParams } from '../../../models/event/event-search-params.model';
-import { FileUploadResponseDto } from '../../../models/files/file-upload-response.model';
+import {ApiConfigService} from '../api-config.service';
+import {APP_CONFIG} from '../../../config/app-config';
+import {EventStatus, EventSummaryModel} from '../../../models/event/event.model';
+import {EventSearchParams} from '../../../models/event/event-search-params.model';
+import {FileUploadResponseDto} from '../../../models/files/file-upload-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -153,22 +153,6 @@ export class EventApiService {
       tap(response => this.apiConfig.logApiResponse('PATCH', `update-event-status/${id}`, response)),
       catchError(error => this.handleEventError(error, 'updateEventStatus'))
     );
-  }
-
-  /**
-   * Retrieves events to be displayed on the homepage.
-   * @param count - The number of events to retrieve.
-   */
-  getHomePageEvents(count: number = APP_CONFIG.events.defaultHomeCount): Observable<any[]> {
-    const params: EventSearchParams = {
-      displayOnHomepage: true,
-      status: EventStatus.PUBLISHED,
-      sortBy: 'startDate',
-      sortDirection: 'asc',
-      pageSize: count,
-      page: 0
-    };
-    return this.getEvents(params); // Delegates to the main getEvents method
   }
 
   /**

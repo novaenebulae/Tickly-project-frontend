@@ -1,11 +1,11 @@
 import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import {CommonModule, CurrencyPipe, DatePipe, SlicePipe} from '@angular/common';
+import {CommonModule, DatePipe} from '@angular/common';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatRippleModule} from '@angular/material/core';
 
-import {EventModel, EventSummaryModel} from '../../../../core/models/event/event.model';
+import {EventSummaryModel} from '../../../../core/models/event/event.model';
 
 @Component({
   selector: 'app-event-card',

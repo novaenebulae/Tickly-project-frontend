@@ -1,28 +1,36 @@
 // src/app/pages/public/event-details-page/event-details-page.component.ts
 
-import {Component, OnInit, OnDestroy, inject, signal, AfterViewInit} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Observable, Subject, catchError, finalize, of, takeUntil } from 'rxjs';
-import { Title } from '@angular/platform-browser';
+import {Component, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {catchError, finalize, of, Subject, takeUntil} from 'rxjs';
+import {Title} from '@angular/platform-browser';
 
 // Services
-import { EventService } from '../../../../core/services/domain/event/event.service';
-import { StructureService } from '../../../../core/services/domain/structure/structure.service';
-import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
-import { AuthService } from '../../../../core/services/domain/user/auth.service';
+import {EventService} from '../../../../core/services/domain/event/event.service';
+import {StructureService} from '../../../../core/services/domain/structure/structure.service';
+import {NotificationService} from '../../../../core/services/domain/utilities/notification.service';
+import {AuthService} from '../../../../core/services/domain/user/auth.service';
 
 // Models
 import {EventModel, EventSummaryModel} from '../../../../core/models/event/event.model';
-import { StructureModel } from '../../../../core/models/structure/structure.model';
+import {StructureModel} from '../../../../core/models/structure/structure.model';
 
 // Components
-import { EventBannerComponent } from '../../../../shared/domain/events/event-banner/event-banner.component';
-import { EventDescriptionSectionComponent } from '../../../../shared/domain/events/event-description-section/event-description-section.component';
-import { EventInfoSectionComponent } from '../../../../shared/domain/events/event-info-section/event-info-section.component';
-import { EventGallerySectionComponent } from '../../../../shared/domain/events/event-gallery-section/event-gallery-section.component';
-import { EventSocialSectionComponent } from '../../../../shared/domain/events/event-social-section/event-social-section.component';
+import {EventBannerComponent} from '../../../../shared/domain/events/event-banner/event-banner.component';
+import {
+  EventDescriptionSectionComponent
+} from '../../../../shared/domain/events/event-description-section/event-description-section.component';
+import {
+  EventInfoSectionComponent
+} from '../../../../shared/domain/events/event-info-section/event-info-section.component';
+import {
+  EventGallerySectionComponent
+} from '../../../../shared/domain/events/event-gallery-section/event-gallery-section.component';
+import {
+  EventSocialSectionComponent
+} from '../../../../shared/domain/events/event-social-section/event-social-section.component';
 import {MatIcon} from '@angular/material/icon';
 import {MatButton} from '@angular/material/button';
 import {EventsCarouselComponent} from '../../../../shared/domain/events/events-carousel/events-carousel.component';
@@ -87,10 +95,6 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ngAfterViewInit(){
-  //   setTimeout(() => window.scrollTo(0, 0), 500);
-  // }
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -106,11 +110,6 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
     // Récupérer les détails de l'événement
     this.eventService.getEventById(eventId)
       .pipe(
-        // tap(eventData => {
-        //   console.log('Données reçues dans le composant parent:', eventData);
-        //   console.log('Areas dans le composant parent:', eventData?.areas);
-        //
-        // }),
         takeUntil(this.destroy$),
         finalize(() => {
           this.isLoading = false;

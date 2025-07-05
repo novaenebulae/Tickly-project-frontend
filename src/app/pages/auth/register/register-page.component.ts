@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {
   AbstractControl,
   FormBuilder,
@@ -8,24 +8,22 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterModule } from '@angular/router';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {Router, RouterModule} from '@angular/router';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 // Services
-import { AuthService } from '../../../core/services/domain/user/auth.service';
-import { StructureService } from '../../../core/services/domain/structure/structure.service';
+import {AuthService} from '../../../core/services/domain/user/auth.service';
 
 // Models
-import { UserRegistrationDto } from '../../../core/models/user/user.model';
-import {NotificationService} from '../../../core/services/domain/utilities/notification.service';
+import {UserRegistrationDto} from '../../../core/models/user/user.model';
 
 @Component({
   selector: 'app-register-page',
@@ -56,7 +54,6 @@ export class RegisterPageComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
-  private notificationService = inject(NotificationService);
 
   ngOnInit(): void {
     this.initForm();

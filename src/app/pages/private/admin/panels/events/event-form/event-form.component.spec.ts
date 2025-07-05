@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { EventFormComponent } from './event-form.component';
+import {EventFormComponent} from './event-form.component';
 
 describe('EventFormComponent', () => {
   let component: EventFormComponent;

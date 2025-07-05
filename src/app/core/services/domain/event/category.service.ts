@@ -6,13 +6,13 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject, signal, computed, WritableSignal } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { map, tap, catchError, shareReplay } from 'rxjs/operators';
+import {computed, inject, Injectable, signal, WritableSignal} from '@angular/core';
+import {Observable, of} from 'rxjs';
+import {catchError, map, shareReplay, tap} from 'rxjs/operators';
 
-import { EventCategoryModel } from '../../../models/event/event-category.model';
-import { EventApiService } from '../../api/event/event-api.service';
-import { NotificationService } from '../utilities/notification.service'; // Optional, if notifications needed
+import {EventCategoryModel} from '../../../models/event/event-category.model';
+import {EventApiService} from '../../api/event/event-api.service';
+import {NotificationService} from '../utilities/notification.service'; // Optional, if notifications needed
 
 @Injectable({
   providedIn: 'root'
@@ -102,40 +102,4 @@ export class CategoryService {
     return this.loadCategories$;
   }
 
-  /**
-   * Retrieves a specific category by its ID from the cached list.
-   * Does not trigger an API call; assumes categories are already loaded.
-   * @param id - The ID of the category to retrieve.
-   * @returns The `EventCategoryModel` if found, or `undefined`.
-   */
-  getCategoryById(id: number): EventCategoryModel | undefined {
-    // categories() is a signal, so access its value directly.
-    const category = this.categoriesSig().find(cat => cat.id === id);
-    if (category) {
-      return category;
-    }
-    return undefined;
-  }
-
-  /**
-   * Converts a category ID to an `EventCategoryModel`.
-   * If the category is found in the cache, returns the cached model.
-   * Otherwise, creates a default/placeholder model.
-   * This is useful for initializing forms or displays when only an ID is available.
-   * @param categoryId - The ID of the category.
-   * @returns An `EventCategoryModel`.
-   */
-  resolveCategoryFromId(categoryId: number): EventCategoryModel {
-    const category = this.getCategoryById(categoryId);
-    if (category) {
-      return category;
-    }
-    // If the category is not found, create a default/placeholder model
-    // This helps prevent errors if a category ID is stale or invalid.
-    this.notification.displayNotification(`Catégorie avec ID ${categoryId} non trouvée. Utilisation d'un nom par défaut.`, 'warning', undefined, 3000);
-    return {
-      id: categoryId,
-      name: `Catégorie Inconnue #${categoryId}` // Placeholder name in French
-    };
-  }
 }

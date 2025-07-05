@@ -1,5 +1,7 @@
 # Tickly Frontend Improvement Tasks
 
+API documentation : 'docs/api-documentation.md'
+
 ## Code Quality and Consistency
 
 1. [ ] **Standardize Error Handling**
@@ -10,68 +12,56 @@
 2. [ ] **TypeScript Model Consistency**
    - [ ] Add comprehensive JSDoc comments to all model interfaces
 
-3. [ ] **Code Style Enforcement**
-   - [ ] Configure and enforce consistent code formatting with Prettier
-
-4. [ ] **Remove Technical Debt**
-   - [ ] Refactor duplicated code into shared utilities
-
-5. [ ] **Component Lifecycle Management**
+3. [ ] **Component Lifecycle Management**
    - [ ] Ensure proper subscription cleanup in all components
    - [ ] Standardize component initialization patterns
    - [ ] Implement proper loading and error states for async operations
 
 ## Architecture Improvements
 
-6. [ ] **State Management Standardization**
+4. [ ] **State Management Standardization**
    - [ ] Choose Signals as the primary state management approach
    - [ ] Refactor services to use the chosen approach consistently
 
-8. [ ] **Module Organization**
+5. [ ] **Module Organization**
    - [ ] Review and optimize lazy loading strategy for all routes
-
-9. [ ] **Authentication and Authorization**
-   - [ ] Add session timeout handling and refresh token logic
-
-10. [ ] **Shared Component Library**
-    - [ ] Standardize component APIs and input/output patterns
 
 ## Testing Strategy
 
-11. [ ] **Unit Testing Coverage**
+6. [ ] **Unit Testing Coverage**
     - [ ] Increase unit test coverage for services to at least 60%
 
-12. [ ] **Component Testing**
+7. [ ] **Component Testing**
     - [ ] Add tests for all shared components
     - [ ] Ensure proper testing of component lifecycle methods
 
 ## Performance Optimizations
 
-16. [ ] **Rendering Performance**
+8. [ ] **Rendering Performance**
     - [ ] Optimize change detection strategies
     - [ ] Use OnPush change detection where appropriate
 
-18. [ ] **Asset Optimization**
+9. [ ] **Asset Optimization**
     - [ ] Use ngSrc for image display
 
 ## UI/UX Improvements
 
-19. [ ] **Responsive Design**
+10. [ ] **Responsive Design**
     - [ ] Ensure all components work properly on mobile devices
     - [ ] Implement responsive layouts for all pages
     - [ ] Add touch-friendly interactions for mobile users
 
-21. [ ] **UI Consistency**
+11. [ ] **UI Consistency**
     - [ ] Standardize color palette and typography
-    - [ ] Create and use SCSS variables for all styling
+    - [ ] Use SCSS variables for all styling : 
+    - Note Be careful on the use of themes colors, as some components would use secondary instead of primary, etc... Always check for the design to be consistent and coherent
     - [ ] Implement consistent spacing and layout patterns
-    - Note : Create a full Material Theme if possible, or use global variables instead.
+    - Note : A full Material Theme is located in 'src/styles/_theme.scss'
     - The goal is to have a consistent and uniformized design of the app.
 
-IMPORTANT : Here are some guidelines of how the style should be : 
+IMPORTANT : Here are some guidelines of how the style should be : 'docs/design-guidelines.md'
 
-
-22. [ ] **User Experience Enhancements**
+12. [ ] **User Experience Enhancements**
     - [ ] Add loading indicators for all async operations
     - [ ] Implement proper form validation feedback
     - [ ] Enhance error messages with actionable information
@@ -79,20 +69,20 @@ IMPORTANT : Here are some guidelines of how the style should be :
 
 ## Documentation
 
-23. [ ] **Code Documentation**
+13. [ ] **Code Documentation**
     - [ ] Add JSDoc comments to all public methods and classes
     - [ ] Document complex business logic and algorithms
 
 ## DevOps and Deployment
 
-26. [ ] **CI/CD Pipeline Enhancement**
+14. [ ] **CI/CD Pipeline Enhancement**
     - [ ] Set up automated testing in the CI pipeline
 
-28. [ ] **Environment Configuration**
+15. [ ] **Environment Configuration**
     - [ ] Refine environment-specific configurations
     - [ ] Implement secure handling of environment variables
 
-29. [ ] **Security Enhancements**
+16. [ ] **Security Enhancements**
     - [ ] Implement Content Security Policy
 
 

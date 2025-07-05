@@ -6,20 +6,18 @@
  * @author VotreNomOuEquipe
  */
 
-import {computed, inject, Injectable, signal, WritableSignal} from '@angular/core';
+import {inject, Injectable, signal, WritableSignal} from '@angular/core';
 import {Observable, of, throwError} from 'rxjs';
-import {catchError, map, tap, switchMap} from 'rxjs/operators';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
 
 // API and Domain Services
 import {EventApiService} from '../../api/event/event-api.service';
-import {CategoryService} from './category.service';
 import {NotificationService} from '../utilities/notification.service';
 import {AuthService} from '../user/auth.service';
 import {UserRole} from '../../../models/user/user-role.enum';
 
 // Models and DTOs
 import {EventDataDto, EventModel, EventStatus, EventSummaryModel} from '../../../models/event/event.model';
-import {EventCategoryModel} from '../../../models/event/event-category.model';
 import {EventSearchParams} from '../../../models/event/event-search-params.model';
 import {
   EventAudienceZone,
@@ -37,20 +35,13 @@ import {FileUploadResponseDto} from '../../../models/files/file-upload-response.
 })
 export class EventService {
   private eventApi = inject(EventApiService);
-  private categoryService = inject(CategoryService);
   private notification = inject(NotificationService);
   private authService = inject(AuthService);
 
   // --- State Management using Signals ---
   private featuredEventsSig: WritableSignal<EventSummaryModel[]> = signal([]);
-  public readonly featuredEvents = computed(() => this.featuredEventsSig());
 
   private homePageEventsSig: WritableSignal<EventSummaryModel[]> = signal([]);
-  public readonly homePageEvents = computed(() => this.homePageEventsSig());
-
-  private structureEventsSig: WritableSignal<EventSummaryModel[]> = signal([]);
-  public readonly structureEvents = computed(() => this.structureEventsSig());
-
 
 
   // Cache for event details (Map: eventId -> EventModel)
@@ -335,20 +326,6 @@ export class EventService {
     return this.getFeaturedEvents(forceRefresh, count);
   }
 
-  /**
-   * Rafraîchit la liste des événements d'une structure
-   * @param structureId - ID de la structure
-   * @param forceRefresh - Force le rechargement depuis l'API
-   */
-  refreshStructureEvents(structureId: number, forceRefresh = false): Observable<EventSummaryModel[]> {
-    if (forceRefresh) {
-      return this.getEventsByStructure(structureId).pipe(
-        tap(events => this.structureEventsSig.set(events))
-      );
-    }
-    return of(this.structureEventsSig());
-  }
-
   getHomePageEvents(forceRefresh = false, count = APP_CONFIG.events.defaultHomeCount): Observable<EventSummaryModel[]> {
     if (!forceRefresh && this.homePageEventsSig().length > 0 && this.homePageEventsSig().length >= count) {
       return of(this.homePageEventsSig().slice(0, count));
@@ -390,28 +367,6 @@ export class EventService {
     );
   }
 
-
-  getStructureFeaturedEvents(structureId: number, count = APP_CONFIG.events.defaultFeaturedCount) {
-    return this.eventApi.getFeaturedEvents(count, structureId).pipe(
-      map(apiEvents => this.mapApiEventsToEventSummaryModels(apiEvents)),
-      tap(events => this.featuredEventsSig.set(events)),
-      catchError(error => {
-        this.handleError('Impossible de récupérer les événements mis en avant.', error);
-        return of([]);
-      })
-    );
-  }
-
-  getUpcomingEvents(params: Partial<EventSearchParams> = {}): Observable<EventSummaryModel[]> {
-    return this.eventApi.getUpcomingEvents(params).pipe( // EventApiService handles HttpParams conversion
-      map(apiEvents => this.mapApiEventsToEventSummaryModels(apiEvents)),
-      catchError(error => {
-        this.handleError('Impossible de récupérer les événements à venir.', error);
-        return of([]);
-      })
-    );
-  }
-
   getEventsByStructure(structureId: number, params: Partial<EventSearchParams> = {}): Observable<EventSummaryModel[]> {
 
     const searchParams: EventSearchParams = { ...params, structureId: structureId };
@@ -428,17 +383,6 @@ export class EventService {
         return of([]);
       })
     );
-  }
-
-
-  getLatestEvents(count: number): Observable<EventSummaryModel[]> {
-    const params: EventSearchParams = {
-      sortBy: 'createdAt',
-      sortDirection: 'desc',
-      pageSize: count,
-      page: 0
-    };
-    return this.getEvents(params);
   }
 
   // --- Cache Refresh Logic ---
@@ -525,13 +469,6 @@ export class EventService {
       createdAt: apiEvent.createdAt ? new Date(apiEvent.createdAt) : undefined,
       updatedAt: apiEvent.updatedAt ? new Date(apiEvent.updatedAt) : undefined,
     };
-  }
-
-  private mapApiEventsToEventModels(apiEvents: any[]): EventModel[] {
-    if (!apiEvents || !Array.isArray(apiEvents)) return [];
-    return apiEvents
-      .map(apiEvent => this.mapApiEventToEventModel(apiEvent))
-      .filter((event): event is EventModel => event !== undefined);
   }
 
   private mapApiEventToEventSummaryModel(apiEvent: any): EventSummaryModel | undefined {
@@ -646,20 +583,6 @@ export class EventService {
   }
 
   /**
-   * Filters a list of events to include only upcoming or past events.
-   * @param events - The array of `EventModel` to filter.
-   * @param includePast - If false (default), only upcoming/ongoing events are returned. If true, all events are returned (or only past ones if you adapt logic).
-   * @returns A filtered array of `EventModel`.
-   */
-  filterEventsByDate(events: EventModel[], includePast = false): EventModel[] {
-    if (includePast) {
-      return events; // Or filter for only past events if that's the intent
-    }
-    const now = new Date();
-    return events.filter(event => new Date(event.endDate) >= now);
-  }
-
-  /**
    * Uploads the main photo for an event.
    * @param eventId - The ID of the event.
    * @param file - The file to upload.
@@ -720,23 +643,6 @@ export class EventService {
       }),
       catchError(error => {
         this.handleError('Impossible de télécharger les images de galerie', error);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  /**
-   * Uploads a single gallery image for an event.
-   * @deprecated Use uploadGalleryImages instead as the backend expects an array of files.
-   * @param eventId - The ID of the event.
-   * @param file - The file to upload.
-   * @returns An Observable of the upload response.
-   */
-  uploadGalleryImage(eventId: number, file: File): Observable<FileUploadResponseDto> {
-    return this.uploadGalleryImages(eventId, [file]).pipe(
-      map(responses => responses[0]),
-      catchError(error => {
-        this.handleError('Impossible de télécharger l\'image de galerie', error);
         return throwError(() => error);
       })
     );

@@ -1,21 +1,13 @@
-import {Injectable} from '@angular/core';
-
-
-import {inject, signal, computed, WritableSignal, effect, untracked} from '@angular/core';
+import {computed, effect, inject, Injectable, signal, untracked, WritableSignal} from '@angular/core';
 import {UserService} from '../user/user.service';
 import {StructureService} from '../structure/structure.service';
 import {AuthService} from '../user/auth.service';
 import {NotificationService} from '../utilities/notification.service';
-import {
-  StructureModel,
-  StructureCreationDto,
-  StructureUpdateDto,
-  StructureCreationResponseDto
-} from '../../../models/structure/structure.model';
+import {StructureModel, StructureUpdateDto} from '../../../models/structure/structure.model';
 import {Observable, of} from 'rxjs';
-import {catchError, map, tap, switchMap} from 'rxjs/operators';
-import {StructureAreaModel, AreaCreationDto, AreaUpdateDto} from '../../../models/structure/structure-area.model';
-import {EventModel, EventSummaryModel} from '../../../models/event/event.model';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
+import {AreaCreationDto, AreaUpdateDto, StructureAreaModel} from '../../../models/structure/structure-area.model';
+import {EventSummaryModel} from '../../../models/event/event.model';
 import {EventService} from '../event/event.service';
 import {UserRole} from '../../../models/user/user-role.enum';
 import {
@@ -24,11 +16,8 @@ import {
   AudienceZoneTemplateUpdateDto
 } from '../../../models/structure/AudienceZoneTemplate.model';
 import {StructureApiService} from '../../api/structure/structure-api.service';
-import {EventAudienceZone} from '../../../models/event/event-audience-zone.model';
 import {FileUploadResponseDto} from '../../../models/files/file-upload-response.model';
 import {Router} from '@angular/router';
-import {ApiConfigService} from '../../api/api-config.service';
-import {log} from '@angular-devkit/build-angular/src/builders/ssr-dev-server';
 import {UserModel} from '../../../models/user/user.model';
 
 
@@ -47,7 +36,6 @@ export class UserStructureService {
   private authService = inject(AuthService);
   private notification = inject(NotificationService);
   private router = inject(Router);
-  private apiConfig = inject(ApiConfigService);
 
   /**
    * Checks if the current user has permission to manage structures.
@@ -132,10 +120,6 @@ export class UserStructureService {
     });
   }
 
-  displayStructureEvents() {
-    console.log(this.userStructureEventsSig());
-  }
-
   /**
    * Gets events for the structure associated with the current user.
    * @param forceRefresh - If true, forces a refresh from the API.
@@ -158,10 +142,6 @@ export class UserStructureService {
         return of([]);
       })
     );
-  }
-
-  private refreshStructureEvents(force = true): Observable<EventSummaryModel[]> {
-    return this.getUserStructureEvents(force);
   }
 
   /**
@@ -212,67 +192,6 @@ export class UserStructureService {
   refreshUserStructure(): Observable<StructureModel | undefined> {
     return this.loadUserStructure(true);
   }
-
-  /**
-   * Nettoie le cache de la structure utilisateur.
-   */
-  clearUserStructure(): void {
-    this.userStructureSig.set(undefined);
-  }
-
-  /**
-   * Vérifie si l'utilisateur actuel fait partie d'une structure donnée.
-   * @param structureId - ID de la structure à vérifier.
-   * @returns True si l'utilisateur fait partie de cette structure.
-   */
-  isUserInStructure(structureId: number): boolean {
-    const userStructure = this.userStructureSig();
-    return userStructure?.id === structureId;
-  }
-
-
-  // /**
-  //  * Relie un utilisateur à une structure avec un rôle spécifique.
-  //  * @param email - L'email de l'utilisateur à relier
-  //  * @param role - Le nouveau rôle à assigner à l'utilisateur
-  //  * @returns Observable du résultat de l'opération
-  //  */
-  // linkUserToStructure(email: string, role: UserRole): Observable<any> {
-  //   const userProfile = this.userService.currentUserProfileData();
-  //
-  //   if (!userProfile?.structureId) {
-  //     this.notification.displayNotification(
-  //       'Aucune structure associée à votre compte.',
-  //       'error'
-  //     );
-  //     return of(null);
-  //   }
-  //
-  //   // Création du DTO pour l'API
-  //   const linkUserDto = {
-  //     email: email,
-  //     role: role,
-  //     structureId: userProfile.structureId
-  //   };
-  //
-  //   // Appel à l'API via le UserApiService pour relier l'utilisateur
-  //   return this.userService.linkUserToStructure(linkUserDto).pipe(
-  //     tap(result => {
-  //       if (result) {
-  //         this.notification.displayNotification(
-  //           'Utilisateur relié à la structure avec succès !',
-  //           'valid'
-  //         );
-  //         // Optionnel : rafraîchir les données de la structure si nécessaire
-  //         this.loadUserStructure(true).subscribe();
-  //       }
-  //     }),
-  //     catchError(error => {
-  //       this.notification.displayNotification('Impossible de relier l\'utilisateur à la structure.', 'error');
-  //       return of(null);
-  //     })
-  //   );
-  // }
 
   /**
    * Updates an existing structure.
@@ -777,7 +696,6 @@ export class UserStructureService {
       })
     );
   }
-
 
 
   /**

@@ -4,7 +4,7 @@
  * @author VotreNomOuEquipe
  */
 
-import { FriendshipStatus } from './friendship-status.enum';
+import {FriendshipStatus} from './friendship-status.enum';
 
 /**
  * Represents the raw data structure of a friendship link between two users,

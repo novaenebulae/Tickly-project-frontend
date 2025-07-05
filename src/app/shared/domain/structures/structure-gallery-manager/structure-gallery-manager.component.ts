@@ -1,18 +1,16 @@
-import { Component, Inject, signal, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { finalize } from 'rxjs/operators';
+import {Component, computed, Inject, inject, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {finalize} from 'rxjs/operators';
 
-import { StructureModel } from '../../../../core/models/structure/structure.model';
-import { StructureService } from '../../../../core/services/domain/structure/structure.service';
-import { UserStructureService } from '../../../../core/services/domain/user-structure/user-structure.service';
-import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
-import { FileUploadResponseDto } from '../../../../core/models/files/file-upload-response.model';
+import {StructureModel} from '../../../../core/models/structure/structure.model';
+import {UserStructureService} from '../../../../core/services/domain/user-structure/user-structure.service';
+import {NotificationService} from '../../../../core/services/domain/utilities/notification.service';
+import {FileUploadResponseDto} from '../../../../core/models/files/file-upload-response.model';
 
 interface GalleryDialogData {
   structure: StructureModel;
@@ -179,7 +177,6 @@ interface GalleryDialogData {
   `]
 })
 export class StructureGalleryManagerComponent {
-  private structureService = inject(StructureService);
   private userStructureService = inject(UserStructureService);
   private notificationService = inject(NotificationService);
 

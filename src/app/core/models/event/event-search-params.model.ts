@@ -6,8 +6,7 @@
  * @author VotreNomOuEquipe
  */
 
-import { EventCategoryModel } from './event-category.model';
-import { EventStatus } from './event.model';
+import {EventStatus} from './event.model';
 
 /**
  * Interface for defining filters and parameters for searching events.

@@ -5,13 +5,13 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Observable, of} from 'rxjs';
+import {delay} from 'rxjs/operators';
 
-import { APP_CONFIG } from '../../config/app-config';
-import { environment } from '../../../../environments/environment';
+import {APP_CONFIG} from '../../config/app-config';
+import {environment} from '../../../../environments/environment';
 
 /**
  * Service for API configuration and utilities.
@@ -64,7 +64,6 @@ export class ApiConfigService {
     return headers;
   }
 
-
   /**
    * Retrieves the authentication token from localStorage or sessionStorage based on 'keepLoggedIn' setting.
    * @returns The authentication token, or null if not found.
@@ -114,46 +113,6 @@ export class ApiConfigService {
   }
 
   /**
-   * Creates an Observable that simulates an API error for mocks.
-   * @param status - The HTTP status code of the error.
-   * @param message - The error message.
-   * @returns An Observable that emits an error after a delay.
-   */
-  createMockError(status: number, message: string): Observable<any> {
-    // Simulate a delay before returning the error
-    return throwError(() => ({
-      status,
-      error: { message }
-    })).pipe(
-      delay(environment.mockDelay || APP_CONFIG.mock.delay)
-    );
-  }
-
-  /**
-   * Constructs HTTP parameters from an object.
-   * @param params - An object containing the parameters to send.
-   * @returns HttpParams - The constructed HTTP parameters.
-   */
-  createHttpParams(params: Record<string, any> = {}): HttpParams {
-    let httpParams = new HttpParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        if (value instanceof Date) {
-          httpParams = httpParams.set(key, value.toISOString());
-        } else if (Array.isArray(value)) {
-          // Handle arrays (may vary depending on the API)
-          value.forEach(item => {
-            httpParams = httpParams.append(`${key}[]`, item.toString());
-          });
-        } else {
-          httpParams = httpParams.set(key, value.toString());
-        }
-      }
-    });
-    return httpParams;
-  }
-
-  /**
    * Logs API requests in development mode.
    * @param method - The HTTP method.
    * @param url - The URL of the request.
@@ -192,108 +151,5 @@ export class ApiConfigService {
     }
   }
 
-  // ============= MOCK DATA PERSISTENCE METHODS =============
 
-  /**
-   * Saves mock data to localStorage with a specific key.
-   * @param key - The storage key.
-   * @param data - The data to save.
-   */
-  saveMockDataToStorage<T>(key: string, data: T): void {
-    if (this.isMockEnabled) {
-      try {
-        const serializedData = JSON.stringify(data, this.dateReplacer);
-        localStorage.setItem(`mock_${key}`, serializedData);
-        if (environment.enableDebugLogs) {
-          console.log(`[Mock Storage] Saved ${key} to localStorage`);
-        }
-      } catch (error) {
-        console.error(`[Mock Storage] Failed to save ${key}:`, error);
-      }
-    }
-  }
-
-  /**
-   * Loads mock data from localStorage.
-   * @param key - The storage key.
-   * @param defaultData - Default data to return if not found in storage.
-   * @returns The loaded data or default data.
-   */
-  loadMockDataFromStorage<T>(key: string, defaultData: T): T {
-    if (!this.isMockEnabled) {
-      return defaultData;
-    }
-
-    try {
-      const storedData = localStorage.getItem(`mock_${key}`);
-      if (storedData) {
-        const parsedData = JSON.parse(storedData, this.dateReviver);
-        if (environment.enableDebugLogs) {
-          console.log(`[Mock Storage] Loaded ${key} from localStorage`);
-        }
-        return parsedData;
-      }
-    } catch (error) {
-      console.error(`[Mock Storage] Failed to load ${key}:`, error);
-    }
-
-    // If no stored data or error, save default data and return it
-    this.saveMockDataToStorage(key, defaultData);
-    return defaultData;
-  }
-
-  /**
-   * Clears specific mock data from localStorage.
-   * @param key - The storage key to clear.
-   */
-  clearMockDataFromStorage(key: string): void {
-    try {
-      localStorage.removeItem(`mock_${key}`);
-      if (environment.enableDebugLogs) {
-        console.log(`[Mock Storage] Cleared ${key} from localStorage`);
-      }
-    } catch (error) {
-      console.error(`[Mock Storage] Failed to clear ${key}:`, error);
-    }
-  }
-
-  /**
-   * Clears all mock data from localStorage.
-   */
-  clearAllMockData(): void {
-    try {
-      const keys = Object.keys(localStorage);
-      const mockKeys = keys.filter(key => key.startsWith('mock_'));
-
-      mockKeys.forEach(key => {
-        localStorage.removeItem(key);
-      });
-
-      if (environment.enableDebugLogs) {
-        console.log(`[Mock Storage] Cleared all mock data (${mockKeys.length} items)`);
-      }
-    } catch (error) {
-      console.error('[Mock Storage] Failed to clear all mock data:', error);
-    }
-  }
-
-  /**
-   * Custom replacer function for JSON.stringify to handle Date objects.
-   */
-  private dateReplacer(key: string, value: any): any {
-    if (value instanceof Date) {
-      return { __type: 'Date', value: value.toISOString() };
-    }
-    return value;
-  }
-
-  /**
-   * Custom reviver function for JSON.parse to restore Date objects.
-   */
-  private dateReviver(key: string, value: any): any {
-    if (value && typeof value === 'object' && value.__type === 'Date') {
-      return new Date(value.value);
-    }
-    return value;
-  }
 }

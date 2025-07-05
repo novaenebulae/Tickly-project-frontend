@@ -5,15 +5,15 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {Observable, throwError} from 'rxjs';
+import {catchError, tap} from 'rxjs/operators';
 
-import { ApiConfigService } from '../api-config.service';
-import { APP_CONFIG } from '../../../config/app-config';
-import { LoginCredentials, AuthResponseDto } from '../../../models/auth/auth.model';
-import { UserRegistrationDto } from '../../../models/user/user.model';
+import {ApiConfigService} from '../api-config.service';
+import {APP_CONFIG} from '../../../config/app-config';
+import {AuthResponseDto, LoginCredentials} from '../../../models/auth/auth.model';
+import {UserRegistrationDto} from '../../../models/user/user.model';
 import {NotificationService} from '../../domain/utilities/notification.service';
 
 @Injectable({

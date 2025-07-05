@@ -5,17 +5,15 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject, signal, computed, WritableSignal, effect, untracked } from '@angular/core';
-import {Observable, of, combineLatest, throwError} from 'rxjs';
-import { map, catchError, tap, switchMap } from 'rxjs/operators';
+import {computed, effect, inject, Injectable, signal, untracked, WritableSignal} from '@angular/core';
+import {Observable, of, throwError} from 'rxjs';
+import {catchError, map, tap} from 'rxjs/operators';
 
-import { UserApiService } from '../../api/user/user-api.service';
-import { StructureService } from '../structure/structure.service';
-import { AuthService } from './auth.service';
-import { NotificationService } from '../utilities/notification.service';
+import {UserApiService} from '../../api/user/user-api.service';
+import {AuthService} from './auth.service';
+import {NotificationService} from '../utilities/notification.service';
 
 import {FavoriteStructureDto, UserFavoriteStructureModel} from '../../../models/user/user-favorite-structure.model';
-import { StructureModel } from '../../../models/structure/structure.model';
 
 
 @Injectable({
@@ -23,7 +21,6 @@ import { StructureModel } from '../../../models/structure/structure.model';
 })
 export class UserFavoritesService {
   private userApi = inject(UserApiService);
-  private structureService = inject(StructureService);
   private authService = inject(AuthService);
   private notification = inject(NotificationService);
 
@@ -39,7 +36,6 @@ export class UserFavoritesService {
   public readonly favoriteStructureIds = computed(() =>
     new Set(this.favoritesSig().map(fav => fav.structure.id))
   );
-
 
   constructor() {
     // Effect pour charger les favoris quand l'utilisateur se connecte
@@ -158,15 +154,6 @@ export class UserFavoritesService {
         catchError(() => of(false)) // Si l'ajout échoue, elle n'est pas favorite
       );
     }
-  }
-
-
-/**
-   * Retourne le nombre de favoris.
-   * @returns Nombre de structures favorites.
-   */
-  getFavoritesCount(): number {
-    return this.favoritesSig().length;
   }
 
 }

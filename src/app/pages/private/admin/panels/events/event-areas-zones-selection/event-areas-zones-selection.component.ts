@@ -3,25 +3,35 @@
  * @licence Proprietary
  */
 
-import { Component, OnInit, Input, Output, EventEmitter, inject, signal, computed, WritableSignal, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule, MatCheckboxChange } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatBadgeModule } from '@angular/material/badge';
+import {
+  Component,
+  computed,
+  effect,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+  signal,
+  WritableSignal
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {MatCardModule} from '@angular/material/card';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatButtonModule} from '@angular/material/button';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatBadgeModule} from '@angular/material/badge';
 
-import { StructureAreaModel } from '../../../../../../core/models/structure/structure-area.model';
-import { AudienceZoneTemplateModel } from '../../../../../../core/models/structure/AudienceZoneTemplate.model';
-import { EventAudienceZone, SeatingType } from '../../../../../../core/models/event/event-audience-zone.model';
-import { StructureService } from '../../../../../../core/services/domain/structure/structure.service';
-import { UserStructureService } from '../../../../../../core/services/domain/user-structure/user-structure.service';
-import { NotificationService } from '../../../../../../core/services/domain/utilities/notification.service';
+import {StructureAreaModel} from '../../../../../../core/models/structure/structure-area.model';
+import {AudienceZoneTemplateModel} from '../../../../../../core/models/structure/AudienceZoneTemplate.model';
+import {EventAudienceZone, SeatingType} from '../../../../../../core/models/event/event-audience-zone.model';
+import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service';
+import {NotificationService} from '../../../../../../core/services/domain/utilities/notification.service';
 
 /**
  * Interface pour les données sélectionnées
@@ -61,7 +71,6 @@ export interface ZoneConfiguration {
 })
 export class EventAreasZonesSelectionComponent implements OnInit {
   // Services injectés
-  private structureService = inject(StructureService);
   private userStructureService = inject(UserStructureService);
   private notification = inject(NotificationService);
 

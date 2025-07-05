@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { ManageFriendsDialogComponent } from './manage-friends-dialog.component';
+import {ManageFriendsDialogComponent} from './manage-friends-dialog.component';
 
 describe('ManageFriendsDialogComponent', () => {
   let component: ManageFriendsDialogComponent;

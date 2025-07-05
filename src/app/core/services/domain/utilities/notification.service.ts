@@ -4,8 +4,8 @@
  * @author VotreNomOuEquipe
  */
 
-import { inject, Injectable } from '@angular/core';
-import { MatSnackBar, MatSnackBarConfig, MatSnackBarRef, TextOnlySnackBar } from '@angular/material/snack-bar';
+import {inject, Injectable} from '@angular/core';
+import {MatSnackBar, MatSnackBarConfig, MatSnackBarRef, TextOnlySnackBar} from '@angular/material/snack-bar';
 
 /**
  * Defines the supported types of notifications, which usually correspond to CSS classes for styling.

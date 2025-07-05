@@ -1,8 +1,8 @@
-import { inject } from '@angular/core';
-import { CanActivateFn, Router, UrlTree } from '@angular/router';
-import { AuthService } from '../services/domain/user/auth.service';
-import { NotificationService } from '../services/domain/utilities/notification.service';
-import { UserRole } from '../models/user/user-role.enum';
+import {inject} from '@angular/core';
+import {CanActivateFn, Router, UrlTree} from '@angular/router';
+import {AuthService} from '../services/domain/user/auth.service';
+import {NotificationService} from '../services/domain/utilities/notification.service';
+import {UserRole} from '../models/user/user-role.enum';
 
 /**
  * Configuration pour les accès basés sur les rôles

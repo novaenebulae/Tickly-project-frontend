@@ -1,6 +1,6 @@
-import { Injectable, inject } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { EventDetailsModalComponent } from './event-details-modal.component';
+import {inject, Injectable} from '@angular/core';
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
+import {EventDetailsModalComponent} from './event-details-modal.component';
 
 /**
  * Service for opening the event details modal.

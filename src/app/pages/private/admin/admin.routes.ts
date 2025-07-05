@@ -1,28 +1,27 @@
-import { Routes } from '@angular/router';
-import { AdminLayoutComponent } from '../../../shared/layout/admin-layout/admin-layout.component';
-import { DashboardComponent } from './panels/dashboard/dashboard.component';
+import {Routes} from '@angular/router';
+import {AdminLayoutComponent} from '../../../shared/layout/admin-layout/admin-layout.component';
+import {DashboardComponent} from './panels/dashboard/dashboard.component';
 
 // Guards unifiés
-
 // Event management components
-import { EventsPanelComponent } from './panels/events/events-panel/events-panel.component';
-import { EventCalendarComponent } from './panels/events/event-calendar/event-calendar.component';
-import { EventDetailsPanelComponent } from './panels/events/event-details-panel/event-details-panel.component';
+import {EventsPanelComponent} from './panels/events/events-panel/events-panel.component';
+import {EventCalendarComponent} from './panels/events/event-calendar/event-calendar.component';
+import {EventDetailsPanelComponent} from './panels/events/event-details-panel/event-details-panel.component';
 
 // Structure management components
-import { StructurePanelComponent } from './panels/structure/structure-panel/structure-panel.component';
-import { StructureEditComponent } from './panels/structure/structure-edit/structure-edit.component';
-import { TeamManagementComponent } from './panels/structure/team-management/team-management.component';
-import { AreasManagementComponent } from './panels/structure/areas-management/areas-management.component';
-import { EventFormComponent } from './panels/events/event-form/event-form.component';
-import { StructureMediasComponent } from './panels/structure/structure-medias/structure-medias.component';
+import {StructurePanelComponent} from './panels/structure/structure-panel/structure-panel.component';
+import {StructureEditComponent} from './panels/structure/structure-edit/structure-edit.component';
+import {TeamManagementComponent} from './panels/structure/team-management/team-management.component';
+import {AreasManagementComponent} from './panels/structure/areas-management/areas-management.component';
+import {EventFormComponent} from './panels/events/event-form/event-form.component';
+import {StructureMediasComponent} from './panels/structure/structure-medias/structure-medias.component';
 import {
-  AreasAccessGuard,
   AreasExtendedAccessGuard,
   EventExtendedAccessGuard,
   EventManagementGuard,
   StaffGuard,
-  StructureExtendedAccessGuard, StructureManagementGuard, TeamManagementGuard
+  StructureExtendedAccessGuard,
+  TeamManagementGuard
 } from '../../../core/guards/staff.guards';
 
 /**

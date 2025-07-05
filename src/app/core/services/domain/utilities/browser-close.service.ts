@@ -6,8 +6,8 @@
  * @author VotreNomOuEquipe
  */
 
-import { HostListener, Injectable, inject } from '@angular/core';
-import { AuthService } from '../user/auth.service'; // Import AuthService
+import {HostListener, inject, Injectable} from '@angular/core';
+import {AuthService} from '../user/auth.service'; // Import AuthService
 
 /**
  * Service that listens to the `beforeunload` event of the window.
@@ -44,14 +44,6 @@ export class BrowserCloseService {
       // Call AuthService to clear session data only if "keep me logged in" was not selected.
       this.authService.clearSessionDataIfNotKeptLoggedIn();
 
-      // localStorage.clear(); // AVOID: This clears everything in localStorage.
-      // The original code returned `true` which is not standard for `beforeunload`
-      // if you don't want to show a prompt. Modern browsers often ignore the return value
-      // for preventing navigation unless user interaction has occurred.
-      // If you want to show a confirmation message (browser-dependent):
-      // event.preventDefault(); // Standard way to try and trigger prompt
-      // event.returnValue = 'Êtes-vous sûr de vouloir quitter ? Vos modifications non sauvegardées pourraient être perdues.';
-      // return 'Êtes-vous sûr de vouloir quitter ?'; // Legacy way
     }
   }
 

@@ -1,4 +1,4 @@
-import { StructureTypeModel } from './structure-type.model';
+import {StructureTypeModel} from './structure-type.model';
 
 /**
  * Représente un résumé de structure, utilisé dans les listes et les favoris.

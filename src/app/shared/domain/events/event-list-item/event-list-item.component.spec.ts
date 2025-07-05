@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { EventListItemComponent } from './event-list-item.component';
+import {EventListItemComponent} from './event-list-item.component';
 
 describe('EventListItemComponent', () => {
   let component: EventListItemComponent;

@@ -92,13 +92,3 @@ export interface EventAudienceZoneConfigDto {
    */
   allocatedCapacity: number;
 }
-
-/**
- * DTO for creating a new audience zone template.
- */
-export type AudienceZoneCreationDto = Omit<EventAudienceZone, 'id'>;
-
-/**
- * DTO for updating an existing audience zone template.
- */
-export type AudienceZoneUpdateDto = Partial<Omit<EventAudienceZone, 'id' | 'areaId'>>;

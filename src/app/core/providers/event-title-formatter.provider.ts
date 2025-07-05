@@ -1,6 +1,6 @@
-import { LOCALE_ID, Inject, Injectable } from '@angular/core';
-import { CalendarEventTitleFormatter, CalendarEvent } from 'angular-calendar';
-import { formatDate } from '@angular/common';
+import {Inject, Injectable, LOCALE_ID} from '@angular/core';
+import {CalendarEvent, CalendarEventTitleFormatter} from 'angular-calendar';
+import {formatDate} from '@angular/common';
 
 @Injectable()
 export class CustomEventTitleFormatter extends CalendarEventTitleFormatter {

@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { EventGallerySectionComponent } from './event-gallery-section.component';
+import {EventGallerySectionComponent} from './event-gallery-section.component';
 
 describe('EventGallerySectionComponent', () => {
   let component: EventGallerySectionComponent;

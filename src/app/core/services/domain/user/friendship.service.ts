@@ -6,29 +6,22 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject, signal, WritableSignal, computed, effect, Signal } from '@angular/core';
+import {computed, effect, inject, Injectable, signal, WritableSignal} from '@angular/core';
 import {Observable, of, throwError} from 'rxjs';
-import { map, tap, catchError, switchMap } from 'rxjs/operators';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
 
 // API Service
-import { FriendshipApiService } from '../../api/friendship/friendship-api.service';
+import {FriendshipApiService} from '../../api/friendship/friendship-api.service';
 
 // Domain Services
-import { NotificationService } from '../utilities/notification.service';
-import { UserService } from './user.service'; // For searching users
-import { AuthService } from './auth.service'; // For current user context
-
+import {NotificationService} from '../utilities/notification.service';
+import {AuthService} from './auth.service'; // For current user context
 // Models and DTOs
-import {
-  FriendshipDataModel,
-  SendFriendRequestDto,
-  UpdateFriendshipStatusDto
-} from '../../../models/friendship/friendship.model';
-import { FriendModel } from '../../../models/friendship/friend.model';
-import { ReceivedFriendRequestModel, SentFriendRequestModel } from '../../../models/friendship/friend-request.model';
-import { FriendshipStatus } from '../../../models/friendship/friendship-status.enum';
-import { FriendParticipantDto } from '../../../models/friendship/friend-participant.dto';
-import { UserModel } from '../../../models/user/user.model';
+import {SendFriendRequestDto, UpdateFriendshipStatusDto} from '../../../models/friendship/friendship.model';
+import {FriendModel} from '../../../models/friendship/friend.model';
+import {ReceivedFriendRequestModel, SentFriendRequestModel} from '../../../models/friendship/friend-request.model';
+import {FriendshipStatus} from '../../../models/friendship/friendship-status.enum';
+import {FriendParticipantDto} from '../../../models/friendship/friend-participant.dto';
 import {HttpErrorResponse} from '@angular/common/http';
 
 export interface FriendsData {
@@ -43,7 +36,6 @@ export interface FriendsData {
 export class FriendshipService {
   private friendshipApi = inject(FriendshipApiService);
   private notification = inject(NotificationService);
-  private userService = inject(UserService);
   private authService = inject(AuthService);
 
   // --- State Management using Signals ---
@@ -58,7 +50,6 @@ export class FriendshipService {
   public readonly pendingRequests = computed(() => this.friendsDataSig().pendingRequests);
   public readonly sentRequests = computed(() => this.friendsDataSig().sentRequests);
   public readonly pendingRequestsCount = computed(() => this.friendsDataSig().pendingRequests.length);
-  public readonly friendsData: Signal<FriendsData> = computed(() => this.friendsDataSig());
 
   constructor() {
     // Auto-load data when user logs in or out
@@ -103,8 +94,6 @@ export class FriendshipService {
       })
     );
   }
-
-
 
   // --- Friend Request Operations ---
 
@@ -178,23 +167,6 @@ export class FriendshipService {
     );
   }
 
-
-  private executeSendFriendRequest(dto: SendFriendRequestDto): Observable<FriendshipDataModel | undefined> {
-    return this.friendshipApi.sendFriendRequest(dto).pipe(
-      tap(friendshipData => {
-        if (friendshipData) {
-          this.notification.displayNotification('Demande d\'ami envoyée avec succès.', 'valid');
-          // Refresh friends data to reflect the new sent request
-          this.loadFriendsData(true).subscribe();
-        }
-      }),
-      catchError(error => {
-        this.handleError(error.message ||"Erreur lors de l'envoi de la demande d'ami.", error);
-        return of(undefined);
-      })
-    );
-  }
-
   /**
    * Accepts a pending friend request.
    * @param friendshipId The ID of the request to accept.
@@ -234,7 +206,6 @@ export class FriendshipService {
       })
     );
   }
-
 
   /**
    * Removes or unfriends an existing friend.

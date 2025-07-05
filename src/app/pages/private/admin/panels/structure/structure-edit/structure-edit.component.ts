@@ -1,50 +1,47 @@
 import {
-  Component,
-  OnInit,
-  inject,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
-  OnDestroy,
-  signal,
+  Component,
   computed,
-  effect
+  effect,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators, AbstractControl } from '@angular/forms';
-import { Subscription, Observable, of, forkJoin } from 'rxjs';
-import { finalize, catchError, tap, switchMap } from 'rxjs/operators';
-import { Location } from '@angular/common';
+import {CommonModule, Location} from '@angular/common';
+import {Router} from '@angular/router';
+import {AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Subscription} from 'rxjs';
+import {finalize} from 'rxjs/operators';
 
 // Importation des Modules Angular Material
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatChipsModule } from '@angular/material/chips';
-import { TextFieldModule } from '@angular/cdk/text-field';
-import { MatDividerModule } from '@angular/material/divider';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatChipsModule} from '@angular/material/chips';
+import {TextFieldModule} from '@angular/cdk/text-field';
+import {MatDividerModule} from '@angular/material/divider';
 
-import { StructureService } from '../../../../../../core/services/domain/structure/structure.service';
-import { UserStructureService } from '../../../../../../core/services/domain/user-structure/user-structure.service';
-import { NotificationService } from '../../../../../../core/services/domain/utilities/notification.service';
-import { AuthService } from '../../../../../../core/services/domain/user/auth.service';
-import { StructureModel, StructureUpdateDto } from '../../../../../../core/models/structure/structure.model';
-import { StructureTypeModel } from '../../../../../../core/models/structure/structure-type.model';
-import { StructureAddressModel } from '../../../../../../core/models/structure/structure-address.model';
-import { UserRole } from '../../../../../../core/models/user/user-role.enum';
-import { MatDialog } from '@angular/material/dialog';
+import {StructureService} from '../../../../../../core/services/domain/structure/structure.service';
+import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service';
+import {NotificationService} from '../../../../../../core/services/domain/utilities/notification.service';
+import {AuthService} from '../../../../../../core/services/domain/user/auth.service';
+import {StructureModel, StructureUpdateDto} from '../../../../../../core/models/structure/structure.model';
+import {UserRole} from '../../../../../../core/models/user/user-role.enum';
+import {MatDialog} from '@angular/material/dialog';
 import {
-  StructureGalleryManagerComponent
-} from '../../../../../../shared/domain/structures/structure-gallery-manager/structure-gallery-manager.component';
-import { ConfirmationDialogComponent, ConfirmationDialogData } from '../../../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
-import { EventService } from '../../../../../../core/services/domain/event/event.service';
-import { EventStatus } from '../../../../../../core/models/event/event.model';
+  ConfirmationDialogComponent,
+  ConfirmationDialogData
+} from '../../../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
+import {EventService} from '../../../../../../core/services/domain/event/event.service';
+import {EventStatus} from '../../../../../../core/models/event/event.model';
 
 
 @Component({
@@ -66,7 +63,6 @@ export class StructureEditComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private location = inject(Location);
   private cdRef = inject(ChangeDetectorRef);
-  private snackBar = inject(MatSnackBar);
   private structureService = inject(StructureService);
   private userStructureService = inject(UserStructureService);
   private notificationService = inject(NotificationService);
@@ -112,9 +108,7 @@ export class StructureEditComponent implements OnInit, OnDestroy {
   // Gestion des fichiers et aperçus (en dehors du formulaire)
   logoPreviewUrl: string | null = null;
   coverPreviewUrl: string | null = null;
-  selectedLogoFile: File | null = null;
-  selectedCoverFile: File | null = null;
-  selectedGalleryFiles: File[] = [];
+
   isUploadingLogo = signal(false);
   isUploadingCover = signal(false);
   isUploadingGallery = signal(false);
@@ -491,17 +485,4 @@ export class StructureEditComponent implements OnInit, OnDestroy {
     });
   }
 
-
-  // Getters pour les signals d'upload
-  get isUploadingLogoSig() {
-    return this.isUploadingLogo();
-  }
-
-  get isUploadingCoverSig() {
-    return this.isUploadingCover();
-  }
-
-  get isUploadingGallerySig() {
-    return this.isUploadingGallery();
-  }
 }

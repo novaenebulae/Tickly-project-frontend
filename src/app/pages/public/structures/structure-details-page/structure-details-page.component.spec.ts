@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { StructureDetailsPageComponent } from './structure-details-page.component';
+import {StructureDetailsPageComponent} from './structure-details-page.component';
 
 describe('StructureDetailsPageComponent', () => {
   let component: StructureDetailsPageComponent;

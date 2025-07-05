@@ -1,4 +1,4 @@
-import {ApplicationConfig, importProvidersFrom, isDevMode, LOCALE_ID, provideZoneChangeDetection} from '@angular/core';
+import {ApplicationConfig, importProvidersFrom, LOCALE_ID, provideZoneChangeDetection} from '@angular/core';
 import {provideRouter} from '@angular/router';
 
 import {routes} from './app.routes';
@@ -9,11 +9,9 @@ import {adapterFactory} from 'angular-calendar/date-adapters/date-fns';
 import {CalendarModule, DateAdapter} from 'angular-calendar';
 import {registerLocaleData} from '@angular/common';
 import {provideCharts, withDefaultRegisterables} from 'ng2-charts';
-import {FriendshipService} from './core/services/domain/user/friendship.service';
 
 import localeFr from '@angular/common/locales/fr';
 // Import des locales pour date-fns
-import { fr } from 'date-fns/locale';
 
 registerLocaleData(localeFr, 'fr-FR');
 

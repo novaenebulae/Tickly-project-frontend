@@ -1,12 +1,12 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AuthApiService } from '../../../core/services/api/auth/auth-api.service';
-import { AuthService } from '../../../core/services/domain/user/auth.service';
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {CommonModule} from '@angular/common';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {AuthApiService} from '../../../core/services/api/auth/auth-api.service';
+import {AuthService} from '../../../core/services/domain/user/auth.service';
 
 @Component({
   selector: 'app-validate-email',

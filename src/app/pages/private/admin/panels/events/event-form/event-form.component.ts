@@ -1,37 +1,57 @@
-import { Component, Input, OnInit, inject, signal, computed, WritableSignal, effect, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
-import { EventAreasZonesSelectionComponent, AreaZoneSelection } from '../event-areas-zones-selection/event-areas-zones-selection.component';
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  Input,
+  OnInit,
+  signal,
+  ViewChild,
+  WritableSignal
+} from '@angular/core';
+import {CommonModule, DatePipe} from '@angular/common';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {EventAreasZonesSelectionComponent} from '../event-areas-zones-selection/event-areas-zones-selection.component';
 
 // Angular Material
-import { MatStepperModule } from '@angular/material/stepper';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import {MatStepperModule} from '@angular/material/stepper';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatRadioModule} from '@angular/material/radio';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatCardModule} from '@angular/material/card';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 
 // Shared Components
-import { ConfirmationDialogComponent } from '../../../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
+import {
+  ConfirmationDialogComponent
+} from '../../../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
 
-import { NotificationService } from '../../../../../../core/services/domain/utilities/notification.service';
-import { EventService } from '../../../../../../core/services/domain/event/event.service';
-import { CategoryService } from '../../../../../../core/services/domain/event/category.service';
-import { UserStructureService } from '../../../../../../core/services/domain/user-structure/user-structure.service';
-import { StructureService } from '../../../../../../core/services/domain/structure/structure.service';
-import { EventDataDto, EventModel } from '../../../../../../core/models/event/event.model';
-import {EventAudienceZone, SeatingType} from '../../../../../../core/models/event/event-audience-zone.model';
-import { EventStatus } from '../../../../../../core/models/event/event.model';
+import {NotificationService} from '../../../../../../core/services/domain/utilities/notification.service';
+import {EventService} from '../../../../../../core/services/domain/event/event.service';
+import {CategoryService} from '../../../../../../core/services/domain/event/category.service';
+import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service';
+import {EventDataDto, EventModel, EventStatus} from '../../../../../../core/models/event/event.model';
+import {EventAudienceZone} from '../../../../../../core/models/event/event-audience-zone.model';
 import {StructureAreaModel} from '../../../../../../core/models/structure/structure-area.model';
 
 interface FieldModificationMatrix {
@@ -86,7 +106,6 @@ export class EventFormComponent implements OnInit {
   private eventService = inject(EventService);
   private categoryService = inject(CategoryService);
   private userStructureService = inject(UserStructureService);
-  private structureService = inject(StructureService);
   private notification = inject(NotificationService);
   private dialog = inject(MatDialog);
 
@@ -159,17 +178,6 @@ export class EventFormComponent implements OnInit {
   locationForm!: FormGroup;
   mediaForm!: FormGroup;
   configForm!: FormGroup;
-
-  // Enums for template
-  SeatingType = SeatingType;
-  EventStatus = EventStatus;
-
-  // Options
-  seatingTypeOptions = [
-    { value: SeatingType.SEATED, label: 'Places assises' },
-    { value: SeatingType.STANDING, label: 'Places debout' },
-    { value: SeatingType.MIXED, label: 'Mixte' }
-  ];
 
   eventStatusOptions = [
     { value: EventStatus.DRAFT, label: 'Brouillon' },

@@ -4,22 +4,15 @@
  * @author VotreNomOuEquipe
  */
 
-import {Component, OnInit, inject, signal, computed, WritableSignal} from '@angular/core';
+import {Component, computed, inject, OnInit, signal, WritableSignal} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NotificationService} from '../../../../../../core/services/domain/utilities/notification.service';
-import {StructureService} from '../../../../../../core/services/domain/structure/structure.service';
 import {
   AreaCreationDto,
   AreaUpdateDto,
   StructureAreaModel
 } from '../../../../../../core/models/structure/structure-area.model';
-import {
-  AudienceZoneCreationDto,
-  AudienceZoneUpdateDto,
-  EventAudienceZone
-} from '../../../../../../core/models/event/event-audience-zone.model';
 import {SeatingType} from '../../../../../../core/models/event/event-audience-zone.model';
 import {MatIcon} from '@angular/material/icon';
 import {
@@ -39,17 +32,13 @@ import {AuthService} from '../../../../../../core/services/domain/user/auth.serv
   styleUrls: ['./areas-management.component.scss']
 })
 export class AreasManagementComponent implements OnInit {
-  private structureService = inject(StructureService);
   private userStructureService = inject(UserStructureService);
   private notification = inject(NotificationService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
 
 
   // Signals for component state
-  private structureIdSig: WritableSignal<number | null> = signal(null);
   private selectedAreaSig: WritableSignal<StructureAreaModel | null> = signal(null);
   private showAreaFormSig: WritableSignal<boolean> = signal(false);
   private showAudienceZoneFormSig: WritableSignal<boolean> = signal(false);
@@ -58,7 +47,6 @@ export class AreasManagementComponent implements OnInit {
 
   // Computed signals
   public readonly audienceZoneTemplates = computed(() => this.userStructureService.currentAreaAudienceZoneTemplates());
-  public readonly editingAudienceZoneTemplate = computed(() => this.editingAudienceZoneTemplateSig());
 
   // Computed signals
   public readonly currentStructure = computed(() => this.userStructureService.userStructure());
@@ -80,7 +68,6 @@ export class AreasManagementComponent implements OnInit {
   audienceZoneForm: FormGroup = new FormGroup({});
 
   // Enums for template
-  SeatingType = SeatingType;
   seatingTypeOptions = [
     {value: SeatingType.SEATED, label: 'Places assises'},
     {value: SeatingType.STANDING, label: 'Places debout'},

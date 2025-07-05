@@ -6,8 +6,8 @@
  * @author VotreNomOuEquipe
  */
 
-import {Injectable, inject, signal, computed, WritableSignal, effect, untracked} from '@angular/core';
-import {Observable, of, BehaviorSubject} from 'rxjs';
+import {computed, effect, inject, Injectable, signal, untracked, WritableSignal} from '@angular/core';
+import {BehaviorSubject, Observable, of} from 'rxjs';
 import {catchError, map, switchMap, tap} from 'rxjs/operators';
 
 import {UserApiService} from '../../api/user/user-api.service';
@@ -17,7 +17,6 @@ import {NotificationService} from '../utilities/notification.service';
 import {UserModel} from '../../../models/user/user.model';
 import {UserProfileUpdateDto} from '../../../models/user/user-profile-update.dto';
 import {UserFavoriteStructureModel} from '../../../models/user/user-favorite-structure.model';
-import {UserRole} from '../../../models/user/user-role.enum';
 
 // ChangePasswordDto is removed as this logic will be in AuthService
 
@@ -32,13 +31,10 @@ export class UserService {
   // Cache for user profiles (key: userId, value: UserModel)
   // BehaviorSubject allows components to subscribe and get updates when the cache changes.
   private userProfilesCache = new BehaviorSubject<Map<number, UserModel>>(new Map());
-  private avatarUrlCache = new Map<string, string>();
-
 
   // Signal for the currently viewed/active user profile (e.g., on a profile page or for admin view)
   // undefined: not yet loaded/no specific profile active, null: profile fetch failed or not found
   private activeUserProfileSig: WritableSignal<UserModel | null | undefined> = signal(undefined);
-  public readonly activeUserProfile = computed(() => this.activeUserProfileSig());
 
   // Signal for the current authenticated user's own profile data.
   // This will be populated when the user logs in or when their profile is explicitly loaded.
@@ -47,7 +43,6 @@ export class UserService {
 
   // Signal for user's favorite structures
   private userFavoritesSig: WritableSignal<UserFavoriteStructureModel[]> = signal([]);
-  public readonly userFavorites = computed(() => this.userFavoritesSig());
 
   constructor() {
     // Use effect to react to changes in the authenticated user state from AuthService
@@ -274,30 +269,6 @@ export class UserService {
         return of(false);
       })
     );
-  }
-
-
-  /**
-   * Clears the currently active user profile from the service's state.
-   * This might be called when a user navigates away from a specific profile page.
-   */
-  clearActiveUserProfile()
-    :
-    void {
-    this.activeUserProfileSig.set(undefined);
-  }
-
-  /**
-   * Retrieves a user profile directly from the service's cache if available.
-   * @param userId - The ID of the user.
-   * @returns The cached `UserModel` or `undefined` if not found in the cache.
-   */
-  getUserFromCache(userId
-                   :
-                   number
-  ):
-    UserModel | undefined {
-    return this.userProfilesCache.value.get(userId);
   }
 
 }

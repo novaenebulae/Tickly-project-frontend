@@ -1,12 +1,12 @@
 // src/app/core/services/domain/ticket/ticket-pdf.service.ts
-import { Injectable, inject } from '@angular/core';
-import { jsPDF } from 'jspdf';
+import {inject, Injectable} from '@angular/core';
+import {jsPDF} from 'jspdf';
 import html2canvas from 'html2canvas';
-import { Observable, from } from 'rxjs';
+import {from, Observable} from 'rxjs';
 import * as QRCode from 'qrcode';
-import { TicketPdfDataDto } from '../../../models/tickets/reservation.model';
-import { TicketStatus } from '../../../models/tickets/ticket-status.enum';
-import { NotificationService } from '../utilities/notification.service';
+import {TicketPdfDataDto} from '../../../models/tickets/reservation.model';
+import {TicketStatus} from '../../../models/tickets/ticket-status.enum';
+import {NotificationService} from '../utilities/notification.service';
 
 @Injectable({
   providedIn: 'root'

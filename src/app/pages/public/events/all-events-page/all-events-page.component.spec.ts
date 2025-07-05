@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { AllEventsPageComponent } from './all-events-page.component';
+import {AllEventsPageComponent} from './all-events-page.component';
 
 describe('AllEventsPageComponent', () => {
   let component: AllEventsPageComponent;

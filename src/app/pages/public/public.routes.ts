@@ -1,11 +1,12 @@
-import { Routes } from '@angular/router';
-import { MainLayoutComponent } from '../../shared/layout/main-layout/main-layout.component';
-import { LandingPageComponent } from './landing-page/landing-page.component';
-import { AllEventsPageComponent } from './events/all-events-page/all-events-page.component';
-import { EventDetailsPageComponent } from './events/event-details-page/event-details-page.component';
-import { AllStructuresPageComponent } from './structures/all-structures-page/all-structures-page.component';
-import { EventTicketReservationPageComponent } from '../private/user/event-ticket-reservation-page/event-ticket-reservation-page.component';
-import { LoginGuard } from '../../core/guards/login.guard';
+import {Routes} from '@angular/router';
+import {LandingPageComponent} from './landing-page/landing-page.component';
+import {AllEventsPageComponent} from './events/all-events-page/all-events-page.component';
+import {EventDetailsPageComponent} from './events/event-details-page/event-details-page.component';
+import {AllStructuresPageComponent} from './structures/all-structures-page/all-structures-page.component';
+import {
+  EventTicketReservationPageComponent
+} from '../private/user/event-ticket-reservation-page/event-ticket-reservation-page.component';
+import {LoginGuard} from '../../core/guards/login.guard';
 
 /**
  * Public routes configuration

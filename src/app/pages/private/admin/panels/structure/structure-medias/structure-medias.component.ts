@@ -1,19 +1,18 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Location } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog } from '@angular/material/dialog';
-import { finalize } from 'rxjs/operators';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, OnInit, signal} from '@angular/core';
+import {CommonModule, Location} from '@angular/common';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatDialog} from '@angular/material/dialog';
+import {finalize} from 'rxjs/operators';
 
-import { StructureService } from '../../../../../../core/services/domain/structure/structure.service';
-import { UserStructureService } from '../../../../../../core/services/domain/user-structure/user-structure.service';
-import { NotificationService } from '../../../../../../core/services/domain/utilities/notification.service';
-import { AuthService } from '../../../../../../core/services/domain/user/auth.service'; // 🔥 AJOUT
-import { UserRole } from '../../../../../../core/models/user/user-role.enum'; // 🔥 AJOUT
+import {StructureService} from '../../../../../../core/services/domain/structure/structure.service';
+import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service';
+import {NotificationService} from '../../../../../../core/services/domain/utilities/notification.service';
+import {AuthService} from '../../../../../../core/services/domain/user/auth.service'; // 🔥 AJOUT
+import {UserRole} from '../../../../../../core/models/user/user-role.enum'; // 🔥 AJOUT
 import {
   StructureGalleryManagerComponent
 } from '../../../../../../shared/domain/structures/structure-gallery-manager/structure-gallery-manager.component';

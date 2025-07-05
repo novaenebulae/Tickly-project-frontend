@@ -1,13 +1,13 @@
 import {
   ChangeDetectorRef,
   Component,
+  computed,
   effect,
   inject,
   LOCALE_ID,
   OnDestroy,
   OnInit,
   signal,
-  computed,
   WritableSignal
 } from '@angular/core';
 import {CommonModule, DatePipe, registerLocaleData} from '@angular/common';
@@ -37,11 +37,10 @@ import {MatExpansionModule} from '@angular/material/expansion';
 // Services
 import {EventService} from '../../../../../../core/services/domain/event/event.service';
 import {CategoryService} from '../../../../../../core/services/domain/event/category.service';
-import {AuthService} from '../../../../../../core/services/domain/user/auth.service';
 import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service';
 
 // Models
-import {EventModel, EventStatus, EventSummaryModel} from '../../../../../../core/models/event/event.model';
+import {EventStatus, EventSummaryModel} from '../../../../../../core/models/event/event.model';
 import {EventCategoryModel} from '../../../../../../core/models/event/event-category.model';
 
 registerLocaleData(localeFr);
@@ -74,7 +73,6 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
   // Services
   private eventService = inject(EventService);
   private categoryService = inject(CategoryService);
-  private authService = inject(AuthService);
   private userStructureService = inject(UserStructureService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
@@ -467,10 +465,6 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
 
   refreshEvents(): void {
     this.loadEvents(true);
-  }
-
-  showEventDetails(event: EventSummaryModel): void {
-    this.router.navigate(['/admin/events/details', event.id]);
   }
 
   editEvent(event: EventSummaryModel): void {

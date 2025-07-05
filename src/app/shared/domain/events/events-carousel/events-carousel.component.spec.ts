@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { EventsCarouselComponent } from './events-carousel.component';
+import {EventsCarouselComponent} from './events-carousel.component';
 
 describe('EventsCarouselComponent', () => {
   let component: EventsCarouselComponent;

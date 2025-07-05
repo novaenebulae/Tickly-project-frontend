@@ -1,18 +1,17 @@
-import { Component, inject, Inject, Input, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { RouterModule } from '@angular/router';
+import {Component, inject, Inject, Input, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {RouterModule} from '@angular/router';
 
-import { EventModel, EventStatus } from '../../../../core/models/event/event.model';
-import { EventService } from '../../../../core/services/domain/event/event.service';
-import { AuthService } from '../../../../core/services/domain/user/auth.service';
+import {EventModel, EventStatus} from '../../../../core/models/event/event.model';
+import {EventService} from '../../../../core/services/domain/event/event.service';
 
 /**
  * Modal component for displaying event details.
@@ -376,9 +375,7 @@ import { AuthService } from '../../../../core/services/domain/user/auth.service'
   `]
 })
 export class EventDetailsModalComponent implements OnInit {
-  private dialogRef = inject(MatDialogRef<EventDetailsModalComponent>);
   private eventService = inject(EventService);
-  private authService = inject(AuthService);
 
   @Input() eventId!: number;
 
@@ -411,18 +408,6 @@ export class EventDetailsModalComponent implements OnInit {
       },
       error: () => {
         this.loading = false;
-      }
-    });
-  }
-
-  updateStatus(status: EventStatus): void {
-    if (!this.event) return;
-
-    this.eventService.updateEventStatus(this.event.id!, status).subscribe({
-      next: (updatedEvent) => {
-        if (updatedEvent) {
-          this.event = updatedEvent;
-        }
       }
     });
   }
@@ -476,13 +461,6 @@ export class EventDetailsModalComponent implements OnInit {
       default:
         return type;
     }
-  }
-
-  /**
-   * Méthodes d'aide pour éviter les expressions ternaires complexes dans le template
-   */
-  getEventTypeText(isFree: boolean): string {
-    return isFree ? 'Événement gratuit' : 'Événement payant';
   }
 
   getHomepageDisplayText(displayOnHomepage: boolean): string {

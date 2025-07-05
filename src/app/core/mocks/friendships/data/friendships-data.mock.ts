@@ -1,6 +1,6 @@
 // src/app/core/mocks/friendship/data/friendship-data.mock.ts
-import { FriendshipDataModel } from '../../../models/friendship/friendship.model';
-import { FriendshipStatus } from '../../../models/friendship/friendship-status.enum';
+import {FriendshipDataModel} from '../../../models/friendship/friendship.model';
+import {FriendshipStatus} from '../../../models/friendship/friendship-status.enum';
 
 // Helper pour générer des dates (peut être partagé ou redéfini si besoin)
 const addDays = (date: Date, days: number): Date => {

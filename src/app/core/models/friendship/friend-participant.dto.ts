@@ -30,15 +30,4 @@ export interface FriendParticipantDto {
    */
   avatarUrl?: string;
 
-  // Optional: Add any event-specific participation details if provided by the API
-  // For example:
-  // /**
-  //  * The name of the audience zone the friend is in for this event.
-  //  */
-  // audienceZoneName?: string;
-  //
-  // /**
-  //  * Indicates if the friend has a confirmed ticket or is just marked as 'interested'.
-  //  */
-  // participationStatus?: 'attending_confirmed' | 'interested';
 }

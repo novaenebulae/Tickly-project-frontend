@@ -1,32 +1,27 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router } from '@angular/router';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatStepperModule } from '@angular/material/stepper';
-import { MatDividerModule } from '@angular/material/divider';
+import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators,} from '@angular/forms';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {Router} from '@angular/router';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatStepperModule} from '@angular/material/stepper';
+import {MatDividerModule} from '@angular/material/divider';
 
 // Services
-import { AuthService } from '../../../../core/services/domain/user/auth.service';
-import { StructureService } from '../../../../core/services/domain/structure/structure.service';
-import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
+import {AuthService} from '../../../../core/services/domain/user/auth.service';
+import {StructureService} from '../../../../core/services/domain/structure/structure.service';
+import {NotificationService} from '../../../../core/services/domain/utilities/notification.service';
 
 // Models
-import { StructureCreationDto, StructureCreationResponseDto } from '../../../../core/models/structure/structure.model';
-import { StructureTypeModel } from '../../../../core/models/structure/structure-type.model';
-import { StructureAddressModel } from '../../../../core/models/structure/structure-address.model';
+import {StructureCreationDto, StructureCreationResponseDto} from '../../../../core/models/structure/structure.model';
+import {StructureTypeModel} from '../../../../core/models/structure/structure-type.model';
+import {StructureAddressModel} from '../../../../core/models/structure/structure-address.model';
 
 @Component({
   selector: 'app-structure-setup',

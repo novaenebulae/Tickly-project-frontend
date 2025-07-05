@@ -4,8 +4,8 @@
  * @author VotreNomOuEquipe
  */
 
-import { ParticipantInfoModel } from './participant-info.model';
-import { TicketModel } from './ticket.model';
+import {ParticipantInfoModel} from './participant-info.model';
+import {TicketModel} from './ticket.model';
 
 /**
  * Data Transfer Object for creating a new reservation (a request for one or more tickets).

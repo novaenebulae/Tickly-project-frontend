@@ -1,10 +1,10 @@
-import {Component, OnInit, OnDestroy, ChangeDetectionStrategy, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {Router, RouterModule} from '@angular/router';
 import {CommonModule} from '@angular/common';
 import {Subject, takeUntil} from 'rxjs';
 
 // Models
-import {EventModel, EventSummaryModel} from '../../../core/models/event/event.model';
+import {EventSummaryModel} from '../../../core/models/event/event.model';
 
 // Services
 import {EventService} from '../../../core/services/domain/event/event.service';

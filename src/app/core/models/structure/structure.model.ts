@@ -1,7 +1,7 @@
 // src/app/core/models/structure/structure.model.ts
-import { StructureAddressModel } from './structure-address.model';
-import { StructureAreaModel } from './structure-area.model';
-import { StructureTypeModel } from './structure-type.model';
+import {StructureAddressModel} from './structure-address.model';
+import {StructureAreaModel} from './structure-area.model';
+import {StructureTypeModel} from './structure-type.model';
 
 /**
  * Represents a physical structure or venue.

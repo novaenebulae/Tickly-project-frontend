@@ -1,4 +1,4 @@
-import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import {AbstractControl, ValidationErrors, ValidatorFn} from '@angular/forms';
 
 /**
  * Validateur personnalisé qui vérifie si les champs 'password' et 'confirmPassword' correspondent

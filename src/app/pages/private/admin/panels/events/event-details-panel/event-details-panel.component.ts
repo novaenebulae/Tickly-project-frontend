@@ -1,46 +1,48 @@
 import {
-  Component,
-  OnInit,
   AfterViewInit,
-  ViewChild,
   ChangeDetectorRef,
+  Component,
   ElementRef,
-  ViewEncapsulation, inject, OnDestroy
+  inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewEncapsulation
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { Subscription } from 'rxjs';
+import {ActivatedRoute, Router} from '@angular/router';
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
+import {Subscription} from 'rxjs';
 
 // Angular Material Modules & Common Features
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
+import {MatSort, MatSortModule} from '@angular/material/sort';
+import {MatTableDataSource, MatTableModule} from '@angular/material/table';
+import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 import {CommonModule, ViewportScroller} from '@angular/common'; // Inclut DatePipe, PercentPipe, NumberPipe, NgClass, @if, @for
-import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatListModule } from '@angular/material/list';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {MatIconModule} from '@angular/material/icon';
+import {MatCardModule} from '@angular/material/card';
+import {MatListModule} from '@angular/material/list';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatButtonModule} from '@angular/material/button';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatExpansionModule} from '@angular/material/expansion';
-import {MatMenu, MatMenuModule, MatMenuTrigger} from '@angular/material/menu';
+import {MatMenuModule} from '@angular/material/menu';
 
 // Chart.js
-import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
-import { BaseChartDirective } from 'ng2-charts';
+import {ChartConfiguration, ChartData, ChartType} from 'chart.js';
+import {BaseChartDirective} from 'ng2-charts';
 
 // Services
-import { EventService } from '../../../../../../core/services/domain/event/event.service';
-import { StatisticsService } from '../../../../../../core/services/domain/statistics/statistics.service';
+import {EventService} from '../../../../../../core/services/domain/event/event.service';
+import {StatisticsService} from '../../../../../../core/services/domain/statistics/statistics.service';
 
 // Models
-import { EventModel } from '../../../../../../core/models/event/event.model';
-import { EventStatisticsDto } from '../../../../../../core/models/statistics/event-statistics.model';
-import { ChartJsDataDto, ChartJsDataset } from '../../../../../../core/models/statistics/chart-js-data.model';
+import {EventModel} from '../../../../../../core/models/event/event.model';
+import {EventStatisticsDto} from '../../../../../../core/models/statistics/event-statistics.model';
+import {ChartJsDataDto} from '../../../../../../core/models/statistics/chart-js-data.model';
 
 // --- INTERFACES POUR LES DONNÉES (Alignées avec le HTML) ---
 
@@ -138,17 +140,6 @@ export class EventDetailsPanelComponent implements OnInit, AfterViewInit, OnDest
   event: EventDetails | null = null;
 
   // Suppression de 'internalNotes' des colonnes affichées
-  displayedColumns: string[] = [
-    'orderId',
-    'name',
-    'email',
-    'reservationDate',
-    'ticketCount',
-    'ticketDetails',
-    'reservationStatus',
-    'scanStatus',
-    'actions'
-  ];
   dataSource: MatTableDataSource<Participant> = new MatTableDataSource<Participant>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -448,25 +439,6 @@ export class EventDetailsPanelComponent implements OnInit, AfterViewInit, OnDest
       window.open(this.event.publicLink, '_blank');
     } else {
       this.snackBar.open('Lien public non disponible pour cet événement.', 'Fermer', { duration: 3000 });
-    }
-  }
-
-  // --- Méthodes pour les outils de communication ---
-  openEmailComposer(): void {
-    console.log('Ouverture du compositeur d\'email...');
-    this.snackBar.open('Ouverture du module d\'emailing. (Simulation)', 'Fermer', { duration: 3000 });
-  }
-
-  copyLink(inputElement: HTMLInputElement): void {
-    if (inputElement.value && inputElement.value !== 'Lien non disponible') {
-      navigator.clipboard.writeText(inputElement.value).then(() => {
-        this.snackBar.open('Lien public copié dans le presse-papiers !', 'Fermer', { duration: 2000 });
-      }).catch(err => {
-        console.error('Erreur lors de la copie du lien : ', err);
-        this.snackBar.open('Erreur lors de la copie du lien.', 'Fermer', { duration: 3000 });
-      });
-    } else {
-      this.snackBar.open('Aucun lien public à copier.', 'Fermer', { duration: 3000 });
     }
   }
 

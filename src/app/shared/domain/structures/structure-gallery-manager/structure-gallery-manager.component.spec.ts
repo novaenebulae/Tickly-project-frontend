@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { StructureGalleryManagerComponent } from './structure-gallery-manager.component';
+import {StructureGalleryManagerComponent} from './structure-gallery-manager.component';
 
 describe('StructureGalleryManagerComponent', () => {
   let component: StructureGalleryManagerComponent;

@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { EventTicketReservationPageComponent } from './event-ticket-reservation-page.component';
+import {EventTicketReservationPageComponent} from './event-ticket-reservation-page.component';
 
 describe('EventTicketReservationPageComponent', () => {
   let component: EventTicketReservationPageComponent;

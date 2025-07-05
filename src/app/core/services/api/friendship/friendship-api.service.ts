@@ -1,5 +1,3 @@
-// src/app/core/services/api/friendship-api.service.ts
-
 /**
  * @file API service for friendship-related operations.
  * Handles HTTP requests for friendships and delegates to a mock service if enabled.
@@ -7,21 +5,22 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap, map } from 'rxjs/operators';
+import {inject, Injectable} from '@angular/core';
+import {HttpErrorResponse, HttpParams} from '@angular/common/http';
+import {Observable, throwError} from 'rxjs';
+import {catchError, tap} from 'rxjs/operators';
 
-import { ApiConfigService } from '../api-config.service';
-import { APP_CONFIG } from '../../../config/app-config'; // Adjusted path
-
+import {ApiConfigService} from '../api-config.service';
+import {APP_CONFIG} from '../../../config/app-config'; // Adjusted path
 // Models and DTOs used by this service (for typing API requests/responses)
-import { FriendshipDataModel, SendFriendRequestDto, UpdateFriendshipStatusDto } from '../../../models/friendship/friendship.model';
-import { FriendModel } from '../../../models/friendship/friend.model';
-import { ReceivedFriendRequestModel, SentFriendRequestModel } from '../../../models/friendship/friend-request.model';
-import { UserModel } from '../../../models/user/user.model'; // For search results
-import { FriendParticipantDto } from '../../../models/friendship/friend-participant.dto';
-import { FriendsData } from '../../domain/user/friendship.service';
+import {
+  FriendshipDataModel,
+  SendFriendRequestDto,
+  UpdateFriendshipStatusDto
+} from '../../../models/friendship/friendship.model';
+import {UserModel} from '../../../models/user/user.model'; // For search results
+import {FriendParticipantDto} from '../../../models/friendship/friend-participant.dto';
+import {FriendsData} from '../../domain/user/friendship.service';
 
 @Injectable({
   providedIn: 'root'
@@ -47,34 +46,6 @@ export class FriendshipApiService {
     );
   }
 
-
-  /**
-   * @deprecated Use getFriendsData() instead and extract friends from the response
-   */
-  getFriendsList(): Observable<FriendModel[]> {
-    return this.getFriendsData().pipe(
-      map(data => data.friends)
-    );
-  }
-
-  /**
-   * @deprecated Use getFriendsData() instead and extract pendingRequests from the response
-   */
-  getPendingRequests(): Observable<ReceivedFriendRequestModel[]> {
-    return this.getFriendsData().pipe(
-      map(data => data.pendingRequests)
-    );
-  }
-
-  /**
-   * @deprecated Use getFriendsData() instead and extract sentRequests from the response
-   */
-  getSentRequests(): Observable<SentFriendRequestModel[]> {
-    return this.getFriendsData().pipe(
-      map(data => data.sentRequests)
-    );
-  }
-
   /**
    * Sends a new friend request using the receiver's email.
    * @param dto The data transfer object containing the email.
@@ -90,7 +61,6 @@ export class FriendshipApiService {
       catchError(error => this.handleFriendshipError(error, 'sendFriendRequest'))
     );
   }
-
 
   /**
    * Updates the status of a friend request (e.g., accept, reject).
@@ -110,7 +80,6 @@ export class FriendshipApiService {
       catchError(error => this.handleFriendshipError(error, 'updateFriendshipStatus'))
     );
   }
-
 
   /**
    * Removes or cancels a friendship.

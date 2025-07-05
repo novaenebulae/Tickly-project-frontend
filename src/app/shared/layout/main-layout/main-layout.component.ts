@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { NavbarComponent } from '../navbar/navbar.component';
-import { FooterComponent } from '../footer/footer.component';
+import {Component} from '@angular/core';
+import {RouterOutlet} from '@angular/router';
+import {NavbarComponent} from '../navbar/navbar.component';
+import {FooterComponent} from '../footer/footer.component';
 
 /**
  * Layout pour les pages publiques (non authentifiées)

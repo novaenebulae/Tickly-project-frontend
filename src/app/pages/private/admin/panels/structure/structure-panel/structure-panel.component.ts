@@ -1,26 +1,23 @@
-import { Component, OnInit, inject, computed, signal, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { Subject, combineLatest } from 'rxjs';
-import { takeUntil, map } from 'rxjs/operators';
+import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router, RouterModule} from '@angular/router';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 // Angular Material
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatChipsModule } from '@angular/material/chips';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatBadgeModule} from '@angular/material/badge';
+import {MatChipsModule} from '@angular/material/chips';
 
 // Services
-import { StructureService } from '../../../../../../core/services/domain/structure/structure.service';
-import { UserStructureService } from '../../../../../../core/services/domain/user-structure/user-structure.service';
-import { NotificationService } from '../../../../../../core/services/domain/utilities/notification.service';
+import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service';
+import {NotificationService} from '../../../../../../core/services/domain/utilities/notification.service';
 
 // Models
-import { StructureModel } from '../../../../../../core/models/structure/structure.model';
-import { StructureAreaModel } from '../../../../../../core/models/structure/structure-area.model';
 import {TeamManagementService} from '../../../../../../core/services/domain/team-management/team-management.service';
 
 @Component({
@@ -42,7 +39,6 @@ import {TeamManagementService} from '../../../../../../core/services/domain/team
 })
 export class StructurePanelComponent implements OnInit, OnDestroy {
   private router = inject(Router);
-  private structureService = inject(StructureService);
   private userStructureService = inject(UserStructureService);
   private notification = inject(NotificationService);
   private destroy$ = new Subject<void>();
@@ -53,7 +49,6 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
   protected userStructureData = this.userStructureService.userStructure();
 
   protected readonly isLoadingStructure = this.userStructureService.isLoading;
-  protected readonly hasStructure = this.userStructureService.hasStructure;
   protected readonly structureAreas = this.userStructureService.userStructureAreas;
 
   // ✅ Signaux locaux pour les statistiques
@@ -63,8 +58,6 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
 
   // ✅ Computed properties pour l'UI
   protected readonly teamCount = computed(() => this.teamCountSig());
-  protected readonly eventCount = computed(() => this.eventCountSig());
-  protected readonly areaCount = computed(() => this.structureAreas().length);
 
   protected readonly structureStatus = computed(() => {
     const structure = this.userStructure();
@@ -223,25 +216,4 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * ✅ Obtient la couleur en fonction du nombre
-   */
-  getCountColor(count: number, thresholds: { low: number; medium: number }): string {
-    if (count === 0) return 'warn';
-    if (count <= thresholds.low) return 'accent';
-    if (count <= thresholds.medium) return 'primary';
-    return 'primary';
-  }
-
-  /**
-   * ✅ Formate l'adresse de la structure
-   */
-  getFormattedAddress(): string {
-    const structure = this.userStructure();
-    if (!structure?.address) return 'Adresse non définie';
-
-    const { street, city, zipCode, country } = structure.address;
-    const parts = [street, city, country].filter(Boolean);
-    return parts.join(', ');
-  }
 }

@@ -3,7 +3,7 @@
  * @licence Proprietary
  */
 
-import { UserRole } from './user-role.enum';
+import {UserRole} from './user-role.enum';
 
 export interface TeamMember {
   id: number;
@@ -39,13 +39,6 @@ export interface UpdateTeamMemberDto {
   status?: TeamMemberStatus;
   position?: string;
   phone?: string;
-}
-
-// Type pour la réponse de l'API lors d'une invitation
-export interface InviteTeamMemberResponseDto {
-  success: boolean;
-  member?: TeamMember;
-  message?: string;
 }
 
 // Helper pour affichage des rôles

@@ -1,5 +1,5 @@
 // src/app/core/models/auth/auth.model.ts
-import { UserRole } from '../user/user-role.enum';
+import {UserRole} from '../user/user-role.enum';
 
 /**
  * Represents the payload of a JSON Web Token (JWT).

@@ -5,10 +5,10 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject, Signal } from '@angular/core';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { map } from 'rxjs/operators'; // Corrected import for 'map'
-import { toSignal } from '@angular/core/rxjs-interop';
+import {inject, Injectable, Signal} from '@angular/core';
+import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
+import {map} from 'rxjs/operators'; // Corrected import for 'map'
+import {toSignal} from '@angular/core/rxjs-interop';
 
 /**
  * Service that provides signals indicating the current viewport state,

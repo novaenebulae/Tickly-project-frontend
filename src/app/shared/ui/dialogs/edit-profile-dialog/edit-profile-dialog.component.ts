@@ -1,22 +1,22 @@
-import { Component, Inject, OnInit, inject, signal, effect, computed } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import {MatDialogRef, MAT_DIALOG_DATA, MatDialogModule, MatDialog} from '@angular/material/dialog';
-import { CommonModule } from '@angular/common';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDividerModule } from '@angular/material/divider';
+import {Component, computed, effect, inject, OnInit, signal} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
+import {CommonModule} from '@angular/common';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatDividerModule} from '@angular/material/divider';
 
 // Services
-import { UserService } from '../../../../core/services/domain/user/user.service';
-import { AuthService } from '../../../../core/services/domain/user/auth.service';
-import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
+import {UserService} from '../../../../core/services/domain/user/user.service';
+import {AuthService} from '../../../../core/services/domain/user/auth.service';
+import {NotificationService} from '../../../../core/services/domain/utilities/notification.service';
 
 // Models
-import { UserModel } from '../../../../core/models/user/user.model';
-import { UserProfileUpdateDto } from '../../../../core/models/user/user-profile-update.dto';
+import {UserModel} from '../../../../core/models/user/user.model';
+import {UserProfileUpdateDto} from '../../../../core/models/user/user-profile-update.dto';
 import {
   ConfirmationDialogComponent,
   ConfirmationDialogData

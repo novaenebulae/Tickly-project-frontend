@@ -1,11 +1,14 @@
-import {Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, Renderer2, ViewEncapsulation} from '@angular/core';
+import {Component, effect, ElementRef, inject, OnDestroy, OnInit, Renderer2, ViewEncapsulation} from '@angular/core';
 import 'zone.js';
 import {
-  CalendarDateFormatter, CalendarDayViewBeforeRenderEvent,
+  CalendarDateFormatter,
+  CalendarDayViewBeforeRenderEvent,
   CalendarEvent,
-  CalendarEventAction, CalendarEventTitleFormatter,
+  CalendarEventAction,
+  CalendarEventTitleFormatter,
   CalendarModule,
-  CalendarView, CalendarWeekViewBeforeRenderEvent,
+  CalendarView,
+  CalendarWeekViewBeforeRenderEvent,
   DAYS_OF_WEEK,
 } from 'angular-calendar';
 import {Subject, Subscription} from 'rxjs';
@@ -22,7 +25,9 @@ import {UserStructureService} from '../../../../../../core/services/domain/user-
 import {AuthService} from '../../../../../../core/services/domain/user/auth.service';
 import {UserRole} from '../../../../../../core/models/user/user-role.enum';
 import {EventSummaryModel} from '../../../../../../core/models/event/event.model';
-import {EventDetailsModalService} from '../../../../../../shared/domain/admin/event-details-modal/event-details-modal.service';
+import {
+  EventDetailsModalService
+} from '../../../../../../shared/domain/admin/event-details-modal/event-details-modal.service';
 
 @Component({
   selector: 'app-event-calendar',

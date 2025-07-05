@@ -5,15 +5,10 @@
  * @author VotreNomOuEquipe
  */
 
-import { AuthService } from '../services/domain/user/auth.service';
-import {
-  HttpInterceptorFn,
-  HttpRequest,
-  HttpHandlerFn,
-  HttpEvent,
-} from '@angular/common/http';
-import { inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import {AuthService} from '../services/domain/user/auth.service';
+import {HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest,} from '@angular/common/http';
+import {inject} from '@angular/core';
+import {Observable} from 'rxjs';
 import {APP_CONFIG} from '../config/app-config';
 
 /**

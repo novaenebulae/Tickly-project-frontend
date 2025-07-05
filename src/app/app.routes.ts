@@ -5,9 +5,6 @@ import {AuthComponent} from './pages/auth/auth/auth.component';
 import {RegisterPageComponent} from './pages/auth/register/register-page.component';
 import {publicRoutes} from './pages/public/public.routes';
 import {userRoutes} from './pages/private/user/user.routes';
-import {adminRoutes} from './pages/private/admin/admin.routes';
-import {MainLayoutComponent} from './shared/layout/main-layout/main-layout.component';
-import {AdminGuard} from './core/guards/admin.guard';
 import {ValidateEmailComponent} from './pages/auth/validate-email/validate-email.component';
 import {
   AccountDeletionConfirmationComponent

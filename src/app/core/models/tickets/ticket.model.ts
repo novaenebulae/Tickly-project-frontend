@@ -4,8 +4,8 @@
  * @author VotreNomOuEquipe
  */
 
-import { TicketStatus } from './ticket-status.enum';
-import { ParticipantInfoModel } from './participant-info.model';
+import {TicketStatus} from './ticket-status.enum';
+import {ParticipantInfoModel} from './participant-info.model';
 
 /**
  * Event snapshot as received from the API

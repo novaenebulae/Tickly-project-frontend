@@ -4,10 +4,8 @@ import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {NgSwitch, NgSwitchCase} from '@angular/common';
 
 import {UserService} from '../../../core/services/domain/user/user.service';
-import {finalize} from 'rxjs/operators';
 import {AuthService} from "../../../core/services/domain/user/auth.service";
 
 type DeletionStatus = 'loading' | 'success' | 'error';

@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { GalleryCarouselDialogComponent } from './gallery-carousel-dialog.component';
+import {GalleryCarouselDialogComponent} from './gallery-carousel-dialog.component';
 
 describe('GalleryCarouselDialogComponent', () => {
   let component: GalleryCarouselDialogComponent;

@@ -1,15 +1,10 @@
-import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { GalleryCarouselDialogComponent } from '../gallery-carousel-dialog/gallery-carousel-dialog.component';
+import {Component, Input} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
+import {GalleryCarouselDialogComponent} from '../gallery-carousel-dialog/gallery-carousel-dialog.component';
 
-interface GalleryImage {
-  url: string;
-  // alt: string;
-  // thumbnail?: string;
-}
 
 @Component({
   selector: 'app-event-gallery-section',

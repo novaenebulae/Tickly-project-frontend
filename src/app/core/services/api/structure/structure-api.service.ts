@@ -5,17 +5,16 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject } from '@angular/core';
-import { HttpErrorResponse, HttpParams } from '@angular/common/http'; // HttpParams might not be needed if no query params for some methods
-import { Observable, throwError } from 'rxjs';
-import {catchError, map, tap} from 'rxjs/operators';
+import {inject, Injectable} from '@angular/core';
+import {HttpErrorResponse, HttpParams} from '@angular/common/http'; // HttpParams might not be needed if no query params for some methods
+import {Observable, throwError} from 'rxjs';
+import {catchError, tap} from 'rxjs/operators';
 
-import { ApiConfigService } from '../api-config.service';
-import { APP_CONFIG } from '../../../config/app-config'; // Adjusted path assuming config is one level up from core
-
+import {ApiConfigService} from '../api-config.service';
+import {APP_CONFIG} from '../../../config/app-config'; // Adjusted path assuming config is one level up from core
 // DTOs for API interaction
-import { StructureCreationResponseDto } from '../../../models/structure/structure.model'; // Assuming structure.model.ts has DTOs
-import { StructureSearchParams } from '../../../models/structure/structure-search-params.model';
+import {StructureCreationResponseDto} from '../../../models/structure/structure.model'; // Assuming structure.model.ts has DTOs
+import {StructureSearchParams} from '../../../models/structure/structure-search-params.model';
 import {FileUploadResponseDto} from '../../../models/files/file-upload-response.model';
 import {StructureAreaModel} from '../../../models/structure/structure-area.model';
 
@@ -176,21 +175,6 @@ export class StructureApiService {
       catchError(error => this.handleStructureError(error, 'uploadMultipleGalleryImages'))
     );
   }
-
-  /**
-   * @deprecated Use uploadMultipleGalleryImages instead
-   * Upload une seule image pour la galerie de la structure
-   * @param structureId ID de la structure
-   * @param file Le fichier image à uploader
-   * @returns Observable contenant l'URL de l'image uploadée
-   */
-  uploadGalleryImage(structureId: number, file: File): Observable<FileUploadResponseDto> {
-    // Utilise la nouvelle méthode avec un seul fichier
-    return this.uploadMultipleGalleryImages(structureId, [file]).pipe(
-      map(responses => responses[0])
-    );
-  }
-
 
   /**
    * Supprime une image de la galerie
@@ -397,14 +381,6 @@ export class StructureApiService {
       tap(response => this.apiConfig.logApiResponse('DELETE', endpointContext, response)),
       catchError(error => this.handleStructureError(error, 'deleteAudienceZoneTemplate'))
     );
-  }
-
-  /**
-   * Searches for structures (convenience method using getStructures).
-   * @param query - The search term.
-   */
-  searchStructures(query: string): Observable<any[]> {
-    return this.getStructures({ query });
   }
 
   /**

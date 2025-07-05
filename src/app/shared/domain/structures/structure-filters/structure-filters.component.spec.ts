@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { StructureFiltersComponent } from './structure-filters.component';
+import {StructureFiltersComponent} from './structure-filters.component';
 
 describe('StructureFiltersComponent', () => {
   let component: StructureFiltersComponent;

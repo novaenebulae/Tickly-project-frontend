@@ -1,7 +1,7 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { AdminSidenavComponent } from './admin-sidenav.component';
-import { Router } from '@angular/router';
+import {AdminSidenavComponent} from './admin-sidenav.component';
+import {Router} from '@angular/router';
 
 describe('AdminSidenavComponent', () => {
   let component: AdminSidenavComponent;

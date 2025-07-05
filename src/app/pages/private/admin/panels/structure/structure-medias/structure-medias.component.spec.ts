@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { StructureMediasComponent } from './structure-medias.component';
+import {StructureMediasComponent} from './structure-medias.component';
 
 describe('StructureMediasComponent', () => {
   let component: StructureMediasComponent;

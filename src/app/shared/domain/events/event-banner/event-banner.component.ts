@@ -65,8 +65,6 @@ export class EventBannerComponent implements OnChanges {
     }
   }
 
-
-
   /**
    * Configure les informations de statut en fonction du statut de l'événement
    */

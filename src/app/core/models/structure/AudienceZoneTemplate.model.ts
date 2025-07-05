@@ -4,7 +4,7 @@
  * @author VotreNomOuEquipe
  */
 
-import { SeatingType } from '../event/event-audience-zone.model';
+import {SeatingType} from '../event/event-audience-zone.model';
 
 /**
  * Represents a template for audience zones within a structure area.

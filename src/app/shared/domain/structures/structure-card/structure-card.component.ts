@@ -1,12 +1,12 @@
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterModule} from '@angular/router';
+import {MatButtonModule} from '@angular/material/button';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatIconModule} from '@angular/material/icon';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
-import { StructureSummaryModel } from '../../../../core/models/structure/structure-summary.model';
+import {StructureSummaryModel} from '../../../../core/models/structure/structure-summary.model';
 
 @Component({
   selector: 'app-structure-card',
@@ -34,7 +34,6 @@ export class StructureCardComponent {
   @Output() bookEvent = new EventEmitter<StructureSummaryModel>();
   @Output() favorite = new EventEmitter<StructureSummaryModel>();
 
-  private router = inject(Router);
 
   constructor() {}
 
@@ -48,7 +47,4 @@ export class StructureCardComponent {
     this.favorite.emit(this.structure);
   }
 
-  onGoToStructureEvents() {
-    this.router.navigate(['/structures', this.structure.id], { fragment: 'events' });
-  }
 }

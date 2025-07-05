@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { EventFiltersComponent } from './event-filters.component';
+import {EventFiltersComponent} from './event-filters.component';
 
 describe('EventFiltersComponent', () => {
   let component: EventFiltersComponent;

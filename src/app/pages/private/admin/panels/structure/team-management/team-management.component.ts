@@ -1,39 +1,40 @@
-import { Component, OnInit, inject, computed, signal, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Router} from '@angular/router';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 // Angular Material
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTableModule } from '@angular/material/table';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDividerModule } from '@angular/material/divider';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatBadgeModule} from '@angular/material/badge';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatTableModule} from '@angular/material/table';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatDividerModule} from '@angular/material/divider';
 
 // Services
-import { TeamManagementService } from '../../../../../../core/services/domain/team-management/team-management.service';
-import { UserStructureService } from '../../../../../../core/services/domain/user-structure/user-structure.service';
-import { NotificationService } from '../../../../../../core/services/domain/utilities/notification.service';
-import { AuthService } from '../../../../../../core/services/domain/user/auth.service';
+import {TeamManagementService} from '../../../../../../core/services/domain/team-management/team-management.service';
+import {NotificationService} from '../../../../../../core/services/domain/utilities/notification.service';
+import {AuthService} from '../../../../../../core/services/domain/user/auth.service';
 
 // Models
-import { TeamMember, TeamMemberStatus, TEAM_ROLES_DISPLAY, getRoleDisplayName } from '../../../../../../core/models/user/team-member.model';
-import { UserRole } from '../../../../../../core/models/user/user-role.enum';
+import {getRoleDisplayName, TeamMember, TeamMemberStatus} from '../../../../../../core/models/user/team-member.model';
+import {UserRole} from '../../../../../../core/models/user/user-role.enum';
 
 // Dialogs
-import { ConfirmationDialogComponent } from '../../../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
+import {
+  ConfirmationDialogComponent
+} from '../../../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-team-management',
@@ -65,7 +66,6 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   private dialog = inject(MatDialog);
   private formBuilder = inject(FormBuilder);
   private teamService = inject(TeamManagementService);
-  private userStructureService = inject(UserStructureService);
   private notification = inject(NotificationService);
   private authService = inject(AuthService);
   private destroy$ = new Subject<void>();
@@ -87,7 +87,6 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   private viewModeSig = signal<'active' | 'pending' | 'inactive' | 'all'>('all');
 
   readonly showInviteForm = computed(() => this.showInviteFormSig());
-  protected readonly selectedMember = computed(() => this.selectedMemberSig());
   protected readonly viewMode = computed(() => this.viewModeSig());
 
   // ✅ Formulaire d'invitation
@@ -114,7 +113,6 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   // ✅ Enums et constantes pour le template
   protected readonly TeamMemberStatus = TeamMemberStatus;
   protected readonly UserRole = UserRole;
-  protected readonly TEAM_ROLES_DISPLAY = TEAM_ROLES_DISPLAY;
 
   constructor() {
     this.inviteForm = this.formBuilder.group({
@@ -277,7 +275,6 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
         return 'help';
     }
   }
-
 
   /**
    * ✅ Obtient le nom d'affichage d'un membre

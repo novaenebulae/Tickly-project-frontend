@@ -6,20 +6,17 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject, signal, WritableSignal, computed, Injector } from '@angular/core';
-import { Router } from '@angular/router';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-import { jwtDecode } from 'jwt-decode'; // Ensure 'jwt-decode' is installed
-
-import { AuthApiService } from '../../api/auth/auth-api.service';
-import { NotificationService } from '../utilities/notification.service';
-import { APP_CONFIG } from '../../../config/app-config';
-import { LoginCredentials, AuthResponseDto, JwtPayload } from '../../../models/auth/auth.model';
-import { UserRegistrationDto } from '../../../models/user/user.model';
-import { UserRole } from '../../../models/user/user-role.enum';
-import { UserModel } from '../../../models/user/user.model';
-import { Location } from '@angular/common';
+import {computed, inject, Injectable, signal, WritableSignal} from '@angular/core';
+import {Router} from '@angular/router';
+import {Observable, of, throwError} from 'rxjs';
+import {catchError, map, tap} from 'rxjs/operators';
+import {jwtDecode} from 'jwt-decode'; // Ensure 'jwt-decode' is installed
+import {AuthApiService} from '../../api/auth/auth-api.service';
+import {NotificationService} from '../utilities/notification.service';
+import {APP_CONFIG} from '../../../config/app-config';
+import {AuthResponseDto, JwtPayload, LoginCredentials} from '../../../models/auth/auth.model';
+import {UserRegistrationDto} from '../../../models/user/user.model';
+import {UserRole} from '../../../models/user/user-role.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +25,6 @@ export class AuthService {
   private authApi = inject(AuthApiService);
   private notification = inject(NotificationService);
   private router = inject(Router);
-  private injector = inject(Injector);
 
   // --- User State Signals ---
   private currentUserSig: WritableSignal<JwtPayload | null> = signal(null);
@@ -38,7 +34,6 @@ export class AuthService {
   public readonly isLoggedIn = computed(() => this.isLoggedInSig());
 
   private userRoleSig: WritableSignal<UserRole | null> = signal(null);
-  public readonly userRole = computed(() => this.userRoleSig());
 
   private userStructureIdSig: WritableSignal<number | null> = signal(null);
   public readonly userStructureId = computed(() => this.userStructureIdSig());
@@ -167,7 +162,6 @@ export class AuthService {
       this.notification.displayNotification("Erreur de mise à jour de session. Veuillez vous reconnecter.", 'error');
     }
   }
-
 
   /**
    * Clears session-specific authentication data if the user did not opt to "keep logged in".

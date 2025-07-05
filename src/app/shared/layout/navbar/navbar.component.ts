@@ -1,23 +1,22 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, inject, signal, computed, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatDialog } from '@angular/material/dialog';
-import { Subject, takeUntil } from 'rxjs';
-import { UserRole } from '../../../core/models/user/user-role.enum';
+import {Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router, RouterLink, RouterLinkActive} from '@angular/router';
+import {MatIconModule} from '@angular/material/icon';
+import {MatMenuModule, MatMenuTrigger} from '@angular/material/menu';
+import {MatButtonModule} from '@angular/material/button';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatBadgeModule} from '@angular/material/badge';
+import {MatDialog} from '@angular/material/dialog';
+import {Subject, takeUntil} from 'rxjs';
+import {UserRole} from '../../../core/models/user/user-role.enum';
 
 // Services
-import { AuthService } from '../../../core/services/domain/user/auth.service';
-import { UserService } from '../../../core/services/domain/user/user.service';
-import { FriendshipService } from '../../../core/services/domain/user/friendship.service';
-import { NotificationService } from '../../../core/services/domain/utilities/notification.service';
+import {AuthService} from '../../../core/services/domain/user/auth.service';
+import {UserService} from '../../../core/services/domain/user/user.service';
+import {FriendshipService} from '../../../core/services/domain/user/friendship.service';
+import {NotificationService} from '../../../core/services/domain/utilities/notification.service';
 
 // Models
-import { UserModel } from '../../../core/models/user/user.model';
 import {ALLOWED_TEAM_ROLES} from '../../../core/models/user/team-member.model';
 
 /**

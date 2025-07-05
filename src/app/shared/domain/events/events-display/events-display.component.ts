@@ -1,15 +1,15 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterModule } from '@angular/router';
-import { trigger, transition, style, animate, stagger, query } from '@angular/animations';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {RouterModule} from '@angular/router';
+import {animate, query, stagger, style, transition, trigger} from '@angular/animations';
 import {EventCardComponent} from '../event-card-item/event-card.component';
-import { EventListItemComponent } from '../event-list-item/event-list-item.component';
-import { EventFiltersComponent } from '../events-filters/event-filters.component';
-import {EventModel, EventSummaryModel} from '../../../../core/models/event/event.model';
+import {EventListItemComponent} from '../event-list-item/event-list-item.component';
+import {EventFiltersComponent} from '../events-filters/event-filters.component';
+import {EventSummaryModel} from '../../../../core/models/event/event.model';
 
 @Component({
   selector: 'app-events-display',
@@ -40,7 +40,7 @@ import {EventModel, EventSummaryModel} from '../../../../core/models/event/event
     ])
   ]
 })
-export class EventsDisplayComponent implements OnInit {
+export class EventsDisplayComponent {
   // Inputs
   @Input() events: EventSummaryModel[] = [];
   @Input() displayMode: 'grid' | 'list' = 'grid';
@@ -60,12 +60,6 @@ export class EventsDisplayComponent implements OnInit {
 
   // Propriétés pour la pagination
   pageSizeOptions: number[] = [3, 6, 9, 12, 24, 48];
-
-  constructor() { }
-
-  ngOnInit(): void {
-    // Logique d'initialisation si nécessaire
-  }
 
   onDisplayModeChange(mode: 'grid' | 'list'): void {
     if (this.displayMode !== mode) {

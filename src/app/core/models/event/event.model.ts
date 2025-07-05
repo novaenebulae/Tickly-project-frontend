@@ -4,10 +4,10 @@
  * @author VotreNomOuEquipe
  */
 
-import { EventCategoryModel } from './event-category.model';
-import {EventAudienceZone, EventAudienceZoneConfigDto, SeatingType} from './event-audience-zone.model'; // Updated import
-import { StructureAddressModel } from '../structure/structure-address.model'; // Using the renamed AddressModel
-import { StructureAreaModel } from '../structure/structure-area.model';
+import {EventCategoryModel} from './event-category.model';
+import {EventAudienceZone, EventAudienceZoneConfigDto} from './event-audience-zone.model'; // Updated import
+import {StructureAddressModel} from '../structure/structure-address.model'; // Using the renamed AddressModel
+import {StructureAreaModel} from '../structure/structure-area.model';
 import {StructureSummaryModel} from '../structure/structure-summary.model'; // Using the renamed AreaModel
 
 /**
@@ -135,64 +135,6 @@ export interface EventModel {
   updatedAt?: Date;
 }
 
-
-/**
- * Data Transfer Object for creating an Event.
- * Matches the EventCreationDto from the API.
- */
-export interface EventCreationDto {
-  name: string;
-  /**
-   * The IDs of the event's categories. Sent to the API.
-   */
-  categoryIds: number[];
-  shortDescription?: string;
-  fullDescription: string;
-  tags?: string[];
-  startDate: Date;
-  endDate: Date;
-  address: StructureAddressModel; // Sending the full address object
-  structureId: number;
-  /**
-   * Configuration for audience zones.
-   */
-  audienceZones: EventAudienceZoneConfigDto[];
-  displayOnHomepage: boolean;
-  isFeaturedEvent: boolean;
-}
-
-/**
- * Data Transfer Object for updating an Event.
- * Matches the EventUpdateDto from the API.
- * For updates, most fields are optional. 'id' is not part of this DTO as it's usually in the URL.
- */
-export interface EventUpdateDto {
-  name?: string;
-  /**
-   * The IDs of the event's categories. Sent to the API.
-   */
-  categoryIds: number[];
-  shortDescription?: string;
-  fullDescription?: string;
-  tags?: string[];
-  startDate?: Date;
-  endDate?: Date;
-  address?: StructureAddressModel; // Sending the full address object
-  /**
-   * Configuration for audience zones.
-   */
-  audienceZones: EventAudienceZoneConfigDto[];
-  displayOnHomepage?: boolean;
-  isFeaturedEvent?: boolean;
-}
-
-/**
- * Data Transfer Object for updating an Event's status.
- * Matches the EventStatusUpdateDto from the API.
- */
-export interface EventStatusUpdateDto {
-  status: EventStatus;
-}
 
 /**
  * Generic Data Transfer Object for creating or updating an Event.

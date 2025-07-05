@@ -1,19 +1,19 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
-import { CommonModule, KeyValuePipe } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterModule} from '@angular/router';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
-import { TicketService } from '../../../../core/services/domain/ticket/ticket.service';
-import { TicketModel } from '../../../../core/models/tickets/ticket.model';
-import { TicketStatus } from '../../../../core/models/tickets/ticket-status.enum';
+import {TicketService} from '../../../../core/services/domain/ticket/ticket.service';
+import {TicketModel} from '../../../../core/models/tickets/ticket.model';
+import {TicketStatus} from '../../../../core/models/tickets/ticket-status.enum';
 import {
   TicketDetailModalComponent
 } from '../../../../shared/domain/users/ticket-detail-modal/ticket-detail-modal.component';

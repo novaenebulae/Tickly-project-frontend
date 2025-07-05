@@ -1,11 +1,11 @@
-import { Component, Inject, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
-import { QRCodeComponent } from 'angularx-qrcode';
+import {Component, Inject, inject, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatCardModule} from '@angular/material/card';
+import {MatChipsModule} from '@angular/material/chips';
+import {QRCodeComponent} from 'angularx-qrcode';
 
 import {TicketModel} from '../../../../core/models/tickets/ticket.model';
 import {TicketStatus} from '../../../../core/models/tickets/ticket-status.enum';
@@ -90,21 +90,6 @@ export class TicketDetailModalComponent {
     link.click();
   }
 
-  getStatusColor(status: TicketStatus): string {
-    switch (status) {
-      case TicketStatus.VALID:
-        return 'primary';
-      case TicketStatus.USED:
-        return 'accent';
-      case TicketStatus.CANCELLED:
-        return 'warn';
-      case TicketStatus.EXPIRED:
-        return '';
-      default:
-        return '';
-    }
-  }
-
   getStatusLabel(status: TicketStatus): string {
     switch (status) {
       case TicketStatus.VALID:
@@ -139,7 +124,4 @@ export class TicketDetailModalComponent {
     return this.tickets.some(ticket => ticket.status === TicketStatus.VALID);
   }
 
-  getValidTicketsCount(): number {
-    return this.tickets.filter(ticket => ticket.status === TicketStatus.VALID).length;
-  }
 }

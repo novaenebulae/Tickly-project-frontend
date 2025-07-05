@@ -1,16 +1,16 @@
-import { Component, OnInit, OnDestroy, inject, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import {Component, EventEmitter, inject, OnDestroy, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {MatIconModule} from '@angular/material/icon';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 // Services
-import { StructureService } from '../../../../core/services/domain/structure/structure.service';
-import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
+import {StructureService} from '../../../../core/services/domain/structure/structure.service';
+import {NotificationService} from '../../../../core/services/domain/utilities/notification.service';
 
 // Models
-import { StructureTypeModel } from '../../../../core/models/structure/structure-type.model';
+import {StructureTypeModel} from '../../../../core/models/structure/structure-type.model';
 
 // Interfaces pour les événements émis
 interface StructureFilters {

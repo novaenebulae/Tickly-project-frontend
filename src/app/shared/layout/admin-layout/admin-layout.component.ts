@@ -1,14 +1,13 @@
-import { Component, computed, inject, signal, effect } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { AdminSidenavComponent } from '../admin-sidenav/admin-sidenav.component';
-import { RouterModule } from '@angular/router';
-import { MatMenuModule } from '@angular/material/menu';
-import { AuthService } from '../../../core/services/domain/user/auth.service';
-import { UserService } from '../../../core/services/domain/user/user.service';
-import { NavbarComponent } from '../navbar/navbar.component';
+import {Component, computed, inject, signal} from '@angular/core';
+import {MatIconModule} from '@angular/material/icon';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatButtonModule} from '@angular/material/button';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import {AdminSidenavComponent} from '../admin-sidenav/admin-sidenav.component';
+import {RouterModule} from '@angular/router';
+import {MatMenuModule} from '@angular/material/menu';
+import {AuthService} from '../../../core/services/domain/user/auth.service';
+import {UserService} from '../../../core/services/domain/user/user.service';
 
 @Component({
   selector: 'app-admin-layout',

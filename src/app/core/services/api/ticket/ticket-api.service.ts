@@ -7,16 +7,16 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import {inject, Injectable} from '@angular/core';
+import {HttpErrorResponse} from '@angular/common/http';
+import {Observable, throwError} from 'rxjs';
+import {catchError, tap} from 'rxjs/operators';
 
-import { ApiConfigService } from '../api-config.service';
-import { APP_CONFIG } from '../../../config/app-config';
+import {ApiConfigService} from '../api-config.service';
+import {APP_CONFIG} from '../../../config/app-config';
 
-import { ReservationRequestDto, ReservationConfirmationModel } from '../../../models/tickets/reservation.model';
-import { TicketModel } from '../../../models/tickets/ticket.model';
+import {ReservationConfirmationModel, ReservationRequestDto} from '../../../models/tickets/reservation.model';
+import {TicketModel} from '../../../models/tickets/ticket.model';
 
 @Injectable({
   providedIn: 'root'

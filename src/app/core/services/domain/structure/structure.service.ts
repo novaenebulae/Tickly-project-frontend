@@ -6,36 +6,29 @@
  * @author VotreNomOuEquipe
  */
 
-import {Injectable, inject, signal, computed, WritableSignal} from '@angular/core';
+import {computed, inject, Injectable, signal, WritableSignal} from '@angular/core';
 import {Observable, of, throwError} from 'rxjs';
-import {map, tap, catchError, switchMap} from 'rxjs/operators';
+import {catchError, map, tap} from 'rxjs/operators';
 
 // API Service
 import {StructureApiService} from '../../api/structure/structure-api.service';
 
 // Models and DTOs
 import {
-  StructureModel,
   StructureCreationDto,
-  StructureUpdateDto,
-  StructureCreationResponseDto
+  StructureCreationResponseDto,
+  StructureModel
 } from '../../../models/structure/structure.model';
 import {StructureTypeModel} from '../../../models/structure/structure-type.model';
-import {StructureAddressModel} from '../../../models/structure/structure-address.model';
 import {StructureSearchParams} from '../../../models/structure/structure-search-params.model';
 
 // Other Domain Services
 import {NotificationService} from '../utilities/notification.service';
 import {AuthService} from '../user/auth.service';
-import {ApiConfigService} from '../../api/api-config.service';
 import {Router} from '@angular/router';
 import {StructureSummaryModel} from '../../../models/structure/structure-summary.model';
-import {FileUploadResponseDto} from '../../../models/files/file-upload-response.model';
-
-import {UserStructureService} from '../user-structure/user-structure.service';
 import {AudienceZoneTemplateModel} from '../../../models/structure/AudienceZoneTemplate.model';
 import {StructureAreaModel} from '../../../models/structure/structure-area.model';
-import {EventAudienceZone} from '../../../models/event/event-audience-zone.model';
 
 @Injectable({
   providedIn: 'root'
@@ -45,7 +38,6 @@ export class StructureService {
   private notification = inject(NotificationService);
   private authService = inject(AuthService);
   private router = inject(Router);
-  private apiConfig = inject(ApiConfigService);
 
   // We don't inject UserStructureService directly to avoid circular dependency
   // Instead, we'll use a method to get it when needed
@@ -61,7 +53,6 @@ export class StructureService {
 
   // Signal for the currently selected or managed structure's full details
   private currentStructureDetailsSig: WritableSignal<StructureModel | null | undefined> = signal(undefined); // undefined: loading, null: not found
-  public readonly currentStructureDetails = computed(() => this.currentStructureDetailsSig());
 
   constructor() {
     // Preload structure types on service initialization
@@ -200,15 +191,6 @@ export class StructureService {
 
   // --- Utility Methods ---
 
-  /**
-   * Retrieves the count of events for a given structure.
-   * @param structure - The `StructureModel` object.
-   * @returns The number of events, or 0 if not defined.
-   */
-  getEventCountForStructure(structure: StructureModel): number {
-    return structure?.eventsCount ?? 0;
-  }
-
   // --- Data Mapping Utilities (if API DTOs differ from StructureModel) ---
   // Assuming API DTOs mostly match our models. If not, expand these mappers.
   public mapApiToStructureModel(apiStructure: any): StructureModel {
@@ -223,24 +205,6 @@ export class StructureService {
       createdAt: new Date(apiStructure.createdAt), // Ensure dates are Date objects
       updatedAt: apiStructure.updatedAt ? new Date(apiStructure.updatedAt) : undefined,
     } as StructureModel;
-  }
-
-  /**
-   * Maps a raw API DTO to a `StructureSummaryModel`.
-   * @param dto - The raw data object from the API.
-   * @returns A `StructureSummaryModel` instance.
-   */
-  public mapApiToStructureSummaryModel(dto: any): StructureSummaryModel {
-    return {
-      id: dto.id,
-      name: dto.name,
-      types: dto.types || [],
-      city: dto.address?.city || 'Ville non disponible',
-      logoUrl: dto.logoUrl,
-      coverUrl: dto.coverUrl,
-      isActive: dto.isActive !== undefined ? dto.isActive : true, // Par défaut à true si non fourni
-      eventCount: dto.eventsCount || 0,
-    };
   }
 
   /**
@@ -294,13 +258,4 @@ export class StructureService {
     );
   }
 
-  /**
-   * Gets the UserStructureService instance.
-   * This is used to avoid circular dependency issues.
-   * @returns The UserStructureService instance.
-   */
-  private getUserStructureService(): UserStructureService {
-    // Using inject function with the current injector to get the service
-    return inject(UserStructureService);
-  }
 }

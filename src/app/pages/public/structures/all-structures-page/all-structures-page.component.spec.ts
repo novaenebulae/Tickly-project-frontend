@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { AllStructuresPageComponent } from './all-structures-page.component';
+import {AllStructuresPageComponent} from './all-structures-page.component';
 
 describe('AllStructuresPageComponent', () => {
   let component: AllStructuresPageComponent;

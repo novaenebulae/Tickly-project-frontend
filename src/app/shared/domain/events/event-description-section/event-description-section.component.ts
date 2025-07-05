@@ -1,10 +1,10 @@
-import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDividerModule } from '@angular/material/divider';
-import { EventModel } from '../../../../core/models/event/event.model';
+import {Component, Input} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatDividerModule} from '@angular/material/divider';
+import {EventModel} from '../../../../core/models/event/event.model';
 
 @Component({
   selector: 'app-event-description-section',

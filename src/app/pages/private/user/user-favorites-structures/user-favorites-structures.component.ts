@@ -1,16 +1,16 @@
-import { Component, inject, signal, computed, WritableSignal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatBadgeModule } from '@angular/material/badge';
+import {Component, computed, inject, signal, WritableSignal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router, RouterModule} from '@angular/router';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatBadgeModule} from '@angular/material/badge';
 
-import { StructureCardComponent } from '../../../../shared/domain/structures/structure-card/structure-card.component';
-import { UserFavoritesService } from '../../../../core/services/domain/user/user-favorites.service';
-import { AuthService } from '../../../../core/services/domain/user/auth.service';
-import { StructureSummaryModel } from '../../../../core/models/structure/structure-summary.model';
+import {StructureCardComponent} from '../../../../shared/domain/structures/structure-card/structure-card.component';
+import {UserFavoritesService} from '../../../../core/services/domain/user/user-favorites.service';
+import {AuthService} from '../../../../core/services/domain/user/auth.service';
+import {StructureSummaryModel} from '../../../../core/models/structure/structure-summary.model';
 
 @Component({
   selector: 'app-user-favorites-structures',

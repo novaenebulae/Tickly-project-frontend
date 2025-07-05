@@ -1,18 +1,17 @@
 // src/app/shared/components/event-details/event-info-section/event-info-section.component.ts
 
-import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatChipsModule } from '@angular/material/chips';
-import { RouterModule } from '@angular/router';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatCardModule} from '@angular/material/card';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatChipsModule} from '@angular/material/chips';
+import {RouterModule} from '@angular/router';
 
-import { EventModel } from '../../../../core/models/event/event.model';
-import { StructureModel } from '../../../../core/models/structure/structure.model';
-import { SeatingType } from '../../../../core/models/event/event-audience-zone.model';
+import {EventModel} from '../../../../core/models/event/event.model';
+import {StructureModel} from '../../../../core/models/structure/structure.model';
 
 @Component({
   selector: 'app-event-info-section',
@@ -39,19 +38,6 @@ export class EventInfoSectionComponent {
   @Output() bookEvent = new EventEmitter<void>();
 
   protected formattedAddress: string = '';
-
-  // ngOnInit(): void {
-  //   if (!this.event) {
-  //     console.error('EventInfoSectionComponent: Event input is missing.');
-  //   } else {
-  //     console.log('=== DEBUG EVENT INFO SECTION ===');
-  //     console.log('Event complet:', this.event);
-  //     console.log('Event areas:', this.event.areas);
-  //     console.log('Event areas length:', this.event.areas?.length);
-  //     console.log('Type de areas:', typeof this.event.areas);
-  //     console.log('=== FIN DEBUG ===');
-  //   }
-  // }
 
   /**
    * Retourne l'URL du logo de la structure ou une image par défaut
@@ -86,13 +72,6 @@ export class EventInfoSectionComponent {
     return this.event.audienceZones
       .filter(zone => zone.isActive)
       .reduce((total, zone) => total + zone.allocatedCapacity, 0);
-  }
-
-  /**
-   * Émet l'événement pour ajouter au calendrier
-   */
-  onAddToCalendar(): void {
-    this.addToCalendar.emit();
   }
 
   /**

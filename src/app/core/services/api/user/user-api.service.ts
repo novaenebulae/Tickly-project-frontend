@@ -17,15 +17,15 @@ interface AccountDeletionResponse {
 }
 
 
-import { Injectable, inject } from '@angular/core';
-import {HttpClient, HttpErrorResponse, HttpParams, HttpStatusCode} from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
+import {Observable, throwError} from 'rxjs';
 
 
-import { ApiConfigService } from '../api-config.service';
-import { APP_CONFIG } from '../../../config/app-config';
-import { UserModel } from '../../../models/user/user.model';
-import { UserProfileUpdateDto } from '../../../models/user/user-profile-update.dto';
+import {ApiConfigService} from '../api-config.service';
+import {APP_CONFIG} from '../../../config/app-config';
+import {UserModel} from '../../../models/user/user.model';
+import {UserProfileUpdateDto} from '../../../models/user/user-profile-update.dto';
 import {FavoriteStructureDto, UserFavoriteStructureModel} from '../../../models/user/user-favorite-structure.model';
 import {catchError, map, tap} from 'rxjs/operators';
 

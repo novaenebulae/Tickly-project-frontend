@@ -1,8 +1,7 @@
-import { v4 as uuidv4 } from 'uuid';
-import { TicketModel } from '../../../models/tickets/ticket.model';
-import { TicketStatus } from '../../../models/tickets/ticket-status.enum'; // Ajustez le chemin si nécessaire
-import { ParticipantInfoModel } from '../../../models/tickets/participant-info.model'; // Ajustez le chemin si nécessaire
-import { SeatingType } from '../../../models/event/event-audience-zone.model'; // Ajustez le chemin si nécessaire
+import {v4 as uuidv4} from 'uuid';
+import {TicketModel} from '../../../models/tickets/ticket.model';
+import {TicketStatus} from '../../../models/tickets/ticket-status.enum'; // Ajustez le chemin si nécessaire
+import {SeatingType} from '../../../models/event/event-audience-zone.model'; // Ajustez le chemin si nécessaire
 
 // Helper pour générer des dates (similaire à events.mock.ts)
 const addDays = (date: Date, days: number): Date => {

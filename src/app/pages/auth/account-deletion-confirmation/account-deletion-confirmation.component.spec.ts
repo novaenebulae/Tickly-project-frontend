@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { AccountDeletionConfirmationComponent } from './account-deletion-confirmation.component';
+import {AccountDeletionConfirmationComponent} from './account-deletion-confirmation.component';
 
 describe('AccountDeletionConfirmationComponent', () => {
   let component: AccountDeletionConfirmationComponent;

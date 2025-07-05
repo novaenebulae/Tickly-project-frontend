@@ -4,26 +4,25 @@
  * @author VotreNomOuEquipe
  */
 
-import { Injectable, inject, signal, computed, WritableSignal, effect } from '@angular/core';
+import {computed, effect, inject, Injectable, signal, WritableSignal} from '@angular/core';
 import {forkJoin, Observable, of} from 'rxjs';
-import {tap, catchError, switchMap} from 'rxjs/operators';
+import {catchError, switchMap, tap} from 'rxjs/operators';
 
 // API Service
-import { TicketApiService } from '../../api/ticket/ticket-api.service';
+import {TicketApiService} from '../../api/ticket/ticket-api.service';
 
 // Domain Services
-import { NotificationService } from '../utilities/notification.service';
-import { AuthService } from '../user/auth.service';
+import {NotificationService} from '../utilities/notification.service';
+import {AuthService} from '../user/auth.service';
 
 // Models and DTOs
 import {
-  ReservationRequestDto,
   ReservationConfirmationModel,
+  ReservationRequestDto,
   TicketPdfDataDto,
 } from '../../../models/tickets/reservation.model';
-import { TicketModel } from '../../../models/tickets/ticket.model';
-import { ParticipantInfoModel } from '../../../models/tickets/participant-info.model';
-import { TicketStatus } from '../../../models/tickets/ticket-status.enum';
+import {TicketModel} from '../../../models/tickets/ticket.model';
+import {ParticipantInfoModel} from '../../../models/tickets/participant-info.model';
 import {TicketPdfService} from './ticket-pdf.service';
 
 @Injectable({
@@ -43,10 +42,6 @@ export class TicketService {
   public readonly myTickets = computed(() => this.myTicketsSig());
 
   private selectedTicketDetailSig: WritableSignal<TicketModel | null | undefined> = signal(undefined);
-  /**
-   * A signal representing the details of a currently selected or viewed ticket.
-   */
-  public readonly selectedTicketDetail = computed(() => this.selectedTicketDetailSig());
 
   constructor() {
     // Auto-load user's tickets when they log in or out
@@ -198,34 +193,6 @@ export class TicketService {
       catchError(error => {
         this.handleError('Erreur lors de la préparation des données PDF.', error);
         return of();
-      })
-    );
-  }
-
-
-  /**
-   * Validates a ticket (e.g., for scanning at event entry).
-   */
-  validateTicket(ticketId: string): Observable<TicketModel | undefined> {
-    return this.ticketApi.validateTicket(ticketId).pipe(
-      tap(updatedTicket => {
-        if (updatedTicket) {
-          this.notification.displayNotification(`Billet #${ticketId} validé avec succès. Statut : ${updatedTicket.status}`, 'valid');
-          // Update caches
-          const currentTickets = this.myTicketsSig();
-          const index = currentTickets.findIndex(t => t.id === updatedTicket.id);
-          if (index !== -1) {
-            currentTickets[index] = updatedTicket;
-            this.myTicketsSig.set([...currentTickets]);
-          }
-          if (this.selectedTicketDetailSig()?.id === updatedTicket.id) {
-            this.selectedTicketDetailSig.set(updatedTicket);
-          }
-        }
-      }),
-      catchError(error => {
-        this.handleError(`Erreur lors de la validation du billet #${ticketId}.`, error);
-        return of(undefined);
       })
     );
   }

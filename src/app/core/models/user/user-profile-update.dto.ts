@@ -27,5 +27,5 @@ export interface UserProfileUpdateDto {
   email?: string;
 
   // L'avatarUrl est géré par un endpoint spécifique (/api/v1/users/me/avatar)
-  // et n'est plus inclus directement dans cette DTO
+
 }

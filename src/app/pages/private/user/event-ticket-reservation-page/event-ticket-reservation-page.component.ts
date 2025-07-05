@@ -1,36 +1,33 @@
-import { Component, OnInit, OnDestroy, signal, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Subject, takeUntil, finalize } from 'rxjs';
+import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {CommonModule, Location} from '@angular/common';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {finalize, Subject, takeUntil} from 'rxjs';
 
 // Angular Material
-import { MatStepperModule } from '@angular/material/stepper';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatRadioModule } from '@angular/material/radio';
+import {MatStepperModule} from '@angular/material/stepper';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatRadioModule} from '@angular/material/radio';
 
 // Models
-import { EventModel } from '../../../../core/models/event/event.model';
-import { EventAudienceZone } from '../../../../core/models/event/event-audience-zone.model';
-import { ParticipantInfoModel } from '../../../../core/models/tickets/participant-info.model';
-import { ReservationConfirmationModel } from '../../../../core/models/tickets/reservation.model';
+import {EventModel} from '../../../../core/models/event/event.model';
+import {EventAudienceZone} from '../../../../core/models/event/event-audience-zone.model';
+import {ParticipantInfoModel} from '../../../../core/models/tickets/participant-info.model';
+import {ReservationConfirmationModel} from '../../../../core/models/tickets/reservation.model';
 
 // Services
-import { EventService } from '../../../../core/services/domain/event/event.service';
-import { TicketService } from '../../../../core/services/domain/ticket/ticket.service';
-import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
-import { UserService } from '../../../../core/services/domain/user/user.service';
-import {AuthService} from "../../../../core/services/domain/user/auth.service";
-import {UserModel} from "../../../../core/models/user/user.model";
-import {Location} from "@angular/common";
+import {EventService} from '../../../../core/services/domain/event/event.service';
+import {TicketService} from '../../../../core/services/domain/ticket/ticket.service';
+import {NotificationService} from '../../../../core/services/domain/utilities/notification.service';
+import {UserService} from '../../../../core/services/domain/user/user.service';
 
 @Component({
   selector: 'app-event-ticket-reservation-page',
@@ -62,7 +59,6 @@ export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
   private ticketService = inject(TicketService);
   private notificationService = inject(NotificationService);
   private userService = inject(UserService);
-  private authService = inject(AuthService);
   private location = inject(Location);
 
   private destroy$ = new Subject<void>();
@@ -301,12 +297,4 @@ export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
     this.notificationService.displayNotification(message, 'error');
   }
 
-  // Méthodes utilitaires pour le template
-  getZoneName(zoneId: number): string {
-    return this.availableZones().find(z => z.id === zoneId)?.name || '';
-  }
-
-  getSelectedZoneCapacity(): number {
-    return this.selectedZone()?.allocatedCapacity || 0;
-  }
 }

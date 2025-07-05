@@ -1,29 +1,28 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, inject, OnInit, ViewChild, AfterViewInit, computed, signal, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatChipsModule } from '@angular/material/chips';
-import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import {AfterViewInit, Component, computed, inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {MatCardModule} from '@angular/material/card';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatIconModule} from '@angular/material/icon';
+import {MatButtonModule} from '@angular/material/button';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatChipsModule} from '@angular/material/chips';
+import {Router} from '@angular/router';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 // Chart.js
-import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
-import { BaseChartDirective } from 'ng2-charts';
+import {ChartConfiguration, ChartData, ChartType} from 'chart.js';
+import {BaseChartDirective} from 'ng2-charts';
 
 // Services
-import { UserStructureService } from '../../../../../core/services/domain/user-structure/user-structure.service';
-import { StatisticsService } from '../../../../../core/services/domain/statistics/statistics.service';
-import { TeamManagementService } from '../../../../../core/services/domain/team-management/team-management.service';
+import {UserStructureService} from '../../../../../core/services/domain/user-structure/user-structure.service';
+import {StatisticsService} from '../../../../../core/services/domain/statistics/statistics.service';
+import {TeamManagementService} from '../../../../../core/services/domain/team-management/team-management.service';
 
 // Models
-import { StructureDashboardStatsDto } from '../../../../../core/models/statistics/structure-dashboard-stats.model';
-import { ChartJsDataDto } from '../../../../../core/models/statistics/chart-js-data.model';
+import {StructureDashboardStatsDto} from '../../../../../core/models/statistics/structure-dashboard-stats.model';
+import {ChartJsDataDto} from '../../../../../core/models/statistics/chart-js-data.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -56,7 +55,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   // Structure info
   structureName = this.userStructureService.userStructure;
   protected readonly structureAreas = this.userStructureService.userStructureAreas;
-  protected userStructureData = this.userStructureService.userStructure();
 
   // Statistics data
   stats = this.statisticsService.structureDashboardStats;
@@ -262,13 +260,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   navigateToAreas(): void {
     this.router.navigate(['/admin/structure/areas']);
-  }
-
-  /**
-   * Navigation to events management
-   */
-  navigateToEvents(): void {
-    this.router.navigate(['/admin/events']);
   }
 
   /**

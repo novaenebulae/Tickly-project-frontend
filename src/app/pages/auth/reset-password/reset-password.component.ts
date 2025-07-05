@@ -1,16 +1,16 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { passwordMatchValidator } from '../../../shared/validators/password-match.validator';
-import { AuthApiService } from '../../../core/services/api/auth/auth-api.service';
-import { NotificationService } from '../../../core/services/domain/utilities/notification.service';
+import {CommonModule} from '@angular/common';
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {passwordMatchValidator} from '../../../shared/validators/password-match.validator';
+import {AuthApiService} from '../../../core/services/api/auth/auth-api.service';
+import {NotificationService} from '../../../core/services/domain/utilities/notification.service';
 
 @Component({
   selector: 'app-reset-password',

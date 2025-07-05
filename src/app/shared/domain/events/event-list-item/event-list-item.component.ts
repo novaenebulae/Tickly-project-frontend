@@ -1,10 +1,10 @@
-import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatRippleModule } from '@angular/material/core';
-import {EventModel, EventSummaryModel} from '../../../../core/models/event/event.model';
+import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
+import {CommonModule, DatePipe} from '@angular/common';
+import {Router, RouterModule} from '@angular/router';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatRippleModule} from '@angular/material/core';
+import {EventSummaryModel} from '../../../../core/models/event/event.model';
 
 @Component({
   selector: 'app-event-list-item',
@@ -43,14 +43,6 @@ export class EventListItemComponent implements OnInit {
     }
   }
 
-  get formattedStartDate(): string {
-    if (this.event && this.event.startDate) {
-      // Exemple: "10 Juil. 2025 ・ 18:00"
-      return this.datePipe.transform(this.event.startDate, 'dd MMM yyyy ・ HH:mm', '', 'fr') || '';
-    }
-    return 'Date non spécifiée';
-  }
-
   get displayLocation(): string {
     if (this.event && this.event.address?.city) {
       return `${this.event.address.city}`;
@@ -58,9 +50,6 @@ export class EventListItemComponent implements OnInit {
     return ''; // Retourne une chaîne vide si pas d'adresse
   }
 
-  get formattedCategories () {
-    return this.event.categories.map(cat => cat.name).join(', ');
-  }
 
   // On arrête la propagation du clic si l'utilisateur clique spécifiquement sur le bouton,
   // car l'item entier est déjà cliquable.

@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { SimilarEventsSectionComponent } from './similar-events-section.component';
+import {SimilarEventsSectionComponent} from './similar-events-section.component';
 
 describe('SimilarEventsSectionComponent', () => {
   let component: SimilarEventsSectionComponent;

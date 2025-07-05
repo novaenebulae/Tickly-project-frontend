@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router'; // Pour les routerLink
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon'; // Si vous utilisez des icônes Material pour le logo ou autre
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RouterModule} from '@angular/router'; // Pour les routerLink
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon'; // Si vous utilisez des icônes Material pour le logo ou autre
 
 @Component({
   selector: 'app-footer',

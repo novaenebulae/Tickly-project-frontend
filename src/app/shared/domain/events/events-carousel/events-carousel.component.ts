@@ -1,21 +1,11 @@
-import {
-  Component,
-  Input,
-  OnInit,
-  AfterViewInit,
-  OnDestroy,
-  ViewChild,
-  ElementRef,
-  HostBinding,
-  inject
-} from '@angular/core';
-import { Subscription, interval } from 'rxjs';
+import {AfterViewInit, Component, ElementRef, HostBinding, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {interval, Subscription} from 'rxjs';
 import {CommonModule} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
 import {EventCardComponent} from '../event-card-item/event-card.component';
 import {MatButtonModule} from '@angular/material/button';
-import {EventModel, EventSummaryModel} from '../../../../core/models/event/event.model';
-import {EventService} from '../../../../core/services/domain/event/event.service';
+import {EventSummaryModel} from '../../../../core/models/event/event.model';
+
 // Les imports pour MatIconModule etc. sont dans le décorateur @Component pour les composants standalone
 
 @Component({
@@ -123,8 +113,4 @@ export class EventsCarouselComponent implements OnInit, AfterViewInit, OnDestroy
     return this.currentPage === pageIndex;
   }
 
-  // Méthode pour regrouper les événements par page pour l'affichage dans le template
-  // Cela simplifie le template HTML si on veut wrapper chaque "page" de cartes.
-  // Alternative : Laisser le CSS gérer l'affichage des cartes en ligne et le défilement du conteneur global.
-  // Pour l'instant, nous allons opter pour un défilement du conteneur global de toutes les cartes.
 }

@@ -1,20 +1,20 @@
 import {Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { Subject } from 'rxjs';
-import { debounceTime, takeUntil } from 'rxjs/operators';
-import { EventCategoryModel} from '../../../../core/models/event/event-category.model';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatNativeDateModule} from '@angular/material/core';
+import {Subject} from 'rxjs';
+import {debounceTime, takeUntil} from 'rxjs/operators';
+import {EventCategoryModel} from '../../../../core/models/event/event-category.model';
 import {CategoryService} from '../../../../core/services/domain/event/category.service';
-import { EventSearchParams } from '../../../../core/models/event/event-search-params.model';
+import {EventSearchParams} from '../../../../core/models/event/event-search-params.model';
 
 
 // Interface pour les options de tri
@@ -73,7 +73,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   categoriesList:EventCategoryModel[] = [];
-
 
   // Options pour le tri
   sortOptions: SortOption[] = [
@@ -139,48 +138,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
       });
   }
 
-  // /**
-  //  * Applique les filtres initiaux si fournis
-  //  */
-  // private applyInitialFilters(): void {
-  //   if (this.initialFilters) {
-  //     // Gérer les catégories spécifiquement
-  //     if (this.initialFilters.category) {
-  //       // C'est un tableau d'objets EventCategoryModel
-  //       this.selectedCategories = this.initialFilters.category;
-  //     }
-  //     // Mettre à jour le contrôle du formulaire
-  //     this.filtersForm.get('selectedCategories')?.setValue(this.selectedCategories);
-  //   }
-  //
-  //   // Appliquer les dates si présentes
-  //   if (this.initialFilters.startDate || this.initialFilters.endDate) {
-  //     const dateRangeControl = this.filtersForm.get('dateRange');
-  //     if (dateRangeControl) {
-  //       dateRangeControl.patchValue({
-  //         startDate: this.initialFilters.startDate || null,
-  //         endDate: this.initialFilters.endDate || null
-  //       });
-  //     }
-  //   }
-  //
-  //   // Appliquer la recherche si présente
-  //   if (this.initialFilters.query) {
-  //     this.filtersForm.get('searchQuery')?.setValue(this.initialFilters.query);
-  //   }
-  //
-  //   // Appliquer le lieu si présent
-  //   if (this.initialFilters.location) {
-  //     this.filtersForm.get('location')?.setValue(this.initialFilters.location);
-  //   }
-  //
-  //   // Appliquer le tri si présent
-  //   if (this.initialFilters.sortBy && this.initialFilters.sortDirection) {
-  //     const sortValue = `${this.initialFilters.sortBy}_${this.initialFilters.sortDirection}`;
-  //     this.filtersForm.get('sortBy')?.setValue(sortValue);
-  //   }
-  // }
-
   /**
    * Bascule l'état d'ouverture/fermeture du panneau de filtres avancés
    */
@@ -214,30 +171,6 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
    */
   isCategorySelected(category: EventCategoryModel): boolean {
     return this.selectedCategories.includes(category);
-  }
-
-  /**
-   * Réinitialise les filtres avancés
-   */
-  resetAdvancedFilters(): void {
-    // Réinitialiser les dates
-    const dateRangeGroup = this.filtersForm.get('dateRange') as FormGroup;
-    dateRangeGroup.patchValue({
-      startDate: null,
-      endDate: null
-    });
-
-    // Réinitialiser la localisation
-    this.filtersForm.get('location')?.setValue('');
-  }
-
-  /**
-   * Applique les filtres avancés et ferme le panneau
-   */
-  applyAdvancedFilters(): void {
-    // Ferme le panneau après application
-    this.toggleAdvancedFilters();
-    // L'émission des filtres se fait automatiquement via l'observable sur valueChanges
   }
 
   /**

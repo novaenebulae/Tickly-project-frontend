@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { EventSocialSectionComponent } from './event-social-section.component';
+import {EventSocialSectionComponent} from './event-social-section.component';
 
 describe('EventSocialSectionComponent', () => {
   let component: EventSocialSectionComponent;

@@ -1,11 +1,9 @@
 import {Component, inject, Input, OnInit} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { FriendshipService} from '../../../../core/services/domain/user/friendship.service';
-import { UserModel } from '../../../../core/models/user/user.model';
-import { Observable, catchError, of } from 'rxjs';
-import {FriendModel} from '../../../../core/models/friendship/friend.model';
+import {CommonModule} from '@angular/common';
+import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
+import {FriendshipService} from '../../../../core/services/domain/user/friendship.service';
+import {catchError, of} from 'rxjs';
 import {FriendParticipantDto} from '../../../../core/models/friendship/friend-participant.dto';
 
 @Component({

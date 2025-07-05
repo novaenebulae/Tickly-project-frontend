@@ -3,29 +3,27 @@
  * @licence Proprietary
  */
 
-import { Injectable, inject, signal, computed } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import {tap, catchError, finalize, map, switchMap} from 'rxjs/operators';
+import {computed, inject, Injectable, signal} from '@angular/core';
+import {Observable, of} from 'rxjs';
+import {catchError, finalize, map, tap} from 'rxjs/operators';
 
 // Services API
-import { TeamApiService } from '../../api/team/team-api.service';
+import {TeamApiService} from '../../api/team/team-api.service';
 
 // Services de domaine
-import { UserStructureService } from '../user-structure/user-structure.service';
-import { NotificationService } from '../utilities/notification.service';
-import { AuthService } from '../user/auth.service';
+import {UserStructureService} from '../user-structure/user-structure.service';
+import {NotificationService} from '../utilities/notification.service';
+import {AuthService} from '../user/auth.service';
 
 // Modèles
 import {
-  TeamMember,
-  InviteTeamMemberDto,
-  UpdateTeamMemberDto,
-  InviteTeamMemberResponseDto,
-  TeamMemberStatus,
   ALLOWED_TEAM_ROLES,
-  isAllowedTeamRole
+  InviteTeamMemberDto,
+  isAllowedTeamRole,
+  TeamMember,
+  TeamMemberStatus
 } from '../../../models/user/team-member.model';
-import { UserRole } from '../../../models/user/user-role.enum';
+import {UserRole} from '../../../models/user/user-role.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -200,37 +198,6 @@ export class TeamManagementService {
   }
 
   /**
-   * Met à jour un membre d'équipe.
-   */
-  updateTeamMember(memberId: number, updateData: UpdateTeamMemberDto): Observable<TeamMember | null> {
-    this.isUpdatingSig.set(true);
-
-    return this.teamApiService.updateTeamMember(memberId, updateData).pipe(
-      tap(updatedMember => {
-        // Mettre à jour le membre dans la liste
-        const currentMembers = this.teamMembersSig();
-        const memberIndex = currentMembers.findIndex(m => m.id === memberId);
-
-        if (memberIndex !== -1) {
-          const updatedMembers = [...currentMembers];
-          updatedMembers[memberIndex] = updatedMember;
-          this.teamMembersSig.set(updatedMembers);
-
-          this.notificationService.displayNotification(
-            'Membre d\'équipe mis à jour avec succès !',
-            'valid'
-          );
-        }
-      }),
-      catchError(error => {
-        this.handleError('Impossible de mettre à jour le membre d\'équipe.', error);
-        return of(null);
-      }),
-      finalize(() => this.isUpdatingSig.set(false))
-    );
-  }
-
-  /**
    * Supprime un membre d'équipe.
    */
   removeTeamMember(memberId: number): Observable<boolean> {
@@ -286,13 +253,6 @@ export class TeamManagementService {
     // Un administrateur de structure ne peut pas supprimer un autre administrateur
     return !(currentUser?.role === UserRole.STRUCTURE_ADMINISTRATOR &&
       member.role === UserRole.STRUCTURE_ADMINISTRATOR);
-  }
-
-  /**
-   * Rafraîchit la liste des membres d'équipe.
-   */
-  refreshTeamMembers(): Observable<TeamMember[]> {
-    return this.loadTeamMembers(true);
   }
 
   /**

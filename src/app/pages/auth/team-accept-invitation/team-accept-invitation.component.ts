@@ -1,13 +1,13 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { TeamApiService } from '../../../core/services/api/team/team-api.service';
-import { AuthService } from '../../../core/services/domain/user/auth.service';
-import { NotificationService } from '../../../core/services/domain/utilities/notification.service';
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute, Router} from '@angular/router';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {TeamApiService} from '../../../core/services/api/team/team-api.service';
+import {AuthService} from '../../../core/services/domain/user/auth.service';
+import {NotificationService} from '../../../core/services/domain/utilities/notification.service';
 import {UserService} from '../../../core/services/domain/user/user.service';
 
 @Component({

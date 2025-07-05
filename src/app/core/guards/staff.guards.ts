@@ -1,17 +1,7 @@
-import { UserRole } from '../models/user/user-role.enum';
-import { createRoleBasedGuard } from './role-based-access.guard';
+import {UserRole} from '../models/user/user-role.enum';
+import {createRoleBasedGuard} from './role-based-access.guard';
 
 // === Guards pour la gestion de structure ===
-
-/**
- * Guard pour la gestion complète de structure
- * Accès : STRUCTURE_ADMINISTRATOR (complet) + ORGANIZATION_SERVICE (readonly)
- */
-export const StructureManagementGuard = createRoleBasedGuard({
-  allowedRoles: [UserRole.STRUCTURE_ADMINISTRATOR, UserRole.ORGANIZATION_SERVICE],
-  deniedMessage: 'Vous devez être administrateur de structure ou service d\'organisation pour accéder à cette page.',
-  guardName: 'StructureManagementGuard'
-});
 
 /**
  * Guard pour l'accès étendu à la structure (inclut RESERVATION_SERVICE en readonly)

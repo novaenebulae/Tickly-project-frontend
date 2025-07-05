@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { EventBannerComponent } from './event-banner.component';
+import {EventBannerComponent} from './event-banner.component';
 
 describe('EventBannerComponent', () => {
   let component: EventBannerComponent;
