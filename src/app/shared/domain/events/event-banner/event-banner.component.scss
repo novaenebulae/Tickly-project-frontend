@@ -3,6 +3,8 @@
 .event-banner {
   max-width: 100%;
   position: relative;
+  display: flex;
+  justify-content: center;
 
   // Couleurs principales du projet
   --primary-color: #6c63ff;
@@ -19,6 +21,7 @@
     position: relative;
     display: flex;
     align-items: center;
+    border-radius: 0 0 12px 12px; // Add rounded corners at the bottom
 
     // Responsive
     @media (max-width: 768px) {

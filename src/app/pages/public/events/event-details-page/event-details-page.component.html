@@ -28,13 +28,6 @@
 
     <div class="event-details-page-content">
 
-      <!-- Section de description -->
-      <section id="description" class="section description-section">
-        <app-event-description-section
-          [event]="event()">
-        </app-event-description-section>
-      </section>
-
       <!-- Section d'informations principales -->
       <section id="info" class="section info-section">
         <app-event-info-section
@@ -46,6 +39,12 @@
         </app-event-info-section>
       </section>
 
+      <!-- Section de description -->
+      <section id="description" class="section description-section">
+        <app-event-description-section
+          [event]="event()">
+        </app-event-description-section>
+      </section>
 
       <!-- Section de galerie -->
       <section id="gallery" class="section gallery-section" *ngIf="event()?.eventPhotoUrls?.length">

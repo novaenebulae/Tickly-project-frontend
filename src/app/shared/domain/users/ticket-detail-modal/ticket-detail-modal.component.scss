@@ -30,7 +30,7 @@
 
       img {
         width: 100%;
-        height: 100%;
+        max-height: 150px;
         object-fit: cover;
       }
 
@@ -54,7 +54,7 @@
         right: 0;
         background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.8));
         color: white;
-        padding: 2rem 2rem;
+        padding: 2rem 2rem 0;
         height: 100%;
 
         .event-headline {
@@ -421,7 +421,7 @@
 
         .event-metadata {
           flex-direction: column;
-          gap: 0rem;
+          gap: 0;
         }
 
         .tickets-summary {

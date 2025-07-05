@@ -62,15 +62,30 @@ export class EventInfoSectionComponent {
 
 
   /**
-   * Obtient l'adresse complète formatée
+   * Obtient l'adresse complète formatée sans le code postal
    */
   getFormattedAddress(): string {
     const address = this.event.address;
     if (!address) {
       return 'Adresse non spécifiée';
     }
-    this.formattedAddress = `${address.street}${address.number ? ' ' + address.number : ''}, ${address.zipCode} ${address.city}, ${address.country || 'France'}`;
+    // Hide zipCode as per requirements
+    this.formattedAddress = `${address.street}${address.number ? ' ' + address.number : ''}, ${address.city}, ${address.country || 'France'}`;
     return this.formattedAddress;
+  }
+
+  /**
+   * Calcule la capacité totale des zones d'audience
+   */
+  getTotalCapacity(): number {
+    if (!this.event.audienceZones || this.event.audienceZones.length === 0) {
+      return 0;
+    }
+
+    // Sum up the allocated capacity of all active audience zones
+    return this.event.audienceZones
+      .filter(zone => zone.isActive)
+      .reduce((total, zone) => total + zone.allocatedCapacity, 0);
   }
 
   /**

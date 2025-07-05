@@ -1300,7 +1300,6 @@ export class EventFormComponent implements OnInit {
     // Get the raw form values (including disabled fields)
     const generalInfo = this.generalInfoForm.getRawValue();
     const location = this.locationForm.getRawValue();
-    const media = this.mediaForm.getRawValue();
     const config = this.configForm.getRawValue();
     const areaZoneSelection = this.selectedAreaZonesSig();
 
@@ -1318,7 +1317,6 @@ export class EventFormComponent implements OnInit {
     // Note: status is not included in the DTO as it should be set separately using the dedicated endpoint
     const eventData: Partial<EventDataDto> = {
       structureId: userStructureId,
-      name: generalInfo.name // Always include name
     };
 
     // In edit mode, only include fields that are allowed to be modified based on event status
@@ -1327,6 +1325,7 @@ export class EventFormComponent implements OnInit {
       const matrix = this.fieldModificationMatrix[status];
 
       // Only include fields that are allowed to be modified
+      if (matrix.name) eventData.name = generalInfo.name;
       if (matrix.categoryIds) eventData.categoryIds = categoryIds;
       if (matrix.shortDescription) eventData.shortDescription = generalInfo.shortDescription;
       if (matrix.fullDescription) eventData.fullDescription = generalInfo.fullDescription;
@@ -1343,10 +1342,10 @@ export class EventFormComponent implements OnInit {
       }
       if (matrix.displayOnHomepage) eventData.displayOnHomepage = config.displayOnHomepage;
       if (matrix.isFeaturedEvent) eventData.isFeaturedEvent = config.isFeaturedEvent;
-      if (matrix.images) {
-        eventData.mainPhotoUrl = mainPhotoUrl;
-        eventData.eventPhotoUrls = additionalPhotoUrls;
-      }
+      // if (matrix.images) {
+      //   eventData.mainPhotoUrl = mainPhotoUrl;
+      //   eventData.eventPhotoUrls = additionalPhotoUrls;
+      // }
     } else {
       // In create mode, include all fields
       eventData.categoryIds = categoryIds;
@@ -1363,8 +1362,8 @@ export class EventFormComponent implements OnInit {
       })) || [];
       eventData.displayOnHomepage = config.displayOnHomepage;
       eventData.isFeaturedEvent = config.isFeaturedEvent;
-      eventData.mainPhotoUrl = mainPhotoUrl;
-      eventData.eventPhotoUrls = additionalPhotoUrls;
+    //   eventData.mainPhotoUrl = mainPhotoUrl;
+    //   eventData.eventPhotoUrls = additionalPhotoUrls;
     }
 
     // Log the event data to help with debugging

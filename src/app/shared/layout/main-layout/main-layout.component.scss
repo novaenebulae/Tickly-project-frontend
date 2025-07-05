@@ -7,9 +7,9 @@
     flex: 1;
     min-height: calc(100vh - 76px - 80px); // 100vh - navbar - footer
 
-    @media (max-width: 768px) {
-      margin-top: 70px; // Ajustement pour mobile
-      min-height: calc(100vh - 70px - 80px);
-    }
+    //@media (max-width: 768px) {
+    //  //margin-top: 70px; // Ajustement pour mobile
+    //  min-height: calc(100vh - 70px - 80px);
+    //}
   }
 }

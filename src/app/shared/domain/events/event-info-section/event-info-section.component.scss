@@ -1,11 +1,22 @@
 // src/app/shared/components/event-details/event-info-section/event-info-section.component.scss
 .reservation-button {
   min-width: 120px;
-  margin-top: 10px;
+  margin-top: 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
+  padding: 10px 20px;
+  width: 100%;
+  background-color: var(--accent-color);
+  color: white;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
 
   span {
     margin-right: 8px;
@@ -74,6 +85,7 @@
     overflow: hidden;
     box-shadow: var(--shadow);
     transition: transform 0.3s ease;
+    height: 100%; /* Make all cards the same height */
 
     &:hover {
       transform: translateY(-5px);
@@ -84,6 +96,7 @@
       display: flex;
       align-items: center;
       border-bottom: 1px solid var(--border-color);
+      background-color: #f8f9fa; /* Light background for headers */
 
       .icon-wrapper {
         width: 48px;
@@ -93,6 +106,7 @@
         align-items: center;
         justify-content: center;
         margin-right: 1rem;
+        box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
 
         mat-icon {
           font-size: 28px;
@@ -111,6 +125,9 @@
 
     .card-content {
       padding: 1.5rem;
+      height: calc(100% - 90px); /* Subtract header height to make content fill remaining space */
+      display: flex;
+      flex-direction: column;
     }
 
     // Styles spécifiques pour la carte organisateur
@@ -240,80 +257,95 @@
         }
       }
 
-      .price-info {
-        .price-status {
+      .reservation-info {
+        .capacity-info {
           margin-bottom: 1.5rem;
 
-          .free-badge {
+          h4 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin: 0 0 0.75rem 0;
+            color: var(--text-color);
+          }
+
+          .capacity-display {
             display: flex;
             align-items: center;
-            background-color: rgba(46, 204, 113, 0.1);
-            padding: 0.75rem 1rem;
+            background-color: rgba(108, 99, 255, 0.1);
+            padding: 1rem;
             border-radius: 8px;
 
             mat-icon {
-              color: var(--green);
+              color: var(--primary-color);
               margin-right: 0.75rem;
+              font-size: 24px;
+              width: 24px;
+              height: 24px;
             }
 
-            span {
-              font-size: 1.2rem;
-              font-weight: 600;
-              color: var(--green);
-            }
-          }
-
-          .price-details {
-            .price-range, .price-single {
-              display: flex;
-              flex-direction: column;
-
-              .price-label {
-                font-size: 0.9rem;
-                color: var(--text-secondary);
-                margin-bottom: 0.25rem;
-              }
-
-              .price-value {
-                font-size: 1.8rem;
-                font-weight: 700;
-                color: var(--accent-color);
-              }
+            .capacity-number {
+              font-size: 1.8rem;
+              font-weight: 700;
+              color: var(--primary-color);
+              margin-right: 0.5rem;
             }
 
-            .no-price {
-              font-style: italic;
+            .capacity-text {
+              font-size: 1rem;
               color: var(--text-secondary);
             }
           }
         }
 
-        .seating-info {
-          display: flex;
-          align-items: center;
+        .audience-zones {
           margin-bottom: 1.5rem;
 
-          mat-icon {
-            color: var(--text-secondary);
-            margin-right: 0.75rem;
+          h4 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin: 0 0 0.75rem 0;
+            color: var(--text-color);
           }
 
-          span {
-            font-size: 1rem;
-            color: var(--text-secondary);
-          }
-        }
-
-        .availability-info {
-          background-color: #fff8e1;
-          padding: 1rem;
-          border-radius: 8px;
-          border-left: 4px solid #ffc107;
-
-          p {
+          .zones-list {
+            list-style: none;
+            padding: 0;
             margin: 0;
-            font-size: 0.95rem;
-            color: #856404;
+
+            li {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              padding: 0.75rem 0;
+              border-bottom: 1px solid var(--border-color);
+
+              &:last-child {
+                border-bottom: none;
+              }
+
+              .zone-name {
+                font-weight: 500;
+                color: var(--text-color);
+                flex: 1;
+              }
+
+              .zone-capacity {
+                color: var(--text-secondary);
+                margin: 0 1rem;
+              }
+
+              .zone-type {
+                display: flex;
+                align-items: center;
+
+                mat-icon {
+                  color: var(--text-secondary);
+                  font-size: 20px;
+                  width: 20px;
+                  height: 20px;
+                }
+              }
+            }
           }
         }
       }
