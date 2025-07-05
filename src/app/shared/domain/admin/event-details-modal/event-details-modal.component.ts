@@ -12,7 +12,6 @@ import { RouterModule } from '@angular/router';
 
 import { EventModel, EventStatus } from '../../../../core/models/event/event.model';
 import { EventService } from '../../../../core/services/domain/event/event.service';
-import { UserRole } from '../../../../core/models/user/user-role.enum';
 import { AuthService } from '../../../../core/services/domain/user/auth.service';
 
 /**
@@ -37,12 +36,14 @@ import { AuthService } from '../../../../core/services/domain/user/auth.service'
   ],
   template: `
     <div class="event-details-modal">
+      <div class="dialog-header">
       <h2 mat-dialog-title>
-        {{ event?.name || 'Détails de l\'événement' }}
+        {{ event?.name || "Détails de l'événement" }}
+      </h2>
         <button mat-icon-button mat-dialog-close class="close-button">
           <mat-icon>close</mat-icon>
         </button>
-      </h2>
+      </div>
 
       <mat-dialog-content>
         <div *ngIf="loading" class="loading-container">
@@ -56,7 +57,7 @@ import { AuthService } from '../../../../core/services/domain/user/auth.service'
         </div>
 
         <div *ngIf="!loading && event" class="event-content">
-          <mat-tabs>
+          <mat-tab-group>
             <!-- Informations générales -->
             <mat-tab label="Informations">
               <div class="tab-content">
@@ -109,16 +110,12 @@ import { AuthService } from '../../../../core/services/domain/user/auth.service'
                 <div class="event-features">
                   <h3>Caractéristiques</h3>
                   <div class="feature-item">
-                    <mat-icon>{{ event.isFreeEvent ? 'check_circle' : 'cancel' }}</mat-icon>
-                    <span>{{ event.isFreeEvent ? 'Événement gratuit' : 'Événement payant' }}</span>
-                  </div>
-                  <div class="feature-item">
                     <mat-icon>{{ event.displayOnHomepage ? 'check_circle' : 'cancel' }}</mat-icon>
-                    <span>{{ event.displayOnHomepage ? 'Affiché sur la page d\'accueil' : 'Non affiché sur la page d\'accueil' }}</span>
+                    <span>{{ getHomepageDisplayText(event.displayOnHomepage) }}</span>
                   </div>
                   <div class="feature-item">
                     <mat-icon>{{ event.isFeaturedEvent ? 'check_circle' : 'cancel' }}</mat-icon>
-                    <span>{{ event.isFeaturedEvent ? 'Événement mis en avant' : 'Événement standard' }}</span>
+                    <span>{{ getFeaturedEventText(event.isFeaturedEvent) }}</span>
                   </div>
                 </div>
               </div>
@@ -134,7 +131,7 @@ import { AuthService } from '../../../../core/services/domain/user/auth.service'
                     <div class="zone-details">
                       <div class="zone-detail">
                         <mat-icon>people</mat-icon>
-                        <span>Capacité: {{ zone.maxCapacity }} places</span>
+                        <span>Capacité: {{ zone.allocatedCapacity || 0 }} places</span>
                       </div>
                       <div class="zone-detail">
                         <mat-icon>event_seat</mat-icon>
@@ -142,7 +139,7 @@ import { AuthService } from '../../../../core/services/domain/user/auth.service'
                       </div>
                       <div class="zone-detail">
                         <mat-icon>{{ zone.isActive ? 'check_circle' : 'cancel' }}</mat-icon>
-                        <span>{{ zone.isActive ? 'Zone active' : 'Zone inactive' }}</span>
+                        <span>{{ getZoneStatusText(zone.isActive) }}</span>
                       </div>
                     </div>
                   </div>
@@ -160,7 +157,7 @@ import { AuthService } from '../../../../core/services/domain/user/auth.service'
                 </div>
               </div>
             </mat-tab>
-          </mat-tabs>
+          </mat-tab-group>
         </div>
       </mat-dialog-content>
 
@@ -168,32 +165,6 @@ import { AuthService } from '../../../../core/services/domain/user/auth.service'
         <button mat-button mat-dialog-close>Fermer</button>
 
         <ng-container *ngIf="event && canManageEvent">
-          <button
-            mat-button
-            color="warn"
-            *ngIf="event.status !== 'CANCELLED'"
-            (click)="updateStatus(EventStatus.CANCELLED)"
-            matTooltip="Annuler l'événement">
-            Annuler
-          </button>
-
-          <button
-            mat-button
-            color="primary"
-            *ngIf="event.status === 'DRAFT'"
-            (click)="updateStatus(EventStatus.PUBLISHED)"
-            matTooltip="Publier l'événement">
-            Publier
-          </button>
-
-          <button
-            mat-button
-            color="primary"
-            *ngIf="event.status === 'CANCELLED'"
-            (click)="updateStatus(EventStatus.DRAFT)"
-            matTooltip="Remettre en brouillon">
-            Réactiver
-          </button>
 
           <button
             mat-raised-button
@@ -209,19 +180,41 @@ import { AuthService } from '../../../../core/services/domain/user/auth.service'
     </div>
   `,
   styles: [`
-    .event-details-modal {
-      min-width: 600px;
-      max-width: 800px;
+
+    //mat-dialog-title {
+    //  display: flex;
+    //  justify-content: space-between;
+    //  align-items: center;
+    //  margin: 0 !important;
+    //  padding: 0 !important;
+    //  line-height: 1.2 !important;
+    //  font-size: 1.25rem !important;
+    //  min-height: auto !important;
+    //}
+
+    .dialog-header {
+      display: flex;
+
+      h2 {
+        font-size: 2rem;
+      }
     }
 
-    mat-dialog-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    mat-dialog-content {
+      padding-top: 0 !important;
     }
+
 
     .close-button {
       margin-left: auto;
+      height: 48px;
+      width: 48px;
+      transform: translate(-20%, 20%);
+
+      .mat-icon {
+        width: 48px;
+        align-self: center;
+      }
     }
 
     .loading-container, .error-container {
@@ -483,6 +476,25 @@ export class EventDetailsModalComponent implements OnInit {
       default:
         return type;
     }
+  }
+
+  /**
+   * Méthodes d'aide pour éviter les expressions ternaires complexes dans le template
+   */
+  getEventTypeText(isFree: boolean): string {
+    return isFree ? 'Événement gratuit' : 'Événement payant';
+  }
+
+  getHomepageDisplayText(displayOnHomepage: boolean): string {
+    return displayOnHomepage ? 'Affiché sur la page d\'accueil' : 'Non affiché sur la page d\'accueil';
+  }
+
+  getFeaturedEventText(isFeatured: boolean): string {
+    return isFeatured ? 'Événement mis en avant' : 'Événement standard';
+  }
+
+  getZoneStatusText(isActive: boolean): string {
+    return isActive ? 'Zone active' : 'Zone inactive';
   }
 
   protected readonly EventStatus = EventStatus;

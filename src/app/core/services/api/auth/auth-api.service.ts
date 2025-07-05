@@ -59,12 +59,6 @@ export class AuthApiService {
     );
   }
 
-  // TODO : cela n'arrivera pas donc à supprimer
-  requestPasswordChange(): Observable<void> {
-    /* ... call API ... */
-    return new Observable<void>(); // Retourne un observable vide
-  }
-
   /**
    * Valide l'email d'un utilisateur avec le token fourni.
    * @param token - Le token de validation reçu par email

@@ -13,21 +13,16 @@ import {CommonModule} from '@angular/common';
 import {isSameDay, isSameMonth} from 'date-fns';
 import {CustomDateFormatter} from '../../../../../../core/providers/date-formatter.provider';
 import {Router} from '@angular/router';
-import {
-  EventDetailDialogComponent,
-  EventDialogData
-} from '../../../../../../shared/domain/admin/event-details-modal/event-detail-dialog.component';
-import {MatDialog} from '@angular/material/dialog';
-import {MatCard, MatCardContent} from '@angular/material/card';
+
 import {MatButton} from '@angular/material/button';
 import {MatIcon} from '@angular/material/icon';
 import {CustomEventTitleFormatter} from '../../../../../../core/providers/event-title-formatter.provider';
-import {StructureService} from '../../../../../../core/services/domain/structure/structure.service';
 import {EventService} from '../../../../../../core/services/domain/event/event.service';
 import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service';
-import {EventModel, EventSummaryModel} from '../../../../../../core/models/event/event.model';
 import {AuthService} from '../../../../../../core/services/domain/user/auth.service';
 import {UserRole} from '../../../../../../core/models/user/user-role.enum';
+import {EventSummaryModel} from '../../../../../../core/models/event/event.model';
+import {EventDetailsModalService} from '../../../../../../shared/domain/admin/event-details-modal/event-details-modal.service';
 
 @Component({
   selector: 'app-event-calendar',
@@ -57,6 +52,7 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
   eventService = inject(EventService);
   userStructureService = inject(UserStructureService);
   authService = inject(AuthService);
+  eventDetailsModalService = inject(EventDetailsModalService);
 
   // Check if the user has permission to edit events
   get canEditEvents(): boolean {
@@ -64,7 +60,7 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
     if (!currentUser) return false;
 
     return currentUser.role === UserRole.STRUCTURE_ADMINISTRATOR ||
-           currentUser.role === UserRole.ORGANIZATION_SERVICE;
+      currentUser.role === UserRole.ORGANIZATION_SERVICE;
   }
 
   // État de chargement
@@ -112,7 +108,7 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
   dayHourDuration = 60;
   weekHourDuration = 60;
 
-  locale: string = 'en';
+  locale: string = 'fr-FR';
 
   weekStartsOn: number = DAYS_OF_WEEK.MONDAY;
 
@@ -121,8 +117,7 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
   hourSegmentHeight = 30;
 
 
-  constructor(private dialog: MatDialog,
-              private elRef: ElementRef,
+  constructor(private elRef: ElementRef,
               private renderer: Renderer2) {
     // Initialiser un tableau d'événements vide
     this.events = [];
@@ -220,7 +215,6 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
         meta: {
           id: event.id,
           type: event.categories?.map(c => c.name).join(', '),
-          // artists: event. || [],
           description: event.shortDescription || '',
           location: event.address?.city || ''
         }
@@ -267,7 +261,6 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
         this.activeDayIsOpen = true;
       }
       this.viewDate = date;
-
     }
   }
 
@@ -275,7 +268,12 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
     // Extraire l'ID de l'événement des métadonnées
     const eventId = event.meta?.id;
 
-    if (action === 'Edited' && eventId) {
+    if (!eventId) {
+      console.error('ID d\'événement manquant');
+      return;
+    }
+
+    if (action === 'Edited') {
       // Check if user has permission to edit events
       if (this.canEditEvents) {
         // Rediriger vers la page d'édition de l'événement
@@ -283,21 +281,31 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
       } else {
         // Show notification that user doesn't have permission
         // For now, just open the view dialog instead
-        this.handleEvent('View', event);
+        this.openEventDetailsModal(eventId);
       }
-      return;
-    } else if (action === 'View' && eventId) {
-      // Rediriger vers la page de détails de l'événement
-      this.router.navigate(['/admin/event/details', eventId]);
       return;
     }
 
-    // Fallback: ouvrir la modale avec les informations de l'événement
-    const dialogData: EventDialogData = {event, action};
+    if (action === 'View' || action === 'Clicked') {
+      // Ouvrir la modale de détails
+      this.openEventDetailsModal(eventId);
+      return;
+    }
+  }
 
-    this.dialog.open(EventDetailDialogComponent, {
-      width: '600px',
-      data: dialogData
+  /**
+   * Ouvre la modale de détails de l'événement
+   * @param eventId ID de l'événement
+   */
+  private openEventDetailsModal(eventId: number): void {
+    const dialogRef = this.eventDetailsModalService.openEventDetailsModal(eventId);
+
+    // Optionnel : écouter la fermeture de la modale
+    dialogRef.afterClosed().subscribe(result => {
+      // Rafraîchir les événements si nécessaire
+      if (result?.refreshNeeded) {
+        this.refreshEvents();
+      }
     });
   }
 

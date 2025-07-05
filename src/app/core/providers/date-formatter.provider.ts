@@ -26,10 +26,17 @@ export class CustomDateFormatter extends CalendarDateFormatter {
   }
 
   public override weekViewTitle({ date, locale }: DateFormatterParams): string {
+    // Calculer le début de la semaine (lundi)
     const startDate: Date = new Date(date.getTime());
-    const endDate: Date = new Date(date.getTime());
-    startDate.setDate(startDate.getDate());
-    endDate.setDate(endDate.getDate() + 6);
+    const dayOfWeek = startDate.getDay();
+    // getDay() retourne 0 pour dimanche, 1 pour lundi, etc.
+    // On veut que lundi soit le jour 0, donc on ajuste
+    const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    startDate.setDate(startDate.getDate() - daysToSubtract);
+
+    // Calculer la fin de la semaine (dimanche)
+    const endDate: Date = new Date(startDate.getTime());
+    endDate.setDate(startDate.getDate() + 6);
 
     return (formatDate(startDate, 'd MMMM', <string>locale) +
       ' - ' +

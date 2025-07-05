@@ -18,118 +18,121 @@
   }
 }
 
-// 🎨 Section En-tête
-.header-section {
+.dashboard-header {
+  display: flex;
+  flex-direction: column;
   margin-bottom: 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  animation: fadeInUp 0.6s ease-out;
 
-  .structure-overview-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 16px;
-    overflow: hidden;
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
 
-    .structure-header {
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .structure-avatar {
+    .structure-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .structure-icon-placeholder {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
       display: flex;
       align-items: center;
-      gap: 24px;
-      flex-wrap: wrap;
+      justify-content: center;
 
-      @media (max-width: 768px) {
-        flex-direction: column;
-        text-align: center;
-        gap: 16px;
-      }
-    }
-
-    .structure-avatar {
-      flex-shrink: 0;
-
-      .structure-logo {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid rgba(255, 255, 255, 0.2);
-      }
-
-      .structure-icon-placeholder {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        mat-icon {
-          font-size: 40px;
-          width: 40px;
-          height: 40px;
-          color: rgba(255, 255, 255, 0.8);
-        }
-      }
-    }
-
-    .structure-info {
-      flex: 1;
-      min-width: 250px;
-
-      .structure-name {
-        margin: 0 0 8px 0;
-        font-size: 2rem;
-        font-weight: 500;
-        color: white;
-      }
-
-      .structure-address {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin: 0 0 16px 0;
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
         color: rgba(255, 255, 255, 0.8);
-
-        mat-icon {
-          font-size: 18px;
-          width: 18px;
-          height: 18px;
-        }
-      }
-
-      .status-chip {
-        font-weight: 500;
-
-        mat-icon {
-          font-size: 16px;
-          width: 16px;
-          height: 16px;
-        }
       }
     }
+  }
 
-    .header-actions {
+  .header-titles {
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 500;
+      color: white;
+    }
+
+    .structure-name-row {
       display: flex;
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
+    }
 
-      .refresh-btn {
-        color: rgba(255, 255, 255, 0.8);
+    .structure-name {
+      margin: 4px 0 0 0;
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.8);
+    }
 
-        &:hover {
-          color: white;
-          background: rgba(255, 255, 255, 0.1);
-        }
+    .status-chip {
+      margin: 4px 0 0 0;
+      font-weight: 500;
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
       }
+    }
+  }
 
-      button {
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .refresh-btn {
+      color: rgba(255, 255, 255, 0.8);
+
+      &:hover {
         color: white;
-        border-color: rgba(255, 255, 255, 0.3);
-
-        &:hover {
-          background: rgba(255, 255, 255, 0.1);
-          border-color: rgba(255, 255, 255, 0.5);
-        }
+        background: rgba(255, 255, 255, 0.1);
       }
+    }
+
+    button {
+      color: white;
+      border-color: rgba(255, 255, 255, 0.3);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+    }
+  }
+
+  .header-description {
+    p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+      line-height: 1.5;
     }
   }
 }
@@ -231,7 +234,7 @@
 .actions-section {
   .actions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
     gap: 24px;
   }
 
@@ -355,47 +358,95 @@
   }
 }
 
-.structure-overview-card,
-.stat-card,
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.structure-overview-card {
+  animation: fadeIn 0.4s ease-out forwards;
+  will-change: opacity;
+}
+
+.stat-card {
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
+  will-change: transform, opacity;
+
+  &:nth-child(1) {
+    animation-delay: 0.05s;
+  }
+
+  &:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+
+  &:nth-child(3) {
+    animation-delay: 0.15s;
+  }
+}
+
 .action-card {
-  animation: fadeInUp 0.6s ease-out;
-}
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
+  will-change: transform, opacity;
 
-.stat-card:nth-child(2) {
-  animation-delay: 0.1s;
-}
+  &:nth-child(1) {
+    animation-delay: 0.1s;
+  }
 
-.stat-card:nth-child(3) {
-  animation-delay: 0.2s;
-}
+  &:nth-child(2) {
+    animation-delay: 0.15s;
+  }
 
-.action-card:nth-child(2) {
-  animation-delay: 0.15s;
-}
+  &:nth-child(3) {
+    animation-delay: 0.2s;
+  }
 
-.action-card:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-.action-card:nth-child(4) {
-  animation-delay: 0.45s;
+  &:nth-child(4) {
+    animation-delay: 0.25s;
+  }
 }
 
 // 📱 Responsive design
 @media (max-width: 768px) {
-  .stats-grid,
   .actions-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
   }
 
-  .structure-overview-card .structure-header {
-    .structure-info .structure-name {
-      font-size: 1.5rem;
+  .dashboard-header {
+    padding: 16px;
+
+    .header-content {
+      flex-direction: column;
+      text-align: center;
+      gap: 16px;
+    }
+
+    .header-left {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .header-titles {
+      .structure-name-row {
+        justify-content: center;
+      }
     }
 
     .header-actions {
       width: 100%;
       justify-content: center;
+      margin-top: 8px;
+    }
+
+    .header-description {
+      text-align: center;
+      margin-top: 8px;
     }
   }
 }

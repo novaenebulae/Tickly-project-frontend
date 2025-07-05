@@ -1,0 +1,258 @@
+/*
+ * =================================================================================================
+ * TICKLY APP - THEME & DESIGN SYSTEM VARIABLES (v3)
+ * =================================================================================================
+ * Compatible avec Angular Material 19
+ */
+
+// ✅ Import correct pour Angular Material 19
+@use '@angular/material' as mat;
+
+// ✅ Inclure le core d'Angular Material
+@include mat.core();
+
+:root {
+  // --- TYPOGRAPHY ---
+  --font-family-base: 'Inter', sans-serif;
+  --font-size-base: 16px;
+
+  // --- COLOR PALETTE ---
+
+  // Core Colors
+  --primary: #5A48F5;
+  --primary-light: #6E5AF7;
+  --primary-dark: #4B39D1;
+  --primary-gradient: linear-gradient(100deg, #6E5AF7 0%, #5A48F5 100%);
+  --accent: #FFAA00;
+  --accent-dark: #E69A00;
+
+  // Supplementary Palettes
+  // Sunset (Warm, Energetic)
+  --sunset-orange: #FF7043;
+  --sunset-red: #F44336;
+
+  // Twilight (Deep, Cool)
+  --twilight-purple: #7E57C2;
+  --twilight-blue: #29B6F6;
+
+  // Neutral Tones
+  --text-primary: #1A1A1A;
+  --text-secondary: #666666;
+  --text-on-primary: #FFFFFF;
+  --text-on-accent: #1A1A1A;
+
+  --surface: #FFFFFF;
+  --background: #F8F9FA;
+  --border: #EAECEF;
+
+  // System Feedback Colors
+  --success: #28A745;
+  --error: #DC3545;
+  --warning: #FFC107;
+  --info: #007BFF;
+
+  // --- SIZING & SPACING ---
+  --spacing-base: 8px;
+  --spacing-xs: calc(var(--spacing-base) * 0.5);   // 4px
+  --spacing-sm: var(--spacing-base);              // 8px
+  --spacing-md: calc(var(--spacing-base) * 2);    // 16px
+  --spacing-lg: calc(var(--spacing-base) * 3);    // 24px
+  --spacing-xl: calc(var(--spacing-base) * 4);    // 32px
+  --spacing-xxl: calc(var(--spacing-base) * 6);   // 48px
+
+  // --- BORDERS & RADII ---
+  --border-radius-small: 4px;
+  --border-radius-medium: 8px;
+  --border-radius-large: 16px;
+  --border-width: 1px;
+
+  // --- ELEVATION & SHADOWS ---
+  --shadow-sm: 0 2px 4px rgba(26, 26, 26, 0.05);
+  --shadow-md: 0 4px 12px rgba(26, 26, 26, 0.1);
+  --shadow-lg: 0 8px 24px rgba(26, 26, 26, 0.15);
+
+  // --- TRANSITIONS ---
+  --transition-fast: all 0.15s ease-in-out;
+  --transition-medium: all 0.3s ease-in-out;
+
+  // --- Z-INDEX ---
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-modal-backdrop: 1040;
+  --z-index-modal: 1050;
+  --z-index-popover: 1060;
+  --z-index-tooltip: 1070;
+}
+
+// ✅ Utilisation des palettes prédéfinies d'Angular Material comme base
+$tickly-primary: mat.m2-define-palette((
+  50: #f3f1ff,
+  100: #e6e0ff,
+  200: #d1c7ff,
+  300: #b8a9ff,
+  400: #9b85ff,
+  500: #5A48F5,
+  600: #4B39D1,
+  700: #3d2db0,
+  800: #312490,
+  900: #281d75,
+  A100: #e6e0ff,
+  A200: #d1c7ff,
+  A400: #9b85ff,
+  A700: #3d2db0,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #000000,
+    300: #000000,
+    400: #000000,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+    A100: #000000,
+    A200: #000000,
+    A400: #000000,
+    A700: #ffffff,
+  )
+), 500);
+
+$tickly-accent: mat.m2-define-palette((
+  50: #fff8e1,
+  100: #ffecb3,
+  200: #ffe082,
+  300: #ffd54f,
+  400: #ffcc02,
+  500: #FFAA00,
+  600: #ff8f00,
+  700: #ff6f00,
+  800: #e65100,
+  900: #bf360c,
+  A100: #ffecb3,
+  A200: #ffe082,
+  A400: #ffcc02,
+  A700: #ff6f00,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #000000,
+    300: #000000,
+    400: #000000,
+    500: #000000,
+    600: #000000,
+    700: #000000,
+    800: #ffffff,
+    900: #ffffff,
+    A100: #000000,
+    A200: #000000,
+    A400: #000000,
+    A700: #000000,
+  )
+), 500);
+
+$tickly-warn: mat.m2-define-palette(mat.$m2-red-palette);
+
+// ✅ Typographie avec la nouvelle API M3
+$tickly-typography: mat.m2-define-typography-config(
+  $font-family: 'Inter, sans-serif'
+);
+
+// ✅ Création du thème avec la nouvelle API
+$tickly-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $tickly-primary,
+    accent: $tickly-accent,
+    warn: $tickly-warn,
+  ),
+  typography: $tickly-typography,
+  density: 0,
+));
+
+// ✅ Application du thème
+@include mat.all-component-themes($tickly-theme);
+
+/*
+ * =================================================================================================
+ * GLOBAL STYLE OVERRIDES & SETUP
+ * =================================================================================================
+*/
+
+// Global styles
+html, body {
+  font-family: var(--font-family-base);
+  background-color: var(--background);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+ * =================================================================================================
+ * COMPONENT-SPECIFIC OVERRIDES
+ * =================================================================================================
+*/
+
+// --- Angular Material Components ---
+.mat-mdc-card {
+  border-radius: var(--border-radius-medium) !important;
+  box-shadow: var(--shadow-sm) !important;
+  transition: var(--transition-medium) !important;
+  border: var(--border-width) solid var(--border);
+
+  &:hover {
+    box-shadow: var(--shadow-md) !important;
+  }
+}
+
+.mat-mdc-form-field.mat-form-field-appearance-outline .mat-mdc-form-field-outline {
+  color: var(--border);
+}
+
+.mat-mdc-raised-button.mat-primary {
+  background: var(--primary-gradient) !important;
+  transition: var(--transition-fast);
+
+  &:hover {
+    transform: scale(1.03);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+// --- Bootstrap Navbar Integration ---
+.navbar {
+  background-color: var(--surface) !important;
+  box-shadow: var(--shadow-sm);
+  padding-top: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+
+  .navbar-brand {
+    font-weight: 700;
+    color: var(--text-primary) !important;
+  }
+
+  .nav-link {
+    color: var(--text-secondary) !important;
+    font-weight: 500;
+    transition: var(--transition-fast);
+    border-radius: var(--border-radius-small);
+    margin: 0 var(--spacing-xs);
+
+    &:hover {
+      color: var(--primary) !important;
+      background-color: rgba(90, 72, 245, 0.05);
+    }
+  }
+
+  .nav-link.active {
+    color: var(--primary) !important;
+    font-weight: 600;
+  }
+
+  .navbar-toggler {
+    border: none;
+    &:focus {
+      box-shadow: none;
+    }
+  }
+}

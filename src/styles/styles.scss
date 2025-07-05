@@ -1,18 +1,10 @@
-// Custom Theming for Angular Material
+// Custom Theming for Angular Material (Version 19+)
 // For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
 
-html {
-  @include mat.theme((
-    color: (
-      theme-type: light,
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
-}
+@use 'theme';
+
+// ✅ Suppression du thème redondant - déjà défini dans _theme.scss
 
 // Styles pour le panneau déroulant du sélecteur de rôle dans la dialogue
 .role-select-panel {
@@ -40,7 +32,6 @@ mat-snack-bar-container {
 
   &.error .mat-mdc-snackbar-surface {
     background-color:crimson;
-
   }
 
   &.warning .mat-mdc-snackbar-surface {
@@ -51,7 +42,6 @@ mat-snack-bar-container {
     background-color: gray;
   }
 }
-
 
 /* === Z-INDEX HIERARCHY === */
 :root {
@@ -71,7 +61,6 @@ mat-snack-bar-container {
 .friends-dialog-backdrop {
   background-color: rgba(0, 0, 0, 0.5) !important;
   backdrop-filter: blur(2px);
-  //z-index: var(--z-modal-backdrop) !important;
 }
 
 .friends-dialog-panel .mat-mdc-dialog-container {

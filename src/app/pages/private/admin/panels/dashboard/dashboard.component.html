@@ -1,22 +1,148 @@
 <div class="dashboard-container">
-  <!-- Loading spinner -->
+  <!-- 🔄 Loading spinner -->
   <div class="loading-container" *ngIf="isLoading()">
     <mat-spinner diameter="50"></mat-spinner>
     <p>Chargement des statistiques...</p>
   </div>
 
-  <!-- Dashboard content -->
+  <!-- 📊 Dashboard content -->
   <div class="dashboard-content" *ngIf="!isLoading() && stats()">
-    <!-- Header with structure name and refresh button -->
-    <div class="dashboard-header">
-      <h1>Tableau de bord - {{ structureName()?.name }}</h1>
-      <button mat-icon-button color="primary" (click)="refreshStatistics()" matTooltip="Rafraîchir les statistiques">
-        <mat-icon>refresh</mat-icon>
-      </button>
+    <!-- 🎨 En-tête avec informations principales -->
+    <section class="header-section">
+      <div class="header-card">
+        <mat-card class="structure-overview-card">
+          <mat-card-content>
+            <div class="structure-header">
+              <!-- Logo/Avatar de la structure -->
+              <div class="structure-avatar">
+                @if (structureName()?.logoUrl) {
+                  <img [src]="structureName()!.logoUrl" [alt]="structureName()!.name" class="structure-logo">
+                } @else {
+                  <div class="structure-icon-placeholder">
+                    <mat-icon>dashboard</mat-icon>
+                  </div>
+                }
+              </div>
+
+              <!-- Informations principales -->
+              <div class="structure-info">
+                <div class="structure-name-container">
+                  <h1 class="structure-name">
+                    {{ structureName()?.name || 'Ma Structure' }}
+                  </h1>
+                  <!-- Statut de la structure -->
+                  <mat-chip
+                    [color]="statusConfig().color"
+                    class="status-chip">
+                    <mat-icon matChipAvatar>{{ statusConfig().icon }}</mat-icon>
+                    {{ statusConfig().label }}
+                  </mat-chip>
+                </div>
+                <h2 class="panel-title">Tableau de bord</h2>
+                <p class="structure-address">
+                  <mat-icon>location_on</mat-icon>
+                  {{ getFormattedAddress() }}
+                </p>
+              </div>
+
+              <!-- Actions rapides -->
+              <div class="header-actions">
+                <button
+                  mat-icon-button
+                  (click)="refreshStatistics()"
+                  matTooltip="Actualiser les données"
+                  class="refresh-btn">
+                  <mat-icon>refresh</mat-icon>
+                </button>
+
+                <button
+                  mat-stroked-button
+                  color="primary"
+                  (click)="openPublicPage()"
+                  matTooltip="Voir la page publique">
+                  <mat-icon>visibility</mat-icon>
+                  Page publique
+                </button>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
+
+    <!-- 📊 Structure KPI tiles -->
+    <div class="structure-kpi-cards">
+      <!-- Stat: Zones -->
+      <mat-card class="stat-card zones-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon zones-icon">
+              <mat-icon>map</mat-icon>
+            </div>
+            <div class="stat-details">
+              <div class="stat-number">{{ areaCount() }}</div>
+              <div class="stat-label">Espace{{ areaCount() !== 1 ? 's' : '' }}</div>
+            </div>
+          </div>
+          @if (areaCount() === 0) {
+            <div class="stat-action">
+              <button
+                mat-stroked-button
+                color="accent"
+                size="small"
+                (click)="navigateToAreas()">
+                Créer des espaces
+              </button>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Stat: Équipe -->
+      <mat-card class="stat-card team-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon team-icon">
+              <mat-icon>group</mat-icon>
+            </div>
+            <div class="stat-details">
+              <div class="stat-number">{{ teamCount() }}</div>
+              <div class="stat-label">Membre{{ teamCount() !== 1 ? 's' : '' }}</div>
+            </div>
+          </div>
+          @if (teamCount() <= 1) {
+            <div class="stat-action">
+              <button
+                mat-stroked-button
+                color="primary"
+                size="small"
+                (click)="navigateToTeam()">
+                Inviter des membres
+              </button>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Stat: Événements -->
+      <mat-card class="stat-card events-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon events-icon">
+              <mat-icon>event</mat-icon>
+            </div>
+            <div class="stat-details">
+              <div class="stat-number">{{ eventCount() }}</div>
+              <div class="stat-label">Événement{{ eventCount() !== 1 ? 's' : '' }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </div>
 
-    <!-- KPI cards -->
+    <!-- 📈 KPI cards -->
     <div class="kpi-cards">
+      <!-- Original KPI cards -->
       <mat-card class="kpi-card">
         <mat-card-content>
           <div class="kpi-value">{{ stats()?.upcomingEventsCount }}</div>
@@ -46,11 +172,16 @@
       </mat-card>
     </div>
 
-    <!-- Charts -->
+
+
+    <!-- 📊 Charts -->
     <div class="charts-container">
       <!-- Top Events Chart -->
       <mat-card class="chart-card">
         <mat-card-header>
+          <div mat-card-avatar>
+            <mat-icon>trending_up</mat-icon>
+          </div>
           <mat-card-title>Top Événements</mat-card-title>
           <mat-card-subtitle>Événements avec le plus de billets vendus</mat-card-subtitle>
         </mat-card-header>
@@ -68,6 +199,9 @@
       <!-- Category Chart -->
       <mat-card class="chart-card">
         <mat-card-header>
+          <div mat-card-avatar>
+            <mat-icon>pie_chart</mat-icon>
+          </div>
           <mat-card-title>Participants par catégorie</mat-card-title>
           <mat-card-subtitle>Répartition des participants par type d'événement</mat-card-subtitle>
         </mat-card-header>
@@ -84,7 +218,7 @@
     </div>
   </div>
 
-  <!-- No data message -->
+  <!-- ⚠️ No data message -->
   <div class="no-data-container" *ngIf="!isLoading() && !stats()">
     <mat-icon class="no-data-icon">bar_chart_off</mat-icon>
     <h2>Aucune donnée statistique disponible</h2>

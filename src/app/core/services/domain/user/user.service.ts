@@ -82,49 +82,6 @@ export class UserService {
     });
   }
 
-  //TODO : Ne doit paas exister
-  /**
-   * Loads a specific user's profile by their ID.
-   * Fetches from the API if not in cache or if `forceRefresh` is true.
-   * Updates the `activeUserProfileSig` with the fetched profile.
-   * @param userId - The ID of the user whose profile is to be loaded.
-   * @param forceRefresh - If true, the profile will be fetched from the API even if present in the cache.
-   * @returns An Observable of the `UserModel` or `undefined` if not found or an error occurs.
-   */
-  loadUserProfile(userId: number, forceRefresh = false): Observable<UserModel | undefined> {
-    // Indicate loading state for the active profile if this ID is being targeted
-    if (this.activeUserProfileSig() === undefined || this.activeUserProfileSig()?.id !== userId || forceRefresh) {
-      this.activeUserProfileSig.set(undefined); // Set to loading/undefined if changing target or forcing
-    }
-
-    const cachedProfile = this.userProfilesCache.value.get(userId);
-    if (!forceRefresh && cachedProfile) {
-      this.activeUserProfileSig.set(cachedProfile);
-      return of(cachedProfile);
-    }
-
-    return this.userApi.getCurrentUserProfile().pipe(
-      tap(profile => {
-        if (profile) {
-          const currentCache = this.userProfilesCache.value;
-          currentCache.set(userId, profile);
-          this.userProfilesCache.next(new Map(currentCache)); // Emit new Map instance for change detection
-          this.activeUserProfileSig.set(profile);
-        } else {
-          this.activeUserProfileSig.set(null); // Profile not found
-        }
-      }),
-      catchError(error => {
-        this.activeUserProfileSig.set(null); // Error state for active profile
-        this.notification.displayNotification(
-          error.message || "Impossible de charger le profil utilisateur demandé.", // French message
-          'error'
-        );
-        return of(undefined); // Return undefined on error
-      })
-    );
-  }
-
   /**
    * Retrieves the profile of the currently authenticated user.
    * This method primarily relies on the `currentUserProfileDataSig` which is populated on login.
@@ -208,59 +165,6 @@ export class UserService {
       })
     );
   }
-
-  /**
-   * Searches for users based on a query string (e.g., name or email).
-   * @param query - The search term. Must be at least 2 characters long.
-   * @returns An Observable of an array of `Partial<UserModel>`.
-   *          Returns an empty array if the query is too short or an error occurs.
-   */
-  searchUsers(query: string): Observable<Partial<UserModel>[]> {
-    if (!query || query.trim().length < 2) {
-      this.notification.displayNotification("Veuillez entrer au moins 2 caractères pour lancer la recherche.", 'info');
-      return of([]);
-    }
-    return this.userApi.searchUsers(query).pipe(
-      catchError(error => {
-        this.notification.displayNotification(
-          error.message || "Erreur lors de la recherche d'utilisateurs.", // French message
-          'error'
-        );
-        return of([]);
-      })
-    );
-  }
-
-   getAvatarUrl(userId: number): string {
-    const user = this.getUserFromCache(userId);
-    if (user?.avatarUrl) {
-      return user.avatarUrl;
-    }
-    return '';
-  }
-
-  // /**
-  //  * Relie un utilisateur à une structure avec un rôle spécifique.
-  //  * @param linkUserDto - DTO contenant email, rôle et ID de structure
-  //  * @returns Observable du résultat de l'opération
-  //  */
-  // linkUserToStructure(linkUserDto: { email: string, role: UserRole, structureId: number }): Observable<any> {
-  //   return this.userApi.linkUserToStructure(linkUserDto).pipe(
-  //     tap(result => {
-  //       if (result) {
-  //         // Optionnel : mettre à jour le cache si nécessaire
-  //         console.log('Utilisateur relié avec succès:', result);
-  //       }
-  //     }),
-  //     catchError(error => {
-  //       this.notification.displayNotification(
-  //         error.message || "Impossible de relier l'utilisateur à la structure.",
-  //         'error'
-  //       );
-  //       return of(undefined);
-  //     })
-  //   );
-  // }
 
   /**
    * Uploade un avatar pour l'utilisateur courant.

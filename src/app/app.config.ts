@@ -12,6 +12,9 @@ import {provideCharts, withDefaultRegisterables} from 'ng2-charts';
 import {FriendshipService} from './core/services/domain/user/friendship.service';
 
 import localeFr from '@angular/common/locales/fr';
+// Import des locales pour date-fns
+import { fr } from 'date-fns/locale';
+
 registerLocaleData(localeFr, 'fr-FR');
 
 export const appConfig: ApplicationConfig = {
@@ -24,6 +27,11 @@ export const appConfig: ApplicationConfig = {
       CalendarModule.forRoot({
         provide: DateAdapter,
         useFactory: adapterFactory,
+      }, {
+        dateFormatter: {
+          provide: DateAdapter,
+          useFactory: () => adapterFactory(), // Utiliser la locale française pour date-fns
+        }
       })
     ),
     provideCharts(withDefaultRegisterables()),

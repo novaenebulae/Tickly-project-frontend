@@ -190,29 +190,6 @@ export class UserApiService {
     );
   }
 
-
-
-  // TODO : Ne doit pas être inclus
-  /**
-   * Searches for users based on a query string (e.g., name or email).
-   * The API is expected to return an array of partial user data.
-   * @param query - The search term.
-   * @returns An Observable of an array of `Partial<UserModel>` objects.
-   */
-  searchUsers(query: string): Observable<Partial<UserModel>[]> {
-    const endpointContext = APP_CONFIG.api.endpoints.users.search;
-
-    this.apiConfig.logApiRequest('GET', endpointContext, { q: query });
-    const url = this.apiConfig.getUrl(endpointContext);
-    const headers = this.apiConfig.createHeaders();
-    const params = new HttpParams().set('q', query); // Assuming API expects 'q' for query
-
-    return this.http.get<Partial<UserModel>[]>(url, { headers, params }).pipe(
-      tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
-      catchError(error => this.handleUserError(error, 'searchUsers'))
-    );
-  }
-
   /**
    * Retrieves the favorite structures for the current user.
    * The API is expected to return an array of `UserFavoriteStructureModel`.

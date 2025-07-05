@@ -1,33 +1,32 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
-import { FormBuilder, FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { CommonModule } from '@angular/common';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatCardModule } from '@angular/material/card';
+import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {MatDialogModule, MatDialogRef} from '@angular/material/dialog';
+import {CommonModule} from '@angular/common';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatInputModule} from '@angular/material/input';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatListModule} from '@angular/material/list';
+import {MatDividerModule} from '@angular/material/divider';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatBadgeModule} from '@angular/material/badge';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatCardModule} from '@angular/material/card';
 
-import { Subject, debounceTime, distinctUntilChanged, takeUntil, switchMap } from 'rxjs';
+import {Subject, takeUntil} from 'rxjs';
 
 // Services
-import { FriendshipService } from '../../../../core/services/domain/user/friendship.service';
-import { UserService } from '../../../../core/services/domain/user/user.service';
-import { NotificationService } from '../../../../core/services/domain/utilities/notification.service';
+import {FriendshipService} from '../../../../core/services/domain/user/friendship.service';
 
 // Models
-import { FriendModel } from '../../../../core/models/friendship/friend.model';
-import { ReceivedFriendRequestModel, SentFriendRequestModel } from '../../../../core/models/friendship/friend-request.model';
-import { UserModel } from '../../../../core/models/user/user.model';
-import { FriendshipStatus } from '../../../../core/models/friendship/friendship-status.enum';
+import {FriendModel} from '../../../../core/models/friendship/friend.model';
+import {
+  ReceivedFriendRequestModel,
+  SentFriendRequestModel
+} from '../../../../core/models/friendship/friend-request.model';
 
 /**
  * Composant de dialogue pour gérer les amis et demandes d'amitié
@@ -61,8 +60,6 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
   // ✅ Injection moderne
   private dialogRef = inject(MatDialogRef<ManageFriendsDialogComponent>);
   private friendshipService = inject(FriendshipService);
-  private userService = inject(UserService);
-  private notificationService = inject(NotificationService);
   private fb = inject(FormBuilder);
 
   private destroy$ = new Subject<void>();
@@ -85,7 +82,6 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
 
   // Formulaires
   addFriendForm!: FormGroup;
-  searchControl = new FormControl('');
 
   ngOnInit(): void {
     this.initForms();
@@ -124,17 +120,6 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
     return url || 'assets/images/avatars/avatar-placeholder.png'; // Assurez-vous d'avoir une image par défaut
   }
 
-  /**
-   * Retourne une date relative (ex: "il y a 2 heures").
-   * @param dateString - La date au format ISO.
-   */
-  getRelativeDate(dateString: string): string {
-    // Implémentation avec date-fns ou une autre librairie si vous le souhaitez
-    // Pour l'exemple, on retourne la date formatée simplement.
-    return new Date(dateString).toLocaleDateString('fr-FR', {
-      year: 'numeric', month: 'long', day: 'numeric'
-    });
-  }
 
   sendFriendRequest(): void {
     if (this.addFriendForm.invalid) return;
@@ -193,52 +178,6 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
       });
   }
 
-
-  // /**
-  //  * ✅ Bloque un utilisateur
-  //  */
-  // blockUser(friendshipId: number): void {
-  //   this.isPerformingAction.set(true);
-  //
-  //   this.friendshipService.blockUser(friendshipId).subscribe({
-  //     next: () => {
-  //       this.isPerformingAction.set(false);
-  //     },
-  //     error: () => {
-  //       this.isPerformingAction.set(false);
-  //     }
-  //   });
-  // }
-
-
-  /**
-   * ✅ Obtient le libellé du statut
-   */
-  getStatusLabel(status: FriendshipStatus): string {
-    switch (status) {
-      case FriendshipStatus.PENDING: return 'En attente';
-      case FriendshipStatus.ACCEPTED: return 'Accepté';
-      case FriendshipStatus.REJECTED: return 'Rejeté';
-      case FriendshipStatus.BLOCKED: return 'Bloqué';
-      case FriendshipStatus.CANCELLED: return 'Annulé';
-      default: return status;
-    }
-  }
-
-  /**
-   * ✅ Obtient la couleur du statut
-   */
-  getStatusColor(status: FriendshipStatus): string {
-    switch (status) {
-      case FriendshipStatus.PENDING: return 'orange';
-      case FriendshipStatus.ACCEPTED: return 'green';
-      case FriendshipStatus.REJECTED: return 'red';
-      case FriendshipStatus.BLOCKED: return 'red';
-      case FriendshipStatus.CANCELLED: return 'gray';
-      default: return 'gray';
-    }
-  }
-
   /**
    * Ferme le dialogue
    */
@@ -246,6 +185,4 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   }
 
-  // Getters pour l'accès facile aux contrôles de formulaire
-  get emailControl() { return this.addFriendForm.get('email'); }
 }

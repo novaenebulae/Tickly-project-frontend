@@ -218,7 +218,6 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
   openPublicPage(): void {
     const structure = this.userStructure();
     if (structure?.id) {
-      // TODO: Remplacer par l'URL réelle de la page publique
       const publicUrl = `/structures/${structure.id}`;
       window.open(publicUrl, '_blank');
     }

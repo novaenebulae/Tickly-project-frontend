@@ -1,148 +1,49 @@
 <div class="structure-panel-container">
 
   <!-- 🎨 En-tête avec informations principales -->
-  <section class="header-section">
-    <div class="header-card">
-      <mat-card class="structure-overview-card">
-        <mat-card-content>
-          <div class="structure-header">
-            <!-- Logo/Avatar de la structure -->
-            <div class="structure-avatar">
-              @if (userStructureData?.logoUrl) {
-                <img [src]="userStructureData!.logoUrl" [alt]="userStructureData!.name" class="structure-logo">
-              } @else {
-                <div class="structure-icon-placeholder">
-                  <mat-icon>business</mat-icon>
-                </div>
-              }
-            </div>
-
-            <!-- Informations principales -->
-            <div class="structure-info">
-              <h1 class="structure-name">
-                {{ userStructureData?.name || 'Ma Structure' }}
-              </h1>
-              <p class="structure-address">
-                <mat-icon>location_on</mat-icon>
-                {{ getFormattedAddress() }}
-              </p>
-
-              <!-- Statut de la structure -->
-              <mat-chip
-                [color]="statusConfig().color"
-                class="status-chip">
-                <mat-icon matChipAvatar>{{ statusConfig().icon }}</mat-icon>
-                {{ statusConfig().label }}
-              </mat-chip>
-            </div>
-
-            <!-- Actions rapides -->
-            <div class="header-actions">
-              <button
-                mat-icon-button
-                (click)="refreshData()"
-                matTooltip="Actualiser les données"
-                class="refresh-btn">
-                <mat-icon>refresh</mat-icon>
-              </button>
-
-              <button
-                mat-stroked-button
-                color="primary"
-                (click)="openPublicPage()"
-                matTooltip="Voir la page publique">
-                <mat-icon>visibility</mat-icon>
-                Page publique
-              </button>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  </section>
-
-  <!-- 📊 Statistiques rapides -->
-  <section class="stats-section">
-    <div class="stats-grid">
-
-      <!-- Stat: Zones -->
-      <mat-card class="stat-card zones-card">
-        <mat-card-content>
-          <div class="stat-content">
-            <div class="stat-icon zones-icon">
-              <mat-icon>map</mat-icon>
-            </div>
-            <div class="stat-details">
-              <div class="stat-number">{{ areaCount() }}</div>
-              <div class="stat-label">Zone{{ areaCount() !== 1 ? 's' : '' }}</div>
-            </div>
-          </div>
-          @if (areaCount() === 0) {
-            <div class="stat-action">
-              <button
-                mat-stroked-button
-                color="accent"
-                size="small"
-                (click)="navigateToAreas()">
-                Créer des zones
-              </button>
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="header-left">
+        <div class="structure-avatar">
+          @if (userStructureData?.logoUrl) {
+            <img [src]="userStructureData!.logoUrl" [alt]="userStructureData!.name" class="structure-logo">
+          } @else {
+            <div class="structure-icon-placeholder">
+              <mat-icon>business</mat-icon>
             </div>
           }
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Stat: Équipe -->
-      <mat-card class="stat-card team-card">
-        <mat-card-content>
-          <div class="stat-content">
-            <div class="stat-icon team-icon">
-              <mat-icon>group</mat-icon>
-            </div>
-            <div class="stat-details">
-              <div class="stat-number">{{ teamCount() }}</div>
-              <div class="stat-label">Membre{{ teamCount() !== 1 ? 's' : '' }}</div>
-            </div>
+        </div>
+        <div class="header-titles">
+          <h1>Structure</h1>
+          <div class="structure-name-row">
+            <p class="structure-name">{{ userStructureData?.name || 'Ma Structure' }}</p>
+            <mat-chip
+              [color]="statusConfig().color"
+              class="status-chip">
+              <mat-icon matChipAvatar>{{ statusConfig().icon }}</mat-icon>
+              {{ statusConfig().label }}
+            </mat-chip>
           </div>
-          @if (teamCount() <= 1) {
-            <div class="stat-action">
-              <button
-                mat-stroked-button
-                color="primary"
-                size="small"
-                (click)="navigateToTeam()">
-                Inviter des membres
-              </button>
-            </div>
-          }
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Stat: Événements -->
-      <mat-card class="stat-card events-card">
-        <mat-card-content>
-          <div class="stat-content">
-            <div class="stat-icon events-icon">
-              <mat-icon>event</mat-icon>
-            </div>
-            <div class="stat-details">
-              <div class="stat-number">{{ eventCount() }}</div>
-              <div class="stat-label">Événement{{ eventCount() !== 1 ? 's' : '' }}</div>
-            </div>
-          </div>
-          <div class="stat-action">
-            <button
-              mat-stroked-button
-              color="accent"
-              size="small"
-              (click)="navigateToEvents()">
-              Voir tout
-            </button>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-icon-button (click)="refreshData()" matTooltip="Actualiser les données" class="refresh-btn">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button
+          mat-stroked-button
+          color="primary"
+          (click)="openPublicPage()"
+          matTooltip="Voir la page publique">
+          <mat-icon>visibility</mat-icon>
+          Page publique
+        </button>
+      </div>
     </div>
-  </section>
+    <div class="header-description">
+      <p>Gérez les informations de votre structure, configurez les espaces et invitez des membres à votre équipe.</p>
+    </div>
+  </div>
 
   <!-- 🛠️ Actions principales -->
   <section class="actions-section">

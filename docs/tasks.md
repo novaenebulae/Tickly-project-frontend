@@ -1,38 +1,19 @@
 # Tickly Frontend Improvement Tasks
 
-## Feature Completion
-
-31. [X] **Event Management Completion**
-  - [X] Finalize event panel functionality
-  - [X] Finalize event creation
-  - [ ] Finalize calendar integration
-
-32. [X] **Team Management Completion**
-  - [X] Finalize team management interface
-  - [X] Implement role-based permissions
-
-33. [X] **Areas and Zones Completion**
-  - [X] Finalize area management interface
-  - [X] Complete audience zone functionality
-
 ## Code Quality and Consistency
 
 1. [ ] **Standardize Error Handling**
    - [ ] Implement a global error handling service that centralizes error processing
    - [ ] Create consistent error messages and user notifications
-   - [ ] Add proper error logging with severity levels
+   - [ ] Remove logging for production environment
 
 2. [ ] **TypeScript Model Consistency**
-   - [ ] Ensure all models in `/core/models` match API DTOs exactly
    - [ ] Add comprehensive JSDoc comments to all model interfaces
-   - [ ] Create proper type guards for complex type checking
 
 3. [ ] **Code Style Enforcement**
    - [ ] Configure and enforce consistent code formatting with Prettier
 
 4. [ ] **Remove Technical Debt**
-   - [ ] Address all TODO comments in the codebase
-   - [ ] Remove unused methods and variables
    - [ ] Refactor duplicated code into shared utilities
 
 5. [ ] **Component Lifecycle Management**
@@ -43,16 +24,13 @@
 ## Architecture Improvements
 
 6. [ ] **State Management Standardization**
-   - [ ] Choose between Signals and RxJS as the primary state management approach
+   - [ ] Choose Signals as the primary state management approach
    - [ ] Refactor services to use the chosen approach consistently
 
 8. [ ] **Module Organization**
    - [ ] Review and optimize lazy loading strategy for all routes
-   - [ ] Ensure proper encapsulation of feature modules
-   - [ ] Minimize dependencies between modules
 
 9. [ ] **Authentication and Authorization**
-   - [ ] Implement proper role-based access control throughout the application
    - [ ] Add session timeout handling and refresh token logic
 
 10. [ ] **Shared Component Library**
@@ -65,7 +43,6 @@
 
 12. [ ] **Component Testing**
     - [ ] Add tests for all shared components
-    - [ ] Test complex component interactions
     - [ ] Ensure proper testing of component lifecycle methods
 
 ## Performance Optimizations
@@ -73,9 +50,6 @@
 16. [ ] **Rendering Performance**
     - [ ] Optimize change detection strategies
     - [ ] Use OnPush change detection where appropriate
-
-17. [ ] **Network Optimization**
-    - [ ] Add request debouncing for search inputs
 
 18. [ ] **Asset Optimization**
     - [ ] Use ngSrc for image display
@@ -87,13 +61,15 @@
     - [ ] Implement responsive layouts for all pages
     - [ ] Add touch-friendly interactions for mobile users
 
-20. [ ] **Accessibility Compliance**
-    - [ ] Fix ARIA attributes and keyboard navigation
-
 21. [ ] **UI Consistency**
     - [ ] Standardize color palette and typography
     - [ ] Create and use SCSS variables for all styling
     - [ ] Implement consistent spacing and layout patterns
+    - Note : Create a full Material Theme if possible, or use global variables instead.
+    - The goal is to have a consistent and uniformized design of the app.
+
+IMPORTANT : Here are some guidelines of how the style should be : 
+
 
 22. [ ] **User Experience Enhancements**
     - [ ] Add loading indicators for all async operations

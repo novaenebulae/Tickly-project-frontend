@@ -84,8 +84,8 @@
     }
 
     .avatar-image {
-      width: 40px; // ✅ Taille d'avatar réduite
-      height: 40px;
+      max-width: 50px;
+      max-height: 50px;
       border-radius: 50%;
       object-fit: cover;
       border: 2px solid var(--primary-color, #1976d2);

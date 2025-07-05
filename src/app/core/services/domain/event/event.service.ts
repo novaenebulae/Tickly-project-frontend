@@ -370,7 +370,6 @@ export class EventService {
     );
   }
 
-  // TODO : Voir pour supprimer
   getFeaturedEvents(forceRefresh = false, count = APP_CONFIG.events.defaultFeaturedCount): Observable<EventSummaryModel[]> {
     if (!forceRefresh && this.featuredEventsSig().length > 0 && this.featuredEventsSig().length >= count) {
       return of(this.featuredEventsSig().slice(0, count));

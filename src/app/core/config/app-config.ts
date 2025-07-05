@@ -126,7 +126,7 @@ export const APP_CONFIG: AppConfig = {
   appVersion: '1.0.0',
 
   api: {
-    baseUrl: 'http://localhost/api/v1/', // TODO: Replace with your actual backend URL or use environment variable
+    baseUrl: 'http://localhost/api/v1/',
     endpoints: {
       auth: {
         login: 'auth/login',

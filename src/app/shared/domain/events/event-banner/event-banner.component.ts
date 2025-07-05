@@ -1,7 +1,7 @@
 // src/app/shared/components/event-details/event-banner/event-banner.component.ts
 
 import {Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
-import {CommonModule, DatePipe, Location} from '@angular/common';
+import {CommonModule, Location} from '@angular/common';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatBadgeModule} from '@angular/material/badge';
@@ -12,7 +12,6 @@ import {format} from 'date-fns';
 import {fr} from 'date-fns/locale';
 
 import {EventModel, EventStatus, EventSummaryModel} from '../../../../core/models/event/event.model';
-import {StructureService} from '../../../../core/services/domain/structure/structure.service';
 
 @Component({
   selector: 'app-event-banner',
@@ -25,7 +24,6 @@ import {StructureService} from '../../../../core/services/domain/structure/struc
     MatBadgeModule,
     MatChipsModule,
     MatTooltipModule,
-    DatePipe
   ],
   templateUrl: './event-banner.component.html',
   styleUrls: ['./event-banner.component.scss']
@@ -36,7 +34,6 @@ export class EventBannerComponent implements OnChanges {
   @Output() bookEvent = new EventEmitter<void>();
 
   private location = inject(Location);
-  private structureService = inject(StructureService);
 
   // Propriétés calculées
   formattedDate: string = '';
