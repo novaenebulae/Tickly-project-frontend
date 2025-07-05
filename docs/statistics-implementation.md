@@ -1,187 +1,289 @@
-1. Read the statistic implementation documentation in 'docs/statistics-implementation.md'
+# **API Documentation: Statistics Service**
 
-2. Analyze actual context of the application related to statistics integration.
-   Relevant files could be :
+This document provides a comprehensive guide to the Statistics API. These endpoints are designed to provide structure administrators with valuable insights and performance metrics about their events and overall activity.
 
-- Models : 'edu/cda/project/ticklybackend/models/event', 'edu/cda/project/ticklybackend/models/ticket', '
-  edu/cda/project/ticklybackend/models/structure'
-- Security : 'src/app/core/guards'
-- Services : 'src/app/core/services/api/api-config.service.ts', src/app/core/services/domain/structure/structure.service.ts'
-- Mappers (if needed) : 'edu/cda/project/ticklybackend/mappers/ticket', '
-  edu/cda/project/ticklybackend/mappers/structure', 'edu/cda/project/ticklybackend/mappers/event'
+### **1\. Overview & Security**
 
-3. Implement all the statistics functionalities as described in the documentation, add OpenAPI documentation, unit tests
-   and method documentation.
+The Statistics API exposes aggregated data, ready for visualization in a frontend dashboard using libraries like Chart.js.
 
-4. Test the implementation.
+* **Authentication**: All endpoints are secure and require a valid JWT Bearer Token in the Authorization header.
+* **Authorization**: Access to statistics is strictly controlled. A user must have a StaffUser Role (STRUCTURE_ADMINISTRATOR, ORGANIZATION_SERVICE, RESERVATION_SERVICE) role and be the designated owner of the requested structure or event to access its data. Any attempt to access data belonging to another structure will result in a 403 Forbidden error.
 
-# **Backend Statistics Service: Implementation Plan**
+### **2\. Data Transfer Objects (DTOs)**
 
-This document outlines the technical design and step-by-step implementation plan for creating a new statistics service
-within the Tickly backend. The goal is to provide secure, aggregated data to the frontend administrator panel for KPIs
-and charts.
+The API uses a set of specialized DTOs to deliver data in a structured and predictable format.
 
-### **1\. Feature Overview & Technical Design**
+#### **Core DTOs**
 
-The new statistics module will introduce a dedicated controller, service, and data transfer objects (DTOs) to handle
-statistical calculations. It will leverage existing repositories to query the database.
+* **ChartJsDataDto.java**: A generic, reusable DTO for chart data.
+  * chartType (String): The suggested chart type (e.g., "bar", "line", "doughnut").
+  * labels (List\<String\>): The labels for the X-axis or chart segments.
+  * datasets (List\<ChartJsDataset\>): A list of datasets to be plotted.
+* **ChartJsDataset.java**: Represents a single dataset within a chart.
+  * label (String): The name of the dataset.
+  * data (List\<Number\>): The numerical data points.
+  * backgroundColor (List\<String\>): Colors for bar or doughnut charts.
+  * borderColor (String): Color for line charts.
 
-#### **1.1. Core Components**
+#### **Response DTOs**
 
-* StatisticsController.java: A new REST controller to expose secure endpoints for fetching statistics.
-* StatisticsService.java: A new service class containing the business logic to compute all statistical data.
-* StatisticsRepository.java: A new repository (or custom methods in existing repositories) to execute complex SQL/JPQL
-  queries for data aggregation.
-* **DTOs**: A new set of DTOs in a dto/statistics/ package to structure the API responses for the frontend.
+* **StructureDashboardStatsDto.java**: The main DTO for the structure-level dashboard. Contains all KPIs and global charts.
+* **EventStatisticsDto.java**: The main DTO for event-specific statistics. Contains all charts related to a single event.
 
-#### **1.2. Security**
+### **3\. API Endpoints**
 
-All endpoints will be secured. Access will be granted only to authenticated users with the STRUCTURE\_ADMINISTRATOR
-role. The service will verify that the requested structureId or eventId belongs to the administrator's structure.
+#### **3.1. Structure Statistics**
 
-### **2\. API Endpoints and Data Models (DTOs)**
+This endpoint provides a high-level overview of a structure's performance.
 
-Two primary endpoints will be created to serve all the required statistics.
+* **Endpoint**: GET /api/v1/statistics/structure/{structureId}/dashboard
+* **Controller**: StatisticsController.java
+* **Description**: Retrieves a consolidated set of Key Performance Indicators (KPIs) and charts for a specific structure's main dashboard.
+* **Permissions**: Requires StaffUser role for the specified {structureId}.
 
-#### **2.1. New DTOs**
+##### **Success Response (200 OK)**
 
-First, create the following DTO classes. These will define the contract with the frontend.
+Returns a StructureDashboardStatsDto object.
 
-* ChartJsDataDto.java: A generic DTO for chart data.  
-  public class ChartJsDataDto {  
-  private String chartType; // e.g., "doughnut", "line", "bar"  
-  private List\<String\> labels;  
-  private List\<ChartJsDataset\> datasets;  
-  }
+**Example Response Body:**
 
-  public class ChartJsDataset {  
-  private String label;  
-  private List\<Number\> data;  
-  private List\<String\> backgroundColor; // For bar/doughnut charts  
-  private String borderColor; // For line charts  
-  private boolean fill;  
-  }
+{  
+"upcomingEventsCount": 5,  
+"totalTicketsReserved": 12450,  
+"totalExpectedAttendees": 3200,  
+"averageAttendanceRate": 88.5,  
+"topEventsChart": {  
+"chartType": "bar",  
+"labels": \["Festival Electronic Waves", "Concert Nekfeu", "FC Metz vs Lyon"\],  
+"datasets": \[{  
+"label": "Tickets Sold",  
+"data": \[4500, 3200, 2800\]  
+}\]  
+},  
+"attendanceByCategoryChart": {  
+"chartType": "doughnut",  
+"labels": \["Concert", "Sport", "Festival"\],  
+"datasets": \[{  
+"label": "Attendees",  
+"data": \[7700, 2800, 1950\]  
+}\]  
+}  
+}
 
-* StructureDashboardStatsDto.java: For the main dashboard KPIs.  
-  public class StructureDashboardStatsDto {  
-  private long upcomingEventsCount;  
-  private long totalTicketsReserved;  
-  private long totalExpectedAttendees;  
-  private double averageAttendanceRate; // Percentage  
-  private ChartJsDataDto topEventsChart;  
-  private ChartJsDataDto attendanceByCategoryChart;  
-  }
+##### **Error Responses**
 
-* EventStatisticsDto.java: For event-specific statistics.  
-  public class EventStatisticsDto {  
-  private long eventId;  
-  private String eventName;  
-  private ChartJsDataDto zoneFillRateChart;  
-  private ChartJsDataDto reservationsOverTimeChart;  
-  private ChartJsDataDto ticketStatusChart;  
-  }
+* **401 Unauthorized**: No valid JWT was provided.
+* **403 Forbidden**: The authenticated user is not the administrator of the requested structure.
+* **404 Not Found**: The structure with the given structureId does not exist.
 
-* ZoneFillRateDataPointDto.java: A helper DTO for the zone fill rate chart.  
-  public class ZoneFillRateDataPointDto {  
-  private String zoneName;  
-  private long ticketsSold;  
-  private int capacity;  
-  }
+#### **3.2. Event Statistics**
 
-#### **2.2. API Endpoints**
+This endpoint provides a deep dive into the performance of a single event.
 
-1. **Get Structure Dashboard Statistics**
-    * **Endpoint:** GET /api/v1/statistics/structure/{structureId}/dashboard
-    * **Description:** Returns a consolidated object containing all KPIs and global charts for a structure's main
-      dashboard.
-    * **Security:** Requires STRUCTURE\_ADMINISTRATOR role for the given {structureId}.
-    * **Response Body:** StructureDashboardStatsDto
-2. **Get Event-Specific Statistics**
-    * **Endpoint:** GET /api/v1/statistics/event/{eventId}
-    * **Description:** Returns detailed charts and statistics for a single event.
-    * **Security:** Requires STRUCTURE\_ADMINISTRATOR role for the structure that owns the given {eventId}.
-    * **Response Body:** EventStatisticsDto
+* **Endpoint**: GET /api/v1/statistics/event/{eventId}
+* **Controller**: StatisticsController.java
+* **Description**: Retrieves detailed statistics and charts for a specific event.
+* **Permissions**: Requires StaffUser role for the structure that owns the specified {eventId}.
 
-### **3\. Implementation Tasks**
+##### **Success Response (200 OK)**
 
-Here is the step-by-step guide to implement the feature.
+Returns an EventStatisticsDto object.
 
-#### **Task 1: Create the DTOs**
+**Example Response Body:**
 
-1. Create a new package com.tickly.backend.dto.statistics.
-2. Inside this package, create all the Java classes defined in section 2.1 (ChartJsDataDto, ChartJsDataset,
-   StructureDashboardStatsDto, EventStatisticsDto, ZoneFillRateDataPointDto).
+{  
+"eventId": 2,  
+"eventName": "Festival Electronic Waves",  
+"zoneFillRateChart": {  
+"chartType": "bar",  
+"labels": \["Fosse", "VIP Area"\],  
+"datasets": \[  
+{  
+"label": "Tickets Sold",  
+"data": \[950, 85\]  
+},  
+{  
+"label": "Capacity",  
+"data": \[1000, 100\]  
+}  
+\]  
+},  
+"reservationsOverTimeChart": {  
+"chartType": "line",  
+"labels": \["2025-06-01", "2025-06-02", "2025-06-03"\],  
+"datasets": \[{  
+"label": "Reservations",  
+"data": \[250, 600, 950\]  
+}\]  
+},  
+"ticketStatusChart": {  
+"chartType": "doughnut",  
+"labels": \["VALID", "USED", "CANCELLED"\],  
+"datasets": \[{  
+"label": "Tickets",  
+"data": \[600, 350, 25\]  
+}\]  
+}  
+}
 
-#### **Task 2: Create the Statistics Repository**
+##### **Error Responses**
 
-1. Create a new interface StatisticsRepository.java extending JpaRepository or create a new class to hold native
-   queries. This repository is ideal for complex, read-only aggregation queries that are difficult to express in JPQL.
-2. Add the following methods with native SQL queries. These queries are based on the data.sql schema.
-    * **For KPIs (in** EventRepository **and** TicketRepository **or new** StatisticsRepository**)**:
-        * countByStructureIdAndStartDateAfter(Long structureId, LocalDateTime now): Counts upcoming events.
-        * countByEventStructureIdAndStatusIn(Long structureId, List\<String\> statuses): Counts total reserved tickets.
-        * countByEventStructureIdAndEventStartDateAfterAndStatus(Long structureId, LocalDateTime now, String status):
-          Counts expected attendees.
-        * A custom query for average attendance rate for past events.
-    * **For Charts (in new** StatisticsRepository**)**:
-        * findZoneFillRatesByEventId(Long eventId): Returns a List\<ZoneFillRateDataPointDto\>.  
-          SELECT eaz.name as zoneName, eaz.allocated\_capacity as capacity, COUNT(t.id) as ticketsSold  
-          FROM event\_audience\_zone eaz  
-          LEFT JOIN tickets t ON eaz.id \= t.event\_audience\_zone\_id AND t.status IN ('VALID', 'USED')  
-          WHERE eaz.event\_id \= :eventId  
-          GROUP BY eaz.id, eaz.name, eaz.allocated\_capacity;
+* **401 Unauthorized**: No valid JWT was provided.
+* **403 Forbidden**: The authenticated user does not own the structure associated with this event.
+* **404 Not Found**: The event with the given eventId does not exist.
 
-        * findReservationsByDay(Long eventId): Returns a list of objects with reservation\_date and count.  
-          SELECT DATE(reservation\_date) as date, COUNT(\*) as count  
-          FROM tickets  
-          WHERE event\_id \= :eventId AND status IN ('VALID', 'USED')  
-          GROUP BY DATE(reservation\_date)  
-          ORDER BY date ASC;
 
-        * findTicketStatusDistribution(Long eventId):  
-          SELECT status, COUNT(\*) as count FROM tickets WHERE event\_id \= :eventId GROUP BY status;
+Example Data : 
 
-        * findTopEventsByTickets(Long structureId, int limit):  
-          SELECT e.name, COUNT(t.id) as ticket\_count  
-          FROM events e JOIN tickets t ON e.id \= t.event\_id  
-          WHERE e.structure\_id \= :structureId AND t.status IN ('VALID', 'USED')  
-          GROUP BY e.id, e.name ORDER BY ticket\_count DESC LIMIT :limit;
+GET "{{baseUrl}}/statistics/structure/6/dashboard"
 
-        * findAttendanceByCategory(Long structureId):  
-          SELECT ec.name, COUNT(t.id) as attendee\_count  
-          FROM tickets t  
-          JOIN event\_has\_categories ehc ON t.event\_id \= ehc.event\_id  
-          JOIN event\_categories ec ON ehc.category\_id \= ec.id  
-          JOIN events e ON t.event\_id \= e.id  
-          WHERE e.structure\_id \= :structureId AND t.status IN ('VALID', 'USED')  
-          GROUP BY ec.id, ec.name ORDER BY attendee\_count DESC;
+{
+"upcomingEventsCount": 11,
+"totalTicketsReserved": 365,
+"totalExpectedAttendees": 265,
+"averageAttendanceRate": 0,
+"topEventsChart": {
+"chartType": "bar",
+"labels": [
+"Scène Ouverte Poésie & Slam",
+"Nuit du Blues & Soul"
+],
+"datasets": [
+{
+"label": "Tickets Sold",
+"data": [
+225,
+140
+],
+"backgroundColor": [
+"#FF6384",
+"#36A2EB"
+],
+"borderColor": "#FFFFFF",
+"fill": false
+}
+]
+},
+"attendanceByCategoryChart": {
+"chartType": "doughnut",
+"labels": [
+"Humour",
+"Théâtre",
+"Concert",
+"Festival"
+],
+"datasets": [
+{
+"label": "Attendees",
+"data": [
+225,
+225,
+140,
+140
+],
+"backgroundColor": [
+"#FF6384",
+"#36A2EB",
+"#FFCE56",
+"#4BC0C0"
+],
+"borderColor": "#FFFFFF",
+"fill": false
+}
+]
+}
+}
 
-#### **Task 3: Create the Statistics Service**
+GET "{{baseUrl}}/statistics/event/20"
 
-1. Create StatisticsService.java.
-2. Inject the required repositories (EventRepository, TicketRepository, StatisticsRepository, etc.).
-3. Implement the public methods:
-    * getStructureDashboardStats(Long structureId): This method will call the different repository methods defined in
-      Task 2, assemble the results, and build the StructureDashboardStatsDto object, including the ChartJsDataDto for
-      the two global charts.
-    * getEventStats(Long eventId): This method will call the repository methods for a single event, perform any
-      necessary transformations (like calculating cumulative sums for the reservations-over-time chart), and build the
-      EventStatisticsDto response.
-
-#### **Task 4: Create the Statistics Controller**
-
-1. Create StatisticsController.java with the base path /api/v1/statistics.
-2. Inject the StatisticsService.
-3. Implement the two endpoints defined in section 2.2.
-4. Add @PreAuthorize annotations to secure the endpoints, ensuring the user has the STRUCTURE\_ADMINISTRATOR role and is
-   authorized for the requested resource.
-    * **Example Security Check in Service Layer:**  
-      public StructureDashboardStatsDto getStructureDashboardStats(Long structureId) {  
-      // Get current user from SecurityContextHolder  
-      // Check if user.getStructureId() matches the requested structureId  
-      // If not, throw AccessDeniedException  
-      ...  
-      }
-
-By following these steps, you will have a robust, secure, and well-structured backend service ready to deliver valuable
-insights to your users.
+{
+"eventId": 20,
+"eventName": "Nuit du Blues & Soul",
+"zoneFillRateChart": {
+"chartType": "bar",
+"labels": [
+"Placement libre Caveau"
+],
+"datasets": [
+{
+"label": "Fill Rate (%)",
+"data": [
+70
+],
+"backgroundColor": [
+"#FF6384"
+],
+"borderColor": "#FF6384",
+"fill": false
+},
+{
+"label": "Capacity",
+"data": [
+200
+],
+"backgroundColor": [
+"#36A2EB"
+],
+"borderColor": "#36A2EB",
+"fill": false
+},
+{
+"label": "Tickets Sold",
+"data": [
+140
+],
+"backgroundColor": [
+"#FFCE56"
+],
+"borderColor": "#FFCE56",
+"fill": false
+}
+]
+},
+"reservationsOverTimeChart": {
+"chartType": "line",
+"labels": [
+"2025-06-15",
+"2025-06-17"
+],
+"datasets": [
+{
+"label": "Reservations",
+"data": [
+100,
+40
+],
+"backgroundColor": [
+"rgba(54, 162, 235, 0.2)"
+],
+"borderColor": "rgba(54, 162, 235, 1)",
+"fill": true
+}
+]
+},
+"ticketStatusChart": {
+"chartType": "doughnut",
+"labels": [
+"USED",
+"VALID",
+"CANCELLED"
+],
+"datasets": [
+{
+"label": "Tickets",
+"data": [
+100,
+40,
+10
+],
+"backgroundColor": [
+"#36A2EB",
+"#4BC0C0",
+"#FF6384"
+],
+"borderColor": "#FFFFFF",
+"fill": false
+}
+]
+}
+}

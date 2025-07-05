@@ -26,8 +26,7 @@ export const appConfig: ApplicationConfig = {
         useFactory: adapterFactory,
       })
     ),
-    {provide: LOCALE_ID, useValue: 'fr-FR'},
     provideCharts(withDefaultRegisterables()),
-
+    {provide: LOCALE_ID, useValue: 'fr-FR'},
   ],
 };

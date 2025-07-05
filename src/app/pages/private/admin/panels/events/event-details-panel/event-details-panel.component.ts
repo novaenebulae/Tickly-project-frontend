@@ -5,10 +5,11 @@ import {
   ViewChild,
   ChangeDetectorRef,
   ElementRef,
-  ViewEncapsulation, inject
+  ViewEncapsulation, inject, OnDestroy
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Subscription } from 'rxjs';
 
 // Angular Material Modules & Common Features
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -27,6 +28,19 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatMenu, MatMenuModule, MatMenuTrigger} from '@angular/material/menu';
+
+// Chart.js
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import { BaseChartDirective } from 'ng2-charts';
+
+// Services
+import { EventService } from '../../../../../../core/services/domain/event/event.service';
+import { StatisticsService } from '../../../../../../core/services/domain/statistics/statistics.service';
+
+// Models
+import { EventModel } from '../../../../../../core/models/event/event.model';
+import { EventStatisticsDto } from '../../../../../../core/models/statistics/event-statistics.model';
+import { ChartJsDataDto, ChartJsDataset } from '../../../../../../core/models/statistics/chart-js-data.model';
 
 // --- INTERFACES POUR LES DONNÉES (Alignées avec le HTML) ---
 
@@ -102,12 +116,13 @@ interface Participant {
     MatProgressSpinnerModule,
     MatExpansionModule,
     MatMenuModule,
+    BaseChartDirective,
   ],
   templateUrl: './event-details-panel.component.html',
   styleUrls: ['./event-details-panel.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class EventDetailsPanelComponent implements OnInit, AfterViewInit {
+export class EventDetailsPanelComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private viewportScroller = inject(ViewportScroller);
   private router = inject(Router);
@@ -115,6 +130,10 @@ export class EventDetailsPanelComponent implements OnInit, AfterViewInit {
   private sanitizer = inject(DomSanitizer);
   private cdr = inject(ChangeDetectorRef);
   private snackBar = inject(MatSnackBar);
+  private eventService = inject(EventService);
+  private statisticsService = inject(StatisticsService);
+
+  private subscriptions: Subscription[] = [];
 
   event: EventDetails | null = null;
 
@@ -136,23 +155,225 @@ export class EventDetailsPanelComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild('participantFilter') participantFilterInput!: ElementRef<HTMLInputElement>;
 
+  // Chart references
+  @ViewChild('zoneFillRateChart') zoneFillRateChart?: BaseChartDirective;
+  @ViewChild('reservationsOverTimeChart') reservationsOverTimeChart?: BaseChartDirective;
+  @ViewChild('ticketStatusChart') ticketStatusChart?: BaseChartDirective;
+
+  // Chart data and options
+  zoneFillRateChartData: ChartConfiguration['data'] = {
+    labels: [],
+    datasets: []
+  };
+
+  zoneFillRateChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top'
+      }
+    }
+  };
+
+  reservationsOverTimeChartData: ChartConfiguration['data'] = {
+    labels: [],
+    datasets: []
+  };
+
+  reservationsOverTimeChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top'
+      }
+    }
+  };
+
+  ticketStatusChartData: ChartConfiguration['data'] = {
+    labels: [],
+    datasets: []
+  };
+
+  ticketStatusChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'right'
+      }
+    }
+  };
+
+  // Chart types
+  zoneFillRateChartType: ChartType = 'bar';
+  reservationsOverTimeChartType: ChartType = 'line';
+  ticketStatusChartType: ChartType = 'doughnut';
+
 
   ngOnInit(): void {
-    // Exemple de chargement basé sur l'ID de la route
-    // const eventId = this.route.snapshot.paramMap.get('id');
-    // if (eventId) {
-    //   this.loadEventDetailsFromServer(eventId);
-    // } else {
-    //   console.error("ID de l'événement manquant.");
-    //   this.snackBar.open("Erreur: ID de l'événement non trouvé.", "Fermer", { duration: 3000 });
-    // }
-    this.route.fragment.subscribe(fragment => {
+    // Handle fragment for scrolling
+    const fragmentSub = this.route.fragment.subscribe(fragment => {
       if (fragment) {
         this.viewportScroller.scrollToAnchor(fragment);
       }
     });
+    this.subscriptions.push(fragmentSub);
 
-    this.loadMockEventDetails(); // Pour la démo
+    // Get event ID from route
+    const eventId = this.route.snapshot.paramMap.get('id');
+    if (eventId) {
+      this.loadEventDetails(Number(eventId));
+    } else {
+      console.error("ID de l'événement manquant.");
+      this.snackBar.open("Erreur: ID de l'événement non trouvé.", "Fermer", { duration: 3000 });
+    }
+  }
+
+  /**
+   * Loads event details and statistics from the server
+   * @param eventId The ID of the event to load
+   */
+  private loadEventDetails(eventId: number): void {
+    // Load event details
+    const eventSub = this.eventService.getEventById(eventId).subscribe(
+      eventData => {
+        if (eventData) {
+          // Load event statistics
+          const statsSub = this.statisticsService.getEventStatistics(eventId).subscribe(
+            statsData => {
+              this.mapEventData(eventData, statsData);
+              this.cdr.detectChanges();
+            },
+            error => {
+              console.error('Error loading event statistics:', error);
+              this.mapEventData(eventData); // Still map event data even if stats fail
+              this.cdr.detectChanges();
+            }
+          );
+          this.subscriptions.push(statsSub);
+        } else {
+          this.snackBar.open(`Événement #${eventId} non trouvé.`, "Fermer", { duration: 3000 });
+        }
+      },
+      error => {
+        console.error('Error loading event details:', error);
+        this.snackBar.open(`Erreur lors du chargement de l'événement #${eventId}.`, "Fermer", { duration: 3000 });
+      }
+    );
+    this.subscriptions.push(eventSub);
+  }
+
+  /**
+   * Maps event data and statistics to the component's event object
+   * @param eventData The event data from the API
+   * @param statsData The event statistics from the API
+   */
+  private mapEventData(eventData: EventModel, statsData?: EventStatisticsDto | null): void {
+    // Create zones from audience zones
+    const zones: Zone[] = eventData.audienceZones.map(zone => ({
+      name: zone.name,
+      capacity: zone.allocatedCapacity
+    }));
+
+    // Calculate total capacity
+    const totalCapacity = zones.reduce((sum, zone) => sum + (zone.capacity || 0), 0);
+
+    // Map event status
+    let status: string;
+    switch (eventData.status) {
+      case 'DRAFT': status = 'Planifié'; break;
+      case 'PUBLISHED': status = 'Inscriptions Ouvertes'; break;
+      case 'CANCELLED': status = 'Annulé'; break;
+      case 'COMPLETED': status = 'Terminé'; break;
+      case 'ARCHIVED': status = 'Archivé'; break;
+      default: status = eventData.status;
+    }
+
+    // Create event stats object
+    const stats: EventStats = {};
+    if (statsData) {
+      // Use direct values from the updated EventStatisticsDto
+      stats.fillRate = statsData.fillPercentage;
+      stats.ticketsAttributed = statsData.attributedTicketsAmount;
+      stats.uniqueReservations = statsData.uniqueReservationAmount;
+      stats.ticketsScanned = statsData.scannedTicketsNumber;
+
+      // Calculate no-show rate if we have the necessary data
+      if (stats.ticketsAttributed > 0) {
+        stats.noShowRate = (stats.ticketsAttributed - stats.ticketsScanned) / stats.ticketsAttributed * 100;
+      }
+
+      // Calculate average tickets per reservation
+      if (stats.uniqueReservations && stats.uniqueReservations > 0) {
+        stats.avgTicketsPerReservation = stats.ticketsAttributed / stats.uniqueReservations;
+      }
+
+      // Update chart data from DTO
+      this.updateChartFromDto(statsData.zoneFillRateChart, this.zoneFillRateChartData);
+      this.updateChartFromDto(statsData.reservationsOverTimeChart, this.reservationsOverTimeChartData);
+      this.updateChartFromDto(statsData.ticketStatusChart, this.ticketStatusChartData);
+
+      // Update chart types if specified in the DTO
+      if (statsData.zoneFillRateChart.chartType) {
+        this.zoneFillRateChartType = statsData.zoneFillRateChart.chartType as ChartType;
+      }
+      if (statsData.reservationsOverTimeChart.chartType) {
+        this.reservationsOverTimeChartType = statsData.reservationsOverTimeChart.chartType as ChartType;
+      }
+      if (statsData.ticketStatusChart.chartType) {
+        this.ticketStatusChartType = statsData.ticketStatusChart.chartType as ChartType;
+      }
+    }
+
+    // Create event details object
+    this.event = {
+      id: eventData.id?.toString() || '',
+      name: eventData.name,
+      subtitle: eventData.shortDescription || '',
+      bannerUrl: eventData.mainPhotoUrl,
+      startDate: eventData.startDate,
+      endDate: eventData.endDate,
+      duration: this.calculateDuration(eventData.startDate, eventData.endDate),
+      zones: zones,
+      description: this.sanitizer.bypassSecurityTrustHtml(eventData.fullDescription),
+      category: eventData.categories.map(cat => cat.name).join(', '),
+      totalCapacity: totalCapacity,
+      status: status,
+      publicLink: `${window.location.origin}/events/${eventData.id}`,
+      stats: stats
+    };
+
+    // For now, we're not loading participants as mentioned in the requirements
+    this.dataSource.data = [];
+  }
+
+  get fillPercentage(): string {
+    return (this.event!.stats?.fillRate ? Math.round(this.event!.stats!.fillRate) : 0) + " %";
+  }
+
+  /**
+   * Calculates the duration between two dates
+   * @param startDate The start date
+   * @param endDate The end date
+   * @returns A string representing the duration
+   */
+  private calculateDuration(startDate: Date, endDate: Date): string {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffMs = end.getTime() - start.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (diffHours > 0) {
+      return `Env. ${diffHours} heure${diffHours > 1 ? 's' : ''}${diffMinutes > 0 ? ` ${diffMinutes} min` : ''}`;
+    } else {
+      return `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''}`;
+    }
   }
 
   ngAfterViewInit(): void {
@@ -160,74 +381,62 @@ export class EventDetailsPanelComponent implements OnInit, AfterViewInit {
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
     }
+
+    // Update charts after view initialization
+    setTimeout(() => {
+      this.updateCharts();
+    }, 0);
   }
 
-  loadMockEventDetails(): void {
-    setTimeout(() => {
-      const mockDescriptionHtml = `
-        <p>Préparez-vous pour <strong>Rock The Night 2025</strong>, une soirée explosive avec les meilleurs groupes de rock du moment !</p>
-        <ul>
-          <li>Line-up incluant "The Electric Waves", "Crimson Haze", et "Nova Pulse".</li>
-          <li>Son et lumières spectaculaires pour une immersion totale.</li>
-          <li>Stands de merchandising et rafraîchissements sur place.</li>
-        </ul>
-        <p>Une nuit de pure énergie rock à ne pas manquer. Réservez vos places dès maintenant !</p>
-      `;
+  /**
+   * Updates chart data from DTO
+   * @param chartDto The chart data from the API
+   * @param chartData The chart data object to update
+   */
+  private updateChartFromDto(chartDto: ChartJsDataDto, chartData: ChartData): void {
+    chartData.labels = chartDto.labels;
+    chartData.datasets = chartDto.datasets.map(dataset => ({
+      data: dataset.data,
+      label: dataset.label,
+      backgroundColor: dataset.backgroundColor,
+      borderColor: dataset.borderColor,
+      fill: dataset.fill
+    }));
+  }
 
-      this.event = {
-        id: 'evt-rockthenight-2025',
-        name: 'Rock The Night 2025',
-        subtitle: 'Le concert rock de l\'année !',
-        bannerUrl: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8Y29uY2VydCUyMHJvY2t8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60',
-        startDate: new Date('2025-11-15T20:00:00'),
-        endDate: new Date('2025-11-15T23:59:00'),
-        duration: 'Env. 4 heures',
-        zones: [
-          { name: 'Fosse Debout', capacity: 1500 },
-          { name: 'Gradins Assis - Bloc A', capacity: 500 },
-          { name: 'Gradins Assis - Bloc B', capacity: 500 },
-          { name: 'Espace VIP Balcon', capacity: 100 }
-        ],
-        description: this.sanitizer.bypassSecurityTrustHtml(mockDescriptionHtml),
-        category: 'Concert Rock',
-        totalCapacity: 2600,
-        status: 'Inscriptions Ouvertes',
-        publicLink: 'https://example.com/events/rockthenight-2025',
-        stats: {
-          fillRate: 72, // 72%
-          ticketsAttributed: 1872,
-          fillRateComparison: '+18% vs J-7',
-          uniqueReservations: 1250,
-          avgTicketsPerReservation: 1.50,
-          newReservationsTrend: '+80 réservations hier',
-          ticketsAttributedComparison: '+200 vs J-7',
-          ticketsScanned: 0, // Événement pas encore commencé
-          noShowRate: 0,
-        }
-      };
+  /**
+   * Updates charts after data changes
+   */
+  private updateCharts(): void {
+    if (this.zoneFillRateChart) {
+      this.zoneFillRateChart.update();
+    }
 
-      const mockParticipants: Participant[] = [
-        { orderId: 'RTN001', name: 'Alexandre Petit', email: 'alex.p@email.com', reservationDate: new Date('2025-09-01T10:00:00'), ticketCount: 2, tickets: [{ type: 'Fosse Debout', holderName: 'Alexandre Petit', reference: 'TKT-RTN01A' }, { type: 'Fosse Debout', holderName: 'Sophie Durand', reference: 'TKT-RTN01B' }], reservationStatus: 'Confirmée', scanStatus: 'Non scanné' },
-        { orderId: 'RTN002', name: 'Chloé Dubois', email: 'chloe.d@email.net', reservationDate: new Date('2025-09-05T15:30:00'), ticketCount: 1, tickets: [{ type: 'Espace VIP Balcon', holderName: 'Chloé Dubois', reference: 'TKT-RTN02A' }], reservationStatus: 'Confirmée', scanStatus: 'Non scanné' },
-        { orderId: 'RTN003', name: 'Mohammed Ali', email: 'm.ali@email.org', reservationDate: new Date('2025-09-10T09:45:00'), ticketCount: 4, tickets: [{ type: 'Gradins Assis - Bloc A', holderName: 'Mohammed Ali', reference: 'TKT-RTN03A' }, { type: 'Gradins Assis - Bloc A', reference: 'TKT-RTN03B' }, { type: 'Gradins Assis - Bloc A', reference: 'TKT-RTN03C' }, { type: 'Gradins Assis - Bloc A', reference: 'TKT-RTN03D' }], reservationStatus: 'En attente de validation', scanStatus: 'Non scanné' },
-      ];
-      this.dataSource.data = mockParticipants;
+    if (this.reservationsOverTimeChart) {
+      this.reservationsOverTimeChart.update();
+    }
 
-      if (this.dataSource.paginator) {
-        this.dataSource.paginator.firstPage();
-      }
-      this.cdr.detectChanges();
-    }, 1000);
+    if (this.ticketStatusChart) {
+      this.ticketStatusChart.update();
+    }
+  }
+
+  /**
+   * Clean up subscriptions when the component is destroyed
+   */
+  ngOnDestroy(): void {
+    // Unsubscribe from all subscriptions
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   // --- Méthodes d'action de l'en-tête ---
   goBack(): void {
-    this.router.navigate(['admin/events']);
+    this.router.navigate(['/admin/events']);
   }
 
   editEvent(): void {
     if (this.event) {
-      this.router.navigate(['/events/edit', this.event.id]);
+      this.router.navigate(['/admin/events', this.event.id, 'edit']);
     } else {
       this.snackBar.open('Impossible de modifier : événement non chargé.', 'Fermer', { duration: 3000 });
     }

@@ -1,1 +1,96 @@
-<p>dashboard works !</p>
+<div class="dashboard-container">
+  <!-- Loading spinner -->
+  <div class="loading-container" *ngIf="isLoading()">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Chargement des statistiques...</p>
+  </div>
+
+  <!-- Dashboard content -->
+  <div class="dashboard-content" *ngIf="!isLoading() && stats()">
+    <!-- Header with structure name and refresh button -->
+    <div class="dashboard-header">
+      <h1>Tableau de bord - {{ structureName()?.name }}</h1>
+      <button mat-icon-button color="primary" (click)="refreshStatistics()" matTooltip="Rafraîchir les statistiques">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+
+    <!-- KPI cards -->
+    <div class="kpi-cards">
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <div class="kpi-value">{{ stats()?.upcomingEventsCount }}</div>
+          <div class="kpi-label">Événements à venir</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <div class="kpi-value">{{ stats()?.totalTicketsReserved }}</div>
+          <div class="kpi-label">Billets réservés</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <div class="kpi-value">{{ stats()?.totalExpectedAttendees }}</div>
+          <div class="kpi-label">Participants attendus</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <div class="kpi-value">{{ stats()?.averageAttendanceRate }}%</div>
+          <div class="kpi-label">Taux de participation moyen</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-container">
+      <!-- Top Events Chart -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Top Événements</mat-card-title>
+          <mat-card-subtitle>Événements avec le plus de billets vendus</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <canvas baseChart #topEventsChart
+              [data]="topEventsChartData"
+              [options]="topEventsChartOptions"
+              [type]="topEventsChartType()">
+            </canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Category Chart -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Participants par catégorie</mat-card-title>
+          <mat-card-subtitle>Répartition des participants par type d'événement</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <canvas baseChart #categoryChart
+              [data]="categoryChartData"
+              [options]="categoryChartOptions"
+              [type]="attendanceByCategoryChartType()">
+            </canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- No data message -->
+  <div class="no-data-container" *ngIf="!isLoading() && !stats()">
+    <mat-icon class="no-data-icon">bar_chart_off</mat-icon>
+    <h2>Aucune donnée statistique disponible</h2>
+    <p>Les statistiques de votre structure ne sont pas encore disponibles ou une erreur s'est produite lors du chargement.</p>
+    <button mat-raised-button color="primary" (click)="refreshStatistics()">
+      <mat-icon>refresh</mat-icon> Réessayer
+    </button>
+  </div>
+</div>

@@ -127,12 +127,11 @@
             </mat-card-header>
             <mat-card-content>
               <h3 class="kpi-title">Taux de Remplissage</h3>
-              <p class="kpi-value">{{ (event.stats?.fillRate || 0) | percent:'1.0-0' }}</p>
+              <p class="kpi-value">{{ fillPercentage }}</p>
               <mat-progress-bar mode="determinate" [value]="event.stats?.fillRate || 0"
                                 color="primary"></mat-progress-bar>
               <small class="text-muted mt-2 d-block">{{ event.stats?.ticketsAttributed || 0 }} billets
                 / {{ event.totalCapacity || 0 }} capacité</small>
-              <small class="text-muted">{{ event.stats?.fillRateComparison || '+0% vs période précédente' }}</small>
             </mat-card-content>
           </mat-card>
         </div>
@@ -148,7 +147,6 @@
               <p class="kpi-value">{{ event.stats?.uniqueReservations || 0 }}</p>
               <small class="text-muted d-block">Moy. {{ event.stats?.avgTicketsPerReservation || 0 | number:'1.0-2' }}
                 billets/résa.</small>
-              <small class="text-muted">{{ event.stats?.newReservationsTrend || '+0% cette semaine' }}</small>
             </mat-card-content>
           </mat-card>
         </div>
@@ -162,8 +160,6 @@
             <mat-card-content>
               <h3 class="kpi-title">Billets Attribués</h3>
               <p class="kpi-value">{{ event.stats?.ticketsAttributed || 0 }}</p>
-              <small
-                class="text-muted d-block">{{ event.stats?.ticketsAttributedComparison || '+0% vs période précédente' }}</small>
             </mat-card-content>
           </mat-card>
         </div>
@@ -188,15 +184,19 @@
       <h2 class="section-title mt-4">Visualisations des Données</h2>
       <div class="row">
         <!-- Graphique: Évolution des Réservations de Billets -->
-        <div class="col-lg-6 mb-4">
+        <div class="col-lg-12 mb-4">
           <mat-card class="h-100 chart-card">
             <mat-card-header>
               <mat-card-title>Évolution des Réservations de Billets</mat-card-title>
               <mat-card-subtitle>Billets attribués sur les 30 derniers jours</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
-              <div class="chart-placeholder bg-light d-flex align-items-center justify-content-center mt-3">
-                <p class="text-muted m-0"><i>[Graphique: Évolution des Réservations]</i></p>
+              <div class="chart-container">
+                <canvas baseChart #reservationsOverTimeChart
+                  [data]="reservationsOverTimeChartData"
+                  [options]="reservationsOverTimeChartOptions"
+                  [type]="reservationsOverTimeChartType">
+                </canvas>
               </div>
             </mat-card-content>
           </mat-card>
@@ -210,23 +210,30 @@
               <mat-card-subtitle>Taux de remplissage sur les 30 derniers jours</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
-              <div class="chart-placeholder bg-light d-flex align-items-center justify-content-center mt-3">
-                <p class="text-muted m-0"><i>[Graphique: Évolution du Taux de Remplissage]</i></p>
+              <div class="chart-container">
+                <canvas baseChart #ticketStatusChart
+                  [data]="ticketStatusChartData"
+                  [options]="ticketStatusChartOptions"
+                  [type]="ticketStatusChartType">
+                </canvas>
               </div>
             </mat-card-content>
           </mat-card>
         </div>
         <!-- Graphique: Taux de Remplissage par Zones -->
-        <div class="col-lg-12 mb-4">
+        <div class="col-lg-6 mb-4">
           <mat-card class="h-100 chart-card">
             <mat-card-header>
               <mat-card-title>Analyse du Remplissage par Zone/Section</mat-card-title>
               <mat-card-subtitle>Pourcentage de remplissage pour chaque zone</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
-              <div
-                class="chart-placeholder bg-light d-flex align-items-center justify-content-center mt-3 large-chart-placeholder">
-                <p class="text-muted m-0"><i>[Graphique: Remplissage par Zones]</i></p>
+              <div class="chart-container large-chart-container">
+                <canvas baseChart #zoneFillRateChart
+                  [data]="zoneFillRateChartData"
+                  [options]="zoneFillRateChartOptions"
+                  [type]="zoneFillRateChartType">
+                </canvas>
               </div>
             </mat-card-content>
           </mat-card>

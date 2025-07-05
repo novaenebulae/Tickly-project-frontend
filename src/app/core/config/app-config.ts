@@ -49,7 +49,10 @@ interface AppConfig {
           structureById: (id: number | string) => string;
         };
       };
-
+      statistics: {
+        structureDashboard: (structureId: number | string) => string; // GET structure dashboard statistics
+        eventStatistics: (eventId: number | string) => string; // GET event-specific statistics
+      };
       friendship: {
         base: string;          // List current user's friends
         requests: string;      // GET (received/sent), POST (send new)
@@ -85,6 +88,7 @@ interface AppConfig {
     friendship: boolean;
     team: boolean;
     ticketing: boolean;
+    statistics: boolean;
   };
   auth: {
     tokenKey: string;             // Key for storing the JWT in localStorage/sessionStorage
@@ -147,6 +151,10 @@ export const APP_CONFIG: AppConfig = {
         areaAudienceZoneTemplates: (structureId: number | string, areaId: number | string) => `structures/${structureId}/areas/${areaId}/audience-zone-templates`,
         areaAudienceZoneTemplateById: (structureId: number | string, areaId: number | string, templateId: number | string) => `structures/${structureId}/areas/${areaId}/audience-zone-templates/${templateId}`
       },
+      statistics: {
+        structureDashboard: (structureId: number | string) => `statistics/structure/${structureId}/dashboard`,
+        eventStatistics: (eventId: number | string) => `statistics/event/${eventId}`,
+      },
       users: {
         base: 'users',
         byId: (id) => `users/${id}`,
@@ -186,7 +194,7 @@ export const APP_CONFIG: AppConfig = {
   },
 
   mock: {
-    enabled: true,  // Set to false to use real API, true for mocks
+    enabled: false,  // Set to false to use real API, true for mocks
     delay: 300,     // Simulate network latency for mocks
     auth: false,
     events: false,
@@ -195,6 +203,7 @@ export const APP_CONFIG: AppConfig = {
     friendship: false,
     ticketing: false,
     team: false,
+    statistics: false, // Enable mocks for statistics
   },
 
   auth: {

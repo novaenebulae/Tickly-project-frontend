@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { AdminLayoutComponent } from '../../../shared/layout/admin-layout/admin-layout.component';
 import { DashboardComponent } from './panels/dashboard/dashboard.component';
-import { StatsComponent } from './panels/stats/stats.component';
 
 // Guards unifiés
 
