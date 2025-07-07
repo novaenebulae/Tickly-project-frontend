@@ -1,4 +1,13 @@
-import {Component, DestroyRef, Inject, inject, OnDestroy, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  Inject,
+  inject,
+  OnDestroy,
+  signal
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
@@ -33,7 +42,8 @@ export interface TicketDetailModalData {
     MatProgressSpinner
   ],
   templateUrl: './ticket-detail-modal.component.html',
-  styleUrls: ['./ticket-detail-modal.component.scss']
+  styleUrls: ['./ticket-detail-modal.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TicketDetailModalComponent {
   private ticketService = inject(TicketService);
@@ -41,6 +51,7 @@ export class TicketDetailModalComponent {
 
   // Subject pour gérer les souscriptions
   private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   tickets: TicketModel[] = [];
   eventInfo: any;
@@ -70,9 +81,11 @@ export class TicketDetailModalComponent {
       .subscribe({
       next: () => {
         this.isDownloading.set(false);
+        this.cdRef.markForCheck();
       },
       error: () => {
         this.isDownloading.set(false);
+        this.cdRef.markForCheck();
       }
     });
   }
@@ -81,23 +94,10 @@ export class TicketDetailModalComponent {
     this.ticketService.downloadTicketPdf(ticket.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => {
-          // Le téléchargement est géré par le service PDF
-        },
         error: () => {
           console.error('Erreur lors du téléchargement du PDF');
         }
       });
-  }
-
-
-  private generatePdfFromData(pdfData: any, ticket: TicketModel): void {
-    const fileName = `billet-${this.eventInfo.name.replace(/\s+/g, '-')}-${ticket.participant.firstName}-${ticket.id.slice(-6)}.pdf`;
-    console.log('Génération du PDF:', fileName, pdfData);
-
-    const link = document.createElement('a');
-    link.download = fileName;
-    link.click();
   }
 
   getStatusLabel(status: TicketStatus): string {

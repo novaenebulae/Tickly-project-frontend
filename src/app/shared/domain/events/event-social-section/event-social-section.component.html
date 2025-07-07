@@ -2,43 +2,51 @@
   <h2 class="section-title">Qui y va</h2>
 
   <!-- Chargement -->
-  <div *ngIf="isLoading" class="loading-container">
+  <div *ngIf="isLoading()" class="loading-container">
     <div class="spinner"></div>
     <p>Chargement des participants...</p>
   </div>
 
   <!-- Erreur -->
-  <div *ngIf="hasError && !isLoading" class="error-container">
+  <div *ngIf="hasError() && !isLoading()" class="error-container">
     <mat-icon color="warn">error</mat-icon>
     <p>Impossible de charger les participants. Veuillez réessayer.</p>
-    <button (click)="loadFriendsAttending()">Réessayer</button>
+    <button class="retry-button" (click)="loadFriendsAttending()">
+      <mat-icon>refresh</mat-icon>
+      Réessayer
+    </button>
   </div>
 
   <!-- Aucun ami -->
-  <div *ngIf="!isLoading && !hasError && attendingFriends.length === 0" class="empty-container">
+  <div *ngIf="!isLoading() && !hasError() && attendingFriends().length === 0" class="empty-container">
     <mat-icon>group</mat-icon>
     <p>Aucun de vos amis ne participe encore à cet événement.</p>
   </div>
 
   <!-- Liste d'amis -->
-  <div *ngIf="!isLoading && !hasError && attendingFriends.length > 0" class="friends-list">
+  <div *ngIf="!isLoading() && !hasError() && attendingFriends().length > 0" class="friends-list">
     <div class="friends-grid">
-      <div *ngFor="let friend of attendingFriends" class="friend-card">
+      <div *ngFor="let friend of attendingFriends(); trackBy: trackByFriendId" class="friend-card">
         <div class="friend-avatar">
-          <img *ngIf="friend.avatarUrl" [src]="friend.avatarUrl" [alt]="friend.firstName + ' ' + friend.lastName" />
+          <img
+            *ngIf="friend.avatarUrl"
+            [src]="friend.avatarUrl"
+            [alt]="getFriendFullName(friend)"
+            loading="lazy"
+          />
           <div *ngIf="!friend.avatarUrl" class="default-avatar">
-            {{ friend.firstName.charAt(0).toUpperCase() }}
+            {{ getFriendInitials(friend) }}
           </div>
         </div>
-        <div class="friend-name">{{ friend.firstName }} {{ friend.lastName }}</div>
+        <div class="friend-name">{{ getFriendFullName(friend) }}</div>
       </div>
     </div>
 
     <!-- Nombre total -->
     <div class="attendance-stats">
       <div class="stat-item">
-        <span class="stat-count">{{ attendingFriends.length }}</span>
-        <span class="stat-label">{{ attendingFriends.length > 1 ? 'amis participent' : 'ami participe' }}</span>
+        <span class="stat-count">{{ attendanceStats().count }}</span>
+        <span class="stat-label">{{ attendanceStats().label }}</span>
       </div>
     </div>
   </div>

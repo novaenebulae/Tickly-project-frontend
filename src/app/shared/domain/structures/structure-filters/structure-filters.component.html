@@ -12,20 +12,20 @@
     <div class="category-section">
       <div class="category-header">
         <label class="filter-label">Catégories</label>
-        <button class="expand-categories-btn" (click)="toggleCategoriesExpand()" *ngIf="structureTypes.length >= MAX_VISIBLE_CATEGORIES">
-          <mat-icon>{{ isCategoriesExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
-          {{ isCategoriesExpanded ? 'Réduire' : 'Voir tout' }}
+        <button class="expand-categories-btn" (click)="toggleCategoriesExpand()" *ngIf="structureTypes().length >= MAX_VISIBLE_CATEGORIES">
+          <mat-icon>{{ isCategoriesExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+          {{ isCategoriesExpanded() ? 'Réduire' : 'Voir tout' }}
         </button>
       </div>
 
-      <div class="type-chips-container" [class.expanded]="isCategoriesExpanded">
+      <div class="type-chips-container" [class.expanded]="isCategoriesExpanded()">
         <div class="type-chips">
           <!-- Affiche seulement MAX_VISIBLE_CATEGORIES quand le drawer est fermé -->
           <div
-            *ngFor="let type of structureTypes; let i = index"
+            *ngFor="let type of structureTypes(); let i = index"
             class="type-chip"
             [class.active]="isTypeSelected(type.id)"
-            [class.hidden]="!isCategoriesExpanded && i >= MAX_VISIBLE_CATEGORIES"
+            [class.hidden]="!isCategoriesExpanded() && i >= MAX_VISIBLE_CATEGORIES"
             (click)="toggleTypeFilter(type.id)"
           >
             <mat-icon>{{ getTypeIcon(type.id) }}</mat-icon>
@@ -33,7 +33,7 @@
           </div>
 
           <!-- Message si pas de types disponibles -->
-          <div *ngIf="!structureTypes || structureTypes.length === 0" class="no-types-message">
+          <div *ngIf="!structureTypes() || structureTypes().length === 0" class="no-types-message">
             Aucune catégorie disponible
           </div>
         </div>
@@ -49,8 +49,8 @@
             type="text"
             class="form-control"
             placeholder="Rechercher une structure..."
-            [(ngModel)]="searchQuery"
-            (input)="onFilterChange()"
+            [value]="searchQuery()"
+            (input)="searchQuerySubject.next($any($event.target).value)"
           >
         </div>
       </div>
@@ -87,7 +87,7 @@
 
           <!-- Bouton de direction de tri -->
           <button class="sort-direction-button" (click)="toggleSortDirection()">
-            <mat-icon>{{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+            <mat-icon>{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
           </button>
         </div>
       </div>
@@ -99,16 +99,16 @@
   <!-- Indicateur des filtres actifs -->
   <div class="active-filters" *ngIf="hasActiveFilters()">
     <div class="active-filter-chips">
-      <div class="filter-chip" *ngIf="searchQuery">
-        <span>Recherche: {{ searchQuery }}</span>
+      <div class="filter-chip" *ngIf="searchQuery()">
+        <span>Recherche: {{ searchQuery() }}</span>
         <mat-icon (click)="clearSearch()">cancel</mat-icon>
       </div>
-      <div class="filter-chip" *ngFor="let type of selectedTypes">
+      <div class="filter-chip" *ngFor="let type of selectedTypes()">
         <span>{{ getTypeName(type) }}</span>
         <mat-icon (click)="toggleTypeFilter(type)">cancel</mat-icon>
       </div>
       <div class="filter-chip sort-chip">
-        <span>Tri: {{ getSortLabel() }} ({{ sortDirection === 'asc' ? '↑' : '↓' }})</span>
+        <span>Tri: {{ getSortLabel() }} ({{ sortDirection() === 'asc' ? '↑' : '↓' }})</span>
       </div>
     </div>
   </div>

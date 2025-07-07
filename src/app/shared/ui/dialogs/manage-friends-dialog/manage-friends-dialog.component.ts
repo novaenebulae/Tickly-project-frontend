@@ -1,4 +1,13 @@
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal
+} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {CommonModule} from '@angular/common';
@@ -53,28 +62,30 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
     MatCardModule
   ],
   templateUrl: './manage-friends-dialog.component.html',
-  styleUrls: ['./manage-friends-dialog.component.scss']
+  styleUrls: ['./manage-friends-dialog.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ManageFriendsDialogComponent implements OnInit {
-  // ✅ Injection moderne
+  // Injection moderne
   private dialogRef = inject(MatDialogRef<ManageFriendsDialogComponent>);
   private friendshipService = inject(FriendshipService);
   private fb = inject(FormBuilder);
 
   private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
-  // ✅ États avec signaux
+  // États avec signaux
   isLoadingSearch = signal(false);
   isSendingRequest = signal(false);
   isPerformingAction = signal(false);
 
-  // ✅ Accès direct aux signaux du service
+  // Accès direct aux signaux du service
   readonly friends = this.friendshipService.friends;
   readonly pendingRequests = this.friendshipService.pendingRequests;
   readonly sentRequests = this.friendshipService.sentRequests;
   readonly pendingRequestsCount = this.friendshipService.pendingRequestsCount;
 
-  // ✅ Computed values pour l'UI
+  // Computed values pour l'UI
   readonly hasFriends = computed(() => this.friends().length > 0);
   readonly hasPendingRequests = computed(() => this.pendingRequests().length > 0);
   readonly hasSentRequests = computed(() => this.sentRequests().length > 0);
@@ -121,25 +132,46 @@ export class ManageFriendsDialogComponent implements OnInit {
     const email = this.addFriendForm.value.email;
 
     this.friendshipService.sendFriendRequestByEmail(email).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => this.addFriendForm.reset(),
-      error: () => this.isSendingRequest.set(false),
-      complete: () => this.isSendingRequest.set(false)
+      next: () => {
+        this.addFriendForm.reset()
+        this.cdRef.markForCheck();
+      },
+      error: () => {
+        this.isSendingRequest.set(false)
+        this.cdRef.markForCheck();
+      },
+      complete: () => {
+        this.isSendingRequest.set(false)
+        this.cdRef.markForCheck();
+      }
     });
   }
 
   removeFriend(friend: FriendModel): void {
     this.isPerformingAction.set(true);
     this.friendshipService.removeFriend(friend.friend.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      error: () => this.isPerformingAction.set(false),
-      complete: () => this.isPerformingAction.set(false)
+      error: () => {
+        this.isPerformingAction.set(false)
+        this.cdRef.markForCheck();
+      },
+      complete: () => {
+        this.isPerformingAction.set(false)
+        this.cdRef.markForCheck();
+      }
     });
   }
 
   cancelSentRequest(request: SentFriendRequestModel): void {
     this.isPerformingAction.set(true);
     this.friendshipService.cancelSentRequest(request.friendshipId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      error: () => this.isPerformingAction.set(false),
-      complete: () => this.isPerformingAction.set(false)
+      error: () => {
+        this.isPerformingAction.set(false)
+        this.cdRef.markForCheck();
+      },
+      complete: () => {
+        this.isPerformingAction.set(false)
+        this.cdRef.markForCheck();
+      }
     });
   }
 
@@ -153,8 +185,14 @@ export class ManageFriendsDialogComponent implements OnInit {
     this.friendshipService.acceptFriendRequest(request.friendshipId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.isPerformingAction.set(false),
-        error: () => this.isPerformingAction.set(false)
+        next: () => {
+          this.isPerformingAction.set(false)
+          this.cdRef.markForCheck();
+        },
+        error: () => {
+          this.isPerformingAction.set(false)
+          this.cdRef.markForCheck();
+        }
       });
   }
 
@@ -167,8 +205,14 @@ export class ManageFriendsDialogComponent implements OnInit {
     this.friendshipService.rejectFriendRequest(request.friendshipId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: () => this.isPerformingAction.set(false),
-        error: () => this.isPerformingAction.set(false)
+        next: () => {
+          this.isPerformingAction.set(false)
+          this.cdRef.markForCheck();
+        },
+        error: () => {
+          this.isPerformingAction.set(false)
+          this.cdRef.markForCheck();
+        }
       });
   }
 

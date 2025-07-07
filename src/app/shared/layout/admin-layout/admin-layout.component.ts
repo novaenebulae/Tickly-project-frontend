@@ -25,15 +25,11 @@ import {UserService} from '../../../core/services/domain/user/user.service';
 })
 export class AdminLayoutComponent {
   private authService = inject(AuthService);
-  private userService = inject(UserService);
 
   collapsed = signal(false);
   sidenavWidth = computed(() => (this.collapsed() ? '70px' : '250px'));
 
   readonly isLoggedIn = this.authService.isLoggedIn;
   readonly currentUser = this.authService.currentUser;
-  readonly currentUserProfile = this.userService.currentUserProfileData;
-
-  readonly currentUserStructure = this.userService.getCurrentUserProfile();
 
 }

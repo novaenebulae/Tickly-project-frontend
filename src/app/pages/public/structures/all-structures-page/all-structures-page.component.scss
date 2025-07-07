@@ -80,30 +80,6 @@ $gray: #adb5bd;
   width: 90vw;
 }
 
-// Container de structures
-.structures-container {
-  margin-top: 2rem;
-}
-
-// État de chargement
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 0;
-
-  .spinner-border {
-    width: 3rem;
-    height: 3rem;
-    margin-bottom: 1rem;
-  }
-
-  p {
-    color: $gray;
-    font-weight: 500;
-  }
-}
 
 // Pas de résultats
 .no-results {
@@ -129,6 +105,49 @@ $gray: #adb5bd;
     color: $gray;
     max-width: 25rem;
     margin: 0 auto;
+  }
+}
+
+.structures-container {
+  .content-wrapper {
+    position: relative;
+    // On donne une hauteur minimale pour éviter que le paginator ne "saute" pendant le chargement initial.
+    // 380px correspond environ à la hauteur d'une rangée de cartes. Ajustez si besoin.
+    min-height: 380px;
+  }
+
+  .content-layer {
+    // Superpose les deux couches
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+
+    // Définit la transition sur l'opacité
+    transition: opacity 0.4s ease-in-out;
+
+    // Par défaut, la couche est invisible
+    opacity: 0;
+    pointer-events: none; // Empêche les clics sur la couche cachée
+  }
+
+  .content-layer.visible {
+    // La rend visible et statique (pour la superposition z-index)
+    position: static;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  // Assure que la couche squelette est toujours positionnée de manière absolue
+  // pour permettre à la couche de contenu réel de définir la hauteur du conteneur une fois visible.
+  .skeleton-layer {
+    position: absolute;
+  }
+
+  // La couche de contenu réel devient statique lorsqu'elle est visible,
+  // ce qui permet au `content-wrapper` de s'adapter à sa hauteur.
+  .real-content-layer.visible {
+    position: static;
   }
 }
 

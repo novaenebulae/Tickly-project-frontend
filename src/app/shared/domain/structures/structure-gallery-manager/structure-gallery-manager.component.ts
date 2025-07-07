@@ -1,4 +1,13 @@
-import {Component, computed, DestroyRef, Inject, inject, OnDestroy, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy, ChangeDetectorRef,
+  Component,
+  computed,
+  DestroyRef,
+  Inject,
+  inject,
+  OnDestroy,
+  signal
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
@@ -29,6 +38,7 @@ interface GalleryDialogData {
     MatProgressSpinnerModule,
     MatTooltipModule
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="gallery-manager">
       <h2 mat-dialog-title>
@@ -182,6 +192,7 @@ export class StructureGalleryManagerComponent {
   private userStructureService = inject(UserStructureService);
   private notificationService = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   // Signals pour l'état
   private selectedFilesSig = signal<File[]>([]);
@@ -254,6 +265,7 @@ export class StructureGalleryManagerComponent {
           `${newUrls.length} image(s) ajoutée(s) à la galerie avec succès`,
           'valid'
         );
+        this.cdRef.markForCheck();
       },
       error: (error) => {
         console.error('Erreur lors de l\'upload des images de galerie:', error);
@@ -307,6 +319,7 @@ export class StructureGalleryManagerComponent {
           'Image supprimée de la galerie',
           'valid'
         );
+        this.cdRef.markForCheck();
       },
       error: (error) => {
         console.error('Erreur lors de la suppression:', error);

@@ -1,4 +1,13 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, Inject, Input, OnDestroy, OnInit} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  Inject,
+  OnInit,
+  signal
+} from '@angular/core';
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
@@ -9,8 +18,6 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {RouterModule} from '@angular/router';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 
 import {EventModel, EventStatus} from '../../../../core/models/event/event.model';
 import {EventService} from '../../../../core/services/domain/event/event.service';
@@ -38,11 +45,13 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
     RouterModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // Le template HTML reste le même, mais il faudra appeler les signaux comme des fonctions
+  // Ex: *ngIf="loading()" et {{ event()?.name }}
   template: `
     <div class="event-details-modal">
       <div class="dialog-header">
       <h2 mat-dialog-title>
-        {{ event?.name || "Détails de l'événement" }}
+        {{ event()?.name || "Détails de l'événement" }}
       </h2>
         <button mat-icon-button mat-dialog-close class="close-button">
           <mat-icon>close</mat-icon>
@@ -50,48 +59,47 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
       </div>
 
       <mat-dialog-content>
-        <div *ngIf="loading" class="loading-container">
+        <div *ngIf="loading()" class="loading-container">
           <mat-spinner diameter="40"></mat-spinner>
           <p>Chargement des détails...</p>
         </div>
 
-        <div *ngIf="!loading && !event" class="error-container">
+        <div *ngIf="!loading() && !event()" class="error-container">
           <mat-icon color="warn">error</mat-icon>
           <p>Impossible de charger les détails de l'événement.</p>
         </div>
 
-        <div *ngIf="!loading && event" class="event-content">
+        <div *ngIf="!loading() && event() as currentEvent" class="event-content">
           <mat-tab-group>
-            <!-- Informations générales -->
             <mat-tab label="Informations">
               <div class="tab-content">
                 <div class="event-header">
-                  <div class="event-image" *ngIf="event.mainPhotoUrl">
-                    <img ngSrc="{{event.mainPhotoUrl}}" [alt]="event.name" width="200" height="150" priority>
+                  <div class="event-image" *ngIf="currentEvent.mainPhotoUrl">
+                    <img ngSrc="{{currentEvent.mainPhotoUrl}}" [alt]="currentEvent.name" width="200" height="150" priority>
                   </div>
-                  <div class="event-image placeholder" *ngIf="!event.mainPhotoUrl">
+                  <div class="event-image placeholder" *ngIf="!currentEvent.mainPhotoUrl">
                     <mat-icon>image</mat-icon>
                   </div>
 
                   <div class="event-meta">
-                    <div class="status-chip" [ngClass]="getStatusClass(event.status)">
-                      {{ getStatusText(event.status) }}
+                    <div class="status-chip" [ngClass]="getStatusClass(currentEvent.status)">
+                      {{ getStatusText(currentEvent.status) }}
                     </div>
 
                     <div class="event-dates">
                       <mat-icon>event</mat-icon>
-                      <span>{{ event.startDate | date:'dd/MM/yyyy HH:mm' }}</span>
-                      <span *ngIf="event.endDate"> - {{ event.endDate | date:'dd/MM/yyyy HH:mm' }}</span>
+                      <span>{{ currentEvent.startDate | date:'dd/MM/yyyy HH:mm' }}</span>
+                      <span *ngIf="currentEvent.endDate"> - {{ currentEvent.endDate | date:'dd/MM/yyyy HH:mm' }}</span>
                     </div>
 
-                    <div class="event-location" *ngIf="event.address">
+                    <div class="event-location" *ngIf="currentEvent.address">
                       <mat-icon>location_on</mat-icon>
-                      <span>{{ event.address.street }}, {{ event.address.zipCode }} {{ event.address.city }}</span>
+                      <span>{{ currentEvent.address.street }}, {{ currentEvent.address.zipCode }} {{ currentEvent.address.city }}</span>
                     </div>
 
-                    <div class="event-categories" *ngIf="event.categories && event.categories.length">
+                    <div class="event-categories" *ngIf="currentEvent.categories && currentEvent.categories.length">
                       <mat-chip-set>
-                        <mat-chip *ngFor="let category of event.categories">{{ category.name }}</mat-chip>
+                        <mat-chip *ngFor="let category of currentEvent.categories">{{ category.name }}</mat-chip>
                       </mat-chip-set>
                     </div>
                   </div>
@@ -101,36 +109,35 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
                 <div class="event-description">
                   <h3>Description</h3>
-                  <p>{{ event.fullDescription }}</p>
+                  <p>{{ currentEvent.fullDescription }}</p>
                 </div>
 
-                <div class="event-tags" *ngIf="event.tags && event.tags.length">
+                <div class="event-tags" *ngIf="currentEvent.tags && currentEvent.tags.length">
                   <h3>Tags</h3>
                   <mat-chip-set>
-                    <mat-chip *ngFor="let tag of event.tags">{{ tag }}</mat-chip>
+                    <mat-chip *ngFor="let tag of currentEvent.tags">{{ tag }}</mat-chip>
                   </mat-chip-set>
                 </div>
 
                 <div class="event-features">
                   <h3>Caractéristiques</h3>
                   <div class="feature-item">
-                    <mat-icon>{{ event.displayOnHomepage ? 'check_circle' : 'cancel' }}</mat-icon>
-                    <span>{{ getHomepageDisplayText(event.displayOnHomepage) }}</span>
+                    <mat-icon>{{ currentEvent.displayOnHomepage ? 'check_circle' : 'cancel' }}</mat-icon>
+                    <span>{{ getHomepageDisplayText(currentEvent.displayOnHomepage) }}</span>
                   </div>
                   <div class="feature-item">
-                    <mat-icon>{{ event.isFeaturedEvent ? 'check_circle' : 'cancel' }}</mat-icon>
-                    <span>{{ getFeaturedEventText(event.isFeaturedEvent) }}</span>
+                    <mat-icon>{{ currentEvent.isFeaturedEvent ? 'check_circle' : 'cancel' }}</mat-icon>
+                    <span>{{ getFeaturedEventText(currentEvent.isFeaturedEvent) }}</span>
                   </div>
                 </div>
               </div>
             </mat-tab>
 
-            <!-- Zones d'audience -->
-            <mat-tab label="Zones d'audience" *ngIf="event.audienceZones && event.audienceZones.length">
+            <mat-tab label="Zones d'audience" *ngIf="currentEvent.audienceZones && currentEvent.audienceZones.length">
               <div class="tab-content">
                 <h3>Configuration des zones</h3>
                 <div class="audience-zones">
-                  <div class="zone-item" *ngFor="let zone of event.audienceZones">
+                  <div class="zone-item" *ngFor="let zone of currentEvent.audienceZones">
                     <h4>{{ zone.name }}</h4>
                     <div class="zone-details">
                       <div class="zone-detail">
@@ -151,11 +158,10 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
               </div>
             </mat-tab>
 
-            <!-- Galerie photos -->
-            <mat-tab label="Galerie" *ngIf="event.eventPhotoUrls && event.eventPhotoUrls.length">
+            <mat-tab label="Galerie" *ngIf="currentEvent.eventPhotoUrls && currentEvent.eventPhotoUrls.length">
               <div class="tab-content">
                 <div class="photo-gallery">
-                  <div class="gallery-item" *ngFor="let photo of event.eventPhotoUrls">
+                  <div class="gallery-item" *ngFor="let photo of currentEvent.eventPhotoUrls">
                     <img ngSrc="{{photo}}" alt="Photo de l'événement" width="150" height="150">
                   </div>
                 </div>
@@ -168,13 +174,12 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
       <mat-dialog-actions align="end">
         <button mat-button mat-dialog-close>Fermer</button>
 
-        <ng-container *ngIf="event && canManageEvent">
-
+        <ng-container *ngIf="event() as currentEvent">
           <button
             mat-raised-button
             color="primary"
-            *ngIf="canEditEvent"
-            [routerLink]="['/admin/event', event.id, 'edit']"
+            *ngIf="canEditEvent()"
+            [routerLink]="['/admin/event', currentEvent.id, 'edit']"
             mat-dialog-close
             matTooltip="Modifier les détails de l'événement">
             Modifier
@@ -183,19 +188,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
       </mat-dialog-actions>
     </div>
   `,
-  styles: [`
-
-    //mat-dialog-title {
-    //  display: flex;
-    //  justify-content: space-between;
-    //  align-items: center;
-    //  margin: 0 !important;
-    //  padding: 0 !important;
-    //  line-height: 1.2 !important;
-    //  font-size: 1.25rem !important;
-    //  min-height: auto !important;
-    //}
-
+  styles: [`/* Vos styles restent inchangés */
     .dialog-header {
       display: flex;
 
@@ -383,22 +376,20 @@ export class EventDetailsModalComponent implements OnInit {
   private eventService = inject(EventService);
   private destroyRef = inject(DestroyRef);
 
-  @Input() eventId!: number;
+  // Propriétés de classe remplacées par des signaux
+  eventId = signal(0);
+  event = signal<EventModel | undefined>(undefined);
+  loading = signal(true);
 
-  event: EventModel | undefined;
-  loading = true;
-
-  // Permission flags
-  get canManageEvent(): boolean {
-    return this.eventService.hasEventManagementPermission();
-  }
-
-  get canEditEvent(): boolean {
-    return this.event ? this.eventService.canEditEvent(this.event) : false;
-  }
+  // Flags de permission transformés en signaux "computed"
+  canManageEvent = computed(() => this.eventService.hasEventManagementPermission());
+  canEditEvent = computed(() => {
+    const currentEvent = this.event();
+    return currentEvent ? this.eventService.canEditEvent(currentEvent) : false;
+  });
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: { eventId: number }) {
-    this.eventId = data.eventId;
+    this.eventId.set(data.eventId);
   }
 
   ngOnInit(): void {
@@ -406,16 +397,17 @@ export class EventDetailsModalComponent implements OnInit {
   }
 
   loadEventDetails(): void {
-    this.loading = true;
-    this.eventService.getEventById(this.eventId, true)
+    this.loading.set(true);
+    this.eventService.getEventById(this.eventId(), true)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (event) => {
-          this.event = event;
-          this.loading = false;
+          this.event.set(event);
+          this.loading.set(false);
         },
         error: () => {
-          this.loading = false;
+          this.event.set(undefined);
+          this.loading.set(false);
         }
       });
   }
@@ -482,6 +474,4 @@ export class EventDetailsModalComponent implements OnInit {
   getZoneStatusText(isActive: boolean): string {
     return isActive ? 'Zone active' : 'Zone inactive';
   }
-
-  protected readonly EventStatus = EventStatus;
 }

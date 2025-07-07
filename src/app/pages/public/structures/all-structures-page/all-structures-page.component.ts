@@ -33,6 +33,10 @@ import {AuthService} from '../../../../core/services/domain/user/auth.service';
 import {UserFavoritesService} from '../../../../core/services/domain/user/user-favorites.service';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {
+  StructureCardSkeletonComponent
+} from '../../../../shared/domain/structures/structure-card/structure-card-skeleton.component';
+import {animate, query, stagger, style, transition, trigger} from '@angular/animations';
 
 // Interfaces pour les types utilisés localement
 interface StructureFilters {
@@ -63,7 +67,19 @@ interface StructureSortOptions {
     ReactiveFormsModule,
     StructureFiltersComponent,
     StructureCardComponent,
-    MatProgressSpinner
+    StructureCardSkeletonComponent
+  ],
+  animations: [
+    trigger('staggerInItems', [
+      transition('* => *', [
+        query(':enter', [
+          style({ opacity: 0, transform: 'translateY(20px)' }),
+          stagger('80ms', [
+            animate('350ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
+          ])
+        ], { optional: true })
+      ])
+    ])
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

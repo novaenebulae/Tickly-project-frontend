@@ -37,9 +37,9 @@ API documentation : 'docs/api-documentation.md'
 
 ## Performance Optimizations
 
-8. [ ] **Rendering Performance**
-    - [ ] Optimize change detection strategies
-    - [ ] Use OnPush change detection where appropriate
+8. [X] **Rendering Performance**
+    - [X] Optimize change detection strategies
+    - [X] Use OnPush change detection where appropriate
 
 9. [ ] **Asset Optimization**
     - [ ] Use ngSrc for image display

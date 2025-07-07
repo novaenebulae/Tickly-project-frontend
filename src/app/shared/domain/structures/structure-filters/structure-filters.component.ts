@@ -1,9 +1,18 @@
-import {Component, DestroyRef, EventEmitter, inject, OnDestroy, OnInit, Output} from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  effect,
+  EventEmitter,
+  inject,
+  OnInit,
+  Output,
+  signal,
+  computed, ChangeDetectorRef, ChangeDetectionStrategy
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatIconModule} from '@angular/material/icon';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 // Services
 import {StructureService} from '../../../../core/services/domain/structure/structure.service';
@@ -11,12 +20,11 @@ import {NotificationService} from '../../../../core/services/domain/utilities/no
 
 // Models
 import {StructureTypeModel} from '../../../../core/models/structure/structure-type.model';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {debounceTime, distinctUntilChanged, Subject} from 'rxjs';
 
 // Interfaces pour les événements émis
 interface StructureFilters {
   query?: string;
-  city?: string;
   typeIds?: number[];
 }
 
@@ -30,10 +38,12 @@ interface StructureSortOptions {
   standalone: true,
   imports: [CommonModule, FormsModule, MatIconModule],
   templateUrl: './structure-filters.component.html',
-  styleUrl: './structure-filters.component.scss'
+  styleUrl: './structure-filters.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StructureFiltersComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   // Services
   private structureService = inject(StructureService);
@@ -43,35 +53,76 @@ export class StructureFiltersComponent implements OnInit {
   @Output() filtersChanged = new EventEmitter<StructureFilters>();
   @Output() sortChanged = new EventEmitter<StructureSortOptions>();
 
-  // État des filtres
-  searchQuery: string = '';
-  selectedTypes: number[] = [];
-  sortBy: string = 'name';
-  sortDirection: 'asc' | 'desc' = 'asc';
+  // --- État des filtres transformé en signaux ---
+  searchQuery = signal('');
+  selectedTypes = signal<number[]>([]);
+  sortBy = signal('name');
+  sortDirection = signal<'asc' | 'desc'>('asc');
 
-  // Types de structures
-  structureTypes: StructureTypeModel[] = [];
-  isLoadingTypes = false;
-  isCategoriesExpanded = false;
+  // --- État local du composant ---
+  structureTypes = signal<StructureTypeModel[]>([]);
+  isLoadingTypes = signal(false);
+  isCategoriesExpanded = signal(false);
 
-  // Nombre maximal de catégories visibles quand le drawer est fermé
+  protected  searchQuerySubject = new Subject<string>();
+
   readonly MAX_VISIBLE_CATEGORIES = 8;
+
+  // --- Signaux dérivés (computed) ---
+
+  /** Vérifie s'il y a des filtres actifs. */
+  hasActiveFilters = computed(() => this.searchQuery() || this.selectedTypes().length > 0);
+
+  /** Calcule l'objet des filtres à émettre. */
+  private currentFilters = computed<StructureFilters>(() => ({
+    query: this.searchQuery() || undefined,
+    typeIds: this.selectedTypes().length > 0 ? this.selectedTypes() : undefined
+  }));
+
+  /** Calcule l'objet de tri à émettre. */
+  private currentSortOptions = computed<StructureSortOptions>(() => ({
+    sortBy: this.sortBy(),
+    sortDirection: this.sortDirection()
+  }));
+
+
+  constructor() {
+    // --- Effets pour émettre les changements au parent ---
+    // Cet effet s'exécute chaque fois que `currentFilters` change.
+    effect(() => {
+      this.filtersChanged.emit(this.currentFilters());
+    });
+
+    // Cet effet s'exécute chaque fois que `currentSortOptions` change.
+    effect(() => {
+      this.sortChanged.emit(this.currentSortOptions());
+    });
+  }
+
 
   ngOnInit(): void {
     this.loadStructureTypes();
+
+    this.searchQuerySubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(debouncedQuery => {
+      this.searchQuery.set(debouncedQuery);
+      this.cdRef.markForCheck();
+    });
   }
 
-  /**
-   * Charge les types de structures depuis le service
-   */
+  /** Charge les types de structures depuis le service. */
   private loadStructureTypes(): void {
-    this.isLoadingTypes = true;
+    this.isLoadingTypes.set(true);
     this.structureService.getStructureTypes()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (types) => {
-          this.structureTypes = types;
-          this.isLoadingTypes = false;
+          this.structureTypes.set(types);
+          this.isLoadingTypes.set(false);
+          this.cdRef.markForCheck();
         },
         error: (error) => {
           this.notificationService.displayNotification(
@@ -80,135 +131,73 @@ export class StructureFiltersComponent implements OnInit {
             'Fermer'
           );
           console.error('Erreur de chargement des types:', error);
-          this.isLoadingTypes = false;
+          this.isLoadingTypes.set(false);
+          this.cdRef.markForCheck();
         }
       });
   }
 
-  /**
-   * Vérifie si un type est sélectionné
-   */
+  /** Vérifie si un type est sélectionné. */
   isTypeSelected(typeId: number): boolean {
-    return this.selectedTypes.includes(typeId);
+    return this.selectedTypes().includes(typeId);
   }
 
-  /**
-   * Active/désactive un filtre de type
-   */
+  /** Active/désactive un filtre de type en utilisant .update() pour la simplicité. */
   toggleTypeFilter(typeId: number): void {
-    const index = this.selectedTypes.indexOf(typeId);
-    if (index > -1) {
-      this.selectedTypes.splice(index, 1);
-    } else {
-      this.selectedTypes.push(typeId);
-    }
-    this.onFilterChange();
+    this.selectedTypes.update(types => {
+      const index = types.indexOf(typeId);
+      if (index > -1) {
+        types.splice(index, 1);
+      } else {
+        types.push(typeId);
+      }
+      return [...types]; // Retourne une nouvelle référence pour le signal
+    });
   }
 
-  /**
-   * Gère les changements de filtres
-   */
-  onFilterChange(): void {
-    const filters = this.getCurrentFilters();
-    this.filtersChanged.emit(filters);
-  }
-
-  /**
-   * Gère les changements de tri
-   */
-  onSortChange(): void {
-    const sortOptions: StructureSortOptions = {
-      sortBy: this.sortBy,
-      sortDirection: this.sortDirection
-    };
-    this.sortChanged.emit(sortOptions);
-  }
-
-  /**
-   * Inverse la direction du tri
-   */
+  /** Inverse la direction du tri. */
   toggleSortDirection(): void {
-    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-    this.onSortChange();
+    this.sortDirection.update(current => current === 'asc' ? 'desc' : 'asc');
   }
 
-  /**
-   * Réinitialise tous les filtres
-   */
+  /** Réinitialise tous les filtres à leur état initial. */
   resetFilters(): void {
-    this.searchQuery = '';
-    this.selectedTypes = [];
-    this.sortBy = 'name';
-    this.sortDirection = 'asc';
-    this.onFilterChange();
-    this.onSortChange();
+    this.searchQuery.set('');
+    this.selectedTypes.set([]);
+    this.sortBy.set('name');
+    this.sortDirection.set('asc');
   }
 
-  /**
-   * Vérifie s'il y a des filtres actifs
-   */
-  hasActiveFilters(): boolean {
-    return !!(this.searchQuery || this.selectedTypes.length > 0);
-  }
-
-  /**
-   * Efface le filtre de recherche
-   */
+  /** Efface le filtre de recherche. */
   clearSearch(): void {
-    this.searchQuery = '';
-    this.onFilterChange();
+    this.searchQuery.set('');
   }
 
-  /**
-   * Retourne le nom d'un type par son ID
-   */
+  /** Retourne le nom d'un type par son ID. */
   getTypeName(typeId: number): string {
-    const type = this.structureTypes.find(t => t.id === typeId);
+    const type = this.structureTypes().find(t => t.id === typeId);
     return type ? type.name : 'Type inconnu';
   }
 
-  /**
-   * Retourne l'icône Material Design d'un type par son ID
-   */
+  /** Retourne l'icône Material Design d'un type par son ID. */
   getTypeIcon(typeId: number): string {
-    // Mapping basique d'icônes Material Design par ID de type
     const iconMapping: { [key: number]: string } = {
-      1: 'music_note',       // Salle de concert
-      2: 'theater_comedy',   // Théâtre
-      3: 'business',         // Centre de conférence
-      4: 'dashboard',        // Espace polyvalent
-      5: 'local_bar',        // Bar / Club
-      99: 'help'             // Autre
+      1: 'music_note', 2: 'theater_comedy', 3: 'business',
+      4: 'dashboard', 5: 'local_bar', 99: 'help'
     };
     return iconMapping[typeId] || 'location_city';
   }
 
-  /**
-   * Retourne le label du tri actuel
-   */
+  /** Retourne le label du tri actuel. */
   getSortLabel(): string {
     const sortLabels: { [key: string]: string } = {
-      'name': 'Nom',
-      'importance': 'Popularité',
-      'eventsCount': 'Nombre d\'événements'
+      'name': 'Nom', 'importance': 'Popularité', 'eventsCount': 'Nombre d\'événements'
     };
-    return sortLabels[this.sortBy] || 'Nom';
+    return sortLabels[this.sortBy()] || 'Nom';
   }
 
-  /**
-   * Retourne les filtres actuels
-   */
-  private getCurrentFilters(): StructureFilters {
-    return {
-      query: this.searchQuery || undefined,
-      typeIds: this.selectedTypes.length > 0 ? this.selectedTypes : undefined
-    };
-  }
-
-  /**
-   * Bascule l'affichage des catégories (ouverture/fermeture du drawer)
-   */
+  /** Bascule l'affichage des catégories. */
   toggleCategoriesExpand(): void {
-    this.isCategoriesExpanded = !this.isCategoriesExpanded;
+    this.isCategoriesExpanded.update(v => !v);
   }
 }

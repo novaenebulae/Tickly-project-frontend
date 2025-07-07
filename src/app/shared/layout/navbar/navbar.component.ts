@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   computed,
   DestroyRef,
@@ -49,10 +50,10 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
     MatBadgeModule
   ],
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss']
+  styleUrls: ['./navbar.component.scss'],
 })
 export class NavbarComponent implements OnInit {
-  // ✅ Injection moderne des services
+  // Injection moderne des services
   private authService = inject(AuthService);
   private userService = inject(UserService);
   private friendshipService = inject(FriendshipService);
@@ -62,22 +63,22 @@ export class NavbarComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
 
-  // ✅ Références DOM
+  // Références DOM
   @ViewChild('navbarToggler') navbarToggler?: ElementRef;
   @ViewChild('userMenu', { read: MatMenuTrigger }) userMenuTrigger?: MatMenuTrigger;
 
-  // ✅ Signaux locaux pour l'état du composant
+  // Signaux locaux pour l'état du composant
   private isMenuCollapsed = signal(true);
   protected isUserMenuOpen = signal(false);
 
-  // ✅ Accès direct aux signaux des services
+  // Accès direct aux signaux des services
   readonly isLoggedIn = this.authService.isLoggedIn;
   readonly currentUser = this.authService.currentUser;
   readonly currentUserProfile = this.userService.currentUserProfileData;
   readonly pendingRequestsCount = this.friendshipService.pendingRequestsCount;
 
 
-  // ✅ Computed values pour l'interface utilisateur
+  // Computed values pour l'interface utilisateur
   readonly userInitial = computed(() => {
     const profile = this.currentUserProfile();
     if (profile?.firstName && profile?.lastName) {
@@ -128,7 +129,7 @@ export class NavbarComponent implements OnInit {
   });
 
   constructor() {
-    // ✅ Effect pour gérer les changements d'état d'authentification
+    // Effect pour gérer les changements d'état d'authentification
     effect(() => {
       const isLoggedIn = this.isLoggedIn();
 
@@ -148,7 +149,7 @@ export class NavbarComponent implements OnInit {
   // === GESTION DES MENUS ===
 
   /**
-   * ✅ Bascule l'état du menu burger
+   * Bascule l'état du menu burger
    */
   toggleNavbarMenu(): void {
     this.closeDialogs();
@@ -156,7 +157,7 @@ export class NavbarComponent implements OnInit {
   }
 
   /**
-   * ✅ Ferme le menu burger
+   * Ferme le menu burger
    */
   private closeNavbarCollapse(): void {
     const navbarCollapse = document.getElementById('navbarContent');
@@ -167,7 +168,7 @@ export class NavbarComponent implements OnInit {
   }
 
   /**
-   * ✅ Ferme tous les menus
+   * Ferme tous les menus
    */
   private closeMenus(): void {
     this.closeNavbarCollapse();
@@ -181,14 +182,14 @@ export class NavbarComponent implements OnInit {
   }
 
   /**
-   * ✅ Gère l'ouverture du menu utilisateur
+   * Gère l'ouverture du menu utilisateur
    */
   onUserMenuOpened(): void {
     this.isUserMenuOpen.set(true);
   }
 
   /**
-   * ✅ Gère la fermeture du menu utilisateur
+   * Gère la fermeture du menu utilisateur
    */
   onUserMenuClosed(): void {
     this.isUserMenuOpen.set(false);
@@ -197,7 +198,7 @@ export class NavbarComponent implements OnInit {
   // === GESTION DES DIALOGUES ===
 
   /**
-   * ✅ Ouvre le dialogue de modification de profil avec configuration optimisée
+   * Ouvre le dialogue de modification de profil avec configuration optimisée
    */
   openProfileDialog(): void {
     this.closeMenus();
@@ -207,13 +208,13 @@ export class NavbarComponent implements OnInit {
         this.dialog.open(EditProfileDialogComponent, {
           width: '500px',
           maxWidth: '95vw',
-          // ✅ Dimensions adaptatives au contenu
+          // Dimensions adaptatives au contenu
           minHeight: '350px',
           maxHeight: '80vh',
           restoreFocus: false,
           disableClose: false,
           hasBackdrop: true,
-          // ✅ Classes spécifiques pour le style
+          // Classes spécifiques pour le style
           backdropClass: 'profile-dialog-backdrop',
           panelClass: ['profile-dialog-panel', 'dialog-panel-high-z'],
           autoFocus: true,
@@ -235,7 +236,7 @@ export class NavbarComponent implements OnInit {
   }
 
   /**
-   * ✅ Ouvre le dialogue de gestion des amis avec z-index approprié
+   * Ouvre le dialogue de gestion des amis avec z-index approprié
    */
   openFriendsDialog(): void {
     this.closeMenus();
@@ -249,7 +250,7 @@ export class NavbarComponent implements OnInit {
           restoreFocus: false,
           disableClose: false,
           hasBackdrop: true,
-          // ✅ Configuration spécifique pour le z-index
+          // Configuration spécifique pour le z-index
           backdropClass: 'friends-dialog-backdrop',
           panelClass: ['friends-dialog-panel', 'dialog-panel-high-z'],
           autoFocus: true,
@@ -270,7 +271,7 @@ export class NavbarComponent implements OnInit {
   }
 
   /**
-   * ✅ Ferme tous les dialogues ouverts
+   * Ferme tous les dialogues ouverts
    */
   closeDialogs(): void {
     try {
@@ -286,7 +287,7 @@ export class NavbarComponent implements OnInit {
   // === ACTIONS UTILISATEUR ===
 
   /**
-   * ✅ Navigue vers le dashboard utilisateur
+   * Navigue vers le dashboard utilisateur
    */
   navigateToUserTickets(): void {
     this.closeMenus();
@@ -299,7 +300,7 @@ export class NavbarComponent implements OnInit {
   }
 
   /**
-   * ✅ Déconnecte l'utilisateur
+   * Déconnecte l'utilisateur
    */
   logout(): void {
     this.closeMenus();
@@ -307,7 +308,7 @@ export class NavbarComponent implements OnInit {
   }
 
   /**
-   * ✅ Navigue vers une route et ferme les menus
+   * Navigue vers une route et ferme les menus
    */
   navigateAndCloseMenus(route?: string): void {
     this.closeMenus();
@@ -317,14 +318,14 @@ export class NavbarComponent implements OnInit {
   // === UTILITAIRES ===
 
   /**
-   * ✅ Génère l'URL de l'avatar
+   * Génère l'URL de l'avatar
    */
   getAvatarUrl(): string {
     return this.userAvatarUrl();
   }
 
   /**
-   * ✅ Obtient le texte du badge de notifications
+   * Obtient le texte du badge de notifications
    */
   getNotificationBadgeText(): string {
     const count = this.pendingRequestsCount();
@@ -333,7 +334,7 @@ export class NavbarComponent implements OnInit {
   }
 
   /**
-   * ✅ Vérifie si l'utilisateur a un avatar personnalisé
+   * Vérifie si l'utilisateur a un avatar personnalisé
    */
   hasCustomAvatar(): boolean {
     const profile = this.currentUserProfile();
