@@ -12,7 +12,7 @@
     <div class="category-section">
       <div class="category-header">
         <label class="filter-label">Catégories</label>
-        <button class="expand-categories-btn" (click)="toggleCategoriesExpand()" *ngIf="structureTypes.length > MAX_VISIBLE_CATEGORIES">
+        <button class="expand-categories-btn" (click)="toggleCategoriesExpand()" *ngIf="structureTypes.length >= MAX_VISIBLE_CATEGORIES">
           <mat-icon>{{ isCategoriesExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
           {{ isCategoriesExpanded ? 'Réduire' : 'Voir tout' }}
         </button>

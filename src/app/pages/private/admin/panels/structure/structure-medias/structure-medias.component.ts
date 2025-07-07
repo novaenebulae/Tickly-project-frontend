@@ -1,4 +1,13 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, OnInit, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal
+} from '@angular/core';
 import {CommonModule, Location} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
@@ -17,6 +26,7 @@ import {
   StructureGalleryManagerComponent
 } from '../../../../../../shared/domain/structures/structure-gallery-manager/structure-gallery-manager.component';
 import {FileUploadResponseDto} from '../../../../../../core/models/files/file-upload-response.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-structure-medias',
@@ -38,10 +48,11 @@ export class StructureMediasComponent implements OnInit {
   private structureService = inject(StructureService);
   private userStructureService = inject(UserStructureService);
   private notificationService = inject(NotificationService);
-  private authService = inject(AuthService); // 🔥 AJOUT
+  private authService = inject(AuthService);
   private dialog = inject(MatDialog);
   private cdRef = inject(ChangeDetectorRef);
   private location = inject(Location);
+  private destroyRef = inject(DestroyRef);
 
   // --- Signals pour la gestion d'état ---
   private isLoadingSig = signal(false);
@@ -175,7 +186,9 @@ export class StructureMediasComponent implements OnInit {
         // Mettre à jour la preview avec l'URL retournée par l'API
         this.logoPreviewUrl = response.fileUrl;
         // Recharger la structure pour avoir les données à jour
-        this.userStructureService.refreshUserStructure().subscribe();
+        this.userStructureService.refreshUserStructure()
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
       },
       error: (error) => {
         console.error('Erreur lors de l\'upload du logo:', error);
@@ -212,7 +225,9 @@ export class StructureMediasComponent implements OnInit {
         this.notificationService.displayNotification('Logo supprimé avec succès', 'valid');
         this.logoPreviewUrl = null;
         // Recharger la structure pour avoir les données à jour
-        this.userStructureService.refreshUserStructure().subscribe();
+        this.userStructureService.refreshUserStructure()
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
       },
       error: (error) => {
         console.error('Erreur lors de la suppression du logo:', error);
@@ -272,7 +287,9 @@ export class StructureMediasComponent implements OnInit {
         // Mettre à jour la preview avec l'URL retournée par l'API
         this.coverPreviewUrl = response.fileUrl;
         // Recharger la structure pour avoir les données à jour
-        this.userStructureService.refreshUserStructure().subscribe();
+        this.userStructureService.refreshUserStructure()
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
       },
       error: (error) => {
         console.error('Erreur lors de l\'upload de la couverture:', error);
@@ -309,7 +326,9 @@ export class StructureMediasComponent implements OnInit {
         this.notificationService.displayNotification('Couverture supprimée avec succès', 'valid');
         this.coverPreviewUrl = null;
         // Recharger la structure pour avoir les données à jour
-        this.userStructureService.refreshUserStructure().subscribe();
+        this.userStructureService.refreshUserStructure()
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
       },
       error: (error) => {
         console.error('Erreur lors de la suppression de la couverture:', error);
@@ -380,7 +399,9 @@ export class StructureMediasComponent implements OnInit {
           'valid'
         );
         // Recharger la structure pour avoir les données à jour
-        this.userStructureService.refreshUserStructure().subscribe();
+        this.userStructureService.refreshUserStructure()
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
       },
       error: (error) => {
         console.error('Erreur lors de l\'upload des images de galerie:', error);
@@ -412,7 +433,9 @@ export class StructureMediasComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(() => {
       // Optionnel: rafraîchir les données après fermeture
-      this.userStructureService.refreshUserStructure().subscribe();
+      this.userStructureService.refreshUserStructure()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
     });
   }
 

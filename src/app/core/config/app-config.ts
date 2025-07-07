@@ -220,7 +220,7 @@ export const APP_CONFIG: AppConfig = {
 
   pagination: {
     defaultPageSize: 12,
-    maxPageSize: 100,
+    maxPageSize: 50,
   },
 
   features: {

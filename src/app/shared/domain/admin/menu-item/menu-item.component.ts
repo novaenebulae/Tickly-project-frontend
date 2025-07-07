@@ -1,4 +1,4 @@
-import {Component, input, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, input, signal} from '@angular/core';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
 import {RouterModule} from '@angular/router';
@@ -27,6 +27,7 @@ export type MenuItem = {
   ],
   templateUrl: './menu-item.component.html',
   styleUrl: './menu-item.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MenuItemComponent {
   item = input.required<MenuItem>();

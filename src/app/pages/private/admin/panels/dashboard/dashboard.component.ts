@@ -1,4 +1,14 @@
-import {AfterViewInit, Component, computed, inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy, ChangeDetectorRef,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  ViewChild
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
@@ -8,8 +18,6 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatChipsModule} from '@angular/material/chips';
 import {Router} from '@angular/router';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 
 // Chart.js
 import {ChartConfiguration, ChartData, ChartType} from 'chart.js';
@@ -23,6 +31,7 @@ import {TeamManagementService} from '../../../../../core/services/domain/team-ma
 // Models
 import {StructureDashboardStatsDto} from '../../../../../core/models/statistics/structure-dashboard-stats.model';
 import {ChartJsDataDto} from '../../../../../core/models/statistics/chart-js-data.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-dashboard',
@@ -39,14 +48,16 @@ import {ChartJsDataDto} from '../../../../../core/models/statistics/chart-js-dat
     BaseChartDirective
   ],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss'
+  styleUrl: './dashboard.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
+export class DashboardComponent implements OnInit, AfterViewInit {
   private router = inject(Router);
   private statisticsService = inject(StatisticsService);
   private userStructureService = inject(UserStructureService);
   private teamManagementService = inject(TeamManagementService);
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   // Charts references
   @ViewChild('topEventsChart') topEventsChart?: BaseChartDirective;
@@ -178,19 +189,14 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 0);
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   /**
    * Loads structure data including areas
    */
   private loadStructureData(): void {
     // Load structure areas
-    this.userStructureService.loadUserStructureAreas().pipe(
-      takeUntil(this.destroy$)
-    ).subscribe();
+    this.userStructureService.loadUserStructureAreas()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
   }
 
   /**
@@ -198,26 +204,31 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   private loadKpiData(): void {
     // Load team members count
-    this.teamManagementService.loadTeamMembers().pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
+    this.teamManagementService.loadTeamMembers()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (members) => {
         this.teamCountSig.set(members.length);
+        this.cdRef.markForCheck();
+
       },
       error: () => {
         this.teamCountSig.set(0);
+        this.cdRef.markForCheck();
       }
     });
 
     // Load events count
-    this.userStructureService.getUserStructureEvents(true).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
+    this.userStructureService.getUserStructureEvents(true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (events) => {
         this.eventCountSig.set(events.length);
+        this.cdRef.markForCheck();
       },
       error: () => {
         this.eventCountSig.set(0);
+        this.cdRef.markForCheck();
       }
     });
   }
@@ -226,9 +237,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
    * Loads statistics data from the service
    */
   loadStatistics(): void {
-    this.statisticsService.getStructureDashboardStats().subscribe(stats => {
+    this.statisticsService.getStructureDashboardStats()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(stats => {
       if (stats) {
         this.updateChartData(stats);
+        this.cdRef.markForCheck();
       }
     });
   }
@@ -237,9 +251,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
    * Refreshes the statistics data and KPI data
    */
   refreshStatistics(): void {
-    this.statisticsService.getStructureDashboardStats(true).subscribe(stats => {
+    this.statisticsService.getStructureDashboardStats(true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(stats => {
       if (stats) {
         this.updateChartData(stats);
+        this.cdRef.markForCheck();
       }
     });
 

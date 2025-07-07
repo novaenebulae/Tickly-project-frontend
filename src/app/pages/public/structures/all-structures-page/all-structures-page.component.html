@@ -17,26 +17,26 @@
   <!-- Affichage des structures -->
   <div class="structures-container">
     <!-- État de chargement -->
-    <div class="loading-state" *ngIf="loading">
+    <div class="loading-state" *ngIf="isLoading()">
       <mat-spinner diameter="50"></mat-spinner>
       <p>Chargement des structures...</p>
     </div>
 
     <!-- Aucun résultat -->
-    <div class="no-results" *ngIf="!loading && structures.length === 0">
+    <div class="no-results" *ngIf="!isLoading() && structures().length === 0">
       <i class="bi bi-search"></i>
       <h3>Aucune structure ne correspond à votre recherche</h3>
       <p>Essayez de modifier vos filtres ou effectuez une nouvelle recherche</p>
     </div>
 
     <!-- Liste des structures -->
-    <div class="row g-4" *ngIf="!loading && structures.length > 0">
-      <div class="col-12 col-md-6 col-lg-4" *ngFor="let structure of structures">
+    <div class="row g-4" *ngIf="!isLoading() && structures().length > 0">
+      <div class="col-12 col-md-6 col-lg-4" *ngFor="let structure of structures()">
         <app-structure-card
           [structure]="structure"
           [eventCount]="structure.eventCount || 0"
           [showActions]="true"
-          [showFavoriteButton]="isUserLoggedIn"
+          [showFavoriteButton]="isUserLoggedIn()"
           [isFavorite]="favoritesService.isFavorite(structure.id || 0)"
           (viewDetails)="onViewStructureDetails($event)"
           (bookEvent)="onBookEvent($event)"
@@ -47,9 +47,9 @@
 
     <!-- Pagination -->
     <mat-paginator
-      *ngIf="!loading && totalCount > pageSize"
-      [length]="totalCount"
-      [pageSize]="pageSize"
+      *ngIf="!isLoading && totalCount() > pageSize()"
+      [length]="totalCount()"
+      [pageSize]="pageSize()"
       [pageSizeOptions]="[6, 12, 24, 48]"
       (page)="onPageChange($event)"
       aria-label="Sélectionnez une page">

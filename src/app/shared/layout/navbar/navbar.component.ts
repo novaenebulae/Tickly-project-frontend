@@ -1,4 +1,15 @@
-import {Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterLink, RouterLinkActive} from '@angular/router';
 import {MatIconModule} from '@angular/material/icon';
@@ -18,6 +29,7 @@ import {NotificationService} from '../../../core/services/domain/utilities/notif
 
 // Models
 import {ALLOWED_TEAM_ROLES} from '../../../core/models/user/team-member.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 /**
  * Composant Navbar modernisé utilisant les signaux et la nouvelle architecture
@@ -39,7 +51,7 @@ import {ALLOWED_TEAM_ROLES} from '../../../core/models/user/team-member.model';
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent implements OnInit, OnDestroy {
+export class NavbarComponent implements OnInit {
   // ✅ Injection moderne des services
   private authService = inject(AuthService);
   private userService = inject(UserService);
@@ -48,7 +60,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   private notification = inject(NotificationService);
   private router = inject(Router);
 
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   // ✅ Références DOM
   @ViewChild('navbarToggler') navbarToggler?: ElementRef;
@@ -132,11 +144,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     // Tout est géré par les effects et les signaux
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
 
   // === GESTION DES MENUS ===
 
@@ -213,7 +220,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
           closeOnNavigation: true,
           data: { user: this.currentUserProfile() }
         }).afterClosed().pipe(
-          takeUntil(this.destroy$)
+          takeUntilDestroyed(this.destroyRef)
         ).subscribe(() => {
           // Les services se mettent à jour automatiquement via les signaux
         });
@@ -248,7 +255,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
           autoFocus: true,
           closeOnNavigation: true
         }).afterClosed().pipe(
-          takeUntil(this.destroy$)
+          takeUntilDestroyed(this.destroyRef)
         ).subscribe(() => {
           // Les services se mettent à jour automatiquement via les signaux
         });

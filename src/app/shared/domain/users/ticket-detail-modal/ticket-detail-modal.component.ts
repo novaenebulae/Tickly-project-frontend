@@ -1,4 +1,4 @@
-import {Component, Inject, inject, signal} from '@angular/core';
+import {Component, DestroyRef, Inject, inject, OnDestroy, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
@@ -6,11 +6,14 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatCardModule} from '@angular/material/card';
 import {MatChipsModule} from '@angular/material/chips';
 import {QRCodeComponent} from 'angularx-qrcode';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 import {TicketModel} from '../../../../core/models/tickets/ticket.model';
 import {TicketStatus} from '../../../../core/models/tickets/ticket-status.enum';
 import {TicketService} from '../../../../core/services/domain/ticket/ticket.service';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 export interface TicketDetailModalData {
   ticket: TicketModel | TicketModel[];
@@ -36,6 +39,9 @@ export class TicketDetailModalComponent {
   private ticketService = inject(TicketService);
   private dialogRef = inject(MatDialogRef<TicketDetailModalComponent>);
 
+  // Subject pour gérer les souscriptions
+  private destroyRef = inject(DestroyRef);
+
   tickets: TicketModel[] = [];
   eventInfo: any;
   isDownloading = signal(false);
@@ -59,7 +65,9 @@ export class TicketDetailModalComponent {
 
     const ticketIds = this.tickets.map(ticket => ticket.id);
 
-    this.ticketService.downloadMultipleTicketsPdf(ticketIds).subscribe({
+    this.ticketService.downloadMultipleTicketsPdf(ticketIds)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         this.isDownloading.set(false);
       },
@@ -70,14 +78,16 @@ export class TicketDetailModalComponent {
   }
 
   downloadSinglePdf(ticket: TicketModel): void {
-    this.ticketService.downloadTicketPdf(ticket.id).subscribe({
-      next: () => {
-        // Le téléchargement est géré par le service PDF
-      },
-      error: () => {
-        console.error('Erreur lors du téléchargement du PDF');
-      }
-    });
+    this.ticketService.downloadTicketPdf(ticket.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          // Le téléchargement est géré par le service PDF
+        },
+        error: () => {
+          console.error('Erreur lors du téléchargement du PDF');
+        }
+      });
   }
 
 

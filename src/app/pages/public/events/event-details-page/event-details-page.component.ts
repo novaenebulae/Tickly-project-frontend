@@ -1,10 +1,10 @@
 // src/app/pages/public/event-details-page/event-details-page.component.ts
 
-import {Component, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import {catchError, finalize, of, Subject, takeUntil} from 'rxjs';
+import {catchError, finalize, of} from 'rxjs';
 import {Title} from '@angular/platform-browser';
 
 // Services
@@ -35,6 +35,7 @@ import {MatIcon} from '@angular/material/icon';
 import {MatButton} from '@angular/material/button';
 import {EventsCarouselComponent} from '../../../../shared/domain/events/events-carousel/events-carousel.component';
 import {EventCategoryModel} from '../../../../core/models/event/event-category.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-event-details-page',
@@ -53,9 +54,10 @@ import {EventCategoryModel} from '../../../../core/models/event/event-category.m
     EventsCarouselComponent,
   ],
   templateUrl: './event-details-page.component.html',
-  styleUrls: ['./event-details-page.component.scss']
+  styleUrls: ['./event-details-page.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EventDetailsPageComponent implements OnInit, OnDestroy {
+export class EventDetailsPageComponent implements OnInit {
   // Services injectés
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -64,8 +66,8 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private titleService = inject(Title);
   private authService = inject(AuthService);
-
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef)
+  private cdRef = inject(ChangeDetectorRef);
 
   // Signaux et propriétés
   event = signal<EventModel | undefined>(undefined);
@@ -83,7 +85,7 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
 
     // Récupérer l'ID de l'événement depuis l'URL
     this.route.paramMap.pipe(
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(params => {
       const eventId = params.get('id');
       if (eventId && !isNaN(Number(eventId))) {
@@ -92,12 +94,8 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
         this.handleError('Identifiant d\'événement invalide');
         this.router.navigate(['/events']);
       }
+      this.cdRef.markForCheck();
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   /**
@@ -110,7 +108,7 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
     // Récupérer les détails de l'événement
     this.eventService.getEventById(eventId)
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         finalize(() => {
           this.isLoading = false;
           window.scrollTo({top: 0, behavior: 'instant'});
@@ -134,6 +132,7 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
           this.handleError('Événement non trouvé');
           this.router.navigate(['/events']);
         }
+        this.cdRef.markForCheck();
       });
   }
 
@@ -143,7 +142,7 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
   private loadStructureData(structureId: number): void {
     this.structureService.getStructureById(structureId)
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         catchError(error => {
           console.error('Erreur lors du chargement de la structure:', error);
           return of(null);
@@ -151,6 +150,7 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
       )
       .subscribe(structureData => {
         this.structure.set(structureData || null);
+        this.cdRef.markForCheck();
       });
   }
 
@@ -169,7 +169,7 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
 
     this.eventService.getEvents(params)
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         catchError(error => {
           console.error('Erreur lors du chargement des événements similaires:', error);
           return of([]);
@@ -177,6 +177,7 @@ export class EventDetailsPageComponent implements OnInit, OnDestroy {
       )
       .subscribe(events => {
         this.similarEvents.set(events.filter(event => event.id !== excludeId));
+        this.cdRef.markForCheck();
       });
   }
 

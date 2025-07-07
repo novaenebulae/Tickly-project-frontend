@@ -4,7 +4,17 @@
  * @author VotreNomOuEquipe
  */
 
-import {Component, computed, inject, OnInit, signal, WritableSignal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  WritableSignal
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NotificationService} from '../../../../../../core/services/domain/utilities/notification.service';
@@ -23,20 +33,28 @@ import {
 import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service';
 import {UserRole} from '../../../../../../core/models/user/user-role.enum';
 import {AuthService} from '../../../../../../core/services/domain/user/auth.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {
+  ConfirmationDialogComponent, ConfirmationDialogData
+} from '../../../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-areas-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIcon],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIcon, MatDialogModule],
   templateUrl: './areas-management.component.html',
-  styleUrls: ['./areas-management.component.scss']
+  styleUrls: ['./areas-management.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AreasManagementComponent implements OnInit {
   private userStructureService = inject(UserStructureService);
   private notification = inject(NotificationService);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-
+  private cdRef = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
+  private dialog = inject(MatDialog);
 
   // Signals for component state
   private selectedAreaSig: WritableSignal<StructureAreaModel | null> = signal(null);
@@ -105,7 +123,9 @@ export class AreasManagementComponent implements OnInit {
       return
     }
 
-    this.userStructureService.loadUserStructureAreas(true).subscribe(areas => {
+    this.userStructureService.loadUserStructureAreas(true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(areas => {
       // Les areas sont maintenant chargées dans le service et disponibles via le signal computed
       console.log('Areas chargées:', areas);
     });
@@ -177,7 +197,9 @@ export class AreasManagementComponent implements OnInit {
         description: formValue.description || undefined
       };
 
-      this.userStructureService.updateArea(editingArea.id, updateDto).subscribe(result => {
+      this.userStructureService.updateArea(editingArea.id, updateDto)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(result => {
         if (result) {
           // Mettre à jour l'area sélectionnée si c'est celle qui a été modifiée
           if (this.selectedAreaSig()?.id === editingArea.id) {
@@ -185,6 +207,7 @@ export class AreasManagementComponent implements OnInit {
           }
           this.onCancelAreaForm();
         }
+          this.cdRef.markForCheck();
       });
 
     } else {
@@ -196,10 +219,13 @@ export class AreasManagementComponent implements OnInit {
         description: formValue.description || undefined
       };
 
-      this.userStructureService.createArea(createDto).subscribe(result => {
+      this.userStructureService.createArea(createDto)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(result => {
         if (result) {
           this.onCancelAreaForm();
         }
+          this.cdRef.markForCheck();
       });
     }
   }
@@ -210,19 +236,38 @@ export class AreasManagementComponent implements OnInit {
   }
 
   onDeleteArea(area: StructureAreaModel): void {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer l'espace "${area.name}" ?`)) {
-      this.userStructureService.deleteArea(area.id).subscribe(success => {
-        if (success && this.selectedAreaSig()?.id === area.id) {
-          this.selectedAreaSig.set(null);
+    const dialogData: ConfirmationDialogData = {
+      title: 'Supprimer l\'espace',
+      message: `Êtes-vous sûr de vouloir supprimer l'espace "${area.name}" ?`,
+      confirmButtonText: 'Supprimer',
+      confirmButtonColor: 'warn'
+    };
+
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { data: dialogData });
+
+
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result) {
+          this.userStructureService.deleteArea(area.id)
+            .pipe(takeUntilDestroyed(this.destroyRef)) // <-- 3. Gérer la souscription
+            .subscribe(success => {
+              if (success && this.selectedAreaSig()?.id === area.id) {
+                this.selectedAreaSig.set(null);
+              }
+              this.cdRef.markForCheck(); // <-- 2. Notifier le changement
+            });
         }
       });
-    }
   }
 
   // --- Audience Zone Management ---
 
   private loadAudienceZoneTemplates(areaId: number): void {
-    this.userStructureService.loadAreaAudienceZoneTemplates(areaId).subscribe();
+    this.userStructureService.loadAreaAudienceZoneTemplates(areaId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
   }
 
   onShowCreateAudienceZoneTemplateForm(): void {
@@ -309,10 +354,13 @@ export class AreasManagementComponent implements OnInit {
         seatingType: formValue.seatingType
       };
 
-      this.userStructureService.updateAudienceZoneTemplate(selectedArea.id, editingTemplate.id, updateDto).subscribe(result => {
+      this.userStructureService.updateAudienceZoneTemplate(selectedArea.id, editingTemplate.id, updateDto)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(result => {
         if (result) {
           this.onCancelAudienceZoneTemplateForm();
         }
+          this.cdRef.markForCheck();
       });
     } else {
       // Create new template
@@ -323,10 +371,13 @@ export class AreasManagementComponent implements OnInit {
         seatingType: formValue.seatingType
       };
 
-      this.userStructureService.createAudienceZoneTemplate(selectedArea.id, createDto).subscribe(result => {
+      this.userStructureService.createAudienceZoneTemplate(selectedArea.id, createDto)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(result => {
         if (result) {
           this.onCancelAudienceZoneTemplateForm();
         }
+          this.cdRef.markForCheck();
       });
     }
   }
@@ -336,7 +387,9 @@ export class AreasManagementComponent implements OnInit {
     if (!selectedArea || !template.id) return;
 
     if (confirm(`Êtes-vous sûr de vouloir supprimer le template "${template.name}" ?`)) {
-      this.userStructureService.deleteAudienceZoneTemplate(selectedArea.id, template.id).subscribe();
+      this.userStructureService.deleteAudienceZoneTemplate(selectedArea.id, template.id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
     }
   }
 

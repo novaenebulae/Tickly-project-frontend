@@ -12,7 +12,8 @@ import {catchError, map, shareReplay, tap} from 'rxjs/operators';
 
 import {EventCategoryModel} from '../../../models/event/event-category.model';
 import {EventApiService} from '../../api/event/event-api.service';
-import {NotificationService} from '../utilities/notification.service'; // Optional, if notifications needed
+import {NotificationService} from '../utilities/notification.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop'; // Optional, if notifications needed
 
 @Injectable({
   providedIn: 'root'
@@ -44,7 +45,9 @@ export class CategoryService {
     this.loadCategories$ = this.fetchCategoriesFromApi().pipe(
       shareReplay(1) // Cache the last emitted value and replay for new subscribers
     );
-    this.loadCategories().subscribe(); // Trigger initial load
+    this.loadCategories()
+      .pipe(takeUntilDestroyed())
+      .subscribe(); // Trigger initial load
   }
 
   /**

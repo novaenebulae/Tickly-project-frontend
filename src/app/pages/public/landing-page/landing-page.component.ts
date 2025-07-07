@@ -1,7 +1,7 @@
-import {ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {Router, RouterModule} from '@angular/router';
 import {CommonModule} from '@angular/common';
-import {Subject, takeUntil} from 'rxjs';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 // Models
 import {EventSummaryModel} from '../../../core/models/event/event.model';
@@ -39,18 +39,17 @@ interface HeroSlide {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LandingPageComponent implements OnInit, OnDestroy {
+export class LandingPageComponent implements OnInit {
   // Services injectés
   protected router = inject(Router);
   private eventService = inject(EventService);
+  private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   // Signaux (nouvelle API Angular 19)
   currentHeroSlideIndex = signal(0);
   latestEvents = signal<EventSummaryModel[]>([]);
   isLoading = signal(false);
-
-  // Sujet de désabonnement
-  private destroy$ = new Subject<void>();
 
   // Slides du carousel héros
   heroSlides: HeroSlide[] = [
@@ -85,10 +84,6 @@ export class LandingPageComponent implements OnInit, OnDestroy {
     this.startHeroSlides();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   // Chargement des derniers événements depuis le service
   loadLatestEvents(): void {
@@ -96,15 +91,17 @@ export class LandingPageComponent implements OnInit, OnDestroy {
 
     // Utilisation du EventService pour récupérer les événements récents
     this.eventService.getHomePageEvents(true, 9)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (events) => {
           this.latestEvents.set(events);
           this.isLoading.set(false);
+          this.cdRef.markForCheck();
         },
         error: (error) => {
           console.error('Erreur lors du chargement des événements:', error);
           this.isLoading.set(false);
+          this.cdRef.markForCheck();
         }
       });
   }
@@ -112,12 +109,13 @@ export class LandingPageComponent implements OnInit, OnDestroy {
   // Animation automatique du slider héros
   startHeroSlides(): void {
     const intervalId = setInterval(() => {
-      if (this.destroy$.closed) {
-        clearInterval(intervalId);
-        return;
-      }
       this.nextHeroSlide();
     }, 5000);
+
+    // Clean up the interval when the component is destroyed
+    this.destroyRef.onDestroy(() => {
+      clearInterval(intervalId);
+    });
   }
 
   // Passage au slide suivant

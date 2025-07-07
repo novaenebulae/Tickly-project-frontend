@@ -4,8 +4,11 @@
  */
 
 import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   computed,
+  DestroyRef,
   effect,
   EventEmitter,
   inject,
@@ -32,6 +35,7 @@ import {AudienceZoneTemplateModel} from '../../../../../../core/models/structure
 import {EventAudienceZone, SeatingType} from '../../../../../../core/models/event/event-audience-zone.model';
 import {UserStructureService} from '../../../../../../core/services/domain/user-structure/user-structure.service';
 import {NotificationService} from '../../../../../../core/services/domain/utilities/notification.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 /**
  * Interface pour les données sélectionnées
@@ -67,12 +71,15 @@ export interface ZoneConfiguration {
     MatBadgeModule
   ],
   templateUrl: './event-areas-zones-selection.component.html',
-  styleUrls: ['./event-areas-zones-selection.component.scss']
+  styleUrls: ['./event-areas-zones-selection.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EventAreasZonesSelectionComponent implements OnInit {
   // Services injectés
   private userStructureService = inject(UserStructureService);
   private notification = inject(NotificationService);
+  private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   // Propriétés d'entrée
   @Input() structureId!: number;
@@ -134,21 +141,24 @@ export class EventAreasZonesSelectionComponent implements OnInit {
   private loadAreas(): void {
     this.loadingSig.set(true);
 
-    this.userStructureService.loadUserStructureAreas().subscribe({
+    this.userStructureService.loadUserStructureAreas()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (areas) => {
         this.allAreasSig.set(areas || []);
-
         // Charger les zones pour chaque espace
         if (areas && areas.length > 0) {
           this.loadZonesForAllAreas(areas);
         } else {
           this.loadingSig.set(false);
         }
+        this.cdRef.markForCheck();
       },
       error: (error) => {
         console.error('Erreur lors du chargement des espaces:', error);
         this.notification.displayNotification('Erreur lors du chargement des espaces', 'error');
         this.loadingSig.set(false);
+        this.cdRef.markForCheck();
       }
     });
   }
@@ -178,6 +188,7 @@ export class EventAreasZonesSelectionComponent implements OnInit {
 
       // Pré-sélectionner les éléments existants si en mode édition
       this.preselectExistingItems();
+      this.cdRef.markForCheck();
     });
   }
 

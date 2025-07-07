@@ -1,5 +1,5 @@
-import {Component, inject, Inject, Input, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {ChangeDetectionStrategy, Component, DestroyRef, inject, Inject, Input, OnDestroy, OnInit} from '@angular/core';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -9,9 +9,12 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {RouterModule} from '@angular/router';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 import {EventModel, EventStatus} from '../../../../core/models/event/event.model';
 import {EventService} from '../../../../core/services/domain/event/event.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 /**
  * Modal component for displaying event details.
@@ -23,6 +26,7 @@ import {EventService} from '../../../../core/services/domain/event/event.service
   standalone: true,
   imports: [
     CommonModule,
+    NgOptimizedImage,
     MatDialogModule,
     MatButtonModule,
     MatIconModule,
@@ -33,6 +37,7 @@ import {EventService} from '../../../../core/services/domain/event/event.service
     MatProgressSpinnerModule,
     RouterModule
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="event-details-modal">
       <div class="dialog-header">
@@ -62,7 +67,7 @@ import {EventService} from '../../../../core/services/domain/event/event.service
               <div class="tab-content">
                 <div class="event-header">
                   <div class="event-image" *ngIf="event.mainPhotoUrl">
-                    <img [src]="event.mainPhotoUrl" [alt]="event.name">
+                    <img ngSrc="{{event.mainPhotoUrl}}" [alt]="event.name" width="200" height="150" priority>
                   </div>
                   <div class="event-image placeholder" *ngIf="!event.mainPhotoUrl">
                     <mat-icon>image</mat-icon>
@@ -151,7 +156,7 @@ import {EventService} from '../../../../core/services/domain/event/event.service
               <div class="tab-content">
                 <div class="photo-gallery">
                   <div class="gallery-item" *ngFor="let photo of event.eventPhotoUrls">
-                    <img [src]="photo" alt="Photo de l'événement">
+                    <img ngSrc="{{photo}}" alt="Photo de l'événement" width="150" height="150">
                   </div>
                 </div>
               </div>
@@ -376,6 +381,7 @@ import {EventService} from '../../../../core/services/domain/event/event.service
 })
 export class EventDetailsModalComponent implements OnInit {
   private eventService = inject(EventService);
+  private destroyRef = inject(DestroyRef);
 
   @Input() eventId!: number;
 
@@ -401,15 +407,17 @@ export class EventDetailsModalComponent implements OnInit {
 
   loadEventDetails(): void {
     this.loading = true;
-    this.eventService.getEventById(this.eventId, true).subscribe({
-      next: (event) => {
-        this.event = event;
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-      }
-    });
+    this.eventService.getEventById(this.eventId, true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (event) => {
+          this.event = event;
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+        }
+      });
   }
 
   getStatusClass(status: EventStatus | undefined): string {

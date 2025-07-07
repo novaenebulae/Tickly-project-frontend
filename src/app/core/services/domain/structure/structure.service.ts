@@ -29,6 +29,7 @@ import {Router} from '@angular/router';
 import {StructureSummaryModel} from '../../../models/structure/structure-summary.model';
 import {AudienceZoneTemplateModel} from '../../../models/structure/AudienceZoneTemplate.model';
 import {StructureAreaModel} from '../../../models/structure/structure-area.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root'
@@ -56,7 +57,9 @@ export class StructureService {
 
   constructor() {
     // Preload structure types on service initialization
-    this.loadStructureTypes().subscribe();
+    this.loadStructureTypes()
+      .pipe(takeUntilDestroyed())
+      .subscribe();
   }
 
   // --- Structure CRUD Operations ---

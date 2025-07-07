@@ -18,8 +18,8 @@ interface AccountDeletionResponse {
 
 
 import {inject, Injectable} from '@angular/core';
-import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
-import {Observable, throwError} from 'rxjs';
+import {HttpClient, HttpParams} from '@angular/common/http';
+import {Observable} from 'rxjs';
 
 
 import {ApiConfigService} from '../api-config.service';

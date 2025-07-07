@@ -1,4 +1,4 @@
-import {computed, effect, inject, Injectable, signal, untracked, WritableSignal} from '@angular/core';
+import {computed, DestroyRef, effect, inject, Injectable, signal, untracked, WritableSignal} from '@angular/core';
 import {UserService} from '../user/user.service';
 import {StructureService} from '../structure/structure.service';
 import {AuthService} from '../user/auth.service';
@@ -19,6 +19,7 @@ import {StructureApiService} from '../../api/structure/structure-api.service';
 import {FileUploadResponseDto} from '../../../models/files/file-upload-response.model';
 import {Router} from '@angular/router';
 import {UserModel} from '../../../models/user/user.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 
 /**
@@ -36,6 +37,7 @@ export class UserStructureService {
   private authService = inject(AuthService);
   private notification = inject(NotificationService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   /**
    * Checks if the current user has permission to manage structures.
@@ -107,8 +109,10 @@ export class UserStructureService {
           // Vérifier si la structure actuelle correspond toujours
           const currentStructure = this.userStructureSig();
           if (!currentStructure || currentStructure.id !== userProfile.structureId) {
-            this.loadUserStructure().subscribe();
-            this.getUserStructureEvents().subscribe();
+            this.loadUserStructure()
+              .subscribe();
+            this.getUserStructureEvents()
+              .subscribe();
           }
         });
       } else {
@@ -282,7 +286,9 @@ export class UserStructureService {
           this.router.navigate(['/admin/dashboard']);
         }
       })
-    ).subscribe({
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       error: (error) => {
         console.error('Erreur lors de la mise à jour des données utilisateur:', error);
         this.notification.displayNotification(

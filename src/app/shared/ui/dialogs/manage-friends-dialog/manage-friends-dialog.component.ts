@@ -1,4 +1,4 @@
-import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {CommonModule} from '@angular/common';
@@ -16,8 +16,6 @@ import {MatBadgeModule} from '@angular/material/badge';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatCardModule} from '@angular/material/card';
 
-import {Subject, takeUntil} from 'rxjs';
-
 // Services
 import {FriendshipService} from '../../../../core/services/domain/user/friendship.service';
 
@@ -27,6 +25,7 @@ import {
   ReceivedFriendRequestModel,
   SentFriendRequestModel
 } from '../../../../core/models/friendship/friend-request.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 /**
  * Composant de dialogue pour gérer les amis et demandes d'amitié
@@ -56,13 +55,13 @@ import {
   templateUrl: './manage-friends-dialog.component.html',
   styleUrls: ['./manage-friends-dialog.component.scss']
 })
-export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
+export class ManageFriendsDialogComponent implements OnInit {
   // ✅ Injection moderne
   private dialogRef = inject(MatDialogRef<ManageFriendsDialogComponent>);
   private friendshipService = inject(FriendshipService);
   private fb = inject(FormBuilder);
 
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   // ✅ États avec signaux
   isLoadingSearch = signal(false);
@@ -88,11 +87,6 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
     this.loadInitialData();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   /**
    * Initialise les formulaires
    */
@@ -108,7 +102,7 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
   private loadInitialData(): void {
     // On utilise la nouvelle méthode unifiée. Le 'true' force le rechargement à chaque ouverture.
     this.friendshipService.loadFriendsData(true).pipe(
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe();
   }
 
@@ -126,7 +120,7 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
     this.isSendingRequest.set(true);
     const email = this.addFriendForm.value.email;
 
-    this.friendshipService.sendFriendRequestByEmail(email).pipe(takeUntil(this.destroy$)).subscribe({
+    this.friendshipService.sendFriendRequestByEmail(email).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => this.addFriendForm.reset(),
       error: () => this.isSendingRequest.set(false),
       complete: () => this.isSendingRequest.set(false)
@@ -135,7 +129,7 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
 
   removeFriend(friend: FriendModel): void {
     this.isPerformingAction.set(true);
-    this.friendshipService.removeFriend(friend.friend.id).pipe(takeUntil(this.destroy$)).subscribe({
+    this.friendshipService.removeFriend(friend.friend.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       error: () => this.isPerformingAction.set(false),
       complete: () => this.isPerformingAction.set(false)
     });
@@ -143,7 +137,7 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
 
   cancelSentRequest(request: SentFriendRequestModel): void {
     this.isPerformingAction.set(true);
-    this.friendshipService.cancelSentRequest(request.friendshipId).pipe(takeUntil(this.destroy$)).subscribe({
+    this.friendshipService.cancelSentRequest(request.friendshipId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       error: () => this.isPerformingAction.set(false),
       complete: () => this.isPerformingAction.set(false)
     });
@@ -157,7 +151,7 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
   acceptRequest(request: ReceivedFriendRequestModel): void {
     this.isPerformingAction.set(true);
     this.friendshipService.acceptFriendRequest(request.friendshipId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.isPerformingAction.set(false),
         error: () => this.isPerformingAction.set(false)
@@ -171,7 +165,7 @@ export class ManageFriendsDialogComponent implements OnInit, OnDestroy {
   rejectRequest(request: ReceivedFriendRequestModel): void {
     this.isPerformingAction.set(true);
     this.friendshipService.rejectFriendRequest(request.friendshipId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => this.isPerformingAction.set(false),
         error: () => this.isPerformingAction.set(false)

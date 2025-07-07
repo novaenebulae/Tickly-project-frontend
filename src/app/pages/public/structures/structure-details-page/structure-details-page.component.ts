@@ -1,4 +1,13 @@
-import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal
+} from '@angular/core';
 import {CommonModule, ViewportScroller} from '@angular/common';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
@@ -8,7 +17,6 @@ import {MatChipsModule} from '@angular/material/chips';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatTabsModule} from '@angular/material/tabs';
 import {PageEvent} from '@angular/material/paginator';
-import {Subject, takeUntil} from 'rxjs';
 import {EventBannerComponent} from '../../../../shared/domain/events/event-banner/event-banner.component';
 import {EventsCarouselComponent} from '../../../../shared/domain/events/events-carousel/events-carousel.component';
 import {EventsDisplayComponent} from '../../../../shared/domain/events/events-display/events-display.component';
@@ -20,6 +28,7 @@ import {EventService} from '../../../../core/services/domain/event/event.service
 import {StructureModel} from '../../../../core/models/structure/structure.model';
 import {EventStatus, EventSummaryModel} from '../../../../core/models/event/event.model';
 import {EventSearchParams} from '../../../../core/models/event/event-search-params.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-structure-details-page',
@@ -39,15 +48,17 @@ import {EventSearchParams} from '../../../../core/models/event/event-search-para
     RouterLink
   ],
   templateUrl: './structure-details-page.component.html',
-  styleUrls: ['./structure-details-page.component.scss']
+  styleUrls: ['./structure-details-page.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StructureDetailsPageComponent implements OnInit, OnDestroy {
+export class StructureDetailsPageComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private structureService = inject(StructureService);
   private eventService = inject(EventService);
-  private destroy$ = new Subject<void>();
   private viewPortScroller = inject(ViewportScroller);
+  private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   // Signals pour l'état
   structure = signal<StructureModel | null>(null);
@@ -85,11 +96,6 @@ export class StructureDetailsPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   /**
    * Charge les détails de la structure
    */
@@ -98,7 +104,7 @@ export class StructureDetailsPageComponent implements OnInit, OnDestroy {
     this.structureError.set(null);
 
     this.structureService.getStructureById(structureId)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (structure) => {
           if (structure) {
@@ -111,11 +117,13 @@ export class StructureDetailsPageComponent implements OnInit, OnDestroy {
             this.structureError.set('Structure non trouvée');
           }
           this.isLoadingStructure.set(false);
+          this.cdRef.markForCheck();
         },
         error: (error) => {
           console.error('Erreur lors du chargement de la structure:', error);
           this.structureError.set('Erreur lors du chargement de la structure');
           this.isLoadingStructure.set(false);
+          this.cdRef.markForCheck();
         }
       });
   }
@@ -128,7 +136,7 @@ export class StructureDetailsPageComponent implements OnInit, OnDestroy {
     this.eventsError.set(null);
 
     this.eventService.getEventsByStructure(structureId, {status: EventStatus.PUBLISHED})
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (eventsResult) => {
 
@@ -152,11 +160,13 @@ export class StructureDetailsPageComponent implements OnInit, OnDestroy {
             }
           });
           this.isLoadingEvents.set(false);
+          this.cdRef.markForCheck();
         },
         error: (error) => {
           console.error('Erreur lors du chargement des événements:', error);
           this.eventsError.set('Erreur lors du chargement des événements');
           this.isLoadingEvents.set(false);
+          this.cdRef.markForCheck();
         }
       });
   }

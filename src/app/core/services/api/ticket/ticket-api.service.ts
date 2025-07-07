@@ -9,7 +9,7 @@
 
 import {inject, Injectable} from '@angular/core';
 import {HttpErrorResponse} from '@angular/common/http';
-import {Observable, throwError} from 'rxjs';
+import {Observable} from 'rxjs';
 import {catchError, tap} from 'rxjs/operators';
 
 import {ApiConfigService} from '../api-config.service';

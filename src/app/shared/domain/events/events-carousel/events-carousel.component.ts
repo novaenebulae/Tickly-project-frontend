@@ -1,10 +1,23 @@
-import {AfterViewInit, Component, ElementRef, HostBinding, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {interval, Subscription} from 'rxjs';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component, DestroyRef,
+  ElementRef,
+  HostBinding,
+  inject,
+  Input,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
+import {interval, Subject, Subscription} from 'rxjs';
 import {CommonModule} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
 import {EventCardComponent} from '../event-card-item/event-card.component';
 import {MatButtonModule} from '@angular/material/button';
 import {EventSummaryModel} from '../../../../core/models/event/event.model';
+import {takeUntil} from 'rxjs/operators';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 // Les imports pour MatIconModule etc. sont dans le décorateur @Component pour les composants standalone
 
@@ -14,6 +27,7 @@ import {EventSummaryModel} from '../../../../core/models/event/event.model';
   styleUrls: ['./events-carousel.component.scss'],
   // Les imports pour les composants standalone sont gérés dans la métadonnée du composant
   imports: [ CommonModule, MatIconModule, EventCardComponent, MatButtonModule ], // CommonModule pour @for
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EventsCarouselComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() events: EventSummaryModel[] = [];
@@ -30,6 +44,7 @@ export class EventsCarouselComponent implements OnInit, AfterViewInit, OnDestroy
   totalPages = 0;
 
   private autoSlideSubscription: Subscription | undefined;
+  private destroyRef = inject(DestroyRef);
 
   // Lie la variable CSS au composant pour l'utiliser dans le SCSS
   @HostBinding('style.--cards-per-page')
@@ -64,7 +79,9 @@ export class EventsCarouselComponent implements OnInit, AfterViewInit, OnDestroy
   startAutoSlide(): void {
     this.stopAutoSlide(); // S'assurer qu'il n'y a pas de souscription existante
     if (this.totalPages > 1) {
-      this.autoSlideSubscription = interval(this.slideInterval).subscribe(() => {
+      this.autoSlideSubscription = interval(this.slideInterval)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
         this.nextPage();
       });
     }

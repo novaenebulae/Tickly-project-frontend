@@ -6,7 +6,7 @@
  * @author VotreNomOuEquipe
  */
 
-import {computed, effect, inject, Injectable, signal, WritableSignal} from '@angular/core';
+import {computed, DestroyRef, effect, inject, Injectable, signal, WritableSignal} from '@angular/core';
 import {Observable, of, throwError} from 'rxjs';
 import {catchError, map, switchMap, tap} from 'rxjs/operators';
 
@@ -23,6 +23,7 @@ import {ReceivedFriendRequestModel, SentFriendRequestModel} from '../../../model
 import {FriendshipStatus} from '../../../models/friendship/friendship-status.enum';
 import {FriendParticipantDto} from '../../../models/friendship/friend-participant.dto';
 import {HttpErrorResponse} from '@angular/common/http';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 export interface FriendsData {
   friends: FriendModel[];
@@ -37,6 +38,7 @@ export class FriendshipService {
   private friendshipApi = inject(FriendshipApiService);
   private notification = inject(NotificationService);
   private authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
 
   // --- State Management using Signals ---
   private friendsDataSig: WritableSignal<FriendsData> = signal({
@@ -56,7 +58,8 @@ export class FriendshipService {
     effect(() => {
       const isLoggedIn = this.authService.isLoggedIn;
       if (isLoggedIn()) {
-        this.loadFriendsData(true).subscribe();
+        this.loadFriendsData(true)
+          .subscribe();
       } else {
         // Clear all friendship related data on logout
         this.friendsDataSig.set({
@@ -194,7 +197,9 @@ export class FriendshipService {
     return this.friendshipApi.updateFriendshipStatus(friendshipId, dto).pipe(
       tap(() => {
         // Upon success, refresh all friendship data to ensure UI consistency.
-        this.loadFriendsData(true).subscribe();
+        this.loadFriendsData(true)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
         const message = status === FriendshipStatus.ACCEPTED ? 'Demande d\'ami acceptée.' : 'Demande d\'ami refusée.';
         this.notification.displayNotification(message, 'valid');
       }),
@@ -217,7 +222,9 @@ export class FriendshipService {
       tap(() => {
         this.notification.displayNotification('Ami retiré avec succès.', 'valid');
         // Refresh friends data to reflect the removal
-        this.loadFriendsData(true).subscribe();
+        this.loadFriendsData(true)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
       }),
       catchError(error => {
         this.handleError(error.message || "Erreur lors de la suppression de l'ami.", error);

@@ -1,11 +1,12 @@
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   LOCALE_ID,
-  OnDestroy,
   OnInit,
   signal,
   WritableSignal
@@ -14,7 +15,8 @@ import {CommonModule, DatePipe, registerLocaleData} from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import {FormsModule} from '@angular/forms';
 import {Router, RouterLink} from '@angular/router';
-import {debounceTime, distinctUntilChanged, Subject, Subscription} from 'rxjs';
+import {debounceTime, distinctUntilChanged, Subject} from 'rxjs';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 // Angular Material imports
 import {MatButtonModule} from '@angular/material/button';
@@ -66,9 +68,10 @@ interface FilterStatus {
   providers: [
     DatePipe,
     {provide: LOCALE_ID, useValue: 'fr-FR'}
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EventsPanelComponent implements OnInit, OnDestroy {
+export class EventsPanelComponent implements OnInit {
 
   // Services
   private eventService = inject(EventService);
@@ -78,6 +81,7 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
   private snackBar = inject(MatSnackBar);
   private datePipe = inject(DatePipe);
   private cdRef = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
 
   // UI State Signals
   private isLoadingSig: WritableSignal<boolean> = signal(false);
@@ -155,8 +159,6 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
 
   // Search debounce
   private searchSubject = new Subject<string>();
-  private searchSubscription: Subscription | null = null;
-  private subscriptions: Subscription[] = [];
 
   constructor() {
     // Effect to process events when allEventsSig changes
@@ -178,23 +180,21 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
     this.loadEvents(true);
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-    this.searchSubscription?.unsubscribe();
-  }
 
   // === Data Loading ===
 
   loadCategories(): void {
-    const categoriesSub = this.categoryService.loadCategories().subscribe({
-      next: (categories) => {
-        this.categoriesSig.set(categories);
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement des catégories:', error);
-      }
-    });
-    this.subscriptions.push(categoriesSub);
+    this.categoryService.loadCategories()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (categories) => {
+          this.categoriesSig.set(categories);
+          this.cdRef.markForCheck()
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement des catégories:', error);
+        }
+      });
   }
 
   loadEvents(forceRefresh: boolean = false): void {
@@ -202,20 +202,22 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
     this.errorSig.set(null);
 
     // Trigger the API call to load events
-    const loadSub = this.userStructureService.getUserStructureEvents(forceRefresh).subscribe({
-      next: () => {
-        // Now we can access the events through the signal
-        this.allEventsSig.set(this.userStructureService.userStructureEvents());
-        this.isLoadingSig.set(false);
-      },
-      error: (error) => {
-        console.error('Erreur lors du chargement des événements:', error);
-        this.errorSig.set("Erreur lors du chargement des événements.");
-        this.isLoadingSig.set(false);
-      }
-    });
-
-    this.subscriptions.push(loadSub);
+    this.userStructureService.getUserStructureEvents(forceRefresh)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          // Now we can access the events through the signal
+          this.allEventsSig.set(this.userStructureService.userStructureEvents());
+          this.isLoadingSig.set(false);
+          this.cdRef.markForCheck()
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement des événements:', error);
+          this.errorSig.set("Erreur lors du chargement des événements.");
+          this.isLoadingSig.set(false);
+          this.cdRef.markForCheck()
+        }
+      });
   }
 
   // === Statistics ===
@@ -233,10 +235,11 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
   // === Search and Filtering ===
 
   setupSearchDebounce(): void {
-    this.searchSubscription = this.searchSubject
+    this.searchSubject
       .pipe(
         debounceTime(400),
-        distinctUntilChanged()
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => {
         this.processEvents();
@@ -474,27 +477,30 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
   deleteEvent(event: EventSummaryModel): void {
     if (confirm(`Êtes-vous sûr de vouloir supprimer l'événement "${event.name}" ?`)) {
       this.isLoadingSig.set(true);
-      const deleteSub = this.eventService.deleteEvent(event.id!).subscribe({
-        next: (success) => {
-          if (success) {
-            // Forcer le rafraîchissement des événements après suppression
-            this.loadEvents(true);
-            this.snackBar.open('Événement supprimé avec succès', 'Fermer', {
+      this.eventService.deleteEvent(event.id!)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (success) => {
+            if (success) {
+              // Forcer le rafraîchissement des événements après suppression
+              this.loadEvents(true);
+              this.snackBar.open('Événement supprimé avec succès', 'Fermer', {
+                duration: 3000
+              });
+            } else {
+              this.isLoadingSig.set(false);
+            }
+            this.cdRef.markForCheck()
+          },
+          error: (error) => {
+            console.error('Erreur lors de la suppression:', error);
+            this.snackBar.open('Erreur lors de la suppression', 'Fermer', {
               duration: 3000
             });
-          } else {
             this.isLoadingSig.set(false);
+            this.cdRef.markForCheck()
           }
-        },
-        error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
-          this.snackBar.open('Erreur lors de la suppression', 'Fermer', {
-            duration: 3000
-          });
-          this.isLoadingSig.set(false);
-        }
-      });
-      this.subscriptions.push(deleteSub);
+        });
     }
   }
 
@@ -505,27 +511,29 @@ export class EventsPanelComponent implements OnInit, OnDestroy {
   cancelEvent(event: EventSummaryModel): void {
     if (confirm(`Êtes-vous sûr de vouloir annuler l'événement "${event.name}" ?`)) {
       this.isLoadingSig.set(true);
-      const cancelSub = this.eventService.updateEventStatus(event.id!, EventStatus.CANCELLED).subscribe({
-        next: (updatedEvent) => {
-          if (updatedEvent) {
-            // Forcer le rafraîchissement des événements après annulation
-            this.loadEvents(true);
-            this.snackBar.open('Événement annulé avec succès', 'Fermer', {
+      this.eventService.updateEventStatus(event.id!, EventStatus.CANCELLED)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (updatedEvent) => {
+            if (updatedEvent) {
+              // Forcer le rafraîchissement des événements après annulation
+              this.loadEvents(true);
+              this.snackBar.open('Événement annulé avec succès', 'Fermer', {
+                duration: 3000
+              });
+            } else {
+              this.isLoadingSig.set(false);
+              this.cdRef.markForCheck()
+            }
+          },
+          error: (error) => {
+            console.error('Erreur lors de l\'annulation:', error);
+            this.snackBar.open('Erreur lors de l\'annulation', 'Fermer', {
               duration: 3000
             });
-          } else {
             this.isLoadingSig.set(false);
           }
-        },
-        error: (error) => {
-          console.error('Erreur lors de l\'annulation:', error);
-          this.snackBar.open('Erreur lors de l\'annulation', 'Fermer', {
-            duration: 3000
-          });
-          this.isLoadingSig.set(false);
-        }
-      });
-      this.subscriptions.push(cancelSub);
+        });
     }
   }
 

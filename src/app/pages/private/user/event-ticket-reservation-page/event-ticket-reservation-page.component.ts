@@ -1,8 +1,17 @@
-import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal
+} from '@angular/core';
 import {CommonModule, Location} from '@angular/common';
 import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {finalize, Subject, takeUntil} from 'rxjs';
+import {finalize} from 'rxjs';
 
 // Angular Material
 import {MatStepperModule} from '@angular/material/stepper';
@@ -28,6 +37,7 @@ import {EventService} from '../../../../core/services/domain/event/event.service
 import {TicketService} from '../../../../core/services/domain/ticket/ticket.service';
 import {NotificationService} from '../../../../core/services/domain/utilities/notification.service';
 import {UserService} from '../../../../core/services/domain/user/user.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-event-ticket-reservation-page',
@@ -49,9 +59,10 @@ import {UserService} from '../../../../core/services/domain/user/user.service';
     MatRadioModule
   ],
   templateUrl: './event-ticket-reservation-page.component.html',
-  styleUrls: ['./event-ticket-reservation-page.component.scss']
+  styleUrls: ['./event-ticket-reservation-page.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
+export class EventTicketReservationPageComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private fb = inject(FormBuilder);
@@ -60,8 +71,8 @@ export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private userService = inject(UserService);
   private location = inject(Location);
-
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   // État de l'application
   event = signal<EventModel | undefined>(undefined);
@@ -93,11 +104,12 @@ export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.paramMap.pipe(
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(params => {
       const eventId = params.get('id');
       if (eventId && !isNaN(Number(eventId))) {
         this.loadEventData(Number(eventId));
+        this.cdRef.markForCheck();
       } else {
         this.handleError('Identifiant d\'événement invalide');
         this.router.navigate(['/events']);
@@ -105,20 +117,16 @@ export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   private initializeForms(): void {
     // Les formulaires sont déjà initialisés dans la déclaration de propriétés
 
     // Écouter les changements du nombre de billets pour ajuster les participants
     this.zoneSelectionForm.get('ticketCount')?.valueChanges.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(count => {
+      takeUntilDestroyed(this.destroyRef))
+      .subscribe(count => {
       this.updateParticipantsFormArray(count);
-    });
+        this.cdRef.markForCheck();
+      });
   }
 
   private loadEventData(eventId: number): void {
@@ -126,13 +134,14 @@ export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
 
     this.eventService.getEventById(eventId).pipe(
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
       finalize(() => this.isLoading.set(false))
     ).subscribe({
       next: (eventData) => {
         if (eventData) {
           this.event.set(eventData);
           this.updateParticipantsFormArray(1); // Initialiser avec 1 participant
+          this.cdRef.markForCheck();
         } else {
           this.handleError('Événement non trouvé');
           this.router.navigate(['/events']);
@@ -183,7 +192,9 @@ export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
 
     // Ajouter un écouteur pour mettre à jour les validators d'email en fonction du choix d'envoi
     if (!isMainParticipant) {
-      group.get('sendTicketByEmail')?.valueChanges.subscribe(sendEmail => {
+      group.get('sendTicketByEmail')?.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(sendEmail => {
         const emailControl = group.get('email');
         if (emailControl) {
           if (sendEmail) {
@@ -192,6 +203,7 @@ export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
             emailControl.setValidators([Validators.email]);
           }
           emailControl.updateValueAndValidity();
+          this.cdRef.markForCheck();
         }
       });
     }
@@ -253,7 +265,7 @@ export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
       this.selectedZone()!.id!,
       this.participantsData()
     ).pipe(
-      takeUntil(this.destroy$),
+      takeUntilDestroyed(this.destroyRef),
       finalize(() => this.isSubmitting.set(false))
     ).subscribe({
       next: (confirmation) => {
@@ -263,7 +275,7 @@ export class EventTicketReservationPageComponent implements OnInit, OnDestroy {
             `Réservation confirmée ! ${confirmation.tickets.length} billet(s) émis.`,
             'valid'
           );
-
+          this.cdRef.markForCheck();
           // Rediriger vers la page des billets utilisateur
           this.router.navigate(['/user/tickets'])
         }

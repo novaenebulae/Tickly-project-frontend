@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {
   AbstractControl,
@@ -24,6 +24,7 @@ import {AuthService} from '../../../core/services/domain/user/auth.service';
 
 // Models
 import {UserRegistrationDto} from '../../../core/models/user/user.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-register-page',
@@ -54,6 +55,8 @@ export class RegisterPageComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.initForm();
@@ -122,7 +125,9 @@ export class RegisterPageComponent implements OnInit {
 
     console.log('Submitting registration:', newUserRegistration);
 
-    this.authService.register(newUserRegistration, false).subscribe({
+    this.authService.register(newUserRegistration, false)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         // Exécuté si l'observable de register se complète SANS erreur
         console.log(
@@ -131,10 +136,12 @@ export class RegisterPageComponent implements OnInit {
         // Si la navigation réussit, ce composant sera détruit.
         // Si elle échoue, on arrête le spinner.
         this.isLoading.set(false);
+        this.cdRef.markForCheck();
       },
       error: (err) => {
         console.error('Component received registration error:', err);
         this.isLoading.set(false);
+        this.cdRef.markForCheck();
       },
     });
   }

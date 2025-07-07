@@ -1,4 +1,14 @@
-import {Component, effect, ElementRef, inject, OnDestroy, OnInit, Renderer2, ViewEncapsulation} from '@angular/core';
+import {
+  ChangeDetectionStrategy, ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  OnInit,
+  Renderer2,
+  ViewEncapsulation
+} from '@angular/core';
 import 'zone.js';
 import {
   CalendarDateFormatter,
@@ -11,7 +21,7 @@ import {
   CalendarWeekViewBeforeRenderEvent,
   DAYS_OF_WEEK,
 } from 'angular-calendar';
-import {Subject, Subscription} from 'rxjs';
+import {Subject} from 'rxjs';
 import {CommonModule} from '@angular/common';
 import {isSameDay, isSameMonth} from 'date-fns';
 import {CustomDateFormatter} from '../../../../../../core/providers/date-formatter.provider';
@@ -28,6 +38,7 @@ import {EventSummaryModel} from '../../../../../../core/models/event/event.model
 import {
   EventDetailsModalService
 } from '../../../../../../shared/domain/admin/event-details-modal/event-details-modal.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-event-calendar',
@@ -50,14 +61,17 @@ import {
       useClass: CustomEventTitleFormatter,
     },
   ],
+  changeDetection: ChangeDetectionStrategy .OnPush,
 })
-export class EventCalendarComponent implements OnInit, OnDestroy {
+export class EventCalendarComponent implements OnInit {
 
-  router = inject(Router);
-  eventService = inject(EventService);
-  userStructureService = inject(UserStructureService);
-  authService = inject(AuthService);
-  eventDetailsModalService = inject(EventDetailsModalService);
+  private router = inject(Router);
+  private eventService = inject(EventService);
+  private userStructureService = inject(UserStructureService);
+  private authService = inject(AuthService);
+  private eventDetailsModalService = inject(EventDetailsModalService);
+  private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   // Check if the user has permission to edit events
   get canEditEvents(): boolean {
@@ -89,8 +103,6 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
     'default': { primary: '#6c757d', secondary: '#e9ecef' } // Gris pour par défaut
   };
 
-  // Subscriptions pour le nettoyage
-  private subscriptions: Subscription[] = [];
 
   // Actions will be set in ngOnInit based on user role
   actions: CalendarEventAction[] = [];
@@ -171,11 +183,6 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    // Nettoyer les souscriptions
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-  }
-
   /**
    * Charge les événements de la structure de l'utilisateur
    * @param forceRefresh Force le rechargement depuis l'API
@@ -184,19 +191,21 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.error = null;
 
-    const sub = this.userStructureService.getUserStructureEvents(forceRefresh).subscribe({
+    this.userStructureService.getUserStructureEvents(forceRefresh)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (events) => {
         this.updateCalendarEvents(events);
         this.isLoading = false;
+        this.cdRef.markForCheck()
       },
       error: (error) => {
         console.error('Erreur lors du chargement des événements:', error);
         this.error = "Impossible de charger les événements";
         this.isLoading = false;
+        this.cdRef.markForCheck()
       }
     });
-
-    this.subscriptions.push(sub);
   }
 
   /**
@@ -306,7 +315,9 @@ export class EventCalendarComponent implements OnInit, OnDestroy {
     const dialogRef = this.eventDetailsModalService.openEventDetailsModal(eventId);
 
     // Optionnel : écouter la fermeture de la modale
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
       // Rafraîchir les événements si nécessaire
       if (result?.refreshNeeded) {
         this.refreshEvents();

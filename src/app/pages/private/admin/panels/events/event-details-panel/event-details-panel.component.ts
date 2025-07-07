@@ -1,17 +1,17 @@
 import {
-  AfterViewInit,
+  AfterViewInit, ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   ElementRef,
   inject,
-  OnDestroy,
   OnInit,
   ViewChild,
   ViewEncapsulation
 } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
-import {Subscription} from 'rxjs';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 // Angular Material Modules & Common Features
 import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
@@ -43,6 +43,8 @@ import {StatisticsService} from '../../../../../../core/services/domain/statisti
 import {EventModel} from '../../../../../../core/models/event/event.model';
 import {EventStatisticsDto} from '../../../../../../core/models/statistics/event-statistics.model';
 import {ChartJsDataDto} from '../../../../../../core/models/statistics/chart-js-data.model';
+import _default from 'chart.js/auto';
+
 
 // --- INTERFACES POUR LES DONNÉES (Alignées avec le HTML) ---
 
@@ -122,20 +124,20 @@ interface Participant {
   ],
   templateUrl: './event-details-panel.component.html',
   styleUrls: ['./event-details-panel.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class EventDetailsPanelComponent implements OnInit, AfterViewInit, OnDestroy {
+export class EventDetailsPanelComponent implements OnInit, AfterViewInit {
 
   private viewportScroller = inject(ViewportScroller);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private sanitizer = inject(DomSanitizer);
-  private cdr = inject(ChangeDetectorRef);
+  private cdRef = inject(ChangeDetectorRef);
   private snackBar = inject(MatSnackBar);
   private eventService = inject(EventService);
   private statisticsService = inject(StatisticsService);
-
-  private subscriptions: Subscription[] = [];
+  private destroyRef = inject(DestroyRef);
 
   event: EventDetails | null = null;
 
@@ -208,12 +210,13 @@ export class EventDetailsPanelComponent implements OnInit, AfterViewInit, OnDest
 
   ngOnInit(): void {
     // Handle fragment for scrolling
-    const fragmentSub = this.route.fragment.subscribe(fragment => {
-      if (fragment) {
-        this.viewportScroller.scrollToAnchor(fragment);
-      }
-    });
-    this.subscriptions.push(fragmentSub);
+    this.route.fragment
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(fragment => {
+        if (fragment) {
+          this.viewportScroller.scrollToAnchor(fragment);
+        }
+      });
 
     // Get event ID from route
     const eventId = this.route.snapshot.paramMap.get('id');
@@ -231,32 +234,36 @@ export class EventDetailsPanelComponent implements OnInit, AfterViewInit, OnDest
    */
   private loadEventDetails(eventId: number): void {
     // Load event details
-    const eventSub = this.eventService.getEventById(eventId).subscribe(
-      eventData => {
-        if (eventData) {
-          // Load event statistics
-          const statsSub = this.statisticsService.getEventStatistics(eventId).subscribe(
-            statsData => {
-              this.mapEventData(eventData, statsData);
-              this.cdr.detectChanges();
-            },
-            error => {
+    this.eventService.getEventById(eventId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (eventData) => {
+          if (eventData) {
+            // Load event statistics
+            this.statisticsService.getEventStatistics(eventId)
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe({
+                next: (statsData) => {
+                  this.mapEventData(eventData, statsData);
+                  this.cdRef.markForCheck();
+                },
+                error: (error)=> {
               console.error('Error loading event statistics:', error);
               this.mapEventData(eventData); // Still map event data even if stats fail
-              this.cdr.detectChanges();
+                  this.cdRef.markForCheck();
             }
-          );
-          this.subscriptions.push(statsSub);
-        } else {
-          this.snackBar.open(`Événement #${eventId} non trouvé.`, "Fermer", { duration: 3000 });
-        }
-      },
-      error => {
-        console.error('Error loading event details:', error);
-        this.snackBar.open(`Erreur lors du chargement de l'événement #${eventId}.`, "Fermer", { duration: 3000 });
-      }
-    );
-    this.subscriptions.push(eventSub);
+          });
+          } else {
+            this.snackBar.open(`Événement #${eventId} non trouvé.`, "Fermer", {duration: 3000});
+          }
+          this.cdRef.markForCheck();
+        },
+        error: (error)=> {
+      console.error('Error loading event details:', error);
+      this.snackBar.open(`Erreur lors du chargement de l'événement #${eventId}.`, "Fermer", {duration: 3000});
+    }
+  });
+
   }
 
   /**
@@ -410,14 +417,6 @@ export class EventDetailsPanelComponent implements OnInit, AfterViewInit, OnDest
     if (this.ticketStatusChart) {
       this.ticketStatusChart.update();
     }
-  }
-
-  /**
-   * Clean up subscriptions when the component is destroyed
-   */
-  ngOnDestroy(): void {
-    // Unsubscribe from all subscriptions
-    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   // --- Méthodes d'action de l'en-tête ---

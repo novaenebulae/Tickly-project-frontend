@@ -1,8 +1,6 @@
-import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 
 // Angular Material
 import {MatCardModule} from '@angular/material/card';
@@ -19,6 +17,7 @@ import {NotificationService} from '../../../../../../core/services/domain/utilit
 
 // Models
 import {TeamManagementService} from '../../../../../../core/services/domain/team-management/team-management.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-structure-panel',
@@ -35,14 +34,15 @@ import {TeamManagementService} from '../../../../../../core/services/domain/team
     MatChipsModule
   ],
   templateUrl: './structure-panel.component.html',
-  styleUrls: ['./structure-panel.component.scss']
+  styleUrls: ['./structure-panel.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class StructurePanelComponent implements OnInit, OnDestroy {
+export class StructurePanelComponent implements OnInit {
   private router = inject(Router);
   private userStructureService = inject(UserStructureService);
   private notification = inject(NotificationService);
-  private destroy$ = new Subject<void>();
   private teamManagementService = inject(TeamManagementService);
+  private destroyRef = inject(DestroyRef);
 
   // ✅ Utilisation des signaux des services
   private readonly userStructure = this.userStructureService.userStructure;
@@ -112,11 +112,6 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
     this.loadStatistics();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   /**
    * ✅ Charge les données de la structure utilisateur
    */
@@ -126,7 +121,7 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
 
     // Charger les espaces de la structure
     this.userStructureService.loadUserStructureAreas().pipe(
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe();
   }
 
@@ -136,7 +131,7 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
   private loadStatistics(): void {
     // Charger le nombre de membres d'équipe
     this.teamManagementService.loadTeamMembers().pipe(
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (members) => {
         this.teamCountSig.set(members.length);
@@ -148,7 +143,7 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
 
     // Charger le nombre d'événements
     this.userStructureService.getUserStructureEvents(true).pipe(
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (events) => {
         this.eventCountSig.set(events.length);
@@ -164,7 +159,7 @@ export class StructurePanelComponent implements OnInit, OnDestroy {
    */
   refreshData(): void {
     this.userStructureService.refreshUserStructure().pipe(
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: () => {
         this.loadStructureData();

@@ -9,7 +9,7 @@
     </button>
 
     <div class="image-container">
-      <img [src]="images[currentIndex]" />
+      <img ngSrc="{{images[currentIndex]}}" width="800" height="600" />
     </div>
 
     <button mat-icon-button class="nav-button next-button" (click)="nextImage()">
@@ -27,7 +27,7 @@
       class="thumbnail"
       [ngClass]="{'active': i === currentIndex}"
       (click)="goToImage(i)">
-      <img [src]="image" />
+      <img ngSrc="{{image}}" width="100" height="100" />
     </div>
   </div>
 </div>

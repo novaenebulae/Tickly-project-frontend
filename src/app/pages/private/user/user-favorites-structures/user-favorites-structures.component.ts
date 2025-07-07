@@ -1,4 +1,13 @@
-import {Component, computed, inject, signal, WritableSignal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+  WritableSignal
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
@@ -26,7 +35,7 @@ import {StructureSummaryModel} from '../../../../core/models/structure/structure
     StructureCardComponent
   ],
   templateUrl: './user-favorites-structures.component.html',
-  styleUrls: ['./user-favorites-structures.component.scss']
+  styleUrls: ['./user-favorites-structures.component.scss'],
 })
 export class UserFavoritesStructuresComponent {
   private favoritesService = inject(UserFavoritesService);
@@ -66,7 +75,7 @@ export class UserFavoritesStructuresComponent {
    * @param structure - La structure à ajouter/supprimer des favoris.
    */
   onToggleFavorite(structure: StructureSummaryModel): void {
-    this.favoritesService.toggleFavorite(structure.id).subscribe();
+    this.favoritesService.toggleFavorite(structure.id);
   }
 
   /**

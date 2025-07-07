@@ -6,7 +6,7 @@
  * @author VotreNomOuEquipe
  */
 
-import {inject, Injectable, signal, WritableSignal} from '@angular/core';
+import {DestroyRef, inject, Injectable, signal, WritableSignal} from '@angular/core';
 import {Observable, of, throwError} from 'rxjs';
 import {catchError, map, switchMap, tap} from 'rxjs/operators';
 
@@ -29,6 +29,7 @@ import {StructureAreaModel} from '../../../models/structure/structure-area.model
 // Configuration
 import {APP_CONFIG} from '../../../config/app-config';
 import {FileUploadResponseDto} from '../../../models/files/file-upload-response.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +38,7 @@ export class EventService {
   private eventApi = inject(EventApiService);
   private notification = inject(NotificationService);
   private authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
 
   // --- State Management using Signals ---
   private featuredEventsSig: WritableSignal<EventSummaryModel[]> = signal([]);
@@ -234,8 +236,12 @@ export class EventService {
             if (deletedEvent) { // If we had details, use them to know if lists need refresh
               this.refreshRelevantCachedLists(deletedEvent, true); // Mark as deleted for refresh logic
             } else { // If no details, refresh all potentially affected lists
-              this.refreshHomePageEvents(true).subscribe();
-              this.refreshFeaturedEvents(true).subscribe();
+              this.refreshHomePageEvents(true)
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe();
+              this.refreshFeaturedEvents(true)
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe();
             }
             this.notification.displayNotification('Événement supprimé avec succès.', 'valid');
           }),
@@ -419,10 +425,14 @@ export class EventService {
     }
 
     if (needsHomePageRefresh) {
-      this.refreshHomePageEvents(true).subscribe();
+      this.refreshHomePageEvents(true)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
     }
     if (needsFeaturedRefresh) {
-      this.refreshFeaturedEvents(true).subscribe();
+      this.refreshFeaturedEvents(true)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
     }
   }
 
@@ -607,7 +617,9 @@ export class EventService {
           this.notification.displayNotification('Photo principale téléchargée avec succès', 'valid');
         }
         // Refresh the event details cache if needed
-        this.getEventById(eventId, true).subscribe();
+        this.getEventById(eventId, true)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
       }),
       catchError(error => {
         this.handleError('Impossible de télécharger la photo principale', error);
@@ -639,7 +651,9 @@ export class EventService {
           'valid'
         );
         // Refresh the event details cache if needed
-        this.getEventById(eventId, true).subscribe();
+        this.getEventById(eventId, true)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
       }),
       catchError(error => {
         this.handleError('Impossible de télécharger les images de galerie', error);
@@ -668,7 +682,9 @@ export class EventService {
       tap(() => {
         this.notification.displayNotification('Image de galerie supprimée avec succès', 'valid');
         // Refresh the event details cache if needed
-        this.getEventById(eventId, true).subscribe();
+        this.getEventById(eventId, true)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe();
       }),
       catchError(error => {
         this.handleError('Impossible de supprimer l\'image de galerie', error);

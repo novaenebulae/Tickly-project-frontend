@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, OnDestroy, OnInit, Output} from '@angular/core';
+import {Component, DestroyRef, EventEmitter, inject, OnDestroy, OnInit, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatIconModule} from '@angular/material/icon';
@@ -11,6 +11,7 @@ import {NotificationService} from '../../../../core/services/domain/utilities/no
 
 // Models
 import {StructureTypeModel} from '../../../../core/models/structure/structure-type.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 // Interfaces pour les événements émis
 interface StructureFilters {
@@ -31,8 +32,8 @@ interface StructureSortOptions {
   templateUrl: './structure-filters.component.html',
   styleUrl: './structure-filters.component.scss'
 })
-export class StructureFiltersComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class StructureFiltersComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
 
   // Services
   private structureService = inject(StructureService);
@@ -60,18 +61,13 @@ export class StructureFiltersComponent implements OnInit, OnDestroy {
     this.loadStructureTypes();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   /**
    * Charge les types de structures depuis le service
    */
   private loadStructureTypes(): void {
     this.isLoadingTypes = true;
     this.structureService.getStructureTypes()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (types) => {
           this.structureTypes = types;

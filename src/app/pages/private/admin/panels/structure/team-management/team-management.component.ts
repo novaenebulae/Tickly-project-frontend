@@ -1,9 +1,7 @@
-import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 
 // Angular Material
 import {MatCardModule} from '@angular/material/card';
@@ -35,6 +33,7 @@ import {UserRole} from '../../../../../../core/models/user/user-role.enum';
 import {
   ConfirmationDialogComponent
 } from '../../../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-team-management',
@@ -59,16 +58,17 @@ import {
     MatDividerModule
   ],
   templateUrl: './team-management.component.html',
-  styleUrls: ['./team-management.component.scss']
+  styleUrls: ['./team-management.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TeamManagementComponent implements OnInit, OnDestroy {
+export class TeamManagementComponent implements OnInit {
   private router = inject(Router);
   private dialog = inject(MatDialog);
   private formBuilder = inject(FormBuilder);
   private teamService = inject(TeamManagementService);
   private notification = inject(NotificationService);
   private authService = inject(AuthService);
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   // ✅ Signaux du service
   protected readonly teamMembers = this.teamService.teamMembers;
@@ -125,17 +125,13 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
     this.loadTeamData();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   /**
    * ✅ Charge les données de l'équipe
    */
   protected loadTeamData(): void {
     this.teamService.loadTeamMembers().pipe(
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe({
       next: (members: TeamMember[]) => {
         // Trier les membres pour placer l'utilisateur actuel en premier
@@ -194,7 +190,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
       const { email, role } = this.inviteForm.value;
 
       this.teamService.inviteTeamMember(email, role).pipe(
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef)
       ).subscribe({
         next: (member) => {
           if (member) {
@@ -223,7 +219,7 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
     }
 
     this.teamService.updateTeamMemberRole(member.id, newRole).pipe(
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe();
   }
 
@@ -246,10 +242,12 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
       if (result) {
         this.teamService.removeTeamMember(member.id).pipe(
-          takeUntil(this.destroy$)
+          takeUntilDestroyed(this.destroyRef)
         ).subscribe();
       }
     });

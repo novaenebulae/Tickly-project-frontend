@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, Input, OnInit} from '@angular/core';
-import {CommonModule, DatePipe} from '@angular/common';
+import {CommonModule, DatePipe, NgOptimizedImage} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -13,6 +13,7 @@ import {EventSummaryModel} from '../../../../core/models/event/event.model';
   standalone: true,
   imports: [
     CommonModule,
+    NgOptimizedImage,
     RouterModule,
     MatButtonModule,
     MatIconModule,

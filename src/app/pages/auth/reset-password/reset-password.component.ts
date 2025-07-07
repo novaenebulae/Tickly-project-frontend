@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -11,6 +11,7 @@ import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {passwordMatchValidator} from '../../../shared/validators/password-match.validator';
 import {AuthApiService} from '../../../core/services/api/auth/auth-api.service';
 import {NotificationService} from '../../../core/services/domain/utilities/notification.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-reset-password',
@@ -27,7 +28,8 @@ import {NotificationService} from '../../../core/services/domain/utilities/notif
     MatProgressSpinnerModule
   ],
   templateUrl: './reset-password.component.html',
-  styleUrl: './reset-password.component.scss'
+  styleUrl: './reset-password.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResetPasswordComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
@@ -35,6 +37,8 @@ export class ResetPasswordComponent implements OnInit {
   private router = inject(Router);
   private authApiService = inject(AuthApiService);
   private notificationService = inject(NotificationService);
+  private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   // Signal pour indiquer si la requête est en cours
   isLoading = signal(false);
@@ -63,10 +67,13 @@ export class ResetPasswordComponent implements OnInit {
 
   ngOnInit(): void {
     // Récupérer le token depuis les paramètres de l'URL
-    this.route.queryParamMap.subscribe(params => {
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
       const tokenParam = params.get('token');
       if (tokenParam) {
         this.token.set(tokenParam);
+        this.cdRef.markForCheck();
       } else {
         // Rediriger si pas de token
         this.notificationService.displayNotification('Lien de réinitialisation invalide.', 'error');
@@ -87,14 +94,18 @@ export class ResetPasswordComponent implements OnInit {
         newPassword: this.resetPasswordForm.value.password
       };
 
-      this.authApiService.resetPassword(resetData).subscribe({
+      this.authApiService.resetPassword(resetData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: () => {
           this.isLoading.set(false);
           this.isSuccess.set(true);
+          this.cdRef.markForCheck();
         },
         error: (error) => {
           console.error('Erreur lors de la réinitialisation du mot de passe:', error);
           this.isLoading.set(false);
+          this.cdRef.markForCheck();
           // Le service de notification affiche déjà un message via handleAuthError
         }
       });

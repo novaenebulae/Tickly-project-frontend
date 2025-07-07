@@ -8,7 +8,7 @@
   <div *ngIf="images.length > 0" class="gallery-grid">
     <!-- Image principale (plus grande) -->
     <div class="gallery-item main-image" (click)="openGallery(0)">
-      <img [src]="images[0]" />
+      <img ngSrc="{{images[0]}}" width="400" height="300" />
       <div class="image-overlay">
         <mat-icon>zoom_in</mat-icon>
       </div>
@@ -17,7 +17,7 @@
     @if(images.length > 1) {
 
     <div class="gallery-item secondary-image" (click)="openGallery(1)">
-      <img [src]="images[1]" />
+      <img ngSrc="{{images[1]}}" width="200" height="200" />
       <div class="image-overlay">
         <mat-icon>zoom_in</mat-icon>
       </div>
@@ -28,7 +28,7 @@
     <div *ngFor="let image of images.slice(2, 4); let i = index"
          class="gallery-item tertiary-image"
          (click)="openGallery(i+1)">
-      <img [src]="image"  />
+      <img ngSrc="{{image}}" width="150" height="150" />
       <div class="image-overlay">
         <mat-icon>zoom_in</mat-icon>
       </div>
@@ -38,7 +38,7 @@
     <div *ngIf="images.length > 5"
          class="gallery-item view-more"
          (click)="openGallery(5)">
-      <img [src]="images[5]" />
+      <img ngSrc="{{images[5]}}" width="150" height="150" />
       <div class="view-more-overlay">
         <span>+{{ images.length - 5 }}</span>
         <p>Voir plus</p>

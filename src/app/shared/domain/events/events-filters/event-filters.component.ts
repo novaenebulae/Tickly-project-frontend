@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -15,6 +15,7 @@ import {debounceTime, takeUntil} from 'rxjs/operators';
 import {EventCategoryModel} from '../../../../core/models/event/event-category.model';
 import {CategoryService} from '../../../../core/services/domain/event/category.service';
 import {EventSearchParams} from '../../../../core/models/event/event-search-params.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 
 // Interface pour les options de tri
@@ -61,7 +62,7 @@ interface FilterState {
     MatNativeDateModule
   ]
 })
-export class EventFiltersComponent implements OnInit, OnDestroy {
+export class EventFiltersComponent implements OnInit {
   @Output() filtersChanged = new EventEmitter<FilterState>();
   @Input() initialFilters: Partial<FilterState> = {};
 
@@ -71,7 +72,8 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
 
   categoryService = inject(CategoryService);
 
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
+
   categoriesList:EventCategoryModel[] = [];
 
   // Options pour le tri
@@ -88,20 +90,14 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
    * Initialise le composant et le formulaire
    */
   ngOnInit(): void {
-    this.categoryService.loadCategories().subscribe(categories => {
+    this.categoryService.loadCategories()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(categories => {
       this.categoriesList = categories;
     })
     this.initForm();
     this.listenToFormChanges();
     // this.applyInitialFilters();
-  }
-
-  /**
-   * Nettoie les souscriptions lors de la destruction du composant
-   */
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   /**
@@ -128,7 +124,7 @@ export class EventFiltersComponent implements OnInit, OnDestroy {
     this.filtersForm.valueChanges
       .pipe(
         debounceTime(300), // Attendre 300ms après le dernier changement
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(formValue => {
         // Formater les filtres avant de les émettre

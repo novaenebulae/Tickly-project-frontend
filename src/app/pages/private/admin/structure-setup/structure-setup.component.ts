@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators,} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
@@ -22,6 +22,7 @@ import {NotificationService} from '../../../../core/services/domain/utilities/no
 import {StructureCreationDto, StructureCreationResponseDto} from '../../../../core/models/structure/structure.model';
 import {StructureTypeModel} from '../../../../core/models/structure/structure-type.model';
 import {StructureAddressModel} from '../../../../core/models/structure/structure-address.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-structure-setup',
@@ -54,6 +55,8 @@ export class StructureSetupComponent implements OnInit {
   private structureService = inject(StructureService);
   private router = inject(Router);
   private notificationService = inject(NotificationService);
+  private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     // Check if the user needs structure setup
@@ -89,18 +92,21 @@ export class StructureSetupComponent implements OnInit {
   }
 
   private loadStructureTypes(): void {
-    this.structureService.getStructureTypes().subscribe({
-      next: (types) => {
-        this.structureTypes.set(types);
-      },
-      error: (err) => {
-        console.error('Error loading structure types:', err);
-        this.notificationService.displayNotification(
-          'Impossible de charger les types de structures.',
-          'error'
-        );
-      }
-    });
+    this.structureService.getStructureTypes()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (types) => {
+          this.structureTypes.set(types);
+          this.cdRef.markForCheck();
+        },
+        error: (err) => {
+          console.error('Error loading structure types:', err);
+          this.notificationService.displayNotification(
+            'Impossible de charger les types de structures.',
+            'error'
+          );
+        }
+      });
   }
 
   onSubmit(): void {
@@ -126,21 +132,26 @@ export class StructureSetupComponent implements OnInit {
       socialsUrl: this.structureForm.get('socialsUrl')?.value,
     };
 
-    this.structureService.createStructure(structureData).subscribe({
-      next: (response: StructureCreationResponseDto) => {
-        this.isLoading.set(false);
-        // The structureService.createStructure method already handles navigation
-        // and token refresh if needed
-      },
-      error: (err) => {
-        console.error('Error creating structure:', err);
-        this.isLoading.set(false);
-        // The structureService.createStructure method already handles error notifications
-      }
-    });
+    this.structureService.createStructure(structureData)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: StructureCreationResponseDto) => {
+          this.isLoading.set(false);
+          this.cdRef.markForCheck();
+          // The structureService.createStructure method already handles navigation
+          // and token refresh if needed
+        },
+        error: (err) => {
+          console.error('Error creating structure:', err);
+          this.isLoading.set(false);
+          this.cdRef.markForCheck();
+          // The structureService.createStructure method already handles error notifications
+        }
+      });
   }
 
   onCancel(): void {
     this.router.navigate(['/']);
   }
+
 }

@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {CommonModule} from '@angular/common';
 import {MatButtonModule} from '@angular/material/button';
@@ -7,6 +7,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {AuthApiService} from '../../../core/services/api/auth/auth-api.service';
 import {AuthService} from '../../../core/services/domain/user/auth.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-validate-email',
@@ -20,13 +21,16 @@ import {AuthService} from '../../../core/services/domain/user/auth.service';
     MatProgressSpinnerModule
   ],
   templateUrl: './validate-email.component.html',
-  styleUrl: './validate-email.component.scss'
+  styleUrl: './validate-email.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ValidateEmailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private authApiService = inject(AuthApiService);
   private authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   isLoading = signal(true);
   isSuccess = signal(false);
@@ -34,13 +38,16 @@ export class ValidateEmailComponent implements OnInit {
 
   ngOnInit(): void {
     // Récupération du token depuis les paramètres de requête (query parameters)
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
       const token = params['token'];
       if (token) {
         this.validateEmail(token);
       } else {
         this.handleError('Token manquant dans l\'URL');
       }
+        this.cdRef.markForCheck();
     });
   }
 
@@ -49,7 +56,9 @@ export class ValidateEmailComponent implements OnInit {
    * @param token - Token de validation d'email
    */
   private validateEmail(token: string): void {
-    this.authApiService.validateEmail(token).subscribe({
+    this.authApiService.validateEmail(token)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (response) => {
         this.isLoading.set(false);
         this.isSuccess.set(true);
@@ -62,10 +71,12 @@ export class ValidateEmailComponent implements OnInit {
           // Si l'utilisateur a besoin de configurer une structure, il sera redirigé
           // vers la page de configuration de structure par le AuthService.navigateAfterLogin
         }
+        this.cdRef.markForCheck();
       },
       error: (error) => {
         this.isLoading.set(false);
         this.handleError(error.message || 'La validation de votre email a échoué.');
+        this.cdRef.markForCheck();
       }
     });
   }

@@ -1,16 +1,7 @@
 import {Routes} from '@angular/router';
 import {LoginGuard} from './core/guards/login.guard';
 import {PublicGuard} from './core/guards/public.guard';
-import {AuthComponent} from './pages/auth/auth/auth.component';
-import {RegisterPageComponent} from './pages/auth/register/register-page.component';
-import {publicRoutes} from './pages/public/public.routes';
-import {userRoutes} from './pages/private/user/user.routes';
-import {ValidateEmailComponent} from './pages/auth/validate-email/validate-email.component';
-import {
-  AccountDeletionConfirmationComponent
-} from './pages/auth/account-deletion-confirmation/account-deletion-confirmation.component';
 import {StaffGuard} from './core/guards/staff.guards';
-import {StructureSetupComponent} from './pages/private/admin/structure-setup/structure-setup.component';
 
 /**
  * Main application routes configuration
@@ -25,13 +16,15 @@ export const routes: Routes = [
 
   {
     path: 'login',
-    component: AuthComponent,
+    loadComponent: () => import('./pages/auth/auth/auth.component')
+      .then(m => m.AuthComponent),
     canActivate: [PublicGuard],
     title: 'Connexion | Tickly'
   },
   {
     path: 'register',
-    component: RegisterPageComponent,
+    loadComponent: () => import('./pages/auth/register/register-page.component')
+      .then(m => m.RegisterPageComponent),
     canActivate: [PublicGuard],
     title: 'Inscription | Tickly'
   },
@@ -52,7 +45,8 @@ export const routes: Routes = [
 
   {
     path: 'auth/validate-email',
-    component: ValidateEmailComponent,
+    loadComponent: () => import('./pages/auth/validate-email/validate-email.component')
+      .then(m => m.ValidateEmailComponent),
     title: 'Validation de l\'email | Tickly'
     // Note: Le token est passé en query parameter (?token=xyz) et non en paramètre de route
   },
@@ -66,7 +60,8 @@ export const routes: Routes = [
 
   {
     path: 'users/confirm-deletion', // Ce chemin correspond au lien dans l'email
-    component: AccountDeletionConfirmationComponent,
+    loadComponent: () => import('./pages/auth/account-deletion-confirmation/account-deletion-confirmation.component')
+      .then(m => m.AccountDeletionConfirmationComponent),
     title: 'Confirmation de suppression de compte'
   },
 
@@ -74,14 +69,15 @@ export const routes: Routes = [
   // User private area (requires authentication)
   {
     path: 'user',
-    canActivate: [LoginGuard],
-    children: userRoutes
+    loadChildren: () => import('./pages/private/user/user.routes').then(m => m.userRoutes),
+    canActivate: [LoginGuard]
   },
 
   // Manager area (for structure administrators)
   {
     path: 'create-structure',
-    component: StructureSetupComponent,
+    loadComponent: () => import('./pages/private/admin/structure-setup/structure-setup.component')
+      .then(m => m.StructureSetupComponent),
     canActivate: [LoginGuard], // Requires authentication
     title: 'Configuration de structure | Tickly'
   },
@@ -96,7 +92,10 @@ export const routes: Routes = [
 
 
   // Public area (default)
-  ...publicRoutes,
+  {
+    path: '',
+    loadChildren: () => import('./pages/public/public.routes').then(m => m.publicRoutes)
+  },
 
   // Fallback for unmatched routes
   {

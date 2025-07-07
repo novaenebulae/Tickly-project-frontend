@@ -16,6 +16,7 @@ interface AreaDialogData {
   structureId: number;
 }
 
+// @ts-ignore
 @Component({
   selector: 'app-area-edit-dialog',
   standalone: true,

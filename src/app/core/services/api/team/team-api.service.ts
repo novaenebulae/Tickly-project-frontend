@@ -1,7 +1,7 @@
 import {APP_CONFIG} from '../../../config/app-config';
 import {ApiConfigService} from '../api-config.service';
 import {inject, Injectable} from '@angular/core';
-import {Observable, throwError} from 'rxjs';
+import {Observable} from 'rxjs';
 import {InviteTeamMemberDto, TeamMember, UpdateTeamMemberDto} from '../../../models/user/team-member.model';
 import {catchError, tap} from 'rxjs/operators';
 import {HttpErrorResponse} from '@angular/common/http';

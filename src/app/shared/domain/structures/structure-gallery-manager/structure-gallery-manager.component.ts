@@ -1,16 +1,18 @@
-import {Component, computed, Inject, inject, signal} from '@angular/core';
+import {Component, computed, DestroyRef, Inject, inject, OnDestroy, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {finalize} from 'rxjs/operators';
+import {Subject} from 'rxjs';
+import {finalize, takeUntil} from 'rxjs/operators';
 
 import {StructureModel} from '../../../../core/models/structure/structure.model';
 import {UserStructureService} from '../../../../core/services/domain/user-structure/user-structure.service';
 import {NotificationService} from '../../../../core/services/domain/utilities/notification.service';
 import {FileUploadResponseDto} from '../../../../core/models/files/file-upload-response.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 interface GalleryDialogData {
   structure: StructureModel;
@@ -179,6 +181,7 @@ interface GalleryDialogData {
 export class StructureGalleryManagerComponent {
   private userStructureService = inject(UserStructureService);
   private notificationService = inject(NotificationService);
+  private destroyRef = inject(DestroyRef);
 
   // Signals pour l'état
   private selectedFilesSig = signal<File[]>([]);
@@ -230,6 +233,7 @@ export class StructureGalleryManagerComponent {
 
     // ✅ CORRECTION : Utiliser uploadMultipleGalleryImages au lieu de forkJoin
     this.userStructureService.uploadMultipleGalleryImages(this.data.structure.id!, files).pipe(
+      takeUntilDestroyed(this.destroyRef),
       finalize(() => {
         this.isUploadingSig.set(false);
         this.selectedFilesSig.set([]);
@@ -288,6 +292,7 @@ export class StructureGalleryManagerComponent {
     const imagePath = this.extractFileNameFromUrl(imageUrl);
 
     this.userStructureService.deleteGalleryImage(this.data.structure.id!, imagePath).pipe(
+      takeUntilDestroyed(this.destroyRef),
       finalize(() => {
         this.isDeletingSig.set(false);
       })
@@ -320,4 +325,5 @@ export class StructureGalleryManagerComponent {
   onCancel(): void {
     this.dialogRef.close();
   }
+
 }

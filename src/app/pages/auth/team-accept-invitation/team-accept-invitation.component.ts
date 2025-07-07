@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
@@ -9,6 +9,7 @@ import {TeamApiService} from '../../../core/services/api/team/team-api.service';
 import {AuthService} from '../../../core/services/domain/user/auth.service';
 import {NotificationService} from '../../../core/services/domain/utilities/notification.service';
 import {UserService} from '../../../core/services/domain/user/user.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-team-accept-invitation',
@@ -20,6 +21,7 @@ import {UserService} from '../../../core/services/domain/user/user.service';
     MatIconModule,
     MatProgressSpinnerModule
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="accept-invitation-container">
       <mat-card class="invitation-card">
@@ -168,6 +170,8 @@ export class TeamAcceptInvitationComponent implements OnInit {
   private authService = inject(AuthService);
   private notification = inject(NotificationService);
   private userService = inject(UserService);
+  private destroyRef = inject(DestroyRef)
+  private cdRef = inject(ChangeDetectorRef);
 
   protected isLoading = signal(true);
   protected invitationStatus = signal<'success' | 'error' | 'already-accepted' | null>(null);
@@ -193,7 +197,9 @@ export class TeamAcceptInvitationComponent implements OnInit {
   private acceptInvitationDirectly(): void {
     if (!this.token) return;
 
-    this.teamApiService.acceptInvitation(this.token).subscribe({
+    this.teamApiService.acceptInvitation(this.token)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (response) => {
         this.invitationStatus.set('success');
         this.notification.displayNotification(
@@ -216,9 +222,11 @@ export class TeamAcceptInvitationComponent implements OnInit {
         } else {
           this.handleError(error.message || 'Erreur lors de l\'acceptation de l\'invitation.');
         }
+        this.cdRef.markForCheck();
       },
       complete: () => {
         this.isLoading.set(false);
+        this.cdRef.markForCheck();
       }
     });
   }

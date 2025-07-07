@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
 import {MatButtonModule} from '@angular/material/button';
@@ -38,7 +38,8 @@ import {EventSummaryModel} from '../../../../core/models/event/event.model';
         ], { optional: true })
       ])
     ])
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EventsDisplayComponent {
   // Inputs
@@ -46,7 +47,7 @@ export class EventsDisplayComponent {
   @Input() displayMode: 'grid' | 'list' = 'grid';
   @Input() isLoading: boolean = false;
   @Input() totalItems: number = 0;
-  @Input() pageSize: number = 9;
+  @Input() pageSize: number = 8;
   @Input() currentPage: number = 1;
   @Input() showFilters: boolean = true;
 
@@ -56,10 +57,10 @@ export class EventsDisplayComponent {
   @Output() displayModeChanged = new EventEmitter<'grid' | 'list'>();
 
   // Variables pour l'affichage conditionnel
-  skeletonArray = Array(48).fill(0);
+  skeletonArray = Array(24).fill(0);
 
   // Propriétés pour la pagination
-  pageSizeOptions: number[] = [3, 6, 9, 12, 24, 48];
+  pageSizeOptions: number[] = [8, 16, 24, 48];
 
   onDisplayModeChange(mode: 'grid' | 'list'): void {
     if (this.displayMode !== mode) {

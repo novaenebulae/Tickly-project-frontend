@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, signal} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -9,6 +9,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {Router, RouterModule} from '@angular/router';
 import {AuthService} from '../../../core/services/domain/user/auth.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-forgot-password',
@@ -25,12 +26,16 @@ import {AuthService} from '../../../core/services/domain/user/auth.service';
     MatProgressSpinnerModule
   ],
   templateUrl: './forgot-password.component.html',
-  styleUrl: './forgot-password.component.scss'
+  styleUrl: './forgot-password.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
+
 export class ForgotPasswordComponent {
   private formBuilder = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   // Signal pour indiquer si la requête est en cours
   isLoading = signal(false);
@@ -51,14 +56,18 @@ export class ForgotPasswordComponent {
       this.isLoading.set(true);
       const email = this.forgotPasswordForm.value.email;
 
-      this.authService.requestPasswordReset(email).subscribe({
+      this.authService.requestPasswordReset(email)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: () => {
           this.isLoading.set(false);
           this.isSuccess.set(true);
+          this.cdRef.markForCheck();
         },
         error: (error) => {
           console.error('Erreur lors de la demande de réinitialisation:', error);
           this.isLoading.set(false);
+          this.cdRef.markForCheck();
           // Pas besoin de message d'erreur spécifique car le service affiche déjà une notification
         }
       });

@@ -3,16 +3,15 @@ import {
   ChangeDetectorRef,
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
-  OnDestroy,
   OnInit,
   signal
 } from '@angular/core';
 import {CommonModule, Location} from '@angular/common';
 import {Router} from '@angular/router';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Subscription} from 'rxjs';
 import {finalize} from 'rxjs/operators';
 
 // Importation des Modules Angular Material
@@ -56,7 +55,7 @@ import {EventStatus} from '../../../../../../core/models/event/event.model';
   styleUrls: ['./structure-edit.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class StructureEditComponent implements OnInit, OnDestroy {
+export class StructureEditComponent implements OnInit {
 
   // --- Injections ---
   private fb = inject(FormBuilder);
@@ -69,6 +68,7 @@ export class StructureEditComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
   private eventService = inject(EventService);
+  private destroyRef = inject(DestroyRef);
 
   // --- Signals pour la gestion d'état ---
   private isLoadingSig = signal(false);
@@ -113,8 +113,6 @@ export class StructureEditComponent implements OnInit, OnDestroy {
   isUploadingCover = signal(false);
   isUploadingGallery = signal(false);
 
-  // Pour cleanup
-  private subscriptions = new Subscription();
 
   constructor() {
     this.structureForm = this.createStructureForm();
@@ -135,10 +133,6 @@ export class StructureEditComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadInitialData();
     this.checkForPublishedEvents();
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
   }
 
   /**

@@ -24,6 +24,7 @@ import {
 import {TicketModel} from '../../../models/tickets/ticket.model';
 import {ParticipantInfoModel} from '../../../models/tickets/participant-info.model';
 import {TicketPdfService} from './ticket-pdf.service';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Injectable({
   providedIn: 'root'
@@ -48,7 +49,9 @@ export class TicketService {
     effect(() => {
       const isLoggedIn = this.authService.isLoggedIn();
       if (isLoggedIn) {
-        this.loadMyTickets(true).subscribe();
+        this.loadMyTickets(true)
+          .pipe(takeUntilDestroyed())
+          .subscribe();
       } else {
         this.myTicketsSig.set([]);
         this.selectedTicketDetailSig.set(undefined);

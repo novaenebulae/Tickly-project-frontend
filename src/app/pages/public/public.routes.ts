@@ -1,11 +1,4 @@
 import {Routes} from '@angular/router';
-import {LandingPageComponent} from './landing-page/landing-page.component';
-import {AllEventsPageComponent} from './events/all-events-page/all-events-page.component';
-import {EventDetailsPageComponent} from './events/event-details-page/event-details-page.component';
-import {AllStructuresPageComponent} from './structures/all-structures-page/all-structures-page.component';
-import {
-  EventTicketReservationPageComponent
-} from '../private/user/event-ticket-reservation-page/event-ticket-reservation-page.component';
 import {LoginGuard} from '../../core/guards/login.guard';
 
 /**
@@ -21,7 +14,8 @@ export const publicRoutes: Routes = [
       // Home page / Landing page
       {
         path: '',
-        component: LandingPageComponent,
+        loadComponent: () => import('./landing-page/landing-page.component')
+          .then(m => m.LandingPageComponent),
         pathMatch: 'full',
         title: 'Accueil | Tickly'
       },
@@ -33,19 +27,22 @@ export const publicRoutes: Routes = [
           // All events listing
           {
             path: '',
-            component: AllEventsPageComponent,
+            loadComponent: () => import('./events/all-events-page/all-events-page.component')
+              .then(m => m.AllEventsPageComponent),
             title: 'Événements | Tickly'
           },
           // Single event details
           {
             path: ':id',
-            component: EventDetailsPageComponent,
+            loadComponent: () => import('./events/event-details-page/event-details-page.component')
+              .then(m => m.EventDetailsPageComponent),
             title: 'Détails de l\'événement | Tickly'
           },
           // Event ticket booking (requires authentication)
           {
             path: ':id/booking',
-            component: EventTicketReservationPageComponent,
+            loadComponent: () => import('../private/user/event-ticket-reservation-page/event-ticket-reservation-page.component')
+              .then(m => m.EventTicketReservationPageComponent),
             canActivate: [LoginGuard],
             title: 'Réserver des billets | Tickly'
           }
@@ -59,7 +56,8 @@ export const publicRoutes: Routes = [
           // All structures listing
           {
             path: '',
-            component: AllStructuresPageComponent,
+            loadComponent: () => import('./structures/all-structures-page/all-structures-page.component')
+              .then(m => m.AllStructuresPageComponent),
             title: 'Structures | Tickly'
           },
           // Single structure details (commented until implemented)

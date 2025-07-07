@@ -1,6 +1,4 @@
 import {Routes} from '@angular/router';
-import {UserTicketsPage} from './user-tickets-page/user-tickets-page.component';
-import {UserFavoritesStructuresComponent} from './user-favorites-structures/user-favorites-structures.component';
 
 /**
  * User private area routes configuration
@@ -19,7 +17,8 @@ export const userRoutes: Routes = [
   // User tickets management
   {
     path: 'tickets',
-    component: UserTicketsPage,
+    loadComponent: () => import('./user-tickets-page/user-tickets-page.component')
+      .then(m => m.UserTicketsPage),
     title: 'Mes Billets | Tickly'
   },
 
@@ -37,7 +36,8 @@ export const userRoutes: Routes = [
   // },
   {
     path: 'favorites',
-    component: UserFavoritesStructuresComponent,
+    loadComponent: () => import('./user-favorites-structures/user-favorites-structures.component')
+      .then(m => m.UserFavoritesStructuresComponent),
     title: 'Mes Favoris | Tickly'
   }
 ];

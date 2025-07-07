@@ -7,7 +7,7 @@
 
 import {inject, Injectable} from '@angular/core';
 import {HttpErrorResponse, HttpParams} from '@angular/common/http'; // HttpParams might not be needed if no query params for some methods
-import {Observable, throwError} from 'rxjs';
+import {Observable} from 'rxjs';
 import {catchError, tap} from 'rxjs/operators';
 
 import {ApiConfigService} from '../api-config.service';

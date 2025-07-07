@@ -1,6 +1,7 @@
 import {
+  ChangeDetectionStrategy, ChangeDetectorRef,
   Component,
-  computed,
+  computed, DestroyRef,
   effect,
   ElementRef,
   inject,
@@ -53,6 +54,7 @@ import {UserStructureService} from '../../../../../../core/services/domain/user-
 import {EventDataDto, EventModel, EventStatus} from '../../../../../../core/models/event/event.model';
 import {EventAudienceZone} from '../../../../../../core/models/event/event-audience-zone.model';
 import {StructureAreaModel} from '../../../../../../core/models/structure/structure-area.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 interface FieldModificationMatrix {
   name: boolean;
@@ -93,7 +95,8 @@ interface FieldModificationMatrix {
     EventAreasZonesSelectionComponent,
   ],
   templateUrl: './event-form.component.html',
-  styleUrls: ['./event-form.component.scss']
+  styleUrls: ['./event-form.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventFormComponent implements OnInit {
   // ViewChild pour les inputs de fichier
@@ -108,6 +111,8 @@ export class EventFormComponent implements OnInit {
   private userStructureService = inject(UserStructureService);
   private notification = inject(NotificationService);
   private dialog = inject(MatDialog);
+  private cdRef = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
 
   // Inputs
   @Input() eventId?: number;
@@ -285,15 +290,20 @@ export class EventFormComponent implements OnInit {
 
   ngOnInit(): void {
     // Get eventId from route if not provided as input
-    this.route.params.subscribe(params => {
+    this.route.params
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
       if (params['id']) {
         this.eventId = +params['id'];
         this.modeSig.set('edit');
+        this.cdRef.markForCheck()
       }
     });
 
     // Load categories
-    this.categoryService.loadCategories().subscribe();
+    this.categoryService.loadCategories()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
 
     // Initialize based on mode
     if (this.eventId && this.modeSig() === 'edit') {
@@ -303,8 +313,11 @@ export class EventFormComponent implements OnInit {
     }
 
     // Listen for status changes in the config form
-    this.configForm.get('status')?.valueChanges.subscribe(status => {
+    this.configForm.get('status')?.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(status => {
       this.currentEventStatusSig.set(status);
+      this.cdRef.markForCheck()
     });
   }
 
@@ -425,7 +438,9 @@ export class EventFormComponent implements OnInit {
     if (!this.eventId) return;
 
     this.isLoadingEventSig.set(true);
-    this.eventService.getEventById(this.eventId, true).subscribe({
+    this.eventService.getEventById(this.eventId, true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (event) => {
         if (event) {
           this.eventToEditSig.set(event);
@@ -435,6 +450,7 @@ export class EventFormComponent implements OnInit {
           this.router.navigate(['/admin/events']);
         }
         this.isLoadingEventSig.set(false);
+        this.cdRef.markForCheck()
       },
       error: (error) => {
         this.notification.displayNotification(
@@ -442,6 +458,7 @@ export class EventFormComponent implements OnInit {
           'error'
         );
         this.isLoadingEventSig.set(false);
+        this.cdRef.markForCheck()
         this.router.navigate(['/admin/events']);
       }
     });
@@ -857,7 +874,9 @@ export class EventFormComponent implements OnInit {
    */
   private updateEventStatus(eventId: number, newStatus: EventStatus): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-      this.eventService.updateEventStatus(eventId, newStatus).subscribe({
+      this.eventService.updateEventStatus(eventId, newStatus)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: (result) => {
           if (result) {
             this.notification.displayNotification(`Statut de l'événement mis à jour en : ${newStatus}`, 'valid');
@@ -865,6 +884,7 @@ export class EventFormComponent implements OnInit {
           } else {
             reject(new Error('Failed to update event status'));
           }
+          this.cdRef.markForCheck()
         },
         error: (error) => {
           this.notification.displayNotification('Erreur lors de la mise à jour du statut de l\'événement', 'error');
@@ -937,7 +957,9 @@ export class EventFormComponent implements OnInit {
       // Différentes logiques pour création et mise à jour
       if (this.modeSig() === 'create') {
         // Pour la création, on crée d'abord l'événement, puis on upload les fichiers
-        this.eventService.createEvent(eventData).subscribe({
+        this.eventService.createEvent(eventData)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
           next: (createdEvent) => {
             if (createdEvent?.id) {
               // Stocker l'ID de l'événement créé
@@ -973,17 +995,21 @@ export class EventFormComponent implements OnInit {
               this.notification.displayNotification('Erreur lors de la création de l\'événement', 'error');
               this.isSubmittingSig.set(false);
             }
+            this.cdRef.markForCheck()
           },
           error: (error) => {
             this.notification.displayNotification('Erreur lors de la création de l\'événement', 'error');
             this.isSubmittingSig.set(false);
+            this.cdRef.markForCheck()
           }
         });
       } else {
         // Pour la mise à jour, on peut uploader les fichiers en même temps
         this.uploadFilesAndBuildEventData().then(eventDataWithFiles => {
           // First update the event data
-          this.eventService.updateEvent(this.eventId!, eventDataWithFiles).subscribe({
+          this.eventService.updateEvent(this.eventId!, eventDataWithFiles)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
             next: (result) => {
               if (result) {
                 // Check if the status has changed
@@ -1009,15 +1035,18 @@ export class EventFormComponent implements OnInit {
               } else {
                 this.isSubmittingSig.set(false);
               }
+              this.cdRef.markForCheck()
             },
             error: (error) => {
               this.notification.displayNotification('Erreur lors de la modification de l\'événement', 'error');
               this.isSubmittingSig.set(false);
+              this.cdRef.markForCheck()
             }
           });
         }).catch(error => {
           this.notification.displayNotification('Erreur lors de l\'upload des fichiers', 'error');
           this.isSubmittingSig.set(false);
+          this.cdRef.markForCheck()
         });
       }
     });
@@ -1080,7 +1109,9 @@ export class EventFormComponent implements OnInit {
 
         // Wait for each deletion to complete before moving to the next
         await new Promise<void>((resolve, reject) => {
-          this.eventService.deleteGalleryImage(this.eventId!, imagePath).subscribe({
+          this.eventService.deleteGalleryImage(this.eventId!, imagePath)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
             next: () => {
               console.log(`Successfully deleted image: ${imagePath}`);
               resolve();
@@ -1116,7 +1147,9 @@ export class EventFormComponent implements OnInit {
     if (!this.eventId || this.additionalPhotoFiles.length === 0) return [];
 
     return new Promise<string[]>((resolve, reject) => {
-      this.eventService.uploadGalleryImages(this.eventId!, this.additionalPhotoFiles).subscribe({
+      this.eventService.uploadGalleryImages(this.eventId!, this.additionalPhotoFiles)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: (responses) => {
           const urls = responses.map(response => response.fileUrl);
           resolve(urls);
@@ -1176,7 +1209,9 @@ export class EventFormComponent implements OnInit {
       // Upload main photo if exists
       if (this.mainPhotoFile) {
         await new Promise<void>((resolve, reject) => {
-          this.eventService.uploadMainPhoto(eventId, this.mainPhotoFile!).subscribe({
+          this.eventService.uploadMainPhoto(eventId, this.mainPhotoFile!)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
             next: () => resolve(),
             error: (err) => reject(err)
           });
@@ -1186,7 +1221,9 @@ export class EventFormComponent implements OnInit {
       // Upload all additional photos at once if any
       if (this.additionalPhotoFiles.length > 0) {
         await new Promise<void>((resolve, reject) => {
-          this.eventService.uploadGalleryImages(eventId, this.additionalPhotoFiles).subscribe({
+          this.eventService.uploadGalleryImages(eventId, this.additionalPhotoFiles)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
             next: () => resolve(),
             error: (err) => reject(err)
           });
@@ -1214,7 +1251,9 @@ export class EventFormComponent implements OnInit {
     if (isMainPhoto) {
       // Upload main photo
       return new Promise((resolve, reject) => {
-        this.eventService.uploadMainPhoto(eventId, file).subscribe({
+        this.eventService.uploadMainPhoto(eventId, file)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
           next: (response) => {
             resolve(response.fileUrl);
           },

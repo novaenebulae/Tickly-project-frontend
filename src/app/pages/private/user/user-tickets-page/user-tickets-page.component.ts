@@ -1,4 +1,13 @@
-import {Component, computed, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {MatTabsModule} from '@angular/material/tabs';
@@ -8,8 +17,6 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 
 import {TicketService} from '../../../../core/services/domain/ticket/ticket.service';
 import {TicketModel} from '../../../../core/models/tickets/ticket.model';
@@ -17,6 +24,8 @@ import {TicketStatus} from '../../../../core/models/tickets/ticket-status.enum';
 import {
   TicketDetailModalComponent
 } from '../../../../shared/domain/users/ticket-detail-modal/ticket-detail-modal.component';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {finalize} from 'rxjs/operators';
 
 @Component({
   selector: 'app-user-tickets-page',
@@ -33,12 +42,14 @@ import {
     MatDialogModule
   ],
   templateUrl: './user-tickets-page.component.html',
-  styleUrls: ['./user-tickets-page.component.scss']
+  styleUrls: ['./user-tickets-page.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserTicketsPage implements OnInit, OnDestroy {
+export class UserTicketsPage implements OnInit {
   private ticketService = inject(TicketService);
   private dialog = inject(MatDialog);
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   // État de l'application
   allTickets = computed(() => this.ticketService.myTickets());
@@ -97,25 +108,17 @@ export class UserTicketsPage implements OnInit, OnDestroy {
     this.loadTickets();
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   private loadTickets(): void {
     window.scrollTo({ top: 0, behavior: 'instant'});
     this.isLoading.set(true);
 
     this.ticketService.loadMyTickets(true).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: () => {
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.isLoading.set(false);
-      }
-    });
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => {
+      this.isLoading.set(false);
+      this.cdRef.markForCheck();
+      })
+    ).subscribe();
   }
 
   /**
@@ -123,7 +126,7 @@ export class UserTicketsPage implements OnInit, OnDestroy {
    */
   downloadEventPdfs(tickets: TicketModel[]): void {
     const ticketIds = tickets.map(ticket => ticket.id);
-    this.ticketService.downloadMultipleTicketsPdf(ticketIds).subscribe();
+    this.ticketService.downloadMultipleTicketsPdf(ticketIds);
   }
 
   /**
@@ -141,9 +144,12 @@ export class UserTicketsPage implements OnInit, OnDestroy {
       data: { ticket: tickets }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
       if (result?.action === 'refresh') {
         this.loadTickets();
+        this.cdRef.markForCheck();
       }
     });
   }

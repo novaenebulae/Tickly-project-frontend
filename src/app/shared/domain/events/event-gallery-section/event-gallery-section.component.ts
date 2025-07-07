@@ -1,5 +1,5 @@
-import {Component, Input} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
@@ -9,9 +9,10 @@ import {GalleryCarouselDialogComponent} from '../gallery-carousel-dialog/gallery
 @Component({
   selector: 'app-event-gallery-section',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule, MatDialogModule],
+  imports: [CommonModule, NgOptimizedImage, MatIconModule, MatButtonModule, MatDialogModule],
   templateUrl: './event-gallery-section.component.html',
-  styleUrl: './event-gallery-section.component.scss'
+  styleUrl: './event-gallery-section.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EventGallerySectionComponent {
   @Input() images: string[] = [];

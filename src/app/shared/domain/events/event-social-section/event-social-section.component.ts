@@ -1,10 +1,12 @@
-import {Component, inject, Input, OnInit} from '@angular/core';
+import {Component, DestroyRef, inject, Input, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import {FriendshipService} from '../../../../core/services/domain/user/friendship.service';
-import {catchError, of} from 'rxjs';
+import {catchError, of, Subject} from 'rxjs';
 import {FriendParticipantDto} from '../../../../core/models/friendship/friend-participant.dto';
+import {takeUntil} from 'rxjs/operators';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-event-social-section',
@@ -20,6 +22,7 @@ import {FriendParticipantDto} from '../../../../core/models/friendship/friend-pa
 export class EventSocialSectionComponent implements OnInit {
   @Input() eventId: number = 0;
 
+  private destroyRef = inject(DestroyRef);
   private friendshipService = inject(FriendshipService)
 
   attendingFriends: FriendParticipantDto[] = [];
@@ -38,6 +41,7 @@ export class EventSocialSectionComponent implements OnInit {
     this.hasError = false;
 
     this.friendshipService.getFriendsAttendingEvent(this.eventId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .pipe(
         catchError(() => {
           this.hasError = true;

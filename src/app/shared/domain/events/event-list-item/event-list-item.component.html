@@ -2,8 +2,9 @@
   <div class="event-list-item" matRipple>
     <!-- Section Image -->
     <div class="event-list-item__image-area">
-      <img [src]="event.mainPhotoUrl || 'https://picsum.photos/seed/' + event.id + '/300/200'"
+      <img ngSrc="{{event.mainPhotoUrl || 'https://picsum.photos/seed/' + event.id + '/300/200'}}"
            [alt]="'Image pour ' + event.name"
+           width="300" height="200"
            class="event-list-item__image">
       @if (event.featuredEvent) {
         <div class="event-list-item__featured-banner">

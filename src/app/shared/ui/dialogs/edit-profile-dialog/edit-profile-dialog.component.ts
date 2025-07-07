@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, effect, inject, OnInit, signal} from '@angular/core';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {CommonModule} from '@angular/common';
@@ -21,6 +21,7 @@ import {
   ConfirmationDialogComponent,
   ConfirmationDialogData
 } from '../confirmation-dialog/confirmation-dialog.component';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 /**
  * Interface pour les données du dialogue
@@ -59,6 +60,9 @@ export class EditProfileDialogComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<EditProfileDialogComponent>);
   public data = inject(MAT_DIALOG_DATA) as EditProfileDialogData;
   private dialog = inject(MatDialog);
+
+  // Subject pour gérer les souscriptions
+  private destroyRef = inject(DestroyRef);
 
   // Formulaire
   profileForm!: FormGroup;
@@ -152,20 +156,22 @@ export class EditProfileDialogComponent implements OnInit {
       this.isUploadingAvatar.set(true);
 
       // Le service utilisateur gère l'appel API et la mise à jour
-      this.userService.uploadUserAvatar(file).subscribe({
-        next: (updatedUser) => {
-          // L'effect() dans le constructor se chargera de mettre à jour l'affichage
-          // car le signal currentUser() du UserService aura été mis à jour
-        },
-        error: () => {
-          this.isUploadingAvatar.set(false);
-          input.value = '';
-        },
-        complete: () => {
-          this.isUploadingAvatar.set(false);
-          input.value = '';
-        }
-      });
+      this.userService.uploadUserAvatar(file)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (updatedUser) => {
+            // L'effect() dans le constructor se chargera de mettre à jour l'affichage
+            // car le signal currentUser() du UserService aura été mis à jour
+          },
+          error: () => {
+            this.isUploadingAvatar.set(false);
+            input.value = '';
+          },
+          complete: () => {
+            this.isUploadingAvatar.set(false);
+            input.value = '';
+          }
+        });
     }
   }
 
@@ -226,6 +232,7 @@ export class EditProfileDialogComponent implements OnInit {
 
     // Utiliser la méthode correcte du UserService
     this.userService.updateCurrentUserProfile(profileUpdateDto)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updatedUser) => {
           this.isUpdatingProfile.set(false);
@@ -260,6 +267,7 @@ export class EditProfileDialogComponent implements OnInit {
     this.isRequestingPasswordReset.set(true);
 
     this.authService.requestPasswordReset(this.data.user.email)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.isRequestingPasswordReset.set(false);
@@ -299,11 +307,13 @@ export class EditProfileDialogComponent implements OnInit {
       disableClose: true
     });
 
-    confirmDialogRef.afterClosed().subscribe(confirmed => {
-      if (confirmed) {
-        this.proceedWithAccountDeletion();
-      }
-    });
+    confirmDialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(confirmed => {
+        if (confirmed) {
+          this.proceedWithAccountDeletion();
+        }
+      });
   }
 
   /**
@@ -312,19 +322,21 @@ export class EditProfileDialogComponent implements OnInit {
   private proceedWithAccountDeletion(): void {
     this.isRequestingAccountDeletion.set(true);
 
-    this.userService.requestAccountDeletion().subscribe({
-      next: (success: boolean) => {
-        this.isRequestingAccountDeletion.set(false);
-        if (success) {
-          // Fermer le dialogue après succès
-          this.authService.logout();
-          this.dialogRef.close();
+    this.userService.requestAccountDeletion()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (success: boolean) => {
+          this.isRequestingAccountDeletion.set(false);
+          if (success) {
+            // Fermer le dialogue après succès
+            this.authService.logout();
+            this.dialogRef.close();
+          }
+        },
+        error: () => {
+          this.isRequestingAccountDeletion.set(false);
         }
-      },
-      error: () => {
-        this.isRequestingAccountDeletion.set(false);
-      }
-    });
+      });
   }
 
 

@@ -5,7 +5,7 @@
  * @author VotreNomOuEquipe
  */
 
-import {ChangeDetectionStrategy, Component, inject, signal} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, signal} from '@angular/core';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatInputModule} from '@angular/material/input';
@@ -17,6 +17,7 @@ import {CommonModule} from '@angular/common';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {LoginCredentials} from '../../../core/models/auth/auth.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-auth',
@@ -40,6 +41,8 @@ import {LoginCredentials} from '../../../core/models/auth/auth.model';
 export class AuthComponent {
   private formBuilder = inject(FormBuilder);
   private authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   /**
    * Signal indicating whether login operation is in progress
@@ -81,22 +84,25 @@ export class AuthComponent {
 
       const keepLoggedIn = Boolean(this.formulaire.value.keepLoggedIn);
 
-      this.authService.login(credentials, keepLoggedIn).subscribe({
-        next: (success) => {
-          if (success) {
-            console.log('AuthComponent: Login successful (navigation handled by AuthService).');
-          }
-          this.isLoading.set(false);
-        },
-        error: (err) => {
-          console.error('AuthComponent: Login error:', err);
-          this.isLoading.set(false);
-        },
-      });
+      this.authService.login(credentials, keepLoggedIn)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (success) => {
+            if (success) {
+              console.log('AuthComponent: Login successful (navigation handled by AuthService).');
+            }
+            this.isLoading.set(false);
+            this.cdRef.markForCheck();
+          },
+          error: (err) => {
+            console.error('AuthComponent: Login error:', err);
+            this.isLoading.set(false);
+            this.cdRef.markForCheck();
+          },
+        });
     } else {
       console.warn('AuthComponent: Login form is invalid');
     }
   }
-
 
 }

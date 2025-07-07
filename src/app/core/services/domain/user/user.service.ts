@@ -17,6 +17,7 @@ import {NotificationService} from '../utilities/notification.service';
 import {UserModel} from '../../../models/user/user.model';
 import {UserProfileUpdateDto} from '../../../models/user/user-profile-update.dto';
 import {UserFavoriteStructureModel} from '../../../models/user/user-favorite-structure.model';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 // ChangePasswordDto is removed as this logic will be in AuthService
 
@@ -54,7 +55,8 @@ export class UserService {
         const currentProfileData = untracked(() => this.currentUserProfileDataSig());
 
         if (!currentProfileData || currentProfileData.id !== authUser.userId) {
-          this.getCurrentUserProfile(true).subscribe(profile => {
+          this.getCurrentUserProfile(true)
+            .subscribe(profile => {
             if (profile) {
               this.currentUserProfileDataSig.set(profile);
             } else {

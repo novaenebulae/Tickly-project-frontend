@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
@@ -7,6 +7,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 import {UserService} from '../../../core/services/domain/user/user.service';
 import {AuthService} from "../../../core/services/domain/user/auth.service";
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 type DeletionStatus = 'loading' | 'success' | 'error';
 
@@ -21,12 +22,15 @@ type DeletionStatus = 'loading' | 'success' | 'error';
     RouterLink,
     MatButtonModule,
     MatProgressSpinnerModule,
-  ]
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccountDeletionConfirmationComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private userService = inject(UserService);
   private authService = inject(AuthService);
+  private destroyRef = inject(DestroyRef);
+  private cdRef = inject(ChangeDetectorRef);
 
   public status = signal<DeletionStatus>('loading');
   public errorMessage = signal<string>('');
@@ -46,14 +50,17 @@ export class AccountDeletionConfirmationComponent implements OnInit {
     }
 
     this.userService.confirmAccountDeletion(token)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.status.set('success');
+          this.cdRef.markForCheck();
         },
         error: (err) => {
           this.status.set('error');
           const message = err?.error?.message || 'Une erreur est survenue.';
           this.errorMessage.set(`Impossible de supprimer le compte. ${message} Le lien a peut-être expiré.`);
+          this.cdRef.markForCheck();
         }
       });
   }
