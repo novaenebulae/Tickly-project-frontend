@@ -1,9 +1,20 @@
 <!-- Section Héros Dynamique -->
 <section class="hero-section">
   @for (slide of heroSlides; track slide.imageUrl; let i = $index) {
-    <div class="hero-slide"
-         [style.background-image]="'url(' + slide.imageUrl + ')'"
-         [class.active]="i === currentHeroSlideIndex()">
+    <!-- Chaque slide est maintenant un conteneur simple -->
+    <div class="hero-slide" [class.active]="i === currentHeroSlideIndex()">
+
+      <!-- On utilise une balise <img> avec ngSrc -->
+      <!-- L'attribut `priority` est ajouté pour la première image (LCP) -->
+      <!-- Les autres images seront lazy-loaded automatiquement -->
+      <img
+        [ngSrc]="slide.imageUrl"
+        [priority]="i === 0"
+        fill
+        [alt]="slide.altText"
+        class="hero-slide__image"
+      >
+
       <div class="hero-slide__overlay"></div>
       <div class="hero-slide__content container">
         <h1 class="hero-slide__title">{{ slide.title }}</h1>

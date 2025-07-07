@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDialogModule} from '@angular/material/dialog';
@@ -11,7 +11,8 @@ import {MatDialogModule} from '@angular/material/dialog';
     CommonModule,
     MatIconModule,
     MatButtonModule,
-    MatDialogModule
+    MatDialogModule,
+    NgOptimizedImage
   ],
   templateUrl: './structure-gallery.component.html',
   styleUrls: ['./structure-gallery.component.scss']

@@ -16,7 +16,7 @@ import {
   signal,
   WritableSignal
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {FriendshipService} from '../../../../core/services/domain/user/friendship.service';
@@ -27,7 +27,7 @@ import {FriendParticipantDto} from '../../../../core/models/friendship/friend-pa
 @Component({
   selector: 'app-event-social-section',
   standalone: true,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatIconModule, NgOptimizedImage],
   templateUrl: './event-social-section.component.html',
   styleUrls: ['./event-social-section.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

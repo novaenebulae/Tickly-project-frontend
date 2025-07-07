@@ -41,7 +41,7 @@
 
         <!-- Logo à droite -->
         <div class="structure-logo" *ngIf="structure.logoUrl">
-          <img [src]="structure.logoUrl" [alt]="structure.name + ' logo'"/>
+          <img [ngSrc]="structure.logoUrl" [alt]="structure.name + ' logo'" fill/>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {RouterModule} from '@angular/router'; // Pour les routerLink
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon'; // Si vous utilisez des icônes Material pour le logo ou autre
@@ -13,7 +13,8 @@ import {MatIconModule} from '@angular/material/icon'; // Si vous utilisez des ic
     CommonModule,
     RouterModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    NgOptimizedImage
   ]
 })
 export class FooterComponent implements OnInit {

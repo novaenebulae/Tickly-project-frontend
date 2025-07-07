@@ -91,6 +91,7 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
     opacity: 0;
     transition: opacity 1s ease-in-out, transform 1s ease-in-out; // Transition en fondu + léger zoom/dézoom
     transform: scale(1.05); // Zoom initial léger
+    overflow: hidden;
 
     &.active {
       opacity: 1;
@@ -120,6 +121,12 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
       color: $light-text-color;
       padding: 20px;
       animation: fadeInContent 1.5s ease-out forwards; // Animation d'entrée du contenu
+    }
+
+    &__image {
+      object-fit: cover;
+      object-position: center;
+      z-index: -1;
     }
 
     &__title {

@@ -11,7 +11,7 @@ import {
   signal,
   ViewChild
 } from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {Router, RouterLink, RouterLinkActive} from '@angular/router';
 import {MatIconModule} from '@angular/material/icon';
 import {MatMenuModule, MatMenuTrigger} from '@angular/material/menu';
@@ -47,7 +47,8 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
     MatMenuModule,
     MatButtonModule,
     MatDividerModule,
-    MatBadgeModule
+    MatBadgeModule,
+    NgOptimizedImage
   ],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],

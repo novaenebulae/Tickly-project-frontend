@@ -30,10 +30,10 @@
         <div class="friend-avatar">
           <img
             *ngIf="friend.avatarUrl"
-            [src]="friend.avatarUrl"
+            [ngSrc]="friend.avatarUrl"
             [alt]="getFriendFullName(friend)"
             loading="lazy"
-          />
+            fill/>
           <div *ngIf="!friend.avatarUrl" class="default-avatar">
             {{ getFriendInitials(friend) }}
           </div>

@@ -41,8 +41,8 @@ API documentation : 'docs/api-documentation.md'
     - [X] Optimize change detection strategies
     - [X] Use OnPush change detection where appropriate
 
-9. [ ] **Asset Optimization**
-    - [ ] Use ngSrc for image display
+9. [X] **Asset Optimization**
+    - [X] Use ngSrc for image display
 
 ## UI/UX Improvements
 

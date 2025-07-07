@@ -2,7 +2,7 @@
   <!-- En-tête -->
   <div mat-dialog-title class="modal-header">
     <div class="event-banner" *ngIf="eventInfo.mainPhotoUrl">
-      <img [src]="eventInfo.mainPhotoUrl" [alt]="eventInfo.name">
+      <img [ngSrc]="eventInfo.mainPhotoUrl" [alt]="eventInfo.name" fill>
 
       <!-- Information de l'événement en superposition -->
       <div class="event-overlay">

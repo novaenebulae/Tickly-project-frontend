@@ -10,6 +10,7 @@ import {MenuItem, MenuItemComponent} from '../../domain/admin/menu-item/menu-ite
 import {UserStructureService} from '../../../core/services/domain/user-structure/user-structure.service';
 import {AuthService} from '../../../core/services/domain/user/auth.service';
 import {UserRole} from '../../../core/models/user/user-role.enum';
+import {NgOptimizedImage} from '@angular/common';
 
 @Component({
   selector: 'app-admin-sidenav',
@@ -21,8 +22,9 @@ import {UserRole} from '../../../core/models/user/user-role.enum';
     MatSidenavModule,
     RouterModule,
     MenuItemComponent,
-    MatProgressSpinnerModule
-],
+    MatProgressSpinnerModule,
+    NgOptimizedImage
+  ],
   templateUrl: './admin-sidenav.component.html',
   styleUrl: './admin-sidenav.component.scss',
 })

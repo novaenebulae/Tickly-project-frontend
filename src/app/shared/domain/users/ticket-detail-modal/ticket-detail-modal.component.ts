@@ -8,7 +8,7 @@ import {
   OnDestroy,
   signal
 } from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -39,7 +39,8 @@ export interface TicketDetailModalData {
     MatCardModule,
     MatChipsModule,
     QRCodeComponent,
-    MatProgressSpinner
+    MatProgressSpinner,
+    NgOptimizedImage
   ],
   templateUrl: './ticket-detail-modal.component.html',
   styleUrls: ['./ticket-detail-modal.component.scss'],
