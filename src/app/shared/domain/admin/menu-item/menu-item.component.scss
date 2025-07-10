@@ -1,17 +1,17 @@
 :host * {
-  transition: all 500ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: var(--transition-medium) !important;
 }
 
 .selected-menu-item {
-  border-left-color: blue !important;
-  background: rgba(0,0,0,0.05) !important;
+  border-left-color: var(--primary) !important;
+  background: rgba(90, 72, 245, 0.05) !important; // var(--primary) with 5% opacity
 }
 
 .menu-item {
-    border-left: 5px solid;
-    border-left-color: rgba(0,0,0,0);
+  border-left: var(--spacing-xs) solid;
+  border-left-color: transparent;
 }
 
 .indented {
-    --mat-list-list-item-leading-icon-start-space: 48px
+  --mat-list-list-item-leading-icon-start-space: 48px;
 }

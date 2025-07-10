@@ -1,9 +1,10 @@
 .section-title {
-  font-size: 2rem;
-  font-weight: 600;
-  color: var(--text-color);
-  margin-bottom: 2rem;
+  font-size: 24px; // Heading 2 size
+  font-weight: 600; // SemiBold
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xl);
   position: relative;
+  letter-spacing: 0px; // From design guidelines
 
   &:after {
     content: '';
@@ -12,7 +13,7 @@
     left: 0;
     width: 60px;
     height: 4px;
-    background: var(--primary-color);
-    border-radius: 2px;
+    background: var(--primary);
+    border-radius: var(--border-radius-small);
   }
 }

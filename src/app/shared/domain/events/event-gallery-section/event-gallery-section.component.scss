@@ -1,11 +1,12 @@
 .event-gallery-section {
 
   .section-title {
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--text-color);
-    margin-bottom: 2rem;
+    font-size: 24px; // Heading 2 size
+    font-weight: 600; // SemiBold
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xl);
     position: relative;
+    letter-spacing: 0px; // From design guidelines
 
     &:after {
       content: '';
@@ -14,25 +15,25 @@
       left: 0;
       width: 60px;
       height: 4px;
-      background: var(--primary-color);
-      border-radius: 2px;
+      background: var(--primary);
+      border-radius: var(--border-radius-small);
     }
   }
 
   .no-images {
-    background-color: #f5f5f5;
-    padding: 2rem;
+    background-color: var(--background);
+    padding: var(--spacing-xl);
     text-align: center;
-    border-radius: 8px;
-    color: #666;
+    border-radius: var(--border-radius-medium);
+    color: var(--text-secondary);
   }
 
   .gallery-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(2, 200px);
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
 
     @media (max-width: 768px) {
       grid-template-columns: repeat(2, 1fr);
@@ -49,11 +50,13 @@
     position: relative;
     overflow: hidden;
     cursor: pointer;
-    border-radius: 8px;
-    transition: transform 0.3s ease;
+    border-radius: var(--border-radius-medium);
+    transition: var(--transition-medium);
+    box-shadow: var(--shadow-sm);
 
     &:hover {
       transform: scale(1.02);
+      box-shadow: var(--shadow-md);
 
       .image-overlay, .view-more-overlay {
         opacity: 1;
@@ -78,13 +81,13 @@
       align-items: center;
       justify-content: center;
       opacity: 0;
-      transition: opacity 0.3s ease;
+      transition: var(--transition-fast);
 
       mat-icon {
-        color: white;
-        font-size: 2rem;
-        height: 2rem;
-        width: 2rem;
+        color: var(--text-on-primary);
+        font-size: 32px;
+        height: 32px;
+        width: 32px;
       }
     }
 
@@ -100,17 +103,20 @@
       align-items: center;
       justify-content: center;
       opacity: 0;
-      transition: opacity 0.3s ease;
+      transition: var(--transition-fast);
 
       span {
-        font-size: 2rem;
-        font-weight: bold;
-        color: white;
+        font-size: 32px; // Heading 1 size
+        font-weight: 700; // Bold
+        color: var(--text-on-primary);
+        letter-spacing: -0.25px; // From design guidelines
       }
 
       p {
-        margin-top: 0.5rem;
-        color: white;
+        margin-top: var(--spacing-sm);
+        color: var(--text-on-primary);
+        font-size: 16px; // Body Default size
+        letter-spacing: 0px; // From design guidelines
       }
     }
   }
@@ -162,11 +168,11 @@
   .gallery-actions {
     display: flex;
     justify-content: center;
-    margin-top: 1rem;
+    margin-top: var(--spacing-md);
 
     button {
       mat-icon {
-        margin-right: 0.5rem;
+        margin-right: var(--spacing-sm);
       }
     }
   }

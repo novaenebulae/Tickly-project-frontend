@@ -1,31 +1,29 @@
-// Variables
-$primary: #6c63ff;
-$secondary: #4cc9f0;
-$accent: #f72585;
-$light: #f8f9fa;
-$dark: #343a40;
-$gray: #adb5bd;
+// Variable pour le chemin de la texture
+$page-header-texture-path: url('../../../../../../public/textures/header-texture.svg');
 
-  // En-tête de la page
-  .header-section {
-    background: linear-gradient(135deg, $primary, $secondary);
-    color: $light;
-    padding: 3rem 1.5rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
+// En-tête de la page
+.header-section {
+  background: var(--primary-gradient);
+  color: var(--text-on-primary);
+  padding: var(--spacing-xxl) var(--spacing-lg);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+
+  .header-texture-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='rgba(255,255,255,0.05)' fill-rule='evenodd'/%3E%3C/svg%3E");
-      opacity: 0.2;
-    }
+    height: 100%;
+    background-image: $page-header-texture-path;
+    background-repeat: repeat;
+    background-size: 100px;
+    scale: 3;
+    //opacity: 0.05;
+    z-index: 0;
+  }
 
     .header-content {
       position: relative;
@@ -37,29 +35,39 @@ $gray: #adb5bd;
         animation: fadeInUp 0.8s ease-out;
 
         .main-title {
-          font-size: 2.8rem;
-          font-weight: 700;
-          margin-bottom: 1rem;
-          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          font-size: 32px; // Heading 1 from design guidelines
+          font-weight: 700; // Bold
+          margin-bottom: var(--spacing-md);
+          text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          letter-spacing: -0.25px; // From design guidelines
+
+          @media (max-width: 768px) {
+            font-size: 28px; // Mobile heading 1 size
+          }
         }
 
         .subtitle {
-          font-size: 1.2rem;
-          font-weight: 300;
+          font-size: 18px; // Body Large from design guidelines
+          font-weight: 400; // Regular
           margin-bottom: 0;
           max-width: 800px;
           margin: 0 auto;
+
+          @media (max-width: 768px) {
+            font-size: 17px; // Mobile body large size
+          }
         }
       }
     }
   }
 
     .page-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 2rem;
-    color: $dark;
+    font-size: 32px; // Heading 1 from design guidelines
+    font-weight: 700; // Bold
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-primary);
     position: relative;
+    letter-spacing: -0.25px; // From design guidelines
 
     &:after {
       content: '';
@@ -68,15 +76,15 @@ $gray: #adb5bd;
       bottom: -0.5rem;
       width: 6rem;
       height: 4px;
-      background: linear-gradient(to right, $primary, $secondary);
-      border-radius: 2px;
+      background: var(--primary-gradient);
+      border-radius: var(--border-radius-small);
     }
   }
 
 // Styles de page
 .structures-page {
   margin: 0 auto;
-  padding: 2rem 0;
+  padding: var(--spacing-lg) 0;
   width: 90vw;
 }
 
@@ -84,26 +92,30 @@ $gray: #adb5bd;
 // Pas de résultats
 .no-results {
   text-align: center;
-  padding: 4rem 2rem;
-  background: $light;
-  border-radius: 12px;
+  padding: var(--spacing-xxl) var(--spacing-lg);
+  background: var(--surface);
+  border-radius: var(--border-radius-medium);
+  box-shadow: var(--shadow-sm);
 
   i {
-    font-size: 3rem;
-    color: $gray;
-    margin-bottom: 1rem;
+    font-size: 48px;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+    opacity: 0.9; // Better contrast
   }
 
   h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: $dark;
+    font-size: 24px; // Heading 2 from design guidelines
+    font-weight: 600; // SemiBold
+    margin-bottom: var(--spacing-xs);
+    color: var(--text-primary);
+    letter-spacing: 0px; // From design guidelines
   }
 
   p {
-    color: $gray;
-    max-width: 25rem;
+    font-size: 16px; // Body Default from design guidelines
+    color: var(--text-secondary);
+    max-width: 500px;
     margin: 0 auto;
   }
 }
@@ -153,8 +165,8 @@ $gray: #adb5bd;
 
 // Pagination
 mat-paginator {
-  margin-top: 2rem;
-  border-radius: 12px;
+  margin-top: var(--spacing-xl);
+  border-radius: var(--border-radius-medium);
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
 }

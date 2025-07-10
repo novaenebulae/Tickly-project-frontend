@@ -1,55 +1,35 @@
-// Variables de la palette
-$primary-color: #0A2A4E; // Bleu marine foncé
-$accent-color: #FF8C42; // Orange corail vif
-$secondary-color: #3A7CA5; // Bleu moyen
-$light-text-color: #F8F9FA;
-$dark-text-color: #212529;
-$section-bg-light: #FFFFFF;
-$section-bg-darker: #f0f4f8;
-
-// Mixins pour faciliter la réutilisation
-@mixin card-shadow($intensity: 1) {
-  box-shadow: 0 #{4px * $intensity} #{8px * $intensity} rgba(0, 0, 0, 0.05 * $intensity);
-}
-
-@mixin flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-@mixin transition-ease {
-  transition: all 0.25s ease;
-}
+// Using theme variables instead of local variables
 
 // Styles de base pour l'élément de liste d'événements
 .event-list-item {
   display: flex;
   position: relative;
-  background-color: $section-bg-light;
-  border-radius: 12px;
+  background-color: var(--surface);
+  border-radius: var(--border-radius-medium);
   overflow: hidden;
-  @include card-shadow(1);
-  @include transition-ease;
-  margin-bottom: 1.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-medium);
+  margin-bottom: var(--spacing-lg);
+  border: var(--border-width) solid var(--border);
   height: 220px; // Hauteur fixe pour toutes les cartes
 
   &:hover {
-    @include card-shadow(1.5);
+    box-shadow: var(--shadow-md);
     transform: translateY(-2px);
   }
 
   // Mode placeholder (chargement)
   &--placeholder {
-    padding: 2rem;
+    padding: var(--spacing-xl);
     text-align: center;
-    color: rgba($dark-text-color, 0.6);
+    color: var(--text-secondary);
     font-style: italic;
     height: 220px; // Même hauteur que les cartes normales
-    @include flex-center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-direction: column;
-    background: linear-gradient(to right, $section-bg-darker 8%, $section-bg-light 18%, $section-bg-darker 33%);
+    background: linear-gradient(to right, var(--background) 8%, var(--surface) 18%, var(--background) 33%);
     background-size: 800px 104px;
     animation: shimmer 1.5s infinite linear;
   }
@@ -82,7 +62,7 @@ $section-bg-darker: #f0f4f8;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    @include transition-ease;
+    transition: var(--transition-medium);
 
     .event-list-item:hover & {
       transform: scale(1.05);
@@ -92,78 +72,80 @@ $section-bg-darker: #f0f4f8;
   // Banner "À la une"
   &__featured-banner {
     position: absolute;
-    top: 12px;
+    top: var(--spacing-md);
     left: 0;
-    background-color: $accent-color;
-    color: $light-text-color;
-    padding: 0.25rem 0.75rem 0.25rem 0.5rem;
-    border-radius: 0 20px 20px 0;
-    font-size: 0.8rem;
-    font-weight: 600;
+    background-color: var(--accent);
+    color: var(--text-on-accent);
+    padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) var(--spacing-xs);
+    border-radius: 0 var(--border-radius-large) var(--border-radius-large) 0;
+    font-size: 12px; // Label size
+    font-weight: 600; // SemiBold
+    letter-spacing: 0.5px; // From design guidelines
     display: flex;
     align-items: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-sm);
     z-index: 2;
 
     mat-icon {
       font-size: 18px;
       height: 18px;
       width: 18px;
-      margin-right: 0.25rem;
+      margin-right: var(--spacing-xs);
     }
   }
 
   // Zone de contenu principal
   &__content-area {
     flex: 1;
-    padding: 1.25rem;
+    padding: var(--spacing-lg);
     display: flex;
     flex-direction: column;
     cursor: pointer;
     overflow: hidden; // Empêche le débordement du contenu
 
     @media (max-width: 576px) {
-      padding: 0.75rem;
+      padding: var(--spacing-md);
     }
   }
 
   // En-tête
   &__header {
-    margin-bottom: 0.75rem;
+    margin-bottom: var(--spacing-md);
   }
 
   &__header-top {
     display: flex;
     flex-direction: column;
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--spacing-sm);
   }
 
   &__category-container {
     display: flex;
-    gap: 15px;
-    margin-bottom: 0.5rem;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
   }
 
   &__category {
     display: inline-block;
-    font-size: 0.7rem;
-    font-weight: 700;
+    font-size: 12px; // Label size
+    font-weight: 500; // Medium
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: $secondary-color;
-    margin-bottom: 0.25rem;
-    background-color: rgba($secondary-color, 0.1);
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
+    letter-spacing: 0.5px; // From design guidelines
+    color: var(--primary);
+    margin-bottom: var(--spacing-xs);
+    background-color: rgba(90, 72, 245, 0.1); // var(--primary) with 10% opacity
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-small);
     align-self: flex-start;
   }
 
   &__title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: $primary-color;
-    margin: 0 0 0.5rem;
-    line-height: 1.2;
+    font-size: 20px; // Heading 3 size
+    font-weight: 600; // SemiBold
+    color: var(--text-primary);
+    margin: 0 0 var(--spacing-sm);
+    line-height: 1.4;
+    letter-spacing: 0px; // From design guidelines
     // Limiter à 2 lignes avec ellipsis
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -171,8 +153,8 @@ $section-bg-darker: #f0f4f8;
     overflow: hidden;
 
     @media (max-width: 576px) {
-      font-size: 1.1rem;
-      -webkit-line-clamp: 2; // Réduire à 1 ligne sur petit écran
+      font-size: 18px; // Slightly smaller heading for very small screens
+      -webkit-line-clamp: 2;
     }
   }
 
@@ -181,10 +163,11 @@ $section-bg-darker: #f0f4f8;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 0.5rem;
-    font-size: 0.85rem;
-    color: rgba($dark-text-color, 0.7);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    font-size: 14px; // Body Small size
+    color: var(--text-secondary);
+    letter-spacing: 0.1px; // From design guidelines
 
     .meta-item {
       display: flex;
@@ -194,8 +177,8 @@ $section-bg-darker: #f0f4f8;
         font-size: 16px;
         height: 16px;
         width: 16px;
-        margin-right: 0.25rem;
-        color: $secondary-color;
+        margin-right: var(--spacing-xs);
+        color: var(--primary);
       }
     }
   }
@@ -205,39 +188,42 @@ $section-bg-darker: #f0f4f8;
     margin-left: auto;
 
     .free-event {
-      background-color: #10b981; // Vert pour les événements gratuits
+      background-color: var(--success);
       color: white;
-      font-weight: 700;
-      font-size: 0.8rem;
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
+      font-weight: 600; // SemiBold
+      font-size: 12px; // Label size
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--border-radius-small);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.5px; // From design guidelines
     }
 
     .price {
-      background-color: $accent-color;
-      color: white;
-      font-weight: 700;
-      font-size: 0.85rem;
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
+      background-color: var(--accent);
+      color: var(--text-on-accent);
+      font-weight: 600; // SemiBold
+      font-size: 12px; // Label size
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--border-radius-small);
+      letter-spacing: 0.5px; // From design guidelines
     }
 
     .price-na {
-      color: rgba($dark-text-color, 0.5);
-      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-size: 12px; // Label size
       font-style: italic;
+      letter-spacing: 0.5px; // From design guidelines
     }
   }
 
   // Description de l'événement
   &__description {
-    font-size: 0.9rem;
+    font-size: 14px; // Body Small size
     line-height: 1.5;
-    color: rgba($dark-text-color, 0.75);
-    margin-top: 0.5rem;
+    color: var(--text-secondary);
+    margin-top: var(--spacing-sm);
     margin-bottom: 0;
+    letter-spacing: 0.1px; // From design guidelines
     // Limiter à 2 lignes avec ellipsis
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -257,8 +243,8 @@ $section-bg-darker: #f0f4f8;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: $section-bg-darker;
-    padding: 1rem;
+    background-color: var(--background);
+    padding: var(--spacing-md);
 
     @media (max-width: 992px) {
       width: 140px;
@@ -272,7 +258,7 @@ $section-bg-darker: #f0f4f8;
   &__buttons {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: var(--spacing-md);
     width: 100%;
   }
 
@@ -281,33 +267,34 @@ $section-bg-darker: #f0f4f8;
     display: flex !important;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.25px;
-    @include transition-ease;
+    padding: var(--spacing-sm) !important;
+    border-radius: var(--border-radius-medium) !important;
+    font-weight: 500 !important; // Medium
+    font-size: 14px !important; // Button size
+    letter-spacing: 0.25px !important; // From design guidelines
+    transition: var(--transition-fast);
 
     mat-icon {
-      margin-right: 0.5rem;
+      margin-right: var(--spacing-sm);
     }
 
     &--white {
-      background-color: white !important;
-      color: $primary-color !important;
-      border: 1px solid rgba($primary-color, 0.2) !important;
+      background-color: var(--surface) !important;
+      color: var(--primary) !important;
+      border: var(--border-width) solid rgba(90, 72, 245, 0.2) !important; // var(--primary) with 20% opacity
 
       &:hover {
-        background-color: rgba($primary-color, 0.05) !important;
+        background-color: rgba(90, 72, 245, 0.05) !important; // var(--primary) with 5% opacity
         transform: translateY(-2px);
       }
     }
 
     &--blue {
-      background-color: $primary-color !important;
-      color: white !important;
+      background: var(--primary-gradient) !important;
+      color: var(--text-on-primary) !important;
 
       &:hover {
-        background-color: darken($primary-color, 5%) !important;
+        box-shadow: var(--shadow-md) !important;
         transform: translateY(-2px);
       }
     }
@@ -347,8 +334,13 @@ $section-bg-darker: #f0f4f8;
     }
 
     &__meta {
-      gap: 0.5rem;
-      font-size: 0.75rem;
+      gap: var(--spacing-xs);
+      font-size: 13px; // Mobile Body Small size
+    }
+
+    &__title {
+      font-size: 16px; // Body Default size
+      margin-bottom: var(--spacing-xs);
     }
   }
 }

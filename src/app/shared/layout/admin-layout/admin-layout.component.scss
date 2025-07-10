@@ -7,7 +7,8 @@ mat-sidenav-content {
   padding: 0 16px;
   height: fit-content;
   min-height: calc(100vh - 60px);
-
+  //position: sticky;
+  //top: 0;
 }
 
 mat-sidenav-content {

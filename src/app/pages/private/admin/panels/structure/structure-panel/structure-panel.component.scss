@@ -1,45 +1,41 @@
 .structure-panel-container {
-  padding: 24px;
+  padding: var(--spacing-lg);
   max-width: 1400px;
   margin: 0 auto;
 
-  // 🎨 Variables de couleurs
-  --primary-color: #1976d2;
-  --accent-color: #f06292;
-  --warn-color: #f44336;
-  --success-color: #4caf50;
+  // 🎨 Using theme color variables
   --zones-color: #ff9800;
-  --team-color: #9c27b0;
-  --events-color: #00bcd4;
+  --team-color: var(--twilight-purple);
+  --events-color: var(--twilight-blue);
 
   // 📱 Responsive
   @media (max-width: 768px) {
-    padding: 16px;
+    padding: var(--spacing-md);
   }
 }
 
 .dashboard-header {
   display: flex;
   flex-direction: column;
-  margin-bottom: 32px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: var(--spacing-xl);
+  background: var(--primary-gradient);
+  color: var(--text-on-primary);
+  border-radius: var(--border-radius-large);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
   animation: fadeInUp 0.6s ease-out;
 
   .header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: var(--spacing-md);
   }
 
   .header-left {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: var(--spacing-md);
   }
 
   .structure-avatar {
@@ -74,24 +70,24 @@
       margin: 0;
       font-size: 28px;
       font-weight: 500;
-      color: white;
+      color: var(--text-on-primary);
     }
 
     .structure-name-row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: var(--spacing-sm);
       flex-wrap: wrap;
     }
 
     .structure-name {
-      margin: 4px 0 0 0;
-      font-size: 16px;
+      margin: var(--spacing-xs) 0 0 0;
+      font-size: var(--font-size-base);
       color: rgba(255, 255, 255, 0.8);
     }
 
     .status-chip {
-      margin: 4px 0 0 0;
+      margin: var(--spacing-xs) 0 0 0;
       font-weight: 500;
 
       mat-icon {
@@ -105,20 +101,22 @@
   .header-actions {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--spacing-sm);
 
     .refresh-btn {
       color: rgba(255, 255, 255, 0.8);
+      transition: var(--transition-fast);
 
       &:hover {
-        color: white;
+        color: var(--text-on-primary);
         background: rgba(255, 255, 255, 0.1);
       }
     }
 
     button {
-      color: white;
+      color: var(--text-on-primary);
       border-color: rgba(255, 255, 255, 0.3);
+      transition: var(--transition-fast);
 
       &:hover {
         background: rgba(255, 255, 255, 0.1);
@@ -139,30 +137,30 @@
 
 // 📊 Section Statistiques
 .stats-section {
-  margin-bottom: 32px;
+  margin-bottom: var(--spacing-xl);
 
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
+    gap: var(--spacing-md);
   }
 
   .stat-card {
-    border-radius: 12px;
-    transition: all 0.3s ease;
+    border-radius: var(--border-radius-medium);
+    transition: var(--transition-medium);
     border-left: 4px solid transparent;
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--shadow-lg);
     }
 
     &.zones-card {
       border-left-color: var(--zones-color);
 
       .zones-icon {
-        background: linear-gradient(45deg, #ff9800, #ffb74d);
-        color: white;
+        background: linear-gradient(45deg, var(--zones-color), #ffb74d);
+        color: var(--text-on-primary);
       }
     }
 
@@ -170,8 +168,8 @@
       border-left-color: var(--team-color);
 
       .team-icon {
-        background: linear-gradient(45deg, #9c27b0, #ba68c8);
-        color: white;
+        background: linear-gradient(45deg, var(--team-color), #ba68c8);
+        color: var(--text-on-primary);
       }
     }
 
@@ -179,16 +177,16 @@
       border-left-color: var(--events-color);
 
       .events-icon {
-        background: linear-gradient(45deg, #00bcd4, #4dd0e1);
-        color: white;
+        background: linear-gradient(45deg, var(--events-color), #4dd0e1);
+        color: var(--text-on-primary);
       }
     }
 
     .stat-content {
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin-bottom: 16px;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
     }
 
     .stat-icon {
@@ -214,13 +212,13 @@
         font-size: 2rem;
         font-weight: 700;
         line-height: 1;
-        color: #333;
+        color: var(--text-primary);
       }
 
       .stat-label {
         font-size: 0.875rem;
-        color: #666;
-        margin-top: 4px;
+        color: var(--text-secondary);
+        margin-top: var(--spacing-xs);
       }
     }
 
@@ -235,39 +233,39 @@
   .actions-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(320px, 1fr));
-    gap: 24px;
+    gap: var(--spacing-lg);
   }
 
   .action-card {
-    border-radius: 12px;
-    transition: all 0.3s ease;
+    border-radius: var(--border-radius-medium);
+    transition: var(--transition-medium);
     height: 100%;
     display: flex;
     flex-direction: column;
 
     &:hover {
       transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--shadow-lg);
     }
 
     &.info-card .info-avatar {
-      background: linear-gradient(45deg, #1976d2, #42a5f5);
-      color: white;
+      background: var(--primary-gradient);
+      color: var(--text-on-primary);
     }
 
     &.team-card .team-avatar {
-      background: linear-gradient(45deg, #9c27b0, #ba68c8);
-      color: white;
+      background: linear-gradient(45deg, var(--team-color), #ba68c8);
+      color: var(--text-on-primary);
     }
 
     &.areas-card .areas-avatar {
-      background: linear-gradient(45deg, #ff9800, #ffb74d);
-      color: white;
+      background: linear-gradient(45deg, var(--zones-color), #ffb74d);
+      color: var(--text-on-primary);
     }
 
     &.events-management-card .events-avatar {
-      background: linear-gradient(45deg, #00bcd4, #4dd0e1);
-      color: white;
+      background: linear-gradient(45deg, var(--events-color), #4dd0e1);
+      color: var(--text-on-primary);
     }
 
     .action-header {
@@ -291,22 +289,22 @@
 
     mat-card-content {
       flex: 1;
-      padding-top: 8px !important;
+      padding-top: var(--spacing-sm) !important;
 
       .action-description {
-        color: #666;
+        color: var(--text-secondary);
         line-height: 1.5;
         margin: 0;
       }
     }
 
     mat-card-actions {
-      padding-top: 16px;
+      padding-top: var(--spacing-md);
       justify-content: flex-end;
 
       button {
         mat-icon {
-          margin-right: 8px;
+          margin-right: var(--spacing-sm);
         }
       }
     }
@@ -324,23 +322,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: var(--z-index-modal);
 
   .loading-card {
-    border-radius: 12px;
+    border-radius: var(--border-radius-medium);
     min-width: 300px;
+    box-shadow: var(--shadow-md);
 
     .loading-content {
       text-align: center;
-      padding: 20px;
+      padding: var(--spacing-md);
 
       mat-progress-spinner {
-        margin: 0 auto 20px;
+        margin: 0 auto var(--spacing-md);
       }
 
       p {
         margin: 0;
-        color: #666;
+        color: var(--text-secondary);
       }
     }
   }
@@ -419,17 +418,17 @@
   }
 
   .dashboard-header {
-    padding: 16px;
+    padding: var(--spacing-md);
 
     .header-content {
       flex-direction: column;
       text-align: center;
-      gap: 16px;
+      gap: var(--spacing-md);
     }
 
     .header-left {
       flex-direction: column;
-      gap: 12px;
+      gap: var(--spacing-sm);
     }
 
     .header-titles {
@@ -441,12 +440,12 @@
     .header-actions {
       width: 100%;
       justify-content: center;
-      margin-top: 8px;
+      margin-top: var(--spacing-sm);
     }
 
     .header-description {
       text-align: center;
-      margin-top: 8px;
+      margin-top: var(--spacing-sm);
     }
   }
 }

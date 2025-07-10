@@ -50,7 +50,6 @@ export class TicketService {
       const isLoggedIn = this.authService.isLoggedIn();
       if (isLoggedIn) {
         this.loadMyTickets(true)
-          .pipe(takeUntilDestroyed())
           .subscribe();
       } else {
         this.myTicketsSig.set([]);

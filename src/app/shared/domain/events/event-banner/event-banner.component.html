@@ -21,9 +21,17 @@
 
       <div class="event-info mx-sm-2 mx-md-3 mx-5 ">
         <h1 class="event-title">{{ event.name }}</h1>
+
+        <div class="event-location">
         <div class="structure-name">
           <mat-icon>business</mat-icon>
-          <span>{{ this.event.structure.name }}, {{ this.event.address?.city }}</span>
+          <span>{{ this.event.structure.name }}</span>
+        </div>
+
+        <div class="structure-address">
+          <mat-icon>location_on</mat-icon>
+          <span>{{ this.event.address?.street }}, {{ this.event.address?.city }}</span>
+        </div>
         </div>
 
         <div class="event-datetime">

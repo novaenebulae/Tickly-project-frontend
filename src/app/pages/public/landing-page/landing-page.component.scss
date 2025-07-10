@@ -1,32 +1,23 @@
-// Variables de couleurs (en hexadécimal, comme convenu)
-$primary-color: #0A2A4E; // Bleu marine foncé (utilisé aussi dans event-card et carousel)
-$accent-color: #FF8C42; // Orange corail vif (utilisé aussi dans event-card et carousel)
-$secondary-color: #3A7CA5; // Bleu moyen
-$light-text-color: #F8F9FA;
-$dark-text-color: #212529;
-$section-bg-light: #FFFFFF;
-$section-bg-darker: #f0f4f8; // Fond pour la section "Découverte" par exemple
-$card-hover-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
-
 // Chemins vers vos textures SVG. Assurez-vous que ces fichiers existent.
-$discovery-texture-path: "url('/assets/svg/textures/discovery-texture.svg')";
-$cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
-// $hero-texture-path: "url('/assets/svg/textures/hero-texture.svg')"; // Si besoin pour le hero
+$discovery-texture-path: "url('/public/textures/discovery-texture.svg')";
+$cta-texture-path: "url('/public/textures/cta-texture.svg')";
+// $hero-texture-path: "url('/public/textures/hero-texture.svg')"; // Si besoin pour le hero
 
 // Mixin pour les titres de section
 @mixin section-title-style {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: $primary-color;
-  margin-bottom: 0.5em;
+  font-size: 32px; // Heading 1 from design guidelines
+  font-weight: 700; // Bold
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
   text-align: center;
   position: relative; // Pour d'éventuels effets de soulignement animés
+  letter-spacing: -0.25px; // From design guidelines
 }
 
 @mixin section-subtitle-style {
-  font-size: 1.1rem;
-  color: #555;
-  margin-bottom: 2.5em;
+  font-size: 18px; // Body (Large) from design guidelines
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xxl);
   text-align: center;
   max-width: 700px;
   margin-left: auto;
@@ -41,7 +32,7 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
 .container {
   width: 100%;
   margin: 0 auto;
-  padding: 0 15px;
+  padding: 0 var(--spacing-md);
   box-sizing: border-box;
 }
 
@@ -50,11 +41,11 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
 }
 
 .section-padding {
-  padding: 60px 0;
+  padding: var(--spacing-xxl) 0;
   position: relative; // Pour les textures en arrière-plan
 
   @media (max-width: 768px) {
-    padding: 40px 0;
+    padding: var(--spacing-xl) 0;
   }
 }
 
@@ -71,7 +62,7 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
 .hero-section {
   position: relative;
   width: 100%;
-  height: 50vh;
+  height: 60vh; // Increased height for better mobile experience
   min-height: 500px;
   //max-height: 700px;
   overflow: hidden;
@@ -79,6 +70,10 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
   // background-repeat: repeat;
   // background-size: 60px;
   // background-blend-mode: overlay; // Pour mélanger la texture avec l'image
+
+  @media (max-width: 768px) {
+    height: 70vh; // Even taller on mobile for better content display
+  }
 
   .hero-slide {
     position: absolute;
@@ -89,7 +84,7 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
     background-size: cover;
     background-position: center center;
     opacity: 0;
-    transition: opacity 1s ease-in-out, transform 1s ease-in-out; // Transition en fondu + léger zoom/dézoom
+    transition: var(--transition-medium); // Transition en fondu + léger zoom/dézoom
     transform: scale(1.05); // Zoom initial léger
     overflow: hidden;
 
@@ -118,8 +113,8 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
       align-items: center;
       height: 100%;
       text-align: center;
-      color: $light-text-color;
-      padding: 20px;
+      color: var(--text-on-primary);
+      padding: var(--spacing-md);
       animation: fadeInContent 1.5s ease-out forwards; // Animation d'entrée du contenu
     }
 
@@ -130,42 +125,44 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
     }
 
     &__title {
-      font-size: 3rem; // Ajuster selon la taille de l'écran
-      font-weight: 700;
-      margin-bottom: 0.5em;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      font-size: 48px; // Display size from design guidelines
+      font-weight: 700; // Bold
+      margin-bottom: var(--spacing-md);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
       animation: slideInFromBottom 1s 0.2s ease-out forwards;
       opacity: 0;
+      letter-spacing: -0.5px; // From design guidelines
 
       @media (max-width: 768px) {
-        font-size: 2.2rem;
+        font-size: 36px; // Mobile display size from design guidelines
       }
     }
 
     &__subtitle {
-      font-size: 1.3rem;
-      margin-bottom: 1.5em;
+      font-size: 18px; // Body (Large) from design guidelines
+      margin-bottom: var(--spacing-lg);
       max-width: 700px;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
       animation: slideInFromBottom 1s 0.4s ease-out forwards;
       opacity: 0;
 
       @media (max-width: 768px) {
-        font-size: 1rem;
+        font-size: 17px; // Mobile body large from design guidelines
       }
     }
 
     &__cta {
-      padding: 12px 30px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      border-radius: 25px;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      font-size: 14px; // Button text size from design guidelines
+      font-weight: 500; // Medium weight for buttons
+      border-radius: var(--border-radius-medium);
       animation: popIn 0.8s 0.6s ease-out forwards;
       opacity: 0;
       transform: scale(0.8);
+      letter-spacing: 0.25px; // From design guidelines
 
       mat-icon {
-        margin-left: 8px;
+        margin-left: var(--spacing-xs);
       }
 
       &:hover {
@@ -180,17 +177,18 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
     transform: translateY(-50%);
     z-index: 3; // Au-dessus des slides et de l'overlay
     background-color: rgba(255, 255, 255, 0.2);
-    color: $light-text-color;
+    color: var(--text-on-primary);
+    transition: var(--transition-fast);
 
     &:hover {
       background-color: rgba(255, 255, 255, 0.4);
     }
 
     &--prev {
-      left: 20px;
+      left: var(--spacing-md);
     }
     &--next {
-      right: 20px;
+      right: var(--spacing-md);
     }
     mat-icon {
       font-size: 36px;
@@ -201,12 +199,12 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
 
   .hero-indicators {
     position: absolute;
-    bottom: 20px;
+    bottom: var(--spacing-md);
     left: 50%;
     transform: translateX(-50%);
     z-index: 3;
     display: flex;
-    gap: 10px;
+    gap: var(--spacing-xs);
 
     .hero-indicator {
       width: 12px;
@@ -215,10 +213,10 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
       background-color: rgba(255, 255, 255, 0.4);
       border: none;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: var(--transition-fast);
 
       &.active {
-        background-color: $light-text-color;
+        background-color: var(--text-on-primary);
       }
       &:hover:not(.active) {
         background-color: rgba(255, 255, 255, 0.7);
@@ -229,15 +227,13 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
 
 // --- Section "Nos Derniers Événements" ---
 .latest-events-section {
-  background-color: $section-bg-light; // Fond blanc ou très clair
   width: 100%;
-
 }
 
 
 // --- Section "Découverte" ---
 .discovery-section {
-  background-color: $section-bg-darker; // Fond légèrement différent
+  background-color: var(--background); // Fond légèrement différent
   .discovery-texture-bg {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -255,42 +251,54 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
   .discovery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    margin-top: 40px;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-xl);
 
     @media (max-width: 768px) {
       grid-template-columns: 1fr; // Une colonne sur mobile
+      gap: var(--spacing-md); // Reduced gap on mobile
     }
   }
 
   .discovery-card {
-    background-color: $section-bg-light;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+    background-color: var(--surface);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-medium);
+    box-shadow: var(--shadow-sm);
     text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: var(--transition-medium);
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
+    border: var(--border-width) solid var(--border);
+
+    // Touch-friendly tap state for mobile
+    @media (max-width: 768px) {
+      padding: var(--spacing-xl); // Larger padding for touch targets
+
+      &:active {
+        transform: scale(0.98); // Subtle feedback on tap
+        box-shadow: var(--shadow-sm);
+      }
+    }
 
     &:hover {
       transform: translateY(-8px);
-      box-shadow: $card-hover-shadow;
+      box-shadow: var(--shadow-lg);
     }
 
     &__icon-wrapper {
-      background-color: rgba($accent-color, 0.1);
-      color: $accent-color;
+      background-color: rgba(255, 170, 0, 0.1); // Accent color with opacity
+      color: var(--accent);
       width: 70px;
       height: 70px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 20px;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      margin-bottom: var(--spacing-md);
+      transition: var(--transition-fast);
 
       mat-icon {
         font-size: 36px;
@@ -299,39 +307,41 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
       }
     }
     &:hover &__icon-wrapper {
-      background-color: $accent-color;
-      color: $light-text-color;
+      background-color: var(--accent);
+      color: var(--text-on-accent);
     }
 
 
     &__title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: $primary-color;
-      margin-bottom: 10px;
+      font-size: 20px; // Heading 3 from design guidelines
+      font-weight: 600; // SemiBold
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-xs);
+      letter-spacing: 0px; // From design guidelines
     }
 
     &__description {
-      font-size: 0.95rem;
-      color: #555;
+      font-size: 16px; // Body (Default) from design guidelines
+      color: var(--text-secondary);
       line-height: 1.6;
-      margin-bottom: 25px;
+      margin-bottom: var(--spacing-lg);
       flex-grow: 1; // Pour que le bouton soit aligné en bas si les descriptions varient
     }
 
     &__cta {
       margin-top: auto; // Pousse le bouton vers le bas
       width: 100%;
-      font-weight: 500;
-      mat-icon { margin-left: 8px; }
+      font-weight: 500; // Medium weight for buttons
+      letter-spacing: 0.25px; // From design guidelines
+      mat-icon { margin-left: var(--spacing-xs); }
     }
   }
 }
 
 // --- Section "Appel à l'Action Création de Compte" ---
 .cta-section {
-  background-color: $primary-color; // Fond sombre
-  color: $light-text-color;
+  background-color: var(--primary); // Fond sombre
+  color: var(--text-on-primary);
 
   .cta-texture-bg {
     position: absolute;
@@ -347,45 +357,55 @@ $cta-texture-path: "url('/assets/svg/textures/cta-texture.svg')";
   }
 
   .section-title {
-    color: $light-text-color; // Titre clair sur fond sombre
+    color: var(--text-on-primary); // Titre clair sur fond sombre
   }
   .section-subtitle {
-    color: darken($light-text-color, 15%); // Sous-titre un peu moins clair
-    margin-bottom: 40px;
+    color: rgba(255, 255, 255, 0.85); // Sous-titre un peu moins clair
+    margin-bottom: var(--spacing-xl);
   }
 
   .cta-buttons {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: var(--spacing-md);
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
 
     @media (min-width: 768px) {
       flex-direction: row;
       justify-content: center;
-      gap: 30px;
+      gap: var(--spacing-lg);
+      max-width: none;
     }
   }
 
   .cta-button {
-    padding: 15px 35px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    border-radius: 30px;
+    padding: var(--spacing-md) var(--spacing-lg); // Larger padding for better touch targets
+    font-size: 14px; // Button text size from design guidelines
+    font-weight: 500; // Medium weight for buttons
+    border-radius: var(--border-radius-medium);
     min-width: 280px; // Largeur minimale pour les boutons
+    letter-spacing: 0.25px; // From design guidelines
+    width: 100%; // Full width on mobile
+
+    @media (min-width: 768px) {
+      width: auto; // Auto width on desktop
+    }
 
     mat-icon {
-      margin-right: 10px;
+      margin-right: var(--spacing-xs);
     }
 
     &--secondary {
       // Pour le bouton mat-stroked-button
-      color: $light-text-color !important; // !important pour surcharger les styles Material par défaut
-      border-color: rgba($light-text-color, 0.7) !important;
+      color: var(--text-on-primary) !important; // !important pour surcharger les styles Material par défaut
+      border-color: rgba(255, 255, 255, 0.7) !important;
 
       &:hover {
-        background-color: rgba($light-text-color, 0.1) !important;
-        border-color: $light-text-color !important;
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        border-color: var(--text-on-primary) !important;
       }
     }
   }

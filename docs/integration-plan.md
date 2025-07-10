@@ -56,6 +56,11 @@ These tasks improve the overall architecture and performance of the application.
 ### Group 3: UI/UX Improvements
 These tasks enhance the user interface and experience.
 
+Note : A full Material Theme is located in 'src/styles/_theme.scss'
+- The goal is to have a consistent and uniformized design of the app.
+
+IMPORTANT : Here are some guidelines of how the style should be : 'docs/design-guidelines.md'
+
 #### Task 8: UI Consistency
 - Standardize color palette and typography according to design guidelines
 - Use SCSS variables for all styling
@@ -67,9 +72,7 @@ These tasks enhance the user interface and experience.
 - Implement responsive layouts for all pages
 - Add touch-friendly interactions for mobile users
 
-#### Task 10: User Experience Enhancements
-- Add loading indicators for all async operations
-- Implement proper form validation feedback
+#### Task 10: User Experience Enhancements => DONE
 - Enhance error messages with actionable information
 - Upgrade notification system to use snackbar notifications
 

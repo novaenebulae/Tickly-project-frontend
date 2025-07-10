@@ -1,31 +1,15 @@
-// Variables de couleurs (en hexadécimal, comme convenu)
-$footer-background-color: #1A202C; // Un bleu très sombre / gris anthracite
-$footer-text-color: #A0AEC0;       // Gris clair pour le texte général
-$footer-link-color: #CBD5E0;       // Gris un peu plus clair pour les liens
-$footer-link-hover-color: #EDF2F7; // Blanc cassé / gris très clair pour le survol des liens
-$footer-border-color: #2D3748;    // Couleur de bordure subtile si nécessaire
-
-// Chemin vers votre texture SVG. Assurez-vous que ce fichier existe.
-// Vous pouvez utiliser une texture simple pour commencer.
-// Exemple de texture SVG (à mettre dans le fichier svg et adapter le chemin):
-// <svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
-//   <path d="M25 0 L50 25 L25 50 L0 25 Z" fill="rgba(255,255,255,0.03)"/>
-// </svg>
-$footer-texture-svg-path: "url('/assets/svg/textures/footer-texture.svg')"; // Mettez le chemin correct
-
-// Garder vos variables existantes...
+// Chemin vers votre texture SVG
+$footer-texture-svg-path: "url('/public/textures/footer-texture.svg')";
 
 .app-footer {
   display: flex;
   align-items: center;
-  background-color: $footer-background-color;
-  color: $footer-text-color;
-  padding: 40px 0;
+  background-color: var(--primary-dark);
+  color: rgba(255, 255, 255, 0.7);
+  padding: var(--spacing-xxl) 0;
   position: relative;
   width: 100%;
   margin-top: auto; // Pousse le footer vers le bas
-
-  // Le reste de votre code footer reste inchangé...
 
   .footer-texture-bg {
     position: absolute;
@@ -34,8 +18,8 @@ $footer-texture-svg-path: "url('/assets/svg/textures/footer-texture.svg')"; // M
     width: 100%;
     height: 100%;
     background-image: $footer-texture-svg-path;
-    background-repeat: repeat; // Ou autre selon votre texture
-    background-size: 50px 50px; // Ajustez la taille de répétition de votre texture
+    background-repeat: repeat;
+    background-size: 50px 50px;
     opacity: 0.05; // Opacité de la texture pour qu'elle soit subtile
     z-index: 0;
   }
@@ -46,7 +30,7 @@ $footer-texture-svg-path: "url('/assets/svg/textures/footer-texture.svg')"; // M
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 30px; // Espace entre les sections principales sur mobile
+    gap: var(--spacing-xl); // Espace entre les sections principales sur mobile
     text-align: center;
 
     @media (min-width: 768px) {
@@ -64,7 +48,7 @@ $footer-texture-svg-path: "url('/assets/svg/textures/footer-texture.svg')"; // M
       align-items: center;
       justify-content: space-evenly;
       width: 100%;
-      gap: 20px;
+      gap: var(--spacing-lg);
 
       @media (min-width: 768px) {
         align-items: flex-start;
@@ -78,8 +62,13 @@ $footer-texture-svg-path: "url('/assets/svg/textures/footer-texture.svg')"; // M
 
   .footer-logo {
     .logo-img {
-      height: 60px; // Ajustez la taille de votre logo
+      height: 60px;
       width: auto;
+      transition: var(--transition-fast);
+
+      &:hover {
+        opacity: 0.9;
+      }
     }
   }
 
@@ -91,25 +80,37 @@ $footer-texture-svg-path: "url('/assets/svg/textures/footer-texture.svg')"; // M
       margin: 0;
       display: flex;
       flex-direction: column; // Liens en colonne sur mobile
-      gap: 10px;
+      gap: var(--spacing-sm);
 
       @media (min-width: 768px) {
         flex-direction: row; // Liens en ligne sur desktop
-        gap: 20px;
+        gap: var(--spacing-lg);
       }
     }
 
     li {
       a {
-        color: $footer-link-color;
+        color: rgba(255, 255, 255, 0.8);
         text-decoration: none;
-        font-size: 0.9rem;
-        transition: color 0.2s ease-in-out;
-        text-wrap-mode: nowrap;
+        font-size: 14px; // Body Small
+        letter-spacing: 0.1px; // From design guidelines
+        font-weight: 500; // Medium weight
+        transition: var(--transition-fast);
+        text-wrap: nowrap;
 
         &:hover {
-          color: $footer-link-hover-color;
+          color: var(--text-on-primary);
           text-decoration: underline;
+        }
+
+        // Touch-friendly tap state for mobile
+        @media (max-width: 768px) {
+          padding: var(--spacing-xs) 0;
+          display: inline-block;
+
+          &:active {
+            transform: scale(0.98);
+          }
         }
       }
     }
@@ -120,27 +121,27 @@ $footer-texture-svg-path: "url('/assets/svg/textures/footer-texture.svg')"; // M
       display: flex;
       flex-direction: column;
       align-items: flex-end; // Aligner à droite sur desktop
-      gap: 10px;
+      gap: var(--spacing-sm);
     }
   }
 
   .footer-copyright {
-    font-size: 0.85rem;
-    margin-top: 15px; // Espace au-dessus du copyright
-    color: darken($footer-text-color, 10%);
+    font-size: 12px; // Label size
+    letter-spacing: 0.5px; // From design guidelines
+    margin-top: var(--spacing-md); // Espace au-dessus du copyright
+    color: rgba(255, 255, 255, 0.6); // Slightly darker than regular text
 
     @media (min-width: 768px) {
       margin-top: 0; // Le gap de la flexbox parente gère l'espacement
     }
   }
 
-  // Style pour la classe .container si vous l'utilisez globalement
-  // Sinon, vous pouvez utiliser max-width et margin auto directement sur .footer-content
-  //.container {
-  //  width: 100%;
-  //  max-width: 1200px; // Ou votre largeur de conteneur standard
-  //  margin: 0 auto;
-  //  padding: 0 15px; // Padding horizontal pour le conteneur
-  //  box-sizing: border-box;
-  //}
+  // Style pour la classe .container
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+    box-sizing: border-box;
+  }
 }

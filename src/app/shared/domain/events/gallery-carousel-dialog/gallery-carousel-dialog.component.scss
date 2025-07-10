@@ -1,6 +1,5 @@
 .gallery-carousel-container {
-  padding: 2rem 1rem 1rem;
-
+  padding: var(--spacing-xl) var(--spacing-md) var(--spacing-md);
   position: relative;
   height: 100%;
   display: flex;
@@ -8,11 +7,11 @@
 
   .close-button {
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
     z-index: 10;
     background-color: rgba(0, 0, 0, 0.5);
-    color: white;
+    color: var(--text-on-primary);
     display: flex;
   }
 
@@ -26,16 +25,21 @@
     .nav-button {
       position: absolute;
       background-color: rgba(0, 0, 0, 0.5);
-      color: white;
+      color: var(--text-on-primary);
       z-index: 5;
       display: flex;
+      transition: var(--transition-fast);
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.7);
+      }
 
       &.prev-button {
-        left: 0.5rem;
+        left: var(--spacing-sm);
       }
 
       &.next-button {
-        right: 0.5rem;
+        right: var(--spacing-sm);
       }
     }
 
@@ -57,28 +61,36 @@
   .image-counter {
     text-align: center;
     margin: 0;
-    color: #666;
+    color: var(--text-secondary);
+    font-size: 14px; // Body Small size
+    letter-spacing: 0.1px; // From design guidelines
   }
 
   .thumbnails-container {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    gap: 0.5rem;
-    padding: 0.5rem 0;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) 0;
     justify-content: center;
 
     .thumbnail {
       flex: 0 0 80px;
       height: 60px;
-      border-radius: 4px;
+      border-radius: var(--border-radius-small);
       overflow: hidden;
       cursor: pointer;
       border: 2px solid transparent;
-      transition: border-color 0.2s ease;
+      transition: var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+
+      &:hover:not(.active) {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+      }
 
       &.active {
-        border-color: #6c63ff;
+        border-color: var(--primary);
       }
 
       img {

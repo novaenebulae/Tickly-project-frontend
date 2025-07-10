@@ -1,20 +1,18 @@
 .dashboard-container {
-  padding: 24px;
+  padding: var(--spacing-lg);
   height: 100%;
   display: flex;
   flex-direction: column;
   max-width: 1400px;
   margin: 0 auto;
 
-  // 🎨 Variables de couleurs
-  --primary-color: #1976d2;
-  --accent-color: #f06292;
-  --warn-color: #f44336;
-  --success-color: #4caf50;
-  --events-color: #00bcd4;
-  --tickets-color: #ff9800;
-  --attendees-color: #9c27b0;
-  --rate-color: #4caf50;
+  // Using global theme variables instead of local variables
+  --events-color: var(--twilight-blue);
+  --tickets-color: var(--accent);
+  --attendees-color: var(--twilight-purple);
+  --rate-color: var(--success);
+  --zones-color: var(--accent);
+  --team-color: var(--twilight-purple);
 }
 
 .loading-container {
@@ -26,33 +24,33 @@
   animation: fadeIn 0.5s ease-out;
 
   p {
-    margin-top: 16px;
-    font-size: 16px;
-    color: #666;
+    margin-top: var(--spacing-md);
+    font-size: var(--font-size-base);
+    color: var(--text-secondary);
   }
 }
 
 // 🎨 Section En-tête
 .header-section {
-  margin-bottom: 32px;
+  margin-bottom: var(--spacing-xxl);
 
   .structure-overview-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 16px;
+    background: var(--primary-gradient);
+    color: var(--text-on-primary);
+    border-radius: var(--border-radius-large);
     overflow: hidden;
     animation: fadeInUp 0.6s ease-out;
 
     .structure-header {
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: var(--spacing-lg);
       flex-wrap: wrap;
 
       @media (max-width: 768px) {
         flex-direction: column;
         text-align: center;
-        gap: 16px;
+        gap: var(--spacing-md);
       }
     }
 
@@ -92,29 +90,29 @@
       .structure-name-container {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: var(--spacing-sm);
         flex-wrap: wrap;
-        margin-bottom: 8px;
+        margin-bottom: var(--spacing-sm);
       }
 
       .structure-name {
         margin: 0;
         font-size: 2rem;
         font-weight: 500;
-        color: white;
+        color: var(--text-on-primary);
       }
 
       .panel-title {
-        margin: 0 0 8px 0;
+        margin: 0 0 var(--spacing-sm) 0;
         font-size: 1.5rem;
         font-weight: 400;
-        color: white;
+        color: var(--text-on-primary);
       }
 
       .structure-address {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: var(--spacing-sm);
         margin: 0;
         color: rgba(255, 255, 255, 0.8);
 
@@ -139,20 +137,20 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: var(--spacing-sm);
       flex-wrap: wrap;
 
       .refresh-btn {
         color: rgba(255, 255, 255, 0.8);
 
         &:hover {
-          color: white;
+          color: var(--text-on-primary);
           background: rgba(255, 255, 255, 0.1);
         }
       }
 
       button {
-        color: white;
+        color: var(--text-on-primary);
         border-color: rgba(255, 255, 255, 0.3);
 
         &:hover {
@@ -167,14 +165,14 @@
 .kpi-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  margin-bottom: 32px;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xxl);
 }
 
 .kpi-card {
   text-align: center;
-  border-radius: 12px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: var(--border-radius-medium);
+  transition: var(--transition-medium);
   border-left: 4px solid transparent;
   overflow: hidden;
   opacity: 0;
@@ -182,7 +180,7 @@
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-lg);
   }
 
   &:nth-child(1) {
@@ -224,12 +222,12 @@
   .kpi-value {
     font-size: 32px;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: var(--spacing-sm);
   }
 
   .kpi-label {
-    font-size: 14px;
-    color: #666;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
     font-weight: 500;
   }
 }
@@ -237,38 +235,38 @@
 .structure-kpi-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin-bottom: 32px;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xxl);
 
   .stat-card {
-    border-radius: 12px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: var(--border-radius-medium);
+    transition: var(--transition-medium);
     border-left: 4px solid transparent;
     opacity: 0;
     will-change: transform, opacity;
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--shadow-lg);
     }
 
     &.zones-card {
-      border-left-color: var(--zones-color, #ff9800);
+      border-left-color: var(--zones-color);
       animation: fadeInUp 0.5s ease-out forwards;
 
       .zones-icon {
-        background: linear-gradient(45deg, #ff9800, #ffb74d);
-        color: white;
+        background: linear-gradient(45deg, var(--zones-color), lighten(#ff9800, 10%));
+        color: var(--text-on-primary);
       }
     }
 
     &.team-card {
-      border-left-color: var(--team-color, #9c27b0);
+      border-left-color: var(--team-color);
       animation: fadeInUp 0.5s ease-out 0.1s forwards;
 
       .team-icon {
-        background: linear-gradient(45deg, #9c27b0, #ba68c8);
-        color: white;
+        background: linear-gradient(45deg, var(--team-color), lighten(#9c27b0, 10%));
+        color: var(--text-on-primary);
       }
     }
 
@@ -277,16 +275,16 @@
       animation: fadeInUp 0.5s ease-out 0.2s forwards;
 
       .events-icon {
-        background: linear-gradient(45deg, #00bcd4, #4dd0e1);
-        color: white;
+        background: linear-gradient(45deg, var(--events-color), lighten(#00bcd4, 10%));
+        color: var(--text-on-primary);
       }
     }
 
     .stat-content {
       display: flex;
       align-items: center;
-      gap: 16px;
-      margin-bottom: 16px;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
     }
 
     .stat-icon {
@@ -312,13 +310,13 @@
         font-size: 2rem;
         font-weight: 700;
         line-height: 1;
-        color: #333;
+        color: var(--text-primary);
       }
 
       .stat-label {
         font-size: 0.875rem;
-        color: #666;
-        margin-top: 4px;
+        color: var(--text-secondary);
+        margin-top: var(--spacing-xs);
       }
     }
 
@@ -331,8 +329,8 @@
 .charts-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 24px;
-  margin-bottom: 24px;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
   flex-grow: 1;
 }
 
@@ -340,16 +338,16 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: var(--border-radius-medium);
+  transition: var(--transition-medium);
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
   opacity: 0;
   will-change: transform, opacity;
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-lg);
   }
 
   &:nth-child(1) {
@@ -361,12 +359,12 @@
   }
 
   mat-card-header {
-    background: linear-gradient(to right, rgba(25, 118, 210, 0.1), transparent);
-    padding: 16px 16px 0;
+    background: linear-gradient(to right, rgba(90, 72, 245, 0.1), transparent);
+    padding: var(--spacing-md) var(--spacing-md) 0;
 
     [mat-card-avatar] {
-      background: linear-gradient(45deg, var(--primary-color), #42a5f5);
-      color: white;
+      background: var(--primary-gradient);
+      color: var(--text-on-primary);
       width: 40px;
       height: 40px;
       display: flex;
@@ -384,11 +382,11 @@
     mat-card-title {
       font-weight: 500;
       font-size: 18px;
-      color: var(--primary-color);
+      color: var(--primary);
     }
 
     mat-card-subtitle {
-      color: #666;
+      color: var(--text-secondary);
     }
   }
 
@@ -396,7 +394,7 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    padding: 16px !important;
+    padding: var(--spacing-md) !important;
   }
 
   .chart-container {
@@ -404,7 +402,7 @@
     position: relative;
     height: 300px;
     width: 100%;
-    margin-top: 8px;
+    margin-top: var(--spacing-sm);
   }
 }
 
@@ -415,36 +413,37 @@
   justify-content: center;
   height: 100%;
   text-align: center;
-  padding: 24px;
+  padding: var(--spacing-lg);
   animation: fadeIn 0.5s ease-out;
 
   .no-data-icon {
     font-size: 64px;
     height: 64px;
     width: 64px;
-    color: #ccc;
-    margin-bottom: 16px;
+    color: var(--border);
+    margin-bottom: var(--spacing-md);
   }
 
   h2 {
-    margin: 0 0 16px 0;
+    margin: 0 0 var(--spacing-md) 0;
     font-size: 24px;
     font-weight: 500;
+    color: var(--text-primary);
   }
 
   p {
-    margin: 0 0 24px 0;
-    font-size: 16px;
-    color: #666;
+    margin: 0 0 var(--spacing-lg) 0;
+    font-size: var(--font-size-base);
+    color: var(--text-secondary);
     max-width: 500px;
   }
 
   button {
-    transition: all 0.3s ease;
+    transition: var(--transition-medium);
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: var(--shadow-md);
     }
   }
 }
@@ -480,30 +479,30 @@
 // 📱 Responsive design
 @media (max-width: 768px) {
   .dashboard-container {
-    padding: 16px;
+    padding: var(--spacing-md);
   }
 
   .dashboard-header {
-    padding: 16px;
+    padding: var(--spacing-md);
 
     .header-content {
       flex-direction: column;
       text-align: center;
-      gap: 16px;
+      gap: var(--spacing-md);
     }
 
     .header-left {
       flex-direction: column;
-      gap: 12px;
+      gap: var(--spacing-sm);
     }
 
     .header-actions {
-      margin-top: 8px;
+      margin-top: var(--spacing-sm);
     }
 
     .header-description {
       text-align: center;
-      margin-top: 8px;
+      margin-top: var(--spacing-sm);
     }
   }
 

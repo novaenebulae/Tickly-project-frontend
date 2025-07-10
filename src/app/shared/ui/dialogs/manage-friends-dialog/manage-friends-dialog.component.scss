@@ -12,9 +12,10 @@
     padding: 1rem 1.5rem 0.75rem; // ✅ Réduction du padding
     font-size: 1.4rem; // ✅ Taille légèrement réduite
     font-weight: 600;
+    border-bottom: var(--border-width) solid var(--border);
 
     mat-icon {
-      color: var(--primary-color, #1976d2);
+      color: var(--primary);
       font-size: 1.5rem;
       width: 1.5rem;
       height: 1.5rem;
@@ -40,7 +41,7 @@
     max-height: 100%;
 
     .mat-mdc-tab-header {
-      border-bottom: 1px solid var(--border-color, #e0e0e0);
+      border-bottom: var(--border-width) solid var(--border);
       flex-shrink: 0;
 
       ::ng-deep .mat-mdc-tab .mdc-tab__content {
@@ -70,8 +71,8 @@
   .sent-request-card,
   .search-result-card {
     //margin-bottom: 0.5rem; // ✅ Réduction des marges
-    //transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border-radius: 6px; // ✅ Bordures légèrement réduites
+    transition: var(--transition-fast);
+    border-radius: var(--border-radius-medium);
     overflow: hidden;
 
     &:last-child {
@@ -80,7 +81,7 @@
 
     &:hover {
       transform: translateY(-1px);
-      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+      box-shadow: var(--shadow-md);
     }
 
     .avatar-image {
@@ -88,20 +89,20 @@
       max-height: 50px;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid var(--primary-color, #1976d2);
+      border: 2px solid var(--primary);
       flex-shrink: 0;
     }
 
     h4 {
       margin: 0 0 0.2rem 0; // ✅ Marges réduites
       font-weight: 500;
-      color: var(--text-primary, #333);
+      color: var(--text-primary);
       font-size: 1rem; // ✅ Taille de police réduite
     }
 
     p {
       margin: 0;
-      color: var(--text-secondary, #666);
+      color: var(--text-secondary);
       font-size: 0.85rem;
     }
   }
@@ -228,7 +229,7 @@
         flex-shrink: 0;
 
         mat-chip {
-          color: white;
+          color: var(--text-on-primary);
           font-weight: 500;
           font-size: 0.75rem;
           padding: 0.2rem 0.5rem;
@@ -262,7 +263,7 @@
         margin: 0;
 
         mat-icon {
-          color: var(--primary-color, #1976d2);
+          color: var(--primary);
           font-size: 1.2rem;
           width: 1.2rem;
           height: 1.2rem;
@@ -306,19 +307,20 @@
       font-size: 2.5rem; // ✅ Taille d'icône réduite
       width: 2.5rem;
       height: 2.5rem;
-      color: var(--text-disabled, #ccc);
+      color: var(--border);
       margin-bottom: 0.75rem; // ✅ Marge réduite
     }
 
     h3 {
-      color: var(--text-secondary, #666);
+      color: var(--text-secondary);
       margin: 0 0 0.5rem 0;
       font-size: 1.1rem; // ✅ Taille réduite
       font-weight: 500;
     }
 
     p {
-      color: var(--text-disabled, #999);
+      color: var(--text-secondary);
+      opacity: 0.7;
       max-width: 280px;
       line-height: 1.3;
       margin: 0;
@@ -329,8 +331,8 @@
   // === ACTIONS DU DIALOGUE ===
   .dialog-actions {
     padding: 0.75rem 1.5rem; // ✅ Padding réduit
-    border-top: 1px solid var(--border-color, #e0e0e0);
-    background-color: #fafafa;
+    border-top: var(--border-width) solid var(--border);
+    background-color: var(--background);
     flex-shrink: 0;
 
     button {
@@ -421,12 +423,3 @@
   }
 }
 
-// === VARIABLES CSS ===
-:root {
-  --primary-color: #1976d2;
-  --accent-color: #ff4081;
-  --text-primary: #333;
-  --text-secondary: #666;
-  --text-disabled: #999;
-  --border-color: #e0e0e0;
-}

@@ -1,28 +1,20 @@
-// Variables
-$card-border-radius: 12px;
-$card-padding: 20px;
-$primary-color: #3f51b5;
-$accent-color: #ff4081;
-$text-dark: #333;
-$text-light: #888;
-$card-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-$transition-speed: 0.3s;
+// Using theme variables instead of local variables
 
 .event-card {
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  border-radius: $card-border-radius;
-  background-color: white;
-  box-shadow: $card-shadow;
-  transition: transform $transition-speed, box-shadow $transition-speed;
+  border-radius: var(--border-radius-medium);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-medium), box-shadow var(--transition-medium);
   cursor: pointer;
   position: relative;
 
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-lg);
   }
 
   // Container d'image
@@ -36,7 +28,7 @@ $transition-speed: 0.3s;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform $transition-speed;
+    transition: transform var(--transition-medium);
 
     &:hover {
       transform: scale(1.05);
@@ -46,44 +38,49 @@ $transition-speed: 0.3s;
   // Badge de date
   &__date-badge {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
     display: flex;
     flex-direction: column;
     align-items: center;
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(5px);
-    padding: 8px 12px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--border-radius-medium);
+    box-shadow: var(--shadow-sm);
     text-align: center;
-    color: $text-dark;
+    color: var(--text-primary);
     font-weight: bold;
 
     &__date-day {
-      font-size: 1.5rem;
+      font-size: 24px; // Heading 2 size
+      font-weight: 600; // SemiBold
       line-height: 1;
     }
 
     &__date-month {
-      font-size: 0.9rem;
+      font-size: 14px; // Body Small size
+      font-weight: 500; // Medium
       text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
   }
 
   // Badge "Featured"
   &__featured-badge {
     position: absolute;
-    top: 12px;
-    left: 12px;
-    background-color: $accent-color;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 16px;
-    font-size: 0.8rem;
+    top: var(--spacing-md);
+    left: var(--spacing-md);
+    background-color: var(--accent);
+    color: var(--text-on-accent);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-large);
+    font-size: 12px; // Label size
+    font-weight: 500; // Medium
+    letter-spacing: 0.5px;
     display: flex;
     align-items: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-sm);
 
     .mat-icon {
       font-size: 16px;
@@ -95,25 +92,27 @@ $transition-speed: 0.3s;
   // Bouton Réserver superposé
   &__button-reserve-overlay {
     position: absolute;
-    bottom: 16px;
-    right: 16px;
+    bottom: var(--spacing-md);
+    right: var(--spacing-md);
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    font-size: 0.9rem;
-    background-color: $accent-color;
-    color: white;
-    border-radius: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 14px; // Button size
+    font-weight: 500; // Medium
+    letter-spacing: 0.25px;
+    background-color: var(--accent);
+    color: var(--text-on-accent);
+    border-radius: var(--border-radius-large);
+    box-shadow: var(--shadow-md);
     z-index: 10;
-    transition: transform 0.2s, box-shadow 0.2s;
-    opacity: 0.75;
+    transition: var(--transition-fast);
+    opacity: 0.9;
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      opacity: 0.8;
+      box-shadow: var(--shadow-lg);
+      opacity: 1;
     }
 
     .mat-icon {
@@ -127,34 +126,35 @@ $transition-speed: 0.3s;
   // Contenu principal
   &__content {
     flex-grow: 1;
-    padding: $card-padding;
+    padding: var(--spacing-lg);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: var(--spacing-md);
   }
 
   &__category {
-    color: $primary-color;
-    font-size: 0.85rem;
-    font-weight: 500;
+    color: var(--primary);
+    font-size: 12px; // Label size
+    font-weight: 500; // Medium
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
 
   &__title {
-    margin: 6px 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: $text-dark;
+    margin: var(--spacing-xs) 0;
+    font-size: 20px; // Heading 3 size
+    font-weight: 600; // SemiBold
+    color: var(--text-primary);
     line-height: 1.4;
   }
 
   &__location {
     display: flex;
     align-items: center;
-    gap: 6px;
-    color: $text-light;
-    font-size: 0.9rem;
+    gap: var(--spacing-xs);
+    color: var(--text-secondary);
+    font-size: 14px; // Body Small size
+    letter-spacing: 0.1px;
 
     .event-card__icon {
       font-size: 18px;
@@ -164,10 +164,11 @@ $transition-speed: 0.3s;
   }
 
   &__description {
-    font-size: 0.9rem;
+    font-size: 14px; // Body Small size
     line-height: 1.5;
-    color: $text-light;
-    margin: 8px 0;
+    color: var(--text-secondary);
+    margin: var(--spacing-sm) 0;
+    letter-spacing: 0.1px;
   }
 
   // Footer avec prix et boutons
@@ -175,36 +176,38 @@ $transition-speed: 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 $card-padding $card-padding ;
-    gap: 12px;
+    padding: 0 var(--spacing-lg) var(--spacing-lg);
+    gap: var(--spacing-md);
   }
 
   &__price-container {
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    margin-left: 1rem;
+    margin-left: var(--spacing-md);
   }
 
   &__free-tag {
-    background-color: #4caf50;
+    background-color: var(--success);
     color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-weight: 600;
-    font-size: 0.85rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-small);
+    font-weight: 600; // SemiBold
+    font-size: 12px; // Label size
+    letter-spacing: 0.5px;
   }
 
   &__price {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: $text-dark;
+    font-size: 18px; // Body Large size
+    font-weight: 600; // SemiBold
+    color: var(--text-primary);
   }
 
   &__price-na {
-    font-size: 0.9rem;
-    color: $text-light;
+    font-size: 14px; // Body Small size
+    color: var(--text-secondary);
     font-style: italic;
+    letter-spacing: 0.1px;
   }
 
   // Conteneur des boutons
@@ -212,18 +215,29 @@ $transition-speed: 0.3s;
     display: flex;
     justify-content: space-between;
     width: 100%;
-    gap: 8px;
+    gap: var(--spacing-sm);
     flex-shrink: 0;
   }
 
   &__button-discover {
     display: flex;
-    align-items: end;
+    align-items: center;
     width: 50%;
-    gap: 6px;
-    padding: 10px 16px;
-    font-size: 0.9rem;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 14px; // Button size
+    font-weight: 500; // Medium
+    letter-spacing: 0.25px;
     flex-direction: row-reverse;
+    background: var(--primary-gradient);
+    color: var(--text-on-primary);
+    border-radius: var(--border-radius-medium);
+    transition: var(--transition-fast);
+
+    &:hover {
+      transform: scale(1.03);
+      box-shadow: var(--shadow-md);
+    }
 
     .mat-icon {
       font-size: 18px;
@@ -231,8 +245,6 @@ $transition-speed: 0.3s;
       height: 18px;
       margin: 0;
     }
-
-    background-color: $primary-color;
   }
 }
 
@@ -246,11 +258,36 @@ $transition-speed: 0.3s;
 
     &__price-container {
       text-align: center;
-      margin-bottom: 10px;
+      margin-left: 0;
+      margin-bottom: var(--spacing-md);
     }
 
     &__buttons {
       flex-direction: column;
+    }
+
+    &__button-discover {
+      width: 100%;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .event-card {
+    &__image-container {
+      height: 180px; // Slightly smaller image for very small screens
+    }
+
+    &__content {
+      padding: var(--spacing-md);
+    }
+
+    &__footer {
+      padding: 0 var(--spacing-md) var(--spacing-md);
+    }
+
+    &__title {
+      font-size: 18px; // Slightly smaller heading for very small screens
     }
   }
 }

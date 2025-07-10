@@ -14,10 +14,10 @@
     padding: 1rem 1.5rem 0.75rem;
     font-size: 1.4rem;
     font-weight: 600;
-    border-bottom: 1px solid var(--border-color, #e0e0e0);
+    border-bottom: var(--border-width) solid var(--border);
 
     mat-icon {
-      color: var(--primary-color, #1976d2);
+      color: var(--primary);
       font-size: 1.5rem;
       width: 1.5rem;
       height: 1.5rem;
@@ -38,7 +38,7 @@
     flex-direction: column;
     align-items: center;
     padding: 1.5rem 1rem 1rem;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: var(--background);
 
     .avatar-container {
       position: relative;
@@ -57,9 +57,9 @@
         border-radius: 50%;
         object-fit: cover;
         border: 2px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        transition: filter 0.3s ease;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: var(--shadow-md);
+        transition: var(--transition-medium);
+        background: var(--primary-gradient);
       }
 
       .edit-avatar-overlay {
@@ -70,12 +70,12 @@
         height: 100%;
         border-radius: 50%;
         background-color: rgba(0, 0, 0, 0.4);
-        color: white;
+        color: var(--text-on-primary);
         display: flex;
         justify-content: center;
         align-items: center;
         opacity: 0;
-        transition: opacity 0.3s ease;
+        transition: var(--transition-medium);
         pointer-events: none; // Permet au clic de passer au conteneur
 
         mat-icon {
@@ -96,7 +96,7 @@
     .avatar-info {
       text-align: center;
       margin: 0;
-      color: var(--text-secondary, #666);
+      color: var(--text-secondary);
       font-size: 0.85rem;
       max-width: 300px;
       line-height: 1.4;
@@ -134,7 +134,7 @@
   }
 
   mat-divider {
-    border-color: var(--border-color, #e0e0e0);
+    border-color: var(--border);
     margin: 0;
   }
 
@@ -144,26 +144,26 @@
     padding: 24px;
 
     .danger-title {
-      color: #d32f2f;
+      color: var(--error);
 
       mat-icon {
-        color: #d32f2f;
+        color: var(--error);
       }
     }
 
     .danger-info {
-      color: #666;
+      color: var(--text-secondary);
       margin-bottom: 1rem;
       line-height: 1.5;
       font-size: 0.9rem;
     }
 
     .danger-button {
-      color: #d32f2f;
-      border-color: #d32f2f;
+      color: var(--error);
+      border-color: var(--error);
 
       &:hover {
-        background-color: rgba(211, 47, 47, 0.04);
+        background-color: rgba(220, 53, 69, 0.04); /* Using --error color with reduced opacity */
       }
 
       mat-icon {
@@ -191,7 +191,7 @@
   // === SECTION SÉCURITÉ ===
   .password-section {
     padding: 1.5rem;
-    background-color: #fafafa;
+    background-color: var(--background);
 
     .section-title {
       display: flex;
@@ -200,10 +200,10 @@
       margin: 0 0 0.75rem 0;
       font-size: 1.1rem;
       font-weight: 500;
-      color: var(--text-primary, #333);
+      color: var(--text-primary);
 
       mat-icon {
-        color: var(--primary-color, #1976d2);
+        color: var(--primary);
         font-size: 1.3rem;
         width: 1.3rem;
         height: 1.3rem;
@@ -212,7 +212,7 @@
 
     .password-info {
       margin: 0 0 1rem 0;
-      color: var(--text-secondary, #666);
+      color: var(--text-secondary);
       font-size: 0.9rem;
       line-height: 1.5;
     }
@@ -238,8 +238,8 @@
   // === ACTIONS DU DIALOGUE ===
   .dialog-actions {
     padding: 1rem 1.5rem;
-    border-top: 1px solid var(--border-color, #e0e0e0);
-    background-color: #fafafa;
+    border-top: var(--border-width) solid var(--border);
+    background-color: var(--background);
     flex-shrink: 0;
     display: flex;
     gap: 0.75rem;
@@ -364,27 +364,19 @@
 // === ANIMATIONS ===
 .edit-profile-dialog {
   .password-reset-button {
-    transition: all 0.2s ease;
+    transition: var(--transition-fast);
 
     &:hover:not(:disabled) {
       transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      box-shadow: var(--shadow-sm);
     }
   }
 
   button {
-    transition: all 0.2s ease;
+    transition: var(--transition-fast);
 
     &:hover:not(:disabled) {
       transform: translateY(-1px);
     }
   }
-}
-
-// === VARIABLES CSS ===
-:root {
-  --primary-color: #1976d2;
-  --text-primary: #333;
-  --text-secondary: #666;
-  --border-color: #e0e0e0;
 }

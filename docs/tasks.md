@@ -62,11 +62,11 @@ API documentation : 'docs/api-documentation.md'
 
 IMPORTANT : Here are some guidelines of how the style should be : 'docs/design-guidelines.md'
 
-12. [ ] **User Experience Enhancements**
-    - [ ] Add loading indicators for all async operations
-    - [ ] Implement proper form validation feedback
-    - [ ] Enhance error messages with actionable information
-    - [ ] Upgrade notification system to more user friendly snackbar notifications ( stylized bottom pages notifications )
+12. [X] **User Experience Enhancements**
+    - [X] Add loading indicators for all async operations
+    - [X] Implement proper form validation feedback
+    - [X] Enhance error messages with actionable information
+    - [X] Upgrade notification system to more user friendly snackbar notifications ( stylized bottom pages notifications )
 
 ## Documentation
 

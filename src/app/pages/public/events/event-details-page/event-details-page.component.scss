@@ -3,15 +3,7 @@
 .event-details-page {
   position: relative;
   min-height: 100vh;
-
-  // Couleurs principales du projet
-  --primary-color: #6c63ff;
-  --accent-color: #f72585;
-  --light-gray: #f8f9fa;
-  --dark-gray: #343a40;
-  --text-color: #212529;
-  --white: #ffffff;
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: var(--background);
 
   // État de chargement
   .loading-container {
@@ -20,12 +12,13 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    padding: 2rem;
+    padding: var(--spacing-xl);
 
     .loading-text {
-      margin-top: 1.5rem;
-      font-size: 1.2rem;
-      color: var(--dark-gray);
+      margin-top: var(--spacing-lg);
+      font-size: 18px; // Body Large from design guidelines
+      color: var(--text-secondary);
+      letter-spacing: 0px; // From design guidelines
     }
   }
 
@@ -39,23 +32,30 @@
     .error-message {
       text-align: center;
       max-width: 600px;
-      padding: 2rem;
+      padding: var(--spacing-xl);
+      background-color: var(--surface);
+      border-radius: var(--border-radius-medium);
+      box-shadow: var(--shadow-md);
 
       mat-icon {
         font-size: 48px;
         height: 48px;
         width: 48px;
-        color: var(--accent-color);
+        color: var(--error);
       }
 
       h2 {
-        margin: 1rem 0;
-        color: var(--dark-gray);
+        margin: var(--spacing-md) 0;
+        font-size: 24px; // Heading 2 from design guidelines
+        font-weight: 600; // SemiBold
+        color: var(--text-primary);
+        letter-spacing: 0px; // From design guidelines
       }
 
       p {
-        margin-bottom: 2rem;
-        color: var(--text-color);
+        margin-bottom: var(--spacing-xl);
+        font-size: 16px; // Body Default from design guidelines
+        color: var(--text-secondary);
       }
     }
   }
@@ -65,7 +65,7 @@
     display: none;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: var(--z-index-sticky);
 
     @media (max-width: 768px) {
       display: block;
@@ -77,49 +77,56 @@
     flex-direction: column;
     align-items: center;
     width: 100%;
-    //padding: 0 3rem;
   }
 
   // Sections
   .section {
-    padding: 0rem 5vw;
+    padding: var(--spacing-xl) 5vw;
     width: 100%;
+    position: relative;
 
     // Alternance de fond blanc/gris
     &:nth-child(even) {
-      background-color: var(--light-gray);
+      background-color: var(--background);
     }
 
     &:nth-child(odd) {
-      background-color: var(--white);
+      background-color: var(--surface);
     }
 
     // Style du titre de section commun à toutes les sections
     .section-title {
-      font-size: 2rem;
-      font-weight: 600;
-      color: var(--text-color);
-      margin-bottom: 2rem;
+      font-size: 24px; // Heading 2 from design guidelines
+      font-weight: 600; // SemiBold
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-xl);
       position: relative;
+      letter-spacing: 0px; // From design guidelines
 
       &:after {
         content: '';
         position: absolute;
-        bottom: -10px;
+        bottom: calc(-1 * var(--spacing-sm));
         left: 0;
         width: 60px;
         height: 4px;
-        background: var(--primary-color);
-        border-radius: 2px;
+        background: var(--primary);
+        border-radius: var(--border-radius-small);
+        transition: var(--transition-medium);
+      }
+
+      &:hover:after {
+        width: 80px;
       }
     }
 
     // Responsive
     @media (max-width: 768px) {
-      padding: 2rem 0;
+      padding: var(--spacing-lg) var(--spacing-md);
 
       .section-title {
-        font-size: 1.5rem;
+        font-size: 22px; // Slightly smaller on mobile
+        margin-bottom: var(--spacing-lg);
       }
     }
   }

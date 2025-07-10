@@ -123,39 +123,50 @@ interface GalleryDialogData {
     }
 
     .upload-zone {
-      padding: 20px;
-      border: 2px dashed #ccc;
-      border-radius: 8px;
+      padding: var(--spacing-lg);
+      border: 2px dashed var(--border);
+      border-radius: var(--border-radius-medium);
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: var(--spacing-lg);
     }
 
     .selected-files {
-      margin-top: 15px;
-      padding: 10px;
-      background-color: #f5f5f5;
-      border-radius: 4px;
+      margin-top: var(--spacing-md);
+      padding: var(--spacing-sm);
+      background-color: var(--background);
+      border-radius: var(--border-radius-small);
     }
 
     .gallery-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 15px;
-      padding: 20px 0;
+      gap: var(--spacing-md);
+      padding: var(--spacing-lg) 0;
     }
 
     .gallery-item {
       position: relative;
       aspect-ratio: 1;
-      border-radius: 8px;
+      border-radius: var(--border-radius-medium);
       overflow: hidden;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition-fast);
+    }
+
+    .gallery-item:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
     }
 
     .gallery-image {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      transition: var(--transition-medium);
+    }
+
+    .gallery-item:hover .gallery-image {
+      transform: scale(1.05);
     }
 
     .image-overlay {
@@ -169,7 +180,7 @@ interface GalleryDialogData {
       align-items: center;
       justify-content: center;
       opacity: 0;
-      transition: opacity 0.3s;
+      transition: var(--transition-fast);
     }
 
     .gallery-item:hover .image-overlay {
@@ -178,13 +189,17 @@ interface GalleryDialogData {
 
     .empty-gallery {
       text-align: center;
-      padding: 40px;
-      color: #666;
+      padding: var(--spacing-xxl);
+      color: var(--text-secondary);
     }
 
     .empty-icon {
       font-size: 64px;
-      opacity: 0.3;
+      height: 64px;
+      width: 64px;
+      opacity: 0.7;
+      margin-bottom: var(--spacing-md);
+      color: var(--text-secondary);
     }
   `]
 })

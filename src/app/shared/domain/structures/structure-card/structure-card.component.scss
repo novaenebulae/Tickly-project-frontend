@@ -1,24 +1,12 @@
-// Variables
-$primary: #6c63ff;
-$primary-light: #e8e7ff;
-$primary-dark: #4e46e5;
-$secondary: #4cc9f0;
-$accent: #f72585;
-$light: #f8f9fa;
-$dark: #343a40;
-$gray: #adb5bd;
-$gray-light: #e9ecef;
-$warning: #ffc107;
-$success: #28a745;
-$danger: #dc3545;
+// Using theme variables instead of local variables
 
 // Card Layout
 .structure-card {
-  background: white;
-  border-radius: 12px;
+  background: var(--surface);
+  border-radius: var(--border-radius-medium);
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
-  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-medium);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -26,7 +14,7 @@ $danger: #dc3545;
 
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-lg);
 
     .structure-cover {
       filter: brightness(1.05);
@@ -37,15 +25,15 @@ $danger: #dc3545;
     &::after {
       content: 'Nouveau';
       position: absolute;
-      top: 12px;
-      right: 12px;
-      background: $accent;
-      color: white;
-      padding: 4px 10px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      border-radius: 20px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      top: var(--spacing-md);
+      right: var(--spacing-md);
+      background: var(--accent);
+      color: var(--text-on-accent);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      font-size: 12px; // Label size
+      font-weight: 600; // SemiBold
+      border-radius: var(--border-radius-large);
+      box-shadow: var(--shadow-sm);
       z-index: 10;
     }
   }
@@ -66,7 +54,7 @@ $danger: #dc3545;
   background-position: center;
   background-repeat: no-repeat;
   position: relative;
-  transition: all 0.3s ease;
+  transition: var(--transition-medium);
 
   &::after {
     content: '';
@@ -82,7 +70,7 @@ $danger: #dc3545;
 
 // Card Content
 .card-content {
-  padding: 1.5rem;
+  padding: var(--spacing-lg);
   flex-grow: 1;
   display: flex;
   flex-direction: column;
@@ -94,43 +82,45 @@ $danger: #dc3545;
 
 .content-header {
   display: flex;
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--spacing-lg);
   justify-content: space-between;
   align-items: flex-start;
 }
 
 .structure-title {
   flex: 1;
-  padding-right: 15px;
+  padding-right: var(--spacing-md);
 
   h3 {
-    font-size: 1.4rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: $dark;
+    font-size: 20px; // Heading 3 size
+    font-weight: 600; // SemiBold
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
     margin-top: 0;
+    letter-spacing: 0px; // From design guidelines
   }
 }
 
 .structure-types {
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--spacing-sm);
 
   .type-chip {
-    font-size: 0.75rem;
+    font-size: 12px; // Label size
     height: 24px;
-    margin-right: 5px;
-    margin-bottom: 5px;
+    margin-right: var(--spacing-xs);
+    margin-bottom: var(--spacing-xs);
+    letter-spacing: 0.5px; // From design guidelines
   }
 }
 
 .structure-logo {
   width: 80px;
   height: 80px;
-  border-radius: 8px;
+  border-radius: var(--border-radius-medium);
   overflow: hidden;
-  border: 2px solid $gray-light;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  background: white;
+  border: var(--border-width) solid var(--border);
+  box-shadow: var(--shadow-sm);
+  background: var(--surface);
   flex-shrink: 0;
 
   img {
@@ -145,16 +135,16 @@ $danger: #dc3545;
   display: flex;
   align-items: center;
   margin-top: auto;
-  padding-top: 0.75rem;
-  border-top: 1px solid $gray-light;
-  gap: 8px;
+  padding-top: var(--spacing-md);
+  border-top: var(--border-width) solid var(--border);
+  gap: var(--spacing-sm);
 
   .action-btn {
     flex: 1;
     width: 0; // Pour forcer une largeur égale
 
     mat-icon {
-      margin-right: 4px;
+      margin-right: var(--spacing-xs);
       font-size: 16px;
       height: 16px;
       width: 16px;
@@ -163,17 +153,20 @@ $danger: #dc3545;
 
   .details-btn, .events-btn {
     min-width: 0;
-    padding-left: 8px;
-    padding-right: 8px;
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-sm);
+    font-size: 14px; // Button size
+    font-weight: 500; // Medium
+    letter-spacing: 0.25px; // From design guidelines
   }
 
   .events-btn {
-    background-color: rgba($accent, 0.1);
-    color: $accent;
-    border-color: $accent;
+    background-color: rgba(255, 170, 0, 0.1); // var(--accent) with 10% opacity
+    color: var(--accent);
+    border-color: var(--accent);
 
     &:hover {
-      background-color: rgba($accent, 0.2);
+      background-color: rgba(255, 170, 0, 0.2); // var(--accent) with 20% opacity
     }
   }
 }
@@ -181,21 +174,19 @@ $danger: #dc3545;
 // Bouton de favoris en haut à droite
 .favorite-btn-container {
   position: absolute;
-  top: 0px;
-  right: 10px;
+  top: 0;
+  right: var(--spacing-sm);
   z-index: 10;
   align-items: center;
 
   .favorite-btn {
-
     mat-icon {
-      transition: all 0.3s ease;
-      color: $accent;
-      font-size: 2rem;
-      height: 2rem;
-      width: 2rem;
+      transition: var(--transition-fast);
+      color: var(--accent);
+      font-size: 32px; // 2rem
+      height: 32px;
+      width: 32px;
       overflow: visible;
-
     }
 
     &:hover mat-icon {
@@ -205,6 +196,42 @@ $danger: #dc3545;
 }
 
 .structure-address {
-  color: $gray;
-  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-size: 14px; // Body Small size
+  letter-spacing: 0.1px; // From design guidelines
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .card-content {
+    padding: var(--spacing-md);
+  }
+
+  .content-header {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .structure-title h3 {
+    font-size: 18px; // Slightly smaller heading for mobile
+  }
+
+  .structure-logo {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+@media (max-width: 576px) {
+  .structure-cover {
+    height: 140px; // Slightly smaller cover for very small screens
+  }
+
+  .card-actions {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+
+    .action-btn {
+      width: 100%;
+    }
+  }
 }

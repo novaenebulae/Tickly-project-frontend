@@ -1,17 +1,13 @@
-<div class="d-flex flex-column align-items-center justify-content-center vh-100">
+<div class="auth-container">
   <img
     src="logos/tickly-logo.svg"
     alt="Logo"
-    class="mb-4"
-    style="width: 300px; height: auto"
+    class="logo"
   />
 
-  <mat-card
-    class="p-4 shadow-lg"
-    style="width: 100%; max-width: 400px; border-radius: 12px"
-  >
-    <mat-card-title class="text-center mb-3">Bienvenue</mat-card-title>
-    <mat-card-subtitle class="text-center mb-4 text-muted">
+  <mat-card>
+    <mat-card-title class="text-center">Bienvenue</mat-card-title>
+    <mat-card-subtitle class="text-center">
       Connectez-vous pour accéder à votre compte
     </mat-card-subtitle>
     <mat-card-content class="w-100 align-items-center">
@@ -57,8 +53,8 @@
         </mat-form-field>
 
         <!-- Lien mot de passe oublié -->
-        <div class="text-end mb-3">
-          <a routerLink="/auth/forgot-password" class="text-primary small">Mot de passe oublié ?</a>
+        <div class="forgot-password-link">
+          <a routerLink="/auth/forgot-password">Mot de passe oublié ?</a>
         </div>
 
         <div class="row gap-3 mt-2">
@@ -95,10 +91,10 @@
       </form>
     </mat-card-content>
 
-    <mat-card-actions class="text-center mt-3">
+    <mat-card-actions class="register-link">
       <span>
         Pas encore de compte ?
-        <a routerLink="/register" class="text-primary">Créer un compte</a>
+        <a routerLink="/register">Créer un compte</a>
       </span>
     </mat-card-actions>
   </mat-card>

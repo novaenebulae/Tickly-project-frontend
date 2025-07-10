@@ -95,71 +95,74 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
       justify-content: center;
       align-items: center;
       min-height: 80vh;
-      padding: 24px;
+      padding: var(--spacing-md);
     }
 
     .invitation-card {
       max-width: 500px;
       width: 100%;
       text-align: center;
+      border-radius: var(--border-radius-medium) !important;
+      box-shadow: var(--shadow-lg) !important;
     }
 
     .loading-state,
     .success-state,
     .error-state {
-      padding: 32px 16px;
+      padding: var(--spacing-xl) var(--spacing-md);
     }
 
     .success-icon {
       font-size: 64px;
       width: 64px;
       height: 64px;
-      color: #4caf50;
-      margin-bottom: 16px;
+      color: var(--success);
+      margin-bottom: var(--spacing-md);
     }
 
     .info-icon {
       font-size: 64px;
       width: 64px;
       height: 64px;
-      color: #2196f3;
-      margin-bottom: 16px;
+      color: var(--info);
+      margin-bottom: var(--spacing-md);
     }
 
     .error-icon {
       font-size: 64px;
       width: 64px;
       height: 64px;
-      color: #f44336;
-      margin-bottom: 16px;
+      color: var(--error);
+      margin-bottom: var(--spacing-md);
     }
 
     h2, h3 {
-      margin: 16px 0;
-      color: #333;
+      margin: var(--spacing-md) 0;
+      color: var(--text-primary);
     }
 
     p {
-      margin: 12px 0;
-      color: #666;
+      margin: var(--spacing-sm) 0;
+      color: var(--text-secondary);
       line-height: 1.5;
     }
 
     .small-text {
       font-size: 0.875rem;
-      color: #999;
+      color: var(--text-secondary);
+      opacity: 0.7;
     }
 
     .actions {
-      margin-top: 32px;
+      margin-top: var(--spacing-xl);
       display: flex;
-      gap: 12px;
+      gap: var(--spacing-sm);
       justify-content: center;
       flex-wrap: wrap;
     }
 
     .loading-state mat-spinner {
-      margin: 0 auto 16px;
+      margin: 0 auto var(--spacing-md);
     }
   `]
 })

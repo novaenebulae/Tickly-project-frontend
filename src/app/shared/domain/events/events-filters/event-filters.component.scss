@@ -1,28 +1,10 @@
-// Palette de couleurs
-$primary-color: #0A2A4E; // Bleu marine foncé
-$accent-color: #FF8C42;  // Orange corail vif
-$secondary-color: #3A7CA5; // Bleu moyen
-$light-text-color: #F8F9FA;
-$dark-text-color: #212529;
-$section-bg-light: #FFFFFF;
-$section-bg-darker: #f0f4f8;
-$border-color: #dee2e6;
-$shadow-soft: 0 2px 10px rgba(0, 0, 0, 0.05);
-$shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1);
-$gradient-blue: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
-
-// Variables de mise en page
-$border-radius-sm: 6px;
-$border-radius-md: 10px;
-$border-radius-lg: 16px;
-$transition-fast: 0.2s ease;
-$transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+// Using theme variables instead of local variables
 
 // Styles généraux
 :host {
   display: block;
   margin: 0;
-  margin-bottom: calc(1rem + 35px);
+  margin-bottom: calc(var(--spacing-lg) + 35px);
 
   ::ng-deep .mat-mdc-form-field-subscript-wrapper, .mat-mdc-form-field-bottom-align::before {
     display: none !important;
@@ -31,7 +13,7 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
 .filters-container {
   width: 100%;
-  font-family: 'Roboto', sans-serif;
+  font-family: var(--font-family-base);
   transition: all 0.4s ease;
   transform-origin: top;
 
@@ -55,20 +37,20 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 .filters-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--spacing-md);
 }
 
 // Card design pour les filtres principaux
 .filters-card {
-  background-color: $section-bg-light;
-  border-radius: $border-radius-lg;
-  box-shadow: $shadow-soft;
+  background-color: var(--surface);
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: $transition-smooth;
-  padding: 24px;
+  transition: var(--transition-medium);
+  padding: var(--spacing-xl);
 
   &:hover {
-    box-shadow: $shadow-medium;
+    box-shadow: var(--shadow-md);
   }
 }
 
@@ -77,7 +59,7 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: var(--spacing-md);
   width: 100%;
 
   @media (max-width: 768px) {
@@ -86,7 +68,7 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
     .advanced-filters-toggle {
       width: 100%;
-      margin-top: 8px;
+      margin-top: var(--spacing-sm);
     }
   }
 }
@@ -100,17 +82,17 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     width: 100%;
 
     .search-icon {
-      color: $secondary-color;
+      color: var(--primary);
       opacity: 0.7;
     }
 
     // Animation du label
     ::ng-deep .mat-mdc-form-field-flex {
-      transition: $transition-fast;
-      border-radius: $border-radius-sm;
+      transition: var(--transition-fast);
+      border-radius: var(--border-radius-small);
 
       &:hover {
-        background-color: rgba($secondary-color, 0.03);
+        background-color: rgba(90, 72, 245, 0.03); // var(--primary) with 3% opacity
       }
     }
   }
@@ -128,7 +110,7 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     width: 100%;
 
     ::ng-deep .mat-mdc-select-value {
-      font-weight: 500;
+      font-weight: 500; // Medium
     }
 
     ::ng-deep .mat-mdc-form-field-infix {
@@ -149,27 +131,27 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   align-items: stretch;
 
   .advanced-filters-button {
-    border-radius: $border-radius-md;
-    padding: 0 16px;
+    border-radius: var(--border-radius-medium);
+    padding: 0 var(--spacing-md);
     height: 100%;
     min-height: 56px;
-    transition: $transition-fast;
-    box-shadow: $shadow-soft;
+    transition: var(--transition-fast);
+    box-shadow: var(--shadow-sm);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--spacing-xs);
 
     &.active {
-      background-color: darken($primary-color, 5%);
+      background-color: var(--primary-dark);
     }
 
     mat-icon {
-      transition: transform $transition-fast;
+      transition: transform var(--transition-fast);
     }
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: $shadow-medium;
+      box-shadow: var(--shadow-md);
     }
   }
 }
@@ -178,15 +160,16 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 .categories-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-sm);
 
   .categories-label {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: $secondary-color;
+    gap: var(--spacing-sm);
+    font-size: 14px; // Body Small size
+    font-weight: 500; // Medium
+    color: var(--primary);
+    letter-spacing: 0.1px; // From design guidelines
 
     mat-icon {
       font-size: 18px;
@@ -197,7 +180,7 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
   .categories-chips-scroll {
     overflow-x: auto;
-    padding-bottom: 6px; // Espace pour le scrollbar
+    padding-bottom: var(--spacing-xs); // Espace pour le scrollbar
 
     // Cacher la scrollbar mais garder la fonctionnalité
     &::-webkit-scrollbar {
@@ -205,24 +188,24 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
     &::-webkit-scrollbar-track {
-      background: rgba($border-color, 0.3);
+      background: rgba(222, 226, 230, 0.3); // Light gray with 30% opacity
       border-radius: 10px;
     }
 
     &::-webkit-scrollbar-thumb {
-      background: $border-color;
+      background: var(--border);
       border-radius: 10px;
 
       &:hover {
-        background: darken($border-color, 10%);
+        background: var(--text-secondary);
       }
     }
   }
 
   .categories-chips {
     display: flex;
-    gap: 8px;
-    padding: 4px 0;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) 0;
 
     // Empêcher le retour à la ligne des chips
     ::ng-deep .mat-mdc-chip-set-wrapper {
@@ -230,10 +213,11 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
     .category-chip {
-      border-radius: 20px;
-      transition: $transition-fast;
-      font-size: 0.85rem;
+      border-radius: var(--border-radius-large);
+      transition: var(--transition-fast);
+      font-size: 12px; // Label size
       height: 30px;
+      letter-spacing: 0.5px; // From design guidelines
 
       &:hover {
         transform: translateY(-1px);
@@ -241,15 +225,15 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
       // Style des chips sélectionnées
       &.mat-mdc-chip-selected {
-        background-color: $accent-color;
-        color: $light-text-color;
+        background-color: var(--accent);
+        color: var(--text-on-accent);
 
         &::after {
           content: "";
           position: absolute;
           inset: -2px;
           border-radius: 22px;
-          border: 2px solid rgba($accent-color, 0.4);
+          border: 2px solid rgba(255, 170, 0, 0.4); // var(--accent) with 40% opacity
           pointer-events: none;
         }
       }
@@ -262,46 +246,48 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.4s cubic-bezier(0, 1, 0, 1);
-  background-color: $section-bg-light;
-  border-radius: $border-radius-lg;
-  box-shadow: $shadow-soft;
+  background-color: var(--surface);
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--shadow-sm);
   margin-top: -35px; // Chevauchement avec la carte principale
 
   &.open {
     max-height: 1000px; // Grande valeur pour permettre l'expansion
     transition: max-height 0.5s cubic-bezier(0.9, 0, 0.3, 1);
-    margin-bottom: 1rem;
-    padding-top: 16px;
+    margin-bottom: var(--spacing-md);
+    padding-top: var(--spacing-md);
   }
 
   .advanced-filters-content {
-    padding: 20px;
+    padding: var(--spacing-lg);
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--spacing-lg);
   }
 
   .advanced-filters-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba($border-color, 0.7);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border);
 
     h3 {
       margin: 0;
-      color: $primary-color;
-      font-size: 1.25rem;
-      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 20px; // Heading 3 size
+      font-weight: 600; // SemiBold
+      letter-spacing: 0px; // From design guidelines
     }
 
     .applied-filters-count {
-      font-size: 0.8rem;
-      background-color: rgba($accent-color, 0.1);
-      color: $accent-color;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-weight: 500;
+      font-size: 12px; // Label size
+      background-color: rgba(255, 170, 0, 0.1); // var(--accent) with 10% opacity
+      color: var(--accent);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--border-radius-large);
+      font-weight: 500; // Medium
+      letter-spacing: 0.5px; // From design guidelines
     }
   }
 }
@@ -310,14 +296,14 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 .advanced-filters-body {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--spacing-lg);
 }
 
 // Grille de filtres (pour date et lieu)
 .filters-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
+  gap: var(--spacing-lg);
 
   @media (max-width: 576px) {
     grid-template-columns: 1fr;
@@ -326,44 +312,45 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
 // Style commun pour les items de filtre
 .filter-item {
-  background-color: rgba($section-bg-darker, 0.5);
-  border-radius: $border-radius-md;
-  padding: 16px;
-  transition: $transition-fast;
+  background-color: rgba(248, 249, 250, 0.5); // var(--background) with 50% opacity
+  border-radius: var(--border-radius-medium);
+  padding: var(--spacing-md);
+  transition: var(--transition-fast);
 
   &:hover {
-    background-color: $section-bg-darker;
+    background-color: var(--background);
   }
 
   .filter-item-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
 
     mat-icon {
-      color: $secondary-color;
+      color: var(--primary);
     }
 
     h4 {
       margin: 0;
-      font-size: 1rem;
-      font-weight: 500;
-      color: $dark-text-color;
+      font-size: 16px; // Body Default size
+      font-weight: 500; // Medium
+      color: var(--text-primary);
+      letter-spacing: 0px; // From design guidelines
     }
   }
 }
 
 // Grid pour les checkboxes de genres
 .genres-filter {
-  margin-top: 10px;
+  margin-top: var(--spacing-sm);
   .genres-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 16px;
+    gap: var(--spacing-sm) var(--spacing-md);
     max-height: 180px;
     overflow-y: auto;
-    padding-right: 8px;
+    padding-right: var(--spacing-sm);
 
     // Style du scrollbar
     &::-webkit-scrollbar {
@@ -371,12 +358,12 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
     &::-webkit-scrollbar-track {
-      background: rgba($border-color, 0.3);
+      background: rgba(222, 226, 230, 0.3); // Light gray with 30% opacity
       border-radius: 10px;
     }
 
     &::-webkit-scrollbar-thumb {
-      background: $border-color;
+      background: var(--border);
       border-radius: 10px;
     }
 
@@ -385,21 +372,21 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       width: fit-content;
 
       ::ng-deep .mdc-form-field {
-        color: $dark-text-color;
+        color: var(--text-primary);
       }
 
       ::ng-deep .mdc-checkbox .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background {
-        background-color: $accent-color;
-        border-color: $accent-color;
+        background-color: var(--accent);
+        border-color: var(--accent);
       }
     }
 
     .no-genres {
-      color: $dark-text-color;
+      color: var(--text-secondary);
       font-style: italic;
       grid-column: 1 / -1;
       text-align: center;
-      padding: 12px;
+      padding: var(--spacing-md);
     }
   }
 }
@@ -408,22 +395,25 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 .advanced-filters-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 8px;
-  padding-top: 16px;
-  border-top: 1px solid rgba($border-color, 0.7);
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border);
 
   button {
     display: flex;
     align-items: center;
-    gap: 6px;
-    border-radius: $border-radius-md;
-    transition: $transition-fast;
-    padding: 0 16px;
+    gap: var(--spacing-xs);
+    border-radius: var(--border-radius-medium);
+    transition: var(--transition-fast);
+    padding: 0 var(--spacing-md);
+    font-size: 14px; // Button size
+    font-weight: 500; // Medium
+    letter-spacing: 0.25px; // From design guidelines
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: $shadow-soft;
+      box-shadow: var(--shadow-sm);
     }
 
     mat-icon {
@@ -434,11 +424,12 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
 
   .reset-button {
-    color: $secondary-color;
+    color: var(--primary);
   }
 
   .apply-button {
-    background-color: $accent-color;
+    background-color: var(--accent);
+    color: var(--text-on-accent);
   }
 
   @media (max-width: 576px) {
@@ -455,33 +446,35 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 .active-filters {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 16px;
-  padding: 8px 16px;
-  background-color: rgba($section-bg-darker, 0.5);
-  border-radius: $border-radius-md;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: rgba(248, 249, 250, 0.5); // var(--background) with 50% opacity
+  border-radius: var(--border-radius-medium);
 
   .active-filters-label {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: $secondary-color;
+    font-size: 14px; // Body Small size
+    font-weight: 500; // Medium
+    color: var(--primary);
     white-space: nowrap;
+    letter-spacing: 0.1px; // From design guidelines
   }
 
   .active-filters-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--spacing-sm);
     flex: 1;
 
     .active-filter-chip {
-      background-color: rgba($secondary-color, 0.1);
-      color: $secondary-color;
-      font-size: 0.85rem;
-      border-radius: 20px;
+      background-color: rgba(90, 72, 245, 0.1); // var(--primary) with 10% opacity
+      color: var(--primary);
+      font-size: 12px; // Label size
+      border-radius: var(--border-radius-large);
+      letter-spacing: 0.5px; // From design guidelines
 
       ::ng-deep .mat-mdc-chip-remove {
-        color: $secondary-color;
+        color: var(--primary);
         opacity: 0.7;
 
         &:hover {
@@ -491,13 +484,14 @@ $transition-smooth: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
     .clear-all-button {
-      font-size: 0.85rem;
-      color: $accent-color;
-      padding: 0 8px;
+      font-size: 12px; // Label size
+      color: var(--accent);
+      padding: 0 var(--spacing-sm);
       min-width: auto;
+      letter-spacing: 0.5px; // From design guidelines
 
       &:hover {
-        background-color: rgba($accent-color, 0.05);
+        background-color: rgba(255, 170, 0, 0.05); // var(--accent) with 5% opacity
       }
     }
   }

@@ -40,7 +40,7 @@ export class NotificationService {
   ): MatSnackBarRef<TextOnlySnackBar> { // Type the return for better usability
     const config: MatSnackBarConfig = {
       duration: duration,
-      verticalPosition: 'top', // Consistent positioning
+      verticalPosition: 'bottom', // Consistent positioning
       horizontalPosition: 'center', // Consistent positioning
       panelClass: [type], // Applies CSS class based on notification type for styling
     };

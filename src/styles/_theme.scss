@@ -221,31 +221,31 @@ html, body {
 
 // --- Bootstrap Navbar Integration ---
 .navbar {
-  background-color: var(--surface) !important;
+  background-color: var(--primary) !important;
   box-shadow: var(--shadow-sm);
   padding-top: var(--spacing-md);
   padding-bottom: var(--spacing-md);
 
   .navbar-brand {
     font-weight: 700;
-    color: var(--text-primary) !important;
+    color: var(--text-on-primary) !important;
   }
 
   .nav-link {
-    color: var(--text-secondary) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
     font-weight: 500;
     transition: var(--transition-fast);
     border-radius: var(--border-radius-small);
     margin: 0 var(--spacing-xs);
 
     &:hover {
-      color: var(--primary) !important;
-      background-color: rgba(90, 72, 245, 0.05);
+      color: var(--text-on-primary) !important;
+      background-color: rgba(255, 255, 255, 0.1);
     }
   }
 
   .nav-link.active {
-    color: var(--primary) !important;
+    color: var(--accent) !important;
     font-weight: 600;
   }
 

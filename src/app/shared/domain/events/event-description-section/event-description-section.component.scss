@@ -1,12 +1,13 @@
 .description-section {
-  padding: 2rem 0;
+  padding: var(--spacing-xl) 0;
 
   .section-title {
-    font-size: 2rem;
-    font-weight: 600;
-    color: var(--text-color);
-    margin-bottom: 2rem;
+    font-size: 24px; // Heading 2 size
+    font-weight: 600; // SemiBold
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xl);
     position: relative;
+    letter-spacing: 0px; // From design guidelines
 
     &:after {
       content: '';
@@ -15,8 +16,8 @@
       left: 0;
       width: 60px;
       height: 4px;
-      background: var(--primary-color);
-      border-radius: 2px;
+      background: var(--primary);
+      border-radius: var(--border-radius-small);
     }
   }
 
@@ -24,84 +25,88 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    margin-bottom: 2rem;
+    background-color: var(--surface);
+    border-radius: var(--border-radius-medium);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--spacing-xl);
     height: 100%;
 
     .description-text {
-      color: #444;
+      color: var(--text-secondary);
       line-height: 1.7;
-      margin-bottom: 2rem;
+      margin-bottom: var(--spacing-xl);
 
       p {
-        margin-bottom: 1rem;
+        margin-bottom: var(--spacing-md);
       }
 
       ul, ol {
-        margin-left: 1.5rem;
-        margin-bottom: 1rem;
+        margin-left: var(--spacing-lg);
+        margin-bottom: var(--spacing-md);
 
         li {
-          margin-bottom: 0.5rem;
+          margin-bottom: var(--spacing-sm);
         }
       }
     }
 
     .event-categories {
       h3 {
-        font-size: 1.2rem;
-        font-weight: 500;
-        margin-bottom: 1rem;
-        color: #444;
+        font-size: 20px; // Heading 3 size
+        font-weight: 500; // Medium
+        margin-bottom: var(--spacing-md);
+        color: var(--text-primary);
+        letter-spacing: 0px; // From design guidelines
       }
 
       .categories-list {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: var(--spacing-sm);
 
         mat-chip {
-          background-color: #6c63ff;
-          color: white;
-          font-weight: 400;
+          background-color: var(--primary);
+          color: var(--text-on-primary);
+          font-weight: 400; // Regular
+          font-size: 14px; // Body Small size
+          letter-spacing: 0.1px; // From design guidelines
         }
       }
     }
   }
 
   .event-actors {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    background-color: var(--surface);
+    border-radius: var(--border-radius-medium);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-sm);
 
     h3 {
-      font-size: 1.2rem;
-      font-weight: 500;
-      margin-bottom: 1.5rem;
-      color: #444;
+      font-size: 20px; // Heading 3 size
+      font-weight: 500; // Medium
+      margin-bottom: var(--spacing-lg);
+      color: var(--text-primary);
       text-align: center;
+      letter-spacing: 0px; // From design guidelines
     }
 
     .actors-list {
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: var(--spacing-lg);
 
       .actor-card {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: var(--spacing-md);
 
         .actor-image {
           width: 60px;
           height: 60px;
           border-radius: 50%;
           overflow: hidden;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          box-shadow: var(--shadow-sm);
 
           img {
             width: 100%;
@@ -114,16 +119,18 @@
           flex: 1;
 
           .actor-name {
-            font-size: 1rem;
-            font-weight: 500;
-            margin-bottom: 0.2rem;
-            color: #333;
+            font-size: 16px; // Body Default size
+            font-weight: 500; // Medium
+            margin-bottom: var(--spacing-xs);
+            color: var(--text-primary);
+            letter-spacing: 0px; // From design guidelines
           }
 
           .actor-role {
-            font-size: 0.85rem;
-            color: #666;
+            font-size: 14px; // Body Small size
+            color: var(--text-secondary);
             margin: 0;
+            letter-spacing: 0.1px; // From design guidelines
           }
         }
       }
@@ -134,11 +141,11 @@
 @media (max-width: 768px) {
   .description-section {
     .description-content {
-      padding: 1.5rem;
+      padding: var(--spacing-lg);
     }
 
     .event-actors {
-      margin-top: 2rem;
+      margin-top: var(--spacing-xl);
 
       .actors-list {
         .actor-card {

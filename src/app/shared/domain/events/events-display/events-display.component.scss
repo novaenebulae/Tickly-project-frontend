@@ -1,51 +1,45 @@
-// Variables
-$primary-color: #0A2A4E;
-$accent-color: #FF8C42;
-$secondary-color: #3A7CA5;
-$light-text-color: #F8F9FA;
-$dark-text-color: #212529;
-$section-bg-light: #FFFFFF;
-$section-bg-darker: #f0f4f8;
+// Variables locales
+$skeleton-gradient-middle: #e0e0e0; // Slightly darker shade for skeleton animation
 
 // Styles généraux
 .events-display {
   display: flex;
   flex-direction: column;
-  //width: 100% !important;
   height: fit-content;
-  background-color: $section-bg-darker;
+  background-color: var(--background);
 }
-
-
 
 // Barre d'options d'affichage
 .display-options-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background-color: $section-bg-light;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  padding: var(--spacing-md) var(--spacing-xl);
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+  border-radius: var(--border-radius-medium);
 
   .results-count {
-    font-size: 0.9rem;
-    color: $dark-text-color;
+    font-size: 14px; // Body Small from design guidelines
+    font-weight: 400; // Regular
+    letter-spacing: 0.1px; // From design guidelines
+    color: var(--text-secondary);
   }
 
   .view-mode-selector {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--spacing-xs);
 
     button {
-      color: $dark-text-color;
-      opacity: 0.6;
-      transition: all 0.2s ease;
+      color: var(--text-secondary);
+      opacity: 0.8; // Increased from 0.6 for better contrast
+      transition: var(--transition-fast);
 
       &.active-mode {
-        color: $accent-color;
+        color: var(--accent);
         opacity: 1;
       }
 
@@ -59,18 +53,17 @@ $section-bg-darker: #f0f4f8;
 
 // Conteneur des événements
 .events-container {
-  padding: 2rem 0;
+  padding: var(--spacing-xl) 0;
   box-sizing: border-box;
   flex: 1;
   margin: 0 auto;
   width: 100%;
 
-
   // Grille d'événements
   .events-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem;
+    gap: var(--spacing-xl);
 
     .event-card-container {
       height: 100%;
@@ -92,20 +85,20 @@ $section-bg-darker: #f0f4f8;
     &.grid-layout {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 2rem;
+      gap: var(--spacing-xl);
     }
 
     &.list-layout {
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: var(--spacing-lg);
     }
 
     .skeleton-card {
       height: 380px;
-      background-color: $section-bg-light;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      background-color: var(--surface);
+      border-radius: var(--border-radius-medium);
+      box-shadow: var(--shadow-sm);
       overflow: hidden;
       position: relative;
 
@@ -121,7 +114,7 @@ $section-bg-darker: #f0f4f8;
 
         .skeleton-content {
           flex: 1;
-          padding: 1.5rem;
+          padding: var(--spacing-lg);
         }
 
         @media (max-width: 768px) {
@@ -137,42 +130,42 @@ $section-bg-darker: #f0f4f8;
 
       .skeleton-image {
         height: 180px;
-        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background: linear-gradient(90deg, var(--border) 25%, $skeleton-gradient-middle 50%, var(--border) 75%);
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
       }
 
       .skeleton-content {
-        padding: 1.2rem;
+        padding: var(--spacing-md);
 
         .skeleton-title {
           height: 24px;
           width: 80%;
-          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+          background: linear-gradient(90deg, var(--border) 25%, $skeleton-gradient-middle 50%, var(--border) 75%);
           background-size: 200% 100%;
           animation: shimmer 1.5s infinite;
-          margin-bottom: 1rem;
-          border-radius: 4px;
+          margin-bottom: var(--spacing-md);
+          border-radius: var(--border-radius-small);
         }
 
         .skeleton-details {
           height: 16px;
           width: 60%;
-          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+          background: linear-gradient(90deg, var(--border) 25%, $skeleton-gradient-middle 50%, var(--border) 75%);
           background-size: 200% 100%;
           animation: shimmer 1.5s infinite;
-          margin-bottom: 1rem;
-          border-radius: 4px;
+          margin-bottom: var(--spacing-md);
+          border-radius: var(--border-radius-small);
         }
 
         .skeleton-button {
           height: 36px;
           width: 100%;
-          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+          background: linear-gradient(90deg, var(--border) 25%, $skeleton-gradient-middle 50%, var(--border) 75%);
           background-size: 200% 100%;
           animation: shimmer 1.5s infinite;
-          margin-top: 1rem;
-          border-radius: 4px;
+          margin-top: var(--spacing-md);
+          border-radius: var(--border-radius-small);
         }
       }
     }
@@ -185,43 +178,52 @@ $section-bg-darker: #f0f4f8;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 4rem 2rem;
-    background-color: $section-bg-light;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    padding: var(--spacing-xxl) var(--spacing-xl);
+    background-color: var(--surface);
+    border-radius: var(--border-radius-medium);
+    box-shadow: var(--shadow-sm);
 
     .no-results-icon {
-      font-size: 4rem;
-      height: 4rem;
-      width: 4rem;
-      color: $secondary-color;
-      opacity: 0.7;
-      margin-bottom: 1rem;
+      font-size: 48px;
+      height: 48px;
+      width: 48px;
+      color: var(--primary);
+      opacity: 0.9; // Increased from 0.7 for better contrast
+      margin-bottom: var(--spacing-md);
     }
 
     h2 {
-      font-size: 1.8rem;
-      font-weight: 600;
-      color: $primary-color;
-      margin-bottom: 1rem;
+      font-size: 24px; // Heading 2 from design guidelines
+      font-weight: 600; // SemiBold
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-md);
+      letter-spacing: 0px; // From design guidelines
+
+      @media (max-width: 768px) {
+        font-size: 22px; // Mobile Heading 2 size
+      }
     }
 
     p {
-      font-size: 1.1rem;
-      color: rgba($dark-text-color, 0.7);
-      margin-bottom: 2rem;
+      font-size: 16px; // Body Default from design guidelines
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-xl);
       max-width: 500px;
+
+      @media (max-width: 768px) {
+        font-size: 15px; // Mobile Body Default size
+      }
     }
   }
 }
 
 // Pagination
 .pagination-container {
-  padding: 2rem;
+  padding: var(--spacing-xl);
   display: flex;
   justify-content: center;
   width: 100%;
-  background-color: $section-bg-darker;
+  background-color: var(--background);
 
   ::ng-deep {
     .mat-mdc-paginator {
@@ -233,24 +235,28 @@ $section-bg-darker: #f0f4f8;
 
       .mat-mdc-paginator-range-actions {
         button {
-          color: $primary-color;
+          color: var(--primary);
 
           &:disabled {
-            color: rgba($dark-text-color, 0.3);
+            color: var(--text-secondary);
+            opacity: 0.5;
           }
 
           &:not(:disabled):hover {
-            background-color: rgba($primary-color, 0.05);
+            background-color: rgba(90, 72, 245, 0.05); // var(--primary) with 5% opacity
           }
         }
       }
 
       .mat-mdc-paginator-range-label {
-        margin: 0 24px;
+        margin: 0 var(--spacing-xl);
+        font-size: 14px; // Body Small from design guidelines
+        letter-spacing: 0.1px; // From design guidelines
+        color: var(--text-secondary);
       }
 
       .mat-mdc-paginator-page-size-select {
-        margin: 0 16px 0 0;
+        margin: 0 var(--spacing-md) 0 0;
         width: 70px;
       }
     }
@@ -278,22 +284,23 @@ $section-bg-darker: #f0f4f8;
 // Media queries pour la responsivité
 @media (max-width: 1200px) {
   .display-options-bar {
-    padding: 1rem 1.5rem;
+    padding: var(--spacing-md) var(--spacing-lg);
   }
   .events-container {
-    //padding: 1.5rem;
+    // Container padding is handled by the parent
   }
 
   .header-section {
-    padding: 2.5rem 1.5rem;
+    padding: var(--spacing-xl) var(--spacing-lg);
 
     .header-content .title-section {
       .main-title {
-        font-size: 2.4rem;
+        font-size: 28px; // Mobile heading 1 size from design guidelines
+        letter-spacing: -0.25px;
       }
 
       .subtitle {
-        font-size: 1.1rem;
+        font-size: 17px; // Mobile body large size from design guidelines
       }
     }
   }
@@ -301,28 +308,29 @@ $section-bg-darker: #f0f4f8;
 
 @media (max-width: 768px) {
   .display-options-bar {
-    padding: 1rem;
+    padding: var(--spacing-md);
   }
   .header-section {
-    padding: 2rem 1rem;
+    padding: var(--spacing-xl) var(--spacing-md);
 
     .header-content .title-section {
       .main-title {
-        font-size: 2rem;
+        font-size: 24px; // Heading 2 size for mobile from design guidelines
+        letter-spacing: 0px;
       }
 
       .subtitle {
-        font-size: 1rem;
+        font-size: 16px; // Body default size for mobile from design guidelines
       }
     }
   }
 
   .events-container {
-    //padding: 1rem;
+    // Container padding is handled by the parent
 
     .events-grid, .loading-container.grid-layout {
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1rem;
+      gap: var(--spacing-md);
     }
   }
 }
@@ -330,13 +338,19 @@ $section-bg-darker: #f0f4f8;
 @media (max-width: 576px) {
   .header-section .header-content .title-section {
     .main-title {
-      font-size: 1.8rem;
+      font-size: 22px; // Slightly smaller heading for very small screens
+      letter-spacing: 0px;
     }
   }
 
   .events-container {
-    .events-grid {
+    .events-grid, .loading-container.grid-layout {
       grid-template-columns: 1fr;
+      gap: var(--spacing-md);
     }
+  }
+
+  .pagination-container {
+    padding: var(--spacing-lg) var(--spacing-md);
   }
 }

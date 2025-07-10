@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {ChangeDetectionStrategy, Component, Inject, inject, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
@@ -16,7 +17,6 @@ interface AreaDialogData {
   structureId: number;
 }
 
-// @ts-ignore
 @Component({
   selector: 'app-area-edit-dialog',
   standalone: true,

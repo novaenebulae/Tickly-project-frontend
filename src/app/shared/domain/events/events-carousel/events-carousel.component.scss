@@ -1,12 +1,5 @@
-// Variables de couleurs (en hexadécimal, comme convenu)
-$primary-color: #0A2A4E;
-$accent-color: #FF8C42;
-$control-bg-color: rgba(255, 255, 255, 0.85); // Légèrement plus opaque
-$control-hover-bg-color: white;
-$indicator-active-color: $accent-color;
-$indicator-inactive-color: rgba(0, 0, 0, 0.3);
-$carousel-bg-color: #f0f4f8; // Un fond un peu plus doux que #f9f9f9
-$gap-between-cards: 16px; // Espace entre les cartes
+// Using theme variables
+$gap-between-cards: var(--spacing-md); // Espace entre les cartes
 
 :host {
   // Utilise la variable CSS liée depuis le TS
@@ -15,14 +8,13 @@ $gap-between-cards: 16px; // Espace entre les cartes
 
 .events-carousel {
   position: relative;
-  padding: 20px 0; // Padding vertical, horizontal géré par les contrôles
-  border-radius: 12px;
-  background-color: $carousel-bg-color;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  padding: var(--spacing-lg) 0; // Padding vertical, horizontal géré par les contrôles
+  border-radius: var(--border-radius-medium);
+  box-shadow: var(--shadow-sm);
 
   &__viewport {
     overflow: hidden; // Masque les cartes qui ne sont pas dans la "page" actuelle
-    margin: 0 40px; // Laisse de la place pour les flèches sur les côtés
+    margin: 0 var(--spacing-xl); // Laisse de la place pour les flèches sur les côtés
   }
 
   &__slides {
@@ -31,7 +23,7 @@ $gap-between-cards: 16px; // Espace entre les cartes
     // Elle sera plus grande que 100% si cardsPerPage < events.length.
     // Chaque "page" (groupe de cardsPerPage) occupera 100% de la largeur du viewport.
     // La transition se fait sur ce conteneur global.
-    transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); // Transition plus douce
+    transition: transform var(--transition-medium); // Transition plus douce
   }
 
   &__slide-item {
@@ -64,12 +56,12 @@ $gap-between-cards: 16px; // Espace entre les cartes
     border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 50%;
     z-index: 10;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    transition: var(--transition-medium);
+    box-shadow: var(--shadow-sm);
 
     &:hover {
       background: rgba(255, 255, 255, 0.4);
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
+      box-shadow: var(--shadow-md);
       transform: translateY(-50%) scale(1.05);
     }
 
@@ -87,7 +79,7 @@ $gap-between-cards: 16px; // Espace entre les cartes
       font-size: 28px;
       height: 28px;
       width: 28px;
-      color: $primary-color;
+      color: var(--primary);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -97,7 +89,7 @@ $gap-between-cards: 16px; // Espace entre les cartes
 
   &__indicators {
     text-align: center;
-    margin-top: 20px;
+    margin-top: var(--spacing-lg);
   }
 
   &__indicator {
@@ -105,18 +97,18 @@ $gap-between-cards: 16px; // Espace entre les cartes
     width: 12px; // Indicateurs un peu plus grands
     height: 12px;
     border-radius: 50%;
-    background-color: $indicator-inactive-color;
+    background-color: rgba(0, 0, 0, 0.3); // Inactive indicator color
     border: none;
-    margin: 0 6px;
+    margin: 0 var(--spacing-xs);
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: var(--transition-fast);
 
     &--active {
-      background-color: $indicator-active-color;
+      background-color: var(--accent);
       transform: scale(1.1);
     }
     &:hover:not(&--active) {
-      background-color: lighten($indicator-inactive-color, 10%);
+      background-color: rgba(0, 0, 0, 0.5); // Slightly darker on hover
     }
   }
 }
@@ -133,10 +125,10 @@ $gap-between-cards: 16px; // Espace entre les cartes
     --cards-per-page-dynamic: var(--cards-per-page, 1); // 1 carte sur petits écrans
   }
   .events-carousel {
-    padding: 15px 0;
+    padding: var(--spacing-md) 0;
 
     &__viewport {
-      margin: 0 10px; // Moins de marge pour les flèches
+      margin: 0 var(--spacing-sm); // Moins de marge pour les flèches
     }
 
     &__slide-item {

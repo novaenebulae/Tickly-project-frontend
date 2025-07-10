@@ -64,7 +64,7 @@ interface FilterStatus {
     MatExpansionModule, RouterLink,
   ],
   templateUrl: './events-panel.component.html',
-  styleUrls: ['./events-panel.component.scss'],
+  styleUrl: './events-panel.component.scss',
   providers: [
     DatePipe,
     {provide: LOCALE_ID, useValue: 'fr-FR'}
