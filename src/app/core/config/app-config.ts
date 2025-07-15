@@ -1,3 +1,5 @@
+import { environment } from '../../../environments/environment';
+
 /**
  * @file Application wide configuration settings.
  * @licence Proprietary
@@ -126,7 +128,7 @@ export const APP_CONFIG: AppConfig = {
   appVersion: '1.0.0',
 
   api: {
-    baseUrl: 'http://localhost/api/v1/',
+    baseUrl: environment.apiUrl,
     endpoints: {
       auth: {
         login: 'auth/login',
