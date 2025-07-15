@@ -23,7 +23,6 @@ import {NgOptimizedImage} from '@angular/common';
     RouterModule,
     MenuItemComponent,
     MatProgressSpinnerModule,
-    NgOptimizedImage
   ],
   templateUrl: './admin-sidenav.component.html',
   styleUrl: './admin-sidenav.component.scss',

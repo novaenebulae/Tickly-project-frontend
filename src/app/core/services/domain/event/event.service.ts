@@ -68,10 +68,13 @@ export class EventService {
   getEvents(params: EventSearchParams = {}): Observable<EventSummaryModel[]> {
     return this.eventApi.getEvents(params).pipe(
       map((response: any) => {
+        if (response && Array.isArray(response)) {
+          return this.mapApiEventsToEventSummaryModels(response);
+        }
         if (response && Array.isArray(response.items)) {
           return this.mapApiEventsToEventSummaryModels(response.items);
         }
-        console.warn('API response for events did not contain an "items" array.');
+        console.warn('API response for events was not a valid array.');
         return [];
       }),
       catchError(error => {
@@ -315,7 +318,16 @@ export class EventService {
   searchEvents(searchTerm: string, additionalParams: Partial<EventSearchParams> = {}): Observable<EventSummaryModel[]> {
     const params: EventSearchParams = { query: searchTerm, ...additionalParams };
     return this.eventApi.searchEvents(params).pipe( // EventApiService handles HttpParams conversion
-      map(apiEvents => this.mapApiEventsToEventSummaryModels(apiEvents)),
+      map((response: any) => {
+        if (response && Array.isArray(response)) {
+          return this.mapApiEventsToEventSummaryModels(response);
+        }
+        if (response && Array.isArray(response.items)) {
+          return this.mapApiEventsToEventSummaryModels(response.items);
+        }
+        console.warn('API response for search events was not a valid array.');
+        return [];
+      }),
       catchError(error => {
         this.handleError("Erreur lors de la recherche d'événements.", error);
         return of([]);
@@ -325,16 +337,31 @@ export class EventService {
 
 
   /**
-   * Rafraîchit la liste des événements mis en avant
-   * @param forceRefresh - Force le rechargement depuis l'API
+   * Refreshes the list of featured events.
+   * @param forceRefresh - If true, forces a refresh from the API.
+   * @param count - The number of featured events to retrieve.
+   * @returns An Observable of `EventSummaryModel[]`.
    */
   refreshFeaturedEvents(forceRefresh = false, count = APP_CONFIG.events.defaultFeaturedCount): Observable<EventSummaryModel[]> {
     return this.getFeaturedEvents(forceRefresh, count);
   }
 
+  /**
+   * Retrieves events to be displayed on the home page.
+   * Uses cached data if available, otherwise fetches from API.
+   * @param forceRefresh - If true, fetches from API even if in cache.
+   * @param count - The number of events to retrieve.
+   * @returns An Observable of `EventSummaryModel[]`.
+   */
   getHomePageEvents(forceRefresh = false, count = APP_CONFIG.events.defaultHomeCount): Observable<EventSummaryModel[]> {
-    if (!forceRefresh && this.homePageEventsSig().length > 0 && this.homePageEventsSig().length >= count) {
-      return of(this.homePageEventsSig().slice(0, count));
+    // For testing purposes, log the current state of the signal
+    console.log('getHomePageEvents called with forceRefresh:', forceRefresh, 'current signal value:', this.homePageEventsSig());
+
+    // Check if we have cached data and don't need to refresh
+    const cachedData = this.homePageEventsSig();
+    if (!forceRefresh && cachedData.length > 0 && cachedData.length >= count) {
+      console.log('Returning cached home page data:', cachedData);
+      return of(cachedData.slice(0, count));
     }
     return this.getEvents({
       status: EventStatus.PUBLISHED,
@@ -353,16 +380,32 @@ export class EventService {
     );
   }
 
+  /**
+   * Retrieves featured events.
+   * Uses cached data if available, otherwise fetches from API.
+   * @param forceRefresh - If true, fetches from API even if in cache.
+   * @param count - The number of featured events to retrieve.
+   * @returns An Observable of `EventSummaryModel[]`.
+   */
   getFeaturedEvents(forceRefresh = false, count = APP_CONFIG.events.defaultFeaturedCount): Observable<EventSummaryModel[]> {
-    if (!forceRefresh && this.featuredEventsSig().length > 0 && this.featuredEventsSig().length >= count) {
-      return of(this.featuredEventsSig().slice(0, count));
+    // For testing purposes, log the current state of the signal
+    console.log('getFeaturedEvents called with forceRefresh:', forceRefresh, 'current signal value:', this.featuredEventsSig());
+
+    // Check if we have cached data and don't need to refresh
+    const cachedData = this.featuredEventsSig();
+    if (!forceRefresh && cachedData.length > 0 && cachedData.length >= count) {
+      console.log('Returning cached data:', cachedData);
+      return of(cachedData.slice(0, count));
     }
     return this.eventApi.getFeaturedEvents(count).pipe(
       map((response: any) => {
+        if (response && Array.isArray(response)) {
+          return this.mapApiEventsToEventSummaryModels(response);
+        }
         if (response && Array.isArray(response.items)) {
           return this.mapApiEventsToEventSummaryModels(response.items);
         }
-        console.warn('API response for featured events did not contain an "items" array.');
+        console.warn('API response for featured events was not a valid array.');
         return [];
       }),
       tap(events => this.featuredEventsSig.set(events)),
@@ -373,15 +416,24 @@ export class EventService {
     );
   }
 
+  /**
+   * Retrieves events associated with a specific structure.
+   * @param structureId - The ID of the structure.
+   * @param params - Search parameters for filtering and sorting.
+   * @returns An Observable of `EventSummaryModel[]`.
+   */
   getEventsByStructure(structureId: number, params: Partial<EventSearchParams> = {}): Observable<EventSummaryModel[]> {
 
     const searchParams: EventSearchParams = { ...params, structureId: structureId };
     return this.eventApi.getEventsByStructure(structureId, searchParams).pipe(
       map((response: any) => {
+        if (response && Array.isArray(response)) {
+          return this.mapApiEventsToEventSummaryModels(response);
+        }
         if (response && Array.isArray(response.items)) {
           return this.mapApiEventsToEventSummaryModels(response.items);
         }
-        console.warn('API response for structure events did not contain an "items" array.');
+        console.warn('API response for structure events was not a valid array.');
         return [];
       }),
       catchError(error => {
@@ -393,6 +445,11 @@ export class EventService {
 
   // --- Cache Refresh Logic ---
 
+  /**
+   * Refreshes the cached home page events.
+   * @param force - If true, forces a refresh from the API.
+   * @returns An Observable of `EventSummaryModel[]`.
+   */
   private refreshHomePageEvents(force = true): Observable<EventSummaryModel[]> {
     return this.getHomePageEvents(force);
   }
@@ -481,6 +538,11 @@ export class EventService {
     };
   }
 
+  /**
+   * Maps a raw API event DTO to an `EventSummaryModel`.
+   * @param apiEvent - The raw event object from the API.
+   * @returns An `EventSummaryModel` or `undefined` if apiEvent is falsy.
+   */
   private mapApiEventToEventSummaryModel(apiEvent: any): EventSummaryModel | undefined {
     if (!apiEvent) return undefined;
 
@@ -508,6 +570,11 @@ export class EventService {
     };
   }
 
+  /**
+   * Maps an array of raw API event DTOs to an array of `EventSummaryModel`.
+   * @param apiEvents - The array of raw event objects from the API.
+   * @returns An array of `EventSummaryModel`.
+   */
   private mapApiEventsToEventSummaryModels(apiEvents: any[]): EventSummaryModel[] {
     if (!apiEvents || !Array.isArray(apiEvents)) return [];
     return apiEvents
@@ -556,6 +623,10 @@ export class EventService {
     return apiDto;
   }
 
+  /**
+   * Creates an empty address object.
+   * @returns A new empty `StructureAddressModel`.
+   */
   private createEmptyAddress(): StructureAddressModel {
     return { country: '', city: '', street: '', zipCode: '' };
   }
@@ -693,6 +764,11 @@ export class EventService {
     );
   }
 
+  /**
+   * Handles errors by logging them and displaying a notification to the user.
+   * @param userMessage - The user-friendly error message.
+   * @param error - The error object.
+   */
   private handleError(userMessage: string, error: any): void {
     // error object from EventApiService already contains a user-friendly 'message'
     console.error(`EventService Error: ${userMessage}`, error.originalError || error);

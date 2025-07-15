@@ -51,11 +51,11 @@ API documentation : 'docs/api-documentation.md'
     - [ ] Implement responsive layouts for all pages
     - [ ] Add touch-friendly interactions for mobile users
 
-11. [ ] **UI Consistency**
-    - [ ] Standardize color palette and typography
-    - [ ] Use SCSS variables for all styling : 
+11. [X] **UI Consistency**
+    - [X] Standardize color palette and typography
+    - [X] Use SCSS variables for all styling : 
     - Note Be careful on the use of themes colors, as some components would use secondary instead of primary, etc... Always check for the design to be consistent and coherent
-    - [ ] Implement consistent spacing and layout patterns
+    - [X] Implement consistent spacing and layout patterns
     - Note : A full Material Theme is located in 'src/styles/_theme.scss'
     - The goal is to have a consistent and uniformized design of the app.
     - WARNING :  darken() and lighten are deprecated.

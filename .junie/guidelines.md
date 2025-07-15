@@ -53,12 +53,12 @@ The project includes Docker configuration for containerized deployment:
 ### Running Tests
 Run the tests with:
 ```bash
-npm test
+npm run test-headless
 ```
 
 To run specific tests:
 ```bash
-npm test -- --include=path/to/test/file.spec.ts
+npm run test-headless -- --include=path/to/test/file.spec.ts
 ```
 
 ### Test Structure
