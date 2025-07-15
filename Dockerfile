@@ -1,7 +1,7 @@
 # Étape 1: Build de l'application Angular
 FROM node:22-alpine AS build
 WORKDIR /app
-COPY package.json package-lock.json./
+COPY package.json package-lock.json ./
 RUN npm install
 COPY . .
 RUN npm run build
