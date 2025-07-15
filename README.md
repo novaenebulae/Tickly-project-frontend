@@ -4,7 +4,7 @@
 
 Tickly est une plateforme moderne de gestion de billetterie développée avec Angular 19. Cette application permet la gestion complète des événements, la vente de billets, et le suivi des performances de vos événements via un tableau de bord intuitif.
 
-## Fonctionnalités
+## Fonctionnalités 
 
 - **Gestion des événements** : Créez, modifiez et supprimez des événements avec toutes les informations nécessaires.
 - **Vente de billets** : Configurez différents types de billets.
