@@ -11,6 +11,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create environment files
+        run: |
+          mkdir -p src/environments
+          echo "${{ secrets.ENV_TS }}" > src/environments/environment.ts
+          echo "${{ secrets.ENV_PROD_TS }}" > src/environments/environment.prod.ts
+
       - name: Test Application
         run: |
           npm install
