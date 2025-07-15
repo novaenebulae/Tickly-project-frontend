@@ -50,6 +50,7 @@ Tickly est une plateforme moderne de gestion de billetterie développée avec An
 - `npm start` : Lance le serveur de développement
 - `npm run build` : Compile l'application pour la production
 - `npm test` : Exécute les tests unitaires
+- `npm run test-headless` : Exécute les tests unitaires sans ouvrir de navigateur
 - `npm run watch` : Compile l'application en mode watch
 
 ## Déploiement
