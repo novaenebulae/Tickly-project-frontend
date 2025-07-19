@@ -198,15 +198,15 @@ export class TicketPdfService {
             <p style="margin: 5px 0 0 0; opacity: 0.9; font-size: 14px;">${pdfData.structureName || 'Structure'}</p>
           </div>
           ${pdfData.organizerLogoUrl ?
-      `<img src="${pdfData.organizerLogoUrl}" alt="Logo" style="width: 60px; height: 60px; border-radius: 10px; object-fit: cover;" crossorigin="anonymous">` :
-      '<div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px;">🎫</div>'
+      `<img src="${pdfData.organizerLogoUrl}" alt="Logo" style="width: 100px; height: 100px; border-radius: 10px; object-fit: cover;" crossorigin="anonymous">` :
+      '<div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px;">🎫</div>'
     }
         </div>
 
         <!-- Image de l'événement -->
         ${pdfData.eventSnapshot.mainPhotoUrl ?
       `<div style="margin-bottom: 25px; border-radius: 15px; overflow: hidden;">
-            <img src="${pdfData.eventSnapshot.mainPhotoUrl}" alt="Event" style="width: 100%; height: 200px; object-fit: cover;" crossorigin="anonymous">
+            <img src="${pdfData.eventSnapshot.mainPhotoUrl}" alt="Event" style="width: 100%; height: 200px; object-fit: cover; object-position: center;" crossorigin="anonymous">
           </div>` : ''
     }
 

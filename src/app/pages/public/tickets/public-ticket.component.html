@@ -1,0 +1,55 @@
+<div class="public-ticket-container">
+  <img
+    src="logos/tickly-logo.svg"
+    alt="Logo"
+    class="logo"
+  />
+
+  <mat-card>
+    @if (isLoading()) {
+      <div>
+        <mat-spinner diameter="60"></mat-spinner>
+        <p>Génération de votre billet en cours...</p>
+      </div>
+    } @else if (isSuccess()) {
+      <div>
+        <div class="success-icon">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <h2>Billet généré avec succès !</h2>
+        <p>Votre billet a été généré et téléchargé avec succès. Vous pouvez le présenter à l'entrée de l'événement.</p>
+
+        @if (ticket()) {
+          <div class="ticket-info">
+            <h3>Informations sur l'événement</h3>
+            <p><strong>Événement :</strong> {{ ticket()?.eventSnapshot!.name }}</p>
+            <p><strong>Date :</strong> {{ ticket()?.eventSnapshot!.startDate | date:'dd/MM/yyyy HH:mm':'':'fr' }}</p>
+            <p><strong>Participant :</strong> {{ ticket()?.participant!.firstName }} {{ ticket()?.participant!.lastName }}</p>
+          </div>
+        }
+
+        <div class="action-buttons">
+          <button mat-raised-button color="primary" (click)="navigateToHome()">
+            <mat-icon>home</mat-icon>
+            Retour à l'accueil
+          </button>
+        </div>
+      </div>
+    } @else {
+      <div>
+        <div class="error-icon">
+          <mat-icon>error</mat-icon>
+        </div>
+        <h2>Erreur</h2>
+        <p>{{ errorMessage() }}</p>
+
+        <div class="action-buttons">
+          <button mat-raised-button color="primary" (click)="navigateToHome()">
+            <mat-icon>home</mat-icon>
+            Retour à l'accueil
+          </button>
+        </div>
+      </div>
+    }
+  </mat-card>
+</div>

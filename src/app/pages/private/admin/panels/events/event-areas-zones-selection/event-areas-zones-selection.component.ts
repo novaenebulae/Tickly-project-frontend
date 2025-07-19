@@ -218,6 +218,29 @@ export class EventAreasZonesSelectionComponent implements OnInit {
             template: template,
             allocatedCapacity: existingZone.allocatedCapacity || 0
           });
+        } else {
+          // Si le template n'est pas trouvé, créer un template temporaire
+          // basé sur les informations de la zone existante
+          console.log('Template not found for zone:', existingZone);
+
+          // Vérifier si l'area existe
+          const areaExists = this.allAreas().some(area => area.id === existingZone.areaId);
+          if (areaExists) {
+            // Créer un template temporaire
+            const tempTemplate: AudienceZoneTemplateModel = {
+              id: existingZone.templateId || -1,
+              areaId: existingZone.areaId,
+              name: existingZone.name,
+              maxCapacity: existingZone.allocatedCapacity || 0,
+              seatingType: existingZone.seatingType || SeatingType.SEATED,
+              active: true
+            };
+
+            zoneConfigs.push({
+              template: tempTemplate,
+              allocatedCapacity: existingZone.allocatedCapacity || 0
+            });
+          }
         }
       });
 

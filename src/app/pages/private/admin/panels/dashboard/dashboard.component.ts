@@ -174,19 +174,39 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   };
 
   ngOnInit(): void {
-    // Load statistics data
-    this.loadStatistics();
+    console.log('Dashboard ngOnInit - Structure initiale:', this.structureName());
 
-    // Load KPI data
-    this.loadStructureData();
-    this.loadKpiData();
+    // First ensure structure data is loaded
+    this.userStructureService.refreshUserStructure()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (structure) => {
+          console.log('Structure chargée:', structure);
+          // Déclencher la détection de changement après le chargement de la structure
+          this.cdRef.markForCheck();
+
+          // After structure is loaded, load areas and other data
+          this.loadStructureData();
+          this.loadKpiData();
+          // Load statistics data
+          this.loadStatistics();
+        },
+        error: (err) => {
+          console.error('Error loading structure data:', err);
+          this.cdRef.markForCheck();
+          // Still try to load other data even if structure refresh fails
+          this.loadStructureData();
+          this.loadKpiData();
+          this.loadStatistics();
+        }
+      });
   }
 
   ngAfterViewInit(): void {
     // Update charts after view initialization
     setTimeout(() => {
       this.updateCharts();
-    }, 0);
+    }, 10);
   }
 
   /**
@@ -196,7 +216,16 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     // Load structure areas
     this.userStructureService.loadUserStructureAreas()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
+      .subscribe({
+        next: (areas) => {
+          console.log('Zones chargées:', areas);
+          this.cdRef.markForCheck();
+        },
+        error: (err) => {
+          console.error('Error loading areas:', err);
+          this.cdRef.markForCheck();
+        }
+      });
   }
 
   /**

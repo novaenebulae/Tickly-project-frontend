@@ -1395,6 +1395,7 @@ export class EventFormComponent implements OnInit {
       // }
     } else {
       // In create mode, include all fields
+      eventData.name = generalInfo.name; // Add the name field which is required
       eventData.categoryIds = categoryIds;
       eventData.shortDescription = generalInfo.shortDescription;
       eventData.fullDescription = generalInfo.fullDescription;

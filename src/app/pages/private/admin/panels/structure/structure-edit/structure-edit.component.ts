@@ -170,7 +170,6 @@ export class StructureEditComponent implements OnInit {
         country: ['', Validators.required],
         city: ['', Validators.required],
         street: ['', Validators.required],
-        number: [''],
         zipCode: ['']
       }),
       phone: [''],
@@ -195,8 +194,7 @@ export class StructureEditComponent implements OnInit {
       address: {
         country: structure.address.country,
         city: structure.address.city,
-        street: structure.address.street,
-        number: structure.address.number || '',
+        street: structure.address.number ? `${structure.address.number} ${structure.address.street}` : structure.address.street,
         zipCode: structure.address.zipCode || ''
       },
       phone: structure.phone || '',

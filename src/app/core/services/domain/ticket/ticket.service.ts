@@ -25,6 +25,8 @@ import {TicketModel} from '../../../models/tickets/ticket.model';
 import {ParticipantInfoModel} from '../../../models/tickets/participant-info.model';
 import {TicketPdfService} from './ticket-pdf.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {StructureService} from '../structure/structure.service';
+import {tick} from '@angular/core/testing';
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +35,8 @@ export class TicketService {
   private ticketApi = inject(TicketApiService);
   private notification = inject(NotificationService);
   private authService = inject(AuthService);
-  private pdfService = inject(TicketPdfService)
+  private pdfService = inject(TicketPdfService);
+  private structureService = inject(StructureService);
 
   // --- State Management using Signals ---
   private myTicketsSig: WritableSignal<TicketModel[]> = signal([]);
@@ -208,16 +211,16 @@ export class TicketService {
 
     if (!ticket) {
       return this.getTicketById(ticketId, true).pipe(
-        tap(fetchedTicket => {
+        switchMap(fetchedTicket => {
           if (fetchedTicket) {
             const pdfData: TicketPdfDataDto = {
               ...fetchedTicket,
-              // Use eventSnapshot data instead of making additional API calls
-              structureName: `Structure pour ${fetchedTicket.eventSnapshot.name}`,
-              organizerLogoUrl: fetchedTicket.eventSnapshot.mainPhotoUrl,
+              // Use structure logo instead of event main photo
+              structureName: fetchedTicket.structureSnapshot?.name || `Structure pour ${fetchedTicket.eventSnapshot.name}`,
+              organizerLogoUrl: fetchedTicket.structureSnapshot.logoUrl,
               termsAndConditions: "Conditions générales: Billet non remboursable, non échangeable. Présentez ce billet à l'entrée."
             };
-            return pdfData;
+            return of(pdfData);
           } else {
             this.notification.displayNotification(`Impossible de trouver le billet #${ticketId}.`, 'error');
             return of(undefined);
@@ -230,11 +233,11 @@ export class TicketService {
       );
     }
 
-    // Use cached ticket data
+    // Create PDF data for cached ticket
     const pdfData: TicketPdfDataDto = {
       ...ticket,
-      structureName: `Structure pour ${ticket.eventSnapshot.name}`,
-      organizerLogoUrl: ticket.eventSnapshot.mainPhotoUrl,
+      structureName: ticket.structureSnapshot?.name || `Structure pour ${ticket.eventSnapshot.name}`,
+      organizerLogoUrl: ticket.structureSnapshot.logoUrl,
       termsAndConditions: "Conditions générales: Billet non remboursable, non échangeable. Présentez ce billet à l'entrée."
     };
 

@@ -79,10 +79,6 @@ export class TicketApiService {
   getTicketById(ticketId: string): Observable<TicketModel> {
     const endpointContext = APP_CONFIG.api.endpoints.ticketing.ticketById(ticketId);
 
-    // if (this.apiConfig.isMockEnabledForDomain('ticketing')) {
-    //   return this.mockService.mockGetTicketById(ticketId);
-    // }
-
     this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
@@ -116,6 +112,24 @@ export class TicketApiService {
     return this.http.post<TicketModel>(url, {}, { headers }).pipe( // Assuming POST with empty body
       tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),
       catchError(error => this.handleTicketingError(error, 'validateTicket'))
+    );
+  }
+
+  /**
+   * Retrieves a public ticket by its ID without requiring authentication.
+   * This is used for the public ticket page accessible via email links.
+   * @param ticketId - The unique ID of the ticket.
+   * @returns An Observable of `TicketModel`.
+   */
+  getPublicTicketById(ticketId: string): Observable<TicketModel> {
+    const endpointContext = APP_CONFIG.api.endpoints.ticketing.publicTicketById(ticketId);
+
+    this.apiConfig.logApiRequest('GET', endpointContext);
+    const url = this.apiConfig.getUrl(endpointContext);
+    // No authentication headers needed for public endpoint
+    return this.http.get<TicketModel>(url).pipe(
+      tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
+      catchError(error => this.handleTicketingError(error, 'getPublicTicketById'))
     );
   }
 

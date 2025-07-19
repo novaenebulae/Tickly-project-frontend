@@ -65,6 +65,13 @@ export const routes: Routes = [
     title: 'Confirmation de suppression de compte'
   },
 
+  {
+    path: 'tickets/view/:ticketId', // Route pour accéder aux billets publics via email
+    loadComponent: () => import('./pages/public/tickets/public-ticket.component')
+      .then(m => m.PublicTicketComponent),
+    title: 'Votre billet | Tickly'
+  },
+
 
   // User private area (requires authentication)
   {

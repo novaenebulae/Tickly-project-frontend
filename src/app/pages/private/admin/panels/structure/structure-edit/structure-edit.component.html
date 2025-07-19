@@ -128,14 +128,14 @@
           <div class="section-content">
             <div class="form-row">
               <mat-form-field appearance="outline" class="half-width">
-                <mat-label>Pays *</mat-label>
+                <mat-label>Pays</mat-label>
                 <input matInput formControlName="country" placeholder="France" >
                 <mat-icon matSuffix>public</mat-icon>
                 <mat-error>{{ getFieldErrorMessage('address.country') }}</mat-error>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="half-width">
-                <mat-label>Ville *</mat-label>
+                <mat-label>Ville</mat-label>
                 <input matInput formControlName="city" placeholder="Paris" >
                 <mat-icon matSuffix>location_city</mat-icon>
                 <mat-error>{{ getFieldErrorMessage('address.city') }}</mat-error>
@@ -144,16 +144,10 @@
 
             <div class="form-row">
               <mat-form-field appearance="outline" class="half-width">
-                <mat-label>Rue *</mat-label>
+                <mat-label>Numéro et rue</mat-label>
                 <input matInput formControlName="street" placeholder="123 Rue de la République" >
                 <mat-icon matSuffix>home</mat-icon>
                 <mat-error>{{ getFieldErrorMessage('address.street') }}</mat-error>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="quarter-width">
-                <mat-label>Numéro</mat-label>
-                <input matInput formControlName="number" placeholder="123" >
-                <mat-error>{{ getFieldErrorMessage('address.number') }}</mat-error>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="quarter-width">

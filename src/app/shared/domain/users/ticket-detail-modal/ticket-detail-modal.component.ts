@@ -39,7 +39,6 @@ export interface TicketDetailModalData {
     MatCardModule,
     MatChipsModule,
     QRCodeComponent,
-    MatProgressSpinner,
     NgOptimizedImage
   ],
   templateUrl: './ticket-detail-modal.component.html',
@@ -70,25 +69,6 @@ export class TicketDetailModalComponent {
 
   close(): void {
     this.dialogRef.close();
-  }
-
-  downloadAllPdfs(): void {
-    this.isDownloading.set(true);
-
-    const ticketIds = this.tickets.map(ticket => ticket.id);
-
-    this.ticketService.downloadMultipleTicketsPdf(ticketIds)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-      next: () => {
-        this.isDownloading.set(false);
-        this.cdRef.markForCheck();
-      },
-      error: () => {
-        this.isDownloading.set(false);
-        this.cdRef.markForCheck();
-      }
-    });
   }
 
   downloadSinglePdf(ticket: TicketModel): void {

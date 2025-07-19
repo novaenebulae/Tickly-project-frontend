@@ -74,6 +74,7 @@ interface AppConfig {
         reservations: string;  // POST to create a new reservation (batch of tickets)
         myTickets: string;     // GET tickets for the current user
         ticketById: (ticketId: string) => string; // GET details of a specific ticket
+        publicTicketById: (ticketId: string) => string; // GET public details of a specific ticket
         validateTicket?: string; // Optional: POST to validate a ticket (scan)
       };
       // Add other domains as needed
@@ -190,7 +191,8 @@ export const APP_CONFIG: AppConfig = {
         reservations: 'ticketing/reservations', // POST ReservationRequestDto
         myTickets: 'ticketing/my-tickets',     // GET current user's TicketModel[]
         ticketById: (ticketId) => `ticketing/tickets/${ticketId}`, // GET TicketModel
-        // validateTicket: 'ticketing/tickets/validate',
+        publicTicketById: (ticketId) => `ticketing/public/tickets/${ticketId}`, // GET public TicketModel
+        validateTicket: 'ticketing/tickets/validate',
       }
     }
   },

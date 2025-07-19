@@ -124,9 +124,23 @@ export class UserTicketsPage implements OnInit {
   /**
    * Télécharge le PDF pour tous les billets d'un événement
    */
-  downloadEventPdfs(tickets: TicketModel[]): void {
+  downloadAllPdfs(tickets: TicketModel[]): void {
+    this.isLoading.set(true);
+
     const ticketIds = tickets.map(ticket => ticket.id);
-    this.ticketService.downloadMultipleTicketsPdf(ticketIds);
+
+    this.ticketService.downloadMultipleTicketsPdf(ticketIds)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this.cdRef.markForCheck();
+        },
+        error: () => {
+          this.isLoading.set(false);
+          this.cdRef.markForCheck();
+        }
+      });
   }
 
   /**
@@ -134,7 +148,7 @@ export class UserTicketsPage implements OnInit {
    */
   downloadEventPdfsFromCard(event: Event, tickets: TicketModel[]): void {
     event.stopPropagation(); // Empêche l'ouverture de la modal
-    this.downloadEventPdfs(tickets);
+    this.downloadAllPdfs(tickets);
   }
 
   openEventTickets(tickets: TicketModel[]): void {

@@ -113,15 +113,15 @@
     <button mat-button (click)="close()" class="close-btn">
       Fermer
     </button>
-    <button mat-flat-button
-            color="primary"
-            (click)="downloadAllPdfs()"
-            [disabled]="isDownloading()">
-      <div class="button-content">
-        <mat-spinner diameter="20" *ngIf="isDownloading()"></mat-spinner>
-        <mat-icon *ngIf="!isDownloading()">download</mat-icon>
-        <span>{{ isDownloading() ? 'Génération...' : 'Télécharger tous les billets' }}</span>
-      </div>
-    </button>
+<!--    <button mat-flat-button-->
+<!--            color="primary"-->
+<!--            (click)="downloadAllPdfs()"-->
+<!--            [disabled]="isDownloading()">-->
+<!--      <div class="button-content">-->
+<!--        <mat-spinner diameter="20" *ngIf="isDownloading()"></mat-spinner>-->
+<!--        <mat-icon *ngIf="!isDownloading()">download</mat-icon>-->
+<!--        <span>{{ isDownloading() ? 'Génération...' : 'Télécharger tous les billets' }}</span>-->
+<!--      </div>-->
+<!--    </button>-->
   </div>
 </div>

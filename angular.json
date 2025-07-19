@@ -75,12 +75,16 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.js"
+          },
           "configurations": {
             "production": {
               "buildTarget": "tickly-frontend:build:production"
             },
             "development": {
-              "buildTarget": "tickly-frontend:build:development"
+              "buildTarget": "tickly-frontend:build:development",
+              "proxyConfig": "proxy.conf.js"
             }
           },
           "defaultConfiguration": "development"

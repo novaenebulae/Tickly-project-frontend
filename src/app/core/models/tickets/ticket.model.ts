@@ -6,6 +6,7 @@
 
 import {TicketStatus} from './ticket-status.enum';
 import {ParticipantInfoModel} from './participant-info.model';
+import {StructureSummaryModel} from '../structure/structure-summary.model';
 
 /**
  * Event snapshot as received from the API.
@@ -81,6 +82,13 @@ export interface AudienceZoneSnapshotModel {
   seatingType: string;
 }
 
+export interface StructureSnapshotModel {
+  id: number;
+  name: string;
+  logoUrl?: string;
+
+}
+
 /**
  * Represents an individual event ticket as received from the API
  */
@@ -114,4 +122,7 @@ export interface TicketModel {
    * A snapshot of key audience zone details at the time of booking.
    */
   audienceZoneSnapshot: AudienceZoneSnapshotModel;
+
+  structureSnapshot: StructureSnapshotModel;
+
 }
