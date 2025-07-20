@@ -1,9 +1,9 @@
-import { Injectable, inject } from '@angular/core';
-import { Client, IMessage } from '@stomp/stompjs';
+import {inject, Injectable} from '@angular/core';
+import {Client, IMessage} from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { AuthService } from '../domain/user/auth.service';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {environment} from '../../../../environments/environment';
+import {AuthService} from '../domain/user/auth.service';
 import {TicketModel} from '../../models/tickets/ticket.model';
 
 /**

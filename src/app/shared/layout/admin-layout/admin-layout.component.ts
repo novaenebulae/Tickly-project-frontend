@@ -7,7 +7,6 @@ import {AdminSidenavComponent} from '../admin-sidenav/admin-sidenav.component';
 import {RouterModule} from '@angular/router';
 import {MatMenuModule} from '@angular/material/menu';
 import {AuthService} from '../../../core/services/domain/user/auth.service';
-import {UserService} from '../../../core/services/domain/user/user.service';
 
 @Component({
   selector: 'app-admin-layout',

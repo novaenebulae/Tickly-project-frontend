@@ -1,12 +1,12 @@
-import { TestBed } from '@angular/core/testing';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { UserFavoritesService } from './user-favorites.service';
-import { UserApiService } from '../../api/user/user-api.service';
-import { AuthService } from './auth.service';
-import { NotificationService } from '../utilities/notification.service';
-import { of, throwError } from 'rxjs';
-import { UserFavoriteStructureModel } from '../../../models/user/user-favorite-structure.model';
-import { UserRole } from '../../../models/user/user-role.enum';
+import {TestBed} from '@angular/core/testing';
+import {provideHttpClientTesting} from '@angular/common/http/testing';
+import {UserFavoritesService} from './user-favorites.service';
+import {UserApiService} from '../../api/user/user-api.service';
+import {AuthService} from './auth.service';
+import {NotificationService} from '../utilities/notification.service';
+import {of, throwError} from 'rxjs';
+import {UserFavoriteStructureModel} from '../../../models/user/user-favorite-structure.model';
+import {UserRole} from '../../../models/user/user-role.enum';
 
 describe('UserFavoritesService', () => {
   let service: UserFavoritesService;

@@ -20,7 +20,7 @@ import {
 // Domain Services
 import {NotificationService} from '../utilities/notification.service';
 import {AuthService} from '../user/auth.service';
-import {WebSocketService, EventTicketStatisticsDto} from '../../websocket/websocket.service';
+import {EventTicketStatisticsDto, WebSocketService} from '../../websocket/websocket.service';
 
 // Models and DTOs
 import {

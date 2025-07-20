@@ -1,13 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  OnInit,
-  signal
-} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
@@ -31,7 +22,6 @@ import {
 import {StructureCardComponent} from '../../../../shared/domain/structures/structure-card/structure-card.component';
 import {AuthService} from '../../../../core/services/domain/user/auth.service';
 import {UserFavoritesService} from '../../../../core/services/domain/user/user-favorites.service';
-import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {
   StructureCardSkeletonComponent

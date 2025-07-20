@@ -1,10 +1,8 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, Input, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, inject, Input, OnInit} from '@angular/core';
 import {EventService} from '../../../../core/services/domain/event/event.service';
 import {EventSummaryModel} from '../../../../core/models/event/event.model';
 import {EventsCarouselComponent} from '../events-carousel/events-carousel.component';
 import {CommonModule} from '@angular/common';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 @Component({

@@ -1,14 +1,13 @@
-import { TestBed } from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 import {provideHttpClientTesting} from '@angular/common/http/testing';
-import { EventService } from './event.service';
-import { EventApiService } from '../../api/event/event-api.service';
-import { NotificationService } from '../utilities/notification.service';
-import { AuthService } from '../user/auth.service';
-import { of, throwError } from 'rxjs';
-import { EventModel, EventStatus, EventSummaryModel } from '../../../models/event/event.model';
-import { UserRole } from '../../../models/user/user-role.enum';
-import { JwtPayload } from '../../../models/auth/auth.model';
-import {provideHttpClient} from '@angular/common/http';
+import {EventService} from './event.service';
+import {EventApiService} from '../../api/event/event-api.service';
+import {NotificationService} from '../utilities/notification.service';
+import {AuthService} from '../user/auth.service';
+import {of, throwError} from 'rxjs';
+import {EventModel, EventStatus, EventSummaryModel} from '../../../models/event/event.model';
+import {UserRole} from '../../../models/user/user-role.enum';
+import {JwtPayload} from '../../../models/auth/auth.model';
 
 describe('EventService', () => {
   let service: EventService;

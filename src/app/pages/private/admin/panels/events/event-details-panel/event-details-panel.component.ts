@@ -1,5 +1,6 @@
 import {
-  AfterViewInit, ChangeDetectionStrategy,
+  AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   DestroyRef,
@@ -43,7 +44,6 @@ import {StatisticsService} from '../../../../../../core/services/domain/statisti
 import {EventModel} from '../../../../../../core/models/event/event.model';
 import {EventStatisticsDto} from '../../../../../../core/models/statistics/event-statistics.model';
 import {ChartJsDataDto} from '../../../../../../core/models/statistics/chart-js-data.model';
-import _default from 'chart.js/auto';
 
 
 // --- INTERFACES POUR LES DONNÉES (Alignées avec le HTML) ---

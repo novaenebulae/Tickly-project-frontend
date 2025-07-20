@@ -35,7 +35,8 @@ import {UserRole} from '../../../../../../core/models/user/user-role.enum';
 import {AuthService} from '../../../../../../core/services/domain/user/auth.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {
-  ConfirmationDialogComponent, ConfirmationDialogData
+  ConfirmationDialogComponent,
+  ConfirmationDialogData
 } from '../../../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 

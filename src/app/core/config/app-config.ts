@@ -1,4 +1,4 @@
-import { environment } from '../../../environments/environment';
+import {environment} from '../../../environments/environment';
 
 /**
  * @file Application wide configuration settings.

@@ -8,38 +8,36 @@ import {
   signal,
   WritableSignal
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {debounceTime, distinctUntilChanged, Subject} from 'rxjs';
 
 // Angular Material imports
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatTableModule } from '@angular/material/table';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatDividerModule } from '@angular/material/divider';
+import {MatButtonModule} from '@angular/material/button';
+import {MatIconModule} from '@angular/material/icon';
+import {MatCardModule} from '@angular/material/card';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {MatSelectModule} from '@angular/material/select';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatPaginatorModule, PageEvent} from '@angular/material/paginator';
+import {MatTableModule} from '@angular/material/table';
+import {MatBadgeModule} from '@angular/material/badge';
+import {MatDividerModule} from '@angular/material/divider';
 
 // Services
-import { TicketService } from '../../../../../../core/services/domain/ticket/ticket.service';
-import { EventService } from '../../../../../../core/services/domain/event/event.service';
-import { NotificationService } from '../../../../../../core/services/domain/utilities/notification.service';
+import {TicketService} from '../../../../../../core/services/domain/ticket/ticket.service';
+import {EventService} from '../../../../../../core/services/domain/event/event.service';
+import {NotificationService} from '../../../../../../core/services/domain/utilities/notification.service';
 
 // Models
-import { TicketModel } from '../../../../../../core/models/tickets/ticket.model';
-import { TicketStatus } from '../../../../../../core/models/tickets/ticket-status.enum';
-import { EventTicketStatisticsDto } from '../../../../../../core/services/websocket/websocket.service';
-import { EventModel } from '../../../../../../core/models/event/event.model';
+import {TicketStatus} from '../../../../../../core/models/tickets/ticket-status.enum';
+import {EventModel} from '../../../../../../core/models/event/event.model';
 
 /**
  * Component for validating tickets for an event

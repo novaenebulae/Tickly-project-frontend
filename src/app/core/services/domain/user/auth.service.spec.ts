@@ -1,13 +1,13 @@
-import { TestBed } from '@angular/core/testing';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { Router } from '@angular/router';
-import { AuthService } from './auth.service';
-import { AuthApiService } from '../../api/auth/auth-api.service';
-import { NotificationService } from '../utilities/notification.service';
-import { of, throwError } from 'rxjs';
-import { AuthResponseDto, JwtPayload, LoginCredentials } from '../../../models/auth/auth.model';
-import { UserRegistrationDto } from '../../../models/user/user.model';
-import { UserRole } from '../../../models/user/user-role.enum';
+import {TestBed} from '@angular/core/testing';
+import {provideHttpClientTesting} from '@angular/common/http/testing';
+import {Router} from '@angular/router';
+import {AuthService} from './auth.service';
+import {AuthApiService} from '../../api/auth/auth-api.service';
+import {NotificationService} from '../utilities/notification.service';
+import {of, throwError} from 'rxjs';
+import {AuthResponseDto, JwtPayload, LoginCredentials} from '../../../models/auth/auth.model';
+import {UserRegistrationDto} from '../../../models/user/user.model';
+import {UserRole} from '../../../models/user/user-role.enum';
 
 // PAS BESOIN D'IMPORTER jwt-decode ICI
 

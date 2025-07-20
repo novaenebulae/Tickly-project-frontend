@@ -1,7 +1,8 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  Component, DestroyRef,
+  Component,
+  DestroyRef,
   ElementRef,
   HostBinding,
   inject,
@@ -10,13 +11,12 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import {interval, Subject, Subscription} from 'rxjs';
+import {interval, Subscription} from 'rxjs';
 import {CommonModule} from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
 import {EventCardComponent} from '../event-card-item/event-card.component';
 import {MatButtonModule} from '@angular/material/button';
 import {EventSummaryModel} from '../../../../core/models/event/event.model';
-import {takeUntil} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 // Les imports pour MatIconModule etc. sont dans le décorateur @Component pour les composants standalone

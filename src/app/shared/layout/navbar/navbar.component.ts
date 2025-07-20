@@ -1,16 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  computed,
-  DestroyRef,
-  effect,
-  ElementRef,
-  inject,
-  OnDestroy,
-  OnInit,
-  signal,
-  ViewChild
-} from '@angular/core';
+import {Component, computed, DestroyRef, effect, ElementRef, inject, OnInit, signal, ViewChild} from '@angular/core';
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {Router, RouterLink, RouterLinkActive} from '@angular/router';
 import {MatIconModule} from '@angular/material/icon';
@@ -19,7 +7,6 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatBadgeModule} from '@angular/material/badge';
 import {MatDialog} from '@angular/material/dialog';
-import {Subject, takeUntil} from 'rxjs';
 import {UserRole} from '../../../core/models/user/user-role.enum';
 
 // Services

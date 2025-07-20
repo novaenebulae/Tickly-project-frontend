@@ -1,13 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  signal,
-  WritableSignal
-} from '@angular/core';
+import {Component, computed, inject, signal, WritableSignal} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';

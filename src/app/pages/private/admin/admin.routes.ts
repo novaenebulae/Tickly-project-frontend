@@ -5,7 +5,8 @@ import {
   EventManagementGuard,
   StaffGuard,
   StructureExtendedAccessGuard,
-  TeamManagementGuard, TicketValidationGuard
+  TeamManagementGuard,
+  TicketValidationGuard
 } from '../../../core/guards/staff.guards';
 
 /**

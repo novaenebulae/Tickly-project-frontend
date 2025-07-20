@@ -1,14 +1,14 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { of, throwError } from 'rxjs';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {ActivatedRoute, Router} from '@angular/router';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
+import {NoopAnimationsModule} from '@angular/platform-browser/animations';
+import {of, throwError} from 'rxjs';
 
-import { PublicTicketComponent } from './public-ticket.component';
-import { TicketApiService } from '../../../core/services/api/ticket/ticket-api.service';
-import { TicketPdfService } from '../../../core/services/domain/ticket/ticket-pdf.service';
-import { NotificationService } from '../../../core/services/domain/utilities/notification.service';
-import { TicketStatus } from '../../../core/models/tickets/ticket-status.enum';
+import {PublicTicketComponent} from './public-ticket.component';
+import {TicketApiService} from '../../../core/services/api/ticket/ticket-api.service';
+import {TicketPdfService} from '../../../core/services/domain/ticket/ticket-pdf.service';
+import {NotificationService} from '../../../core/services/domain/utilities/notification.service';
+import {TicketStatus} from '../../../core/models/tickets/ticket-status.enum';
 
 describe('PublicTicketComponent', () => {
   let component: PublicTicketComponent;

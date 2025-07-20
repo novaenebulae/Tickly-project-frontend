@@ -1,7 +1,9 @@
 import {
-  ChangeDetectionStrategy, ChangeDetectorRef,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
-  computed, DestroyRef,
+  computed,
+  DestroyRef,
   effect,
   ElementRef,
   inject,

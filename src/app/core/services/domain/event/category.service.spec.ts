@@ -1,10 +1,10 @@
-import { TestBed } from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 import {provideHttpClientTesting} from '@angular/common/http/testing';
-import { CategoryService } from './category.service';
-import { EventApiService } from '../../api/event/event-api.service';
-import { NotificationService } from '../utilities/notification.service';
-import { of, throwError } from 'rxjs';
-import { EventCategoryModel } from '../../../models/event/event-category.model';
+import {CategoryService} from './category.service';
+import {EventApiService} from '../../api/event/event-api.service';
+import {NotificationService} from '../utilities/notification.service';
+import {of, throwError} from 'rxjs';
+import {EventCategoryModel} from '../../../models/event/event-category.model';
 
 describe('CategoryService', () => {
   let service: CategoryService;

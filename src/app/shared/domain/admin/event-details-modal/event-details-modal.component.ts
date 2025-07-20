@@ -1,13 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  Inject,
-  OnInit,
-  signal
-} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, Inject, OnInit, signal} from '@angular/core';
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';

@@ -17,11 +17,10 @@ import {
   WritableSignal
 } from '@angular/core';
 import {CommonModule, NgOptimizedImage} from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {MatIconModule} from '@angular/material/icon';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FriendshipService} from '../../../../core/services/domain/user/friendship.service';
 import {FriendParticipantDto} from '../../../../core/models/friendship/friend-participant.dto';
-
 
 
 @Component({

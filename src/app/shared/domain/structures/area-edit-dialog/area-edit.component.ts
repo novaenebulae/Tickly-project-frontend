@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {ChangeDetectionStrategy, Component, Inject, inject, OnInit} from '@angular/core';
+import {Component, Inject, inject, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';

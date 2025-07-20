@@ -1,14 +1,13 @@
-import { TestBed } from '@angular/core/testing';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { UserService } from './user.service';
-import { UserApiService } from '../../api/user/user-api.service';
-import { AuthService } from './auth.service';
-import { NotificationService } from '../utilities/notification.service';
-import { of, throwError } from 'rxjs';
-import { UserModel } from '../../../models/user/user.model';
-import { UserProfileUpdateDto } from '../../../models/user/user-profile-update.dto';
-import { UserRole } from '../../../models/user/user-role.enum';
-import { HttpErrorResponse } from '@angular/common/http';
+import {TestBed} from '@angular/core/testing';
+import {provideHttpClientTesting} from '@angular/common/http/testing';
+import {UserService} from './user.service';
+import {UserApiService} from '../../api/user/user-api.service';
+import {AuthService} from './auth.service';
+import {NotificationService} from '../utilities/notification.service';
+import {of, throwError} from 'rxjs';
+import {UserModel} from '../../../models/user/user.model';
+import {UserProfileUpdateDto} from '../../../models/user/user-profile-update.dto';
+import {UserRole} from '../../../models/user/user-role.enum';
 
 describe('UserService', () => {
   let service: UserService;

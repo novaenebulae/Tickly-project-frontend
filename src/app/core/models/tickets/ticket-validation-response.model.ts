@@ -6,8 +6,6 @@
 
 import {TicketStatus} from './ticket-status.enum';
 import {ParticipantInfoModel} from './participant-info.model';
-import {StructureSummaryModel} from '../structure/structure-summary.model';
-import {AudienceZoneSnapshotModel, EventSnapshotModel, StructureSnapshotModel} from './ticket.model';
 
 /**
  * Represents an individual event ticket as received from the API

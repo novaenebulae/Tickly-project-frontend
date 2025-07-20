@@ -5,7 +5,7 @@
  * @author VotreNomOuEquipe
  */
 
-import {computed, DestroyRef, effect, inject, Injectable, signal, untracked, WritableSignal} from '@angular/core';
+import {computed, effect, inject, Injectable, signal, untracked, WritableSignal} from '@angular/core';
 import {Observable, of, throwError} from 'rxjs';
 import {catchError, map, tap} from 'rxjs/operators';
 
@@ -14,7 +14,6 @@ import {AuthService} from './auth.service';
 import {NotificationService} from '../utilities/notification.service';
 
 import {FavoriteStructureDto, UserFavoriteStructureModel} from '../../../models/user/user-favorite-structure.model';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 
 @Injectable({

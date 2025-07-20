@@ -1,13 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  DestroyRef,
-  Inject,
-  inject,
-  OnDestroy,
-  signal
-} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, Inject, inject, signal} from '@angular/core';
 import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {MAT_DIALOG_DATA, MatDialogModule, MatDialogRef} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
@@ -15,13 +6,10 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatCardModule} from '@angular/material/card';
 import {MatChipsModule} from '@angular/material/chips';
 import {QRCodeComponent} from 'angularx-qrcode';
-import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 
 import {TicketModel} from '../../../../core/models/tickets/ticket.model';
 import {TicketStatus} from '../../../../core/models/tickets/ticket-status.enum';
 import {TicketService} from '../../../../core/services/domain/ticket/ticket.service';
-import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 export interface TicketDetailModalData {

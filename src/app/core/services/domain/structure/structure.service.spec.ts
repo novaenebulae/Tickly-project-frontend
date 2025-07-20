@@ -1,15 +1,19 @@
-import { TestBed } from '@angular/core/testing';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { StructureService } from './structure.service';
-import { StructureApiService } from '../../api/structure/structure-api.service';
-import { NotificationService } from '../utilities/notification.service';
-import { AuthService } from '../user/auth.service';
-import { Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
-import { StructureModel, StructureCreationDto, StructureCreationResponseDto } from '../../../models/structure/structure.model';
-import { StructureTypeModel } from '../../../models/structure/structure-type.model';
-import { StructureAddressModel } from '../../../models/structure/structure-address.model';
-import { StructureSummaryModel } from '../../../models/structure/structure-summary.model';
+import {TestBed} from '@angular/core/testing';
+import {provideHttpClientTesting} from '@angular/common/http/testing';
+import {StructureService} from './structure.service';
+import {StructureApiService} from '../../api/structure/structure-api.service';
+import {NotificationService} from '../utilities/notification.service';
+import {AuthService} from '../user/auth.service';
+import {Router} from '@angular/router';
+import {of, throwError} from 'rxjs';
+import {
+  StructureCreationDto,
+  StructureCreationResponseDto,
+  StructureModel
+} from '../../../models/structure/structure.model';
+import {StructureTypeModel} from '../../../models/structure/structure-type.model';
+import {StructureAddressModel} from '../../../models/structure/structure-address.model';
+import {StructureSummaryModel} from '../../../models/structure/structure-summary.model';
 
 describe('StructureService', () => {
   let service: StructureService;

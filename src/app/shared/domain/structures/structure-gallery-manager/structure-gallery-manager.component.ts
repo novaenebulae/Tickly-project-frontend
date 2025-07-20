@@ -1,11 +1,11 @@
 import {
-  ChangeDetectionStrategy, ChangeDetectorRef,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   computed,
   DestroyRef,
   Inject,
   inject,
-  OnDestroy,
   signal
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
@@ -14,8 +14,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatTooltipModule} from '@angular/material/tooltip';
-import {Subject} from 'rxjs';
-import {finalize, takeUntil} from 'rxjs/operators';
+import {finalize} from 'rxjs/operators';
 
 import {StructureModel} from '../../../../core/models/structure/structure.model';
 import {UserStructureService} from '../../../../core/services/domain/user-structure/user-structure.service';

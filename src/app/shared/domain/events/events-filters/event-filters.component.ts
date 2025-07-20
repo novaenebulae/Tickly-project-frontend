@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -10,8 +10,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
-import {Subject} from 'rxjs';
-import {debounceTime, takeUntil} from 'rxjs/operators';
+import {debounceTime} from 'rxjs/operators';
 import {EventCategoryModel} from '../../../../core/models/event/event-category.model';
 import {CategoryService} from '../../../../core/services/domain/event/category.service';
 import {EventSearchParams} from '../../../../core/models/event/event-search-params.model';
