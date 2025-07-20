@@ -108,6 +108,8 @@ export interface TicketModel {
    */
   status: TicketStatus;
 
+  validatedAt?: Date;
+
   /**
    * Information about the participant for whom this ticket is issued.
    */

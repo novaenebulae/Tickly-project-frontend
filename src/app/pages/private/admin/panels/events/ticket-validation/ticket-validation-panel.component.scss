@@ -1,0 +1,251 @@
+@import '../../../../../../../styles/theme';
+
+// Define SCSS variables based on CSS custom properties
+$primary: var(--primary);
+$success: var(--success);
+$warning: var(--warning);
+$info: var(--info);
+$danger: var(--error);
+$text-muted: var(--text-secondary);
+
+.ticket-validation-panel {
+  .header-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .header-info {
+      .mat-h1 {
+        font-weight: 600;
+        color: $primary;
+      }
+    }
+
+    .refresh-button {
+      color: $primary;
+    }
+  }
+
+  // Statistics Dashboard
+  .stats-row {
+    margin-top: 1rem;
+
+    .stat-card {
+      background-color: white;
+      border-radius: 8px;
+      padding: 1.25rem;
+      height: 100%;
+      transition: transform 0.2s, box-shadow 0.2s;
+
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .stat-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .stat-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+
+          mat-icon {
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+          }
+        }
+
+        .stat-details {
+          flex: 1;
+
+          .stat-number {
+            font-size: 1.75rem;
+            font-weight: 600;
+            line-height: 1.2;
+          }
+
+          .stat-label {
+            font-size: 0.875rem;
+            color: $text-muted;
+          }
+        }
+      }
+
+      &.stat-primary {
+        border-left: 4px solid $primary;
+
+        .stat-icon {
+          background-color: rgba($primary, 0.1);
+          color: $primary;
+        }
+
+        .stat-number {
+          color: $primary;
+        }
+      }
+
+      &.stat-success {
+        border-left: 4px solid $success;
+
+        .stat-icon {
+          background-color: rgba($success, 0.1);
+          color: $success;
+        }
+
+        .stat-number {
+          color: $success;
+        }
+      }
+
+      &.stat-warning {
+        border-left: 4px solid $warning;
+
+        .stat-icon {
+          background-color: rgba($warning, 0.1);
+          color: $warning;
+        }
+
+        .stat-number {
+          color: $warning;
+        }
+      }
+
+      &.stat-info {
+        border-left: 4px solid $info;
+
+        .stat-icon {
+          background-color: rgba($info, 0.1);
+          color: $info;
+        }
+
+        .stat-number {
+          color: $info;
+        }
+      }
+    }
+  }
+
+  // Filters Card
+  .filters-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .small-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      vertical-align: middle;
+    }
+  }
+
+  // Tickets Table
+  .tickets-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+
+    .table-responsive {
+      overflow-x: auto;
+
+      table {
+        width: 100%;
+
+        .mat-mdc-header-cell {
+          font-weight: 600;
+          color: $text-muted;
+          background-color: #f8f9fa;
+        }
+
+        .mat-mdc-row {
+          &:hover {
+            background-color: rgba($primary, 0.03);
+          }
+        }
+
+        .participant-info {
+          .participant-name {
+            font-weight: 500;
+          }
+
+          .participant-email {
+            font-size: 0.875rem;
+          }
+        }
+
+        .ticket-id {
+          font-family: monospace;
+          font-weight: 500;
+          background-color: #f0f0f0;
+          padding: 4px 8px;
+          border-radius: 4px;
+          cursor: help;
+        }
+
+        .status-chip {
+          border-radius: 16px;
+          padding: 4px 8px;
+          font-size: 0.875rem;
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
+          }
+
+          &.status-valid {
+            background-color: rgba($success, 0.1);
+            color: $success;
+          }
+
+          &.status-used {
+            background-color: rgba($primary, 0.1);
+            color: $primary;
+          }
+
+          &.status-cancelled {
+            background-color: rgba($danger, 0.1);
+            color: $danger;
+          }
+
+          &.status-expired {
+            background-color: rgba($warning, 0.1);
+            color: $warning;
+          }
+        }
+
+        .validate-btn {
+          min-width: 100px;
+        }
+      }
+    }
+
+    .pagination-wrapper {
+      padding: 1rem;
+      border-top: 1px solid #e9ecef;
+    }
+  }
+
+  // Empty State
+  .empty-state-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .empty-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: $text-muted;
+    }
+  }
+}

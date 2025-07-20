@@ -4,16 +4,23 @@
  * @author VotreNomOuEquipe
  */
 
-import {computed, effect, inject, Injectable, signal, WritableSignal} from '@angular/core';
+import {computed, DestroyRef, effect, inject, Injectable, signal, WritableSignal} from '@angular/core';
 import {forkJoin, Observable, of} from 'rxjs';
 import {catchError, switchMap, tap} from 'rxjs/operators';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {environment} from '../../../../../environments/environment';
 
 // API Service
-import {TicketApiService} from '../../api/ticket/ticket-api.service';
+import {
+  PaginatedTicketsResponse,
+  TicketApiService,
+  TicketValidationResponseDto
+} from '../../api/ticket/ticket-api.service';
 
 // Domain Services
 import {NotificationService} from '../utilities/notification.service';
 import {AuthService} from '../user/auth.service';
+import {WebSocketService, EventTicketStatisticsDto} from '../../websocket/websocket.service';
 
 // Models and DTOs
 import {
@@ -23,10 +30,9 @@ import {
 } from '../../../models/tickets/reservation.model';
 import {TicketModel} from '../../../models/tickets/ticket.model';
 import {ParticipantInfoModel} from '../../../models/tickets/participant-info.model';
+import {TicketStatus} from '../../../models/tickets/ticket-status.enum';
 import {TicketPdfService} from './ticket-pdf.service';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {StructureService} from '../structure/structure.service';
-import {tick} from '@angular/core/testing';
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +43,8 @@ export class TicketService {
   private authService = inject(AuthService);
   private pdfService = inject(TicketPdfService);
   private structureService = inject(StructureService);
+  private webSocketService = inject(WebSocketService);
+  private destroyRef = inject(DestroyRef);
 
   // --- State Management using Signals ---
   private myTicketsSig: WritableSignal<TicketModel[]> = signal([]);
@@ -46,6 +54,43 @@ export class TicketService {
   public readonly myTickets = computed(() => this.myTicketsSig());
 
   private selectedTicketDetailSig: WritableSignal<TicketModel | null | undefined> = signal(undefined);
+
+  // --- Event Tickets Management ---
+  private eventTicketsSig: WritableSignal<TicketModel[]> = signal([]);
+  /**
+   * A signal representing the list of tickets for the current event.
+   */
+  public readonly eventTickets = computed(() => this.eventTicketsSig());
+
+  private eventTicketsTotalSig: WritableSignal<number> = signal(0);
+  /**
+   * A signal representing the total number of tickets for the current event.
+   */
+  public readonly eventTicketsTotal = computed(() => this.eventTicketsTotalSig());
+
+  private eventTicketsPageSig: WritableSignal<number> = signal(0);
+  /**
+   * A signal representing the current page of tickets for the current event.
+   */
+  public readonly eventTicketsPage = computed(() => this.eventTicketsPageSig());
+
+  private eventTicketsPagesSig: WritableSignal<number> = signal(0);
+  /**
+   * A signal representing the total number of pages of tickets for the current event.
+   */
+  public readonly eventTicketsPages = computed(() => this.eventTicketsPagesSig());
+
+  private eventTicketsLoadingSig: WritableSignal<boolean> = signal(false);
+  /**
+   * A signal representing whether tickets are currently being loaded for the current event.
+   */
+  public readonly eventTicketsLoading = computed(() => this.eventTicketsLoadingSig());
+
+  private eventTicketsStatisticsSig: WritableSignal<EventTicketStatisticsDto | undefined> = signal(undefined);
+  /**
+   * A signal representing the statistics for the current event.
+   */
+  public readonly eventTicketsStatistics = computed(() => this.eventTicketsStatisticsSig());
 
   constructor() {
     // Auto-load user's tickets when they log in or out
@@ -242,6 +287,202 @@ export class TicketService {
     };
 
     return of(pdfData);
+  }
+
+  /**
+   * Retrieves tickets for a specific event with pagination and filtering.
+   * @param eventId The ID of the event
+   * @param page The page number (0-based)
+   * @param size The number of items per page
+   * @param status Optional filter for ticket status
+   * @param search Optional search term for participant name, email, or ticket UUID
+   * @returns An Observable of the paginated tickets response
+   */
+  getEventTickets(
+    eventId: number | string,
+    page: number = 0,
+    size: number = 20,
+    status?: TicketStatus,
+    search?: string
+  ): Observable<PaginatedTicketsResponse> {
+    this.eventTicketsLoadingSig.set(true);
+
+    return this.ticketApi.getEventTickets(eventId, page, size, status, search).pipe(
+      tap(response => {
+        try {
+          // Log the response structure to help diagnose any future issues
+          if (environment.enableDebugLogs) {
+            console.debug('Event tickets response structure:', Object.keys(response));
+          }
+
+          // Check if the response has the expected properties
+          if (!response.items) {
+            console.warn('API response missing items property:', response);
+          }
+
+          this.eventTicketsSig.set(response.items || []);
+          this.eventTicketsTotalSig.set(response.totalItems || 0);
+          this.eventTicketsPageSig.set(response.currentPage || 0);
+          this.eventTicketsPagesSig.set(response.totalPages || 0);
+          this.eventTicketsLoadingSig.set(false);
+        } catch (error) {
+          console.error('Error processing ticket response:', error);
+          // Set default values to prevent UI errors
+          this.eventTicketsSig.set([]);
+          this.eventTicketsTotalSig.set(0);
+          this.eventTicketsPageSig.set(0);
+          this.eventTicketsPagesSig.set(0);
+          this.eventTicketsLoadingSig.set(false);
+          // Show notification to the user
+          this.notification.displayNotification('Erreur lors du traitement des données de billets.', 'error');
+        }
+      }),
+      catchError(error => {
+        this.handleError("Impossible de récupérer les billets pour cet événement.", error);
+        this.eventTicketsLoadingSig.set(false);
+        return of({
+          items: [],
+          totalItems: 0,
+          totalPages: 0,
+          pageSize: size,
+          currentPage: 0
+        });
+      })
+    );
+  }
+
+  /**
+   * Validates a ticket for a specific event.
+   * @param eventId The ID of the event
+   * @param ticketId The ID of the ticket to validate
+   * @returns An Observable of the validation response
+   */
+  validateEventTicket(
+    eventId: number | string,
+    ticketId: string
+  ): Observable<TicketValidationResponseDto | undefined> {
+    return this.ticketApi.validateEventTicket(eventId, ticketId).pipe(
+      tap(response => {
+        this.notification.displayNotification(
+          `Billet validé avec succès. Nouveau statut: ${response.status}`,
+          'valid'
+        );
+
+        // Update the ticket in the list if it exists
+        const currentTickets = this.eventTicketsSig();
+        const index = currentTickets.findIndex(t => t.id === ticketId);
+        if (index !== -1) {
+          // Ensure the status is a valid TicketStatus enum value
+          let validStatus: TicketStatus;
+          if (Object.values(TicketStatus).includes(response.status as TicketStatus)) {
+            validStatus = response.status as TicketStatus;
+          } else {
+            console.warn(`Received unknown ticket status: ${response.status}, defaulting to USED`);
+            validStatus = TicketStatus.USED;
+          }
+
+          const updatedTicket = { ...currentTickets[index], status: validStatus };
+          currentTickets[index] = updatedTicket;
+          this.eventTicketsSig.set([...currentTickets]);
+        }
+      }),
+      catchError(error => {
+        this.handleError(`Impossible de valider le billet #${ticketId}.`, error);
+        return of(undefined);
+      })
+    );
+  }
+
+  /**
+   * Subscribes to real-time updates for tickets and statistics for a specific event.
+   * @param eventId The ID of the event
+   */
+  subscribeToEventUpdates(eventId: number | string): void {
+    // Subscribe to ticket updates
+    this.webSocketService.subscribeToTicketUpdates(eventId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(updatedTicket => {
+        console.log('Received ticket update:', updatedTicket);
+        // Update the ticket in the list if it exists
+        const currentTickets = this.eventTicketsSig();
+        const index = currentTickets.findIndex(t => t.id === updatedTicket.id);
+        if (index !== -1) {
+          currentTickets[index] = updatedTicket;
+          this.eventTicketsSig.set([...currentTickets]);
+        }
+      });
+
+    // Subscribe to statistics updates
+    this.webSocketService.subscribeToStatisticsUpdates(eventId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(statistics => {
+        console.log('Received statistics update:', statistics);
+        this.eventTicketsStatisticsSig.set(statistics);
+      });
+
+    // Set a timeout to generate fallback statistics if no statistics are received within 3 seconds
+    setTimeout(() => {
+      if (!this.eventTicketsStatisticsSig()) {
+        console.log('No statistics received after timeout, generating fallback statistics');
+        this.generateFallbackStatistics(eventId);
+      }
+    }, 3000);
+  }
+
+  /**
+   * Generates fallback statistics based on the current tickets
+   * @param eventId The ID of the event
+   */
+  private generateFallbackStatistics(eventId: number | string): void {
+    // Double-check that we still don't have statistics
+    if (this.eventTicketsStatisticsSig()) {
+      console.log('Statistics already available, skipping fallback generation');
+      return;
+    }
+
+    console.log('Generating fallback statistics for event', eventId);
+
+    // Get the current tickets
+    this.getEventTickets(eventId).pipe(
+      tap(response => {
+        // Triple-check that we still don't have statistics before setting fallback
+        if (!this.eventTicketsStatisticsSig()) {
+          const tickets = response.items || [];
+          const totalTickets = tickets.length;
+          const scannedTickets = tickets.filter(t => t.status === TicketStatus.USED).length;
+          const remainingTickets = tickets.filter(t => t.status === TicketStatus.VALID).length;
+          const fillRate = totalTickets > 0 ? (scannedTickets / totalTickets) * 100 : 0;
+
+          // Create fallback statistics
+          const fallbackStats: EventTicketStatisticsDto = {
+            eventId: typeof eventId === 'string' ? parseInt(eventId, 10) : eventId,
+            eventName: tickets.length > 0 ? tickets[0].eventSnapshot.name : `Event ${eventId}`,
+            totalTickets,
+            scannedTickets,
+            remainingTickets,
+            fillRate
+          };
+
+          console.info('Using fallback statistics generated from ticket data:', fallbackStats);
+
+          // Set the fallback statistics
+          this.eventTicketsStatisticsSig.set(fallbackStats);
+        } else {
+          console.log('Statistics became available while fetching tickets, skipping fallback generation');
+        }
+      }),
+      catchError(error => {
+        console.error('Error generating fallback statistics:', error);
+        return of(null);
+      })
+    ).subscribe();
+  }
+
+  /**
+   * Unsubscribes from real-time updates for a specific event.
+   */
+  unsubscribeFromEventUpdates(): void {
+    this.webSocketService.disconnect();
   }
 
   /**

@@ -347,6 +347,15 @@
                       <mat-icon>edit</mat-icon>
                       Modifier
                     </button>
+                    <button
+                      mat-raised-button
+                      color="accent"
+                      [routerLink]="['/admin/events', event.id, 'validation']"
+                      *ngIf="event.status === 'PUBLISHED'"
+                      class="action-btn validation-action">
+                      <mat-icon>qr_code_scanner</mat-icon>
+                      Valider billets
+                    </button>
                   </div>
 
                   <div class="more-actions">

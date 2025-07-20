@@ -5,7 +5,7 @@ import {
   EventManagementGuard,
   StaffGuard,
   StructureExtendedAccessGuard,
-  TeamManagementGuard
+  TeamManagementGuard, TicketValidationGuard
 } from '../../../core/guards/staff.guards';
 
 /**
@@ -85,6 +85,13 @@ export const adminRoutes: Routes = [
           .then(m => m.EventFormComponent),
         canActivate: [EventManagementGuard], // 🔥 Seuls STRUCTURE_ADMINISTRATOR + ORGANIZATION_SERVICE
         title: 'Édition d\'un événement | Administration'
+      },
+      {
+        path: 'events/:eventId/validation',
+        loadComponent: () => import('./panels/events/ticket-validation/ticket-validation-panel.component')
+          .then(m => m.TicketValidationPanelComponent),
+        canActivate: [TicketValidationGuard],
+        title: 'Validation des billets | Administration'
       },
 
       // Structure Management

@@ -8,7 +8,7 @@
  */
 
 import {inject, Injectable} from '@angular/core';
-import {HttpErrorResponse} from '@angular/common/http';
+import {HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {catchError, tap} from 'rxjs/operators';
 
@@ -18,6 +18,29 @@ import {ErrorHandlingService} from '../../error-handling.service';
 
 import {ReservationConfirmationModel, ReservationRequestDto} from '../../../models/tickets/reservation.model';
 import {TicketModel} from '../../../models/tickets/ticket.model';
+import {TicketStatus} from '../../../models/tickets/ticket-status.enum';
+
+/**
+ * Interface for paginated response of tickets
+ */
+export interface PaginatedTicketsResponse {
+  items: TicketModel[];
+  totalItems: number;
+  totalPages: number;
+  pageSize: number;
+  currentPage: number;
+}
+
+/**
+ * Interface for ticket validation response
+ */
+export interface TicketValidationResponseDto {
+  ticketId: string;
+  message: string;
+  status: TicketStatus;
+  participant?: any;
+  validationTimestamp?: Date;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -112,6 +135,70 @@ export class TicketApiService {
     return this.http.post<TicketModel>(url, {}, { headers }).pipe( // Assuming POST with empty body
       tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),
       catchError(error => this.handleTicketingError(error, 'validateTicket'))
+    );
+  }
+
+  /**
+   * Retrieves a paginated and filtered list of tickets for a specific event.
+   * @param eventId - The ID of the event.
+   * @param page - The page number (0-based).
+   * @param size - The number of items per page.
+   * @param status - Optional filter for ticket status.
+   * @param search - Optional search term for participant name, email, or ticket UUID.
+   * @returns An Observable of PaginatedTicketsResponse.
+   */
+  getEventTickets(
+    eventId: number | string,
+    page: number = 0,
+    size: number = 20,
+    status?: TicketStatus,
+    search?: string
+  ): Observable<PaginatedTicketsResponse> {
+    const endpointContext = APP_CONFIG.api.endpoints.events.tickets(eventId);
+
+    this.apiConfig.logApiRequest('GET', endpointContext);
+
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (status) {
+      params = params.set('status', status);
+    }
+
+    if (search) {
+      params = params.set('search', search);
+    }
+
+    const url = this.apiConfig.getUrl(endpointContext);
+    const headers = this.apiConfig.createHeaders();
+
+    return this.http.get<PaginatedTicketsResponse>(url, { headers, params }).pipe(
+      tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
+      catchError(error => this.handleTicketingError(error, 'getEventTickets'))
+    );
+  }
+
+  /**
+   * Validates a specific ticket for an event.
+   * @param eventId - The ID of the event.
+   * @param ticketId - The ID of the ticket to validate.
+   * @returns An Observable of TicketValidationResponseDto.
+   */
+  validateEventTicket(
+    eventId: number | string,
+    ticketId: string
+  ): Observable<TicketValidationResponseDto> {
+    const endpointContext = APP_CONFIG.api.endpoints.events.validateTicket(eventId, ticketId);
+
+    this.apiConfig.logApiRequest('POST', endpointContext);
+
+    const url = this.apiConfig.getUrl(endpointContext);
+    const headers = this.apiConfig.createHeaders();
+
+    return this.http.post<TicketValidationResponseDto>(url, {}, { headers }).pipe(
+      tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),
+      catchError(error => this.handleTicketingError(error, 'validateEventTicket'))
     );
   }
 

@@ -28,6 +28,8 @@ interface AppConfig {
         search: string;
         categories: string;
         statusUpdate: (id: number | string) => string; // e.g., `events/${id}/status`
+        tickets: (eventId: number | string) => string; // e.g., `events/${eventId}/management/tickets`
+        validateTicket: (eventId: number | string, ticketId: string) => string; // e.g., `events/${eventId}/management/tickets/${ticketId}/validate`
       };
       structures: {
         base: string;
@@ -144,6 +146,8 @@ export const APP_CONFIG: AppConfig = {
         search: 'events/search',
         categories: 'event-categories',
         statusUpdate: (id) => `events/${id}/status`,
+        tickets: (eventId) => `events/${eventId}/management/tickets`,
+        validateTicket: (eventId, ticketId) => `events/${eventId}/management/tickets/${ticketId}/validate`,
       },
       structures: {
         base: 'structures', // GET (list)
