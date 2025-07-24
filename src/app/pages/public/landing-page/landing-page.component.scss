@@ -84,7 +84,7 @@ $cta-texture-path: "url('/public/textures/cta-texture.svg')";
     background-size: cover;
     background-position: center center;
     opacity: 0;
-    transition: var(--transition-medium); // Transition en fondu + léger zoom/dézoom
+    transition: var(--transition-medium);
     transform: scale(1.05); // Zoom initial léger
     overflow: hidden;
 

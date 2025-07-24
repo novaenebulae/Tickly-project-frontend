@@ -28,7 +28,7 @@
             [class.hidden]="!isCategoriesExpanded() && i >= MAX_VISIBLE_CATEGORIES"
             (click)="toggleTypeFilter(type.id)"
           >
-            <mat-icon>{{ getTypeIcon(type.id) }}</mat-icon>
+            <mat-icon>{{ type.icon }}</mat-icon>
             {{ type.name }}
           </div>
 

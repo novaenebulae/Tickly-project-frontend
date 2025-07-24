@@ -41,9 +41,7 @@
 
   <!-- Grille des favoris utilisant les cards structures -->
   <div
-    class="favorites-grid"
-    [class.grid-view]="viewMode() === 'grid'"
-    [class.list-view]="viewMode() === 'list'"
+    class="favorites-grid grid-view"
     *ngIf="favoritesCount() > 0">
 
     @for (favorite of favorites(); track favorite.id) {

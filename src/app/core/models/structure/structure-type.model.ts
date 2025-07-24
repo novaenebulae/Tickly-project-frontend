@@ -15,4 +15,6 @@ export interface StructureTypeModel {
    * @example "Théâtre", "Stade", "Musée"
    */
   name: string;
+
+  icon: string;
 }

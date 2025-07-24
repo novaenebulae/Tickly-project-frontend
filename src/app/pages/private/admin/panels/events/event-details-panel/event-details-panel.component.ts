@@ -426,7 +426,7 @@ export class EventDetailsPanelComponent implements OnInit, AfterViewInit {
 
   editEvent(): void {
     if (this.event) {
-      this.router.navigate(['/admin/events', this.event.id, 'edit']);
+      this.router.navigate(['/admin/event', this.event.id, 'edit']);
     } else {
       this.snackBar.open('Impossible de modifier : événement non chargé.', 'Fermer', { duration: 3000 });
     }

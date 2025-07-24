@@ -216,11 +216,13 @@
 
 // === USER DROPDOWN MENU ===
 ::ng-deep .user-dropdown-menu {
-  min-width: 220px;
+  min-width: 250px;
   border: none;
   box-shadow: var(--shadow-lg);
   padding: var(--spacing-sm) 0;
-  overflow: hidden;
+  margin-top: var(--spacing-xs);
+  overflow-x: hidden !important;
+  border-radius: var(--border-radius-medium);
 
   .cdk-overlay-pane {
     border-radius: var(--border-radius-medium);
@@ -343,6 +345,7 @@
 // === RESPONSIVE ===
 @media (max-width: 991px) {
   .navbar {
+
     .user-menu-trigger {
       max-width: none;
 

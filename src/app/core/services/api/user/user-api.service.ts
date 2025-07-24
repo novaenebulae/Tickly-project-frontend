@@ -231,7 +231,6 @@ export class UserApiService {
     return this.http.post<UserFavoriteStructureModel>(url, dto, { headers }).pipe(
       map(newFavorite => ({
         ...newFavorite,
-        // Assurer la conversion de la date
         addedAt: new Date(newFavorite.addedAt)
       })),
       tap(response => this.apiConfig.logApiResponse('POST', endpointContext, response)),

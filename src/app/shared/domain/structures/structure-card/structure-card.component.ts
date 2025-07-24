@@ -43,8 +43,6 @@ export class StructureCardComponent {
   }
 
   onFavorite(): void {
-    // L'état 'isFavorite' est géré par le parent pour une source de vérité unique.
-    // Le composant émet simplement l'événement.
     this.favorite.emit(this.structure);
   }
 

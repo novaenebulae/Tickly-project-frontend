@@ -181,15 +181,6 @@ export class StructureFiltersComponent implements OnInit {
     return type ? type.name : 'Type inconnu';
   }
 
-  /** Retourne l'icône Material Design d'un type par son ID. */
-  getTypeIcon(typeId: number): string {
-    const iconMapping: { [key: number]: string } = {
-      1: 'music_note', 2: 'theater_comedy', 3: 'business',
-      4: 'dashboard', 5: 'local_bar', 99: 'help'
-    };
-    return iconMapping[typeId] || 'location_city';
-  }
-
   /** Retourne le label du tri actuel. */
   getSortLabel(): string {
     const sortLabels: { [key: string]: string } = {

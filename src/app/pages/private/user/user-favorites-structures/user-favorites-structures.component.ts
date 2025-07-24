@@ -40,8 +40,6 @@ export class UserFavoritesStructuresComponent {
 
   // Signaux dérivés et locaux
   public readonly favoritesCount = computed(() => this.favorites().length);
-  private viewModeSig: WritableSignal<'grid' | 'list'> = signal('grid');
-  public readonly viewMode = computed(() => this.viewModeSig());
 
   /**
    * Gère l'affichage des détails d'une structure depuis la card.
@@ -66,7 +64,7 @@ export class UserFavoritesStructuresComponent {
    * @param structure - La structure à ajouter/supprimer des favoris.
    */
   onToggleFavorite(structure: StructureSummaryModel): void {
-    this.favoritesService.toggleFavorite(structure.id);
+    this.favoritesService.toggleFavorite(structure.id).subscribe();
   }
 
   /**
@@ -82,4 +80,5 @@ export class UserFavoritesStructuresComponent {
       year: 'numeric'
     }).format(new Date(date));
   }
+
 }

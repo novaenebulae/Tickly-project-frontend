@@ -60,19 +60,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private destroyRef = inject(DestroyRef);
   private cdRef = inject(ChangeDetectorRef);
 
-  // Charts references
   @ViewChild('topEventsChart') topEventsChart?: BaseChartDirective;
   @ViewChild('categoryChart') categoryChart?: BaseChartDirective;
 
-  // Structure info
   structureName = this.userStructureService.userStructure;
   protected readonly structureAreas = this.userStructureService.userStructureAreas;
 
-  // Statistics data
   stats = this.statisticsService.structureDashboardStats;
   isLoading = this.statisticsService.isLoadingStructureStats;
 
-  // Structure status
   protected readonly structureStatus = computed(() => {
     const structure = this.structureName();
     if (!structure) return 'no-structure';
@@ -121,16 +117,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     }
   });
 
-  // KPI signals
   private teamCountSig = signal<number>(0);
   private eventCountSig = signal<number>(0);
 
-  // Computed properties for KPIs
   protected readonly teamCount = computed(() => this.teamCountSig());
   protected readonly eventCount = computed(() => this.eventCountSig());
   protected readonly areaCount = computed(() => this.structureAreas().length);
 
-  // Computed chart types with proper typing
   topEventsChartType = computed<ChartType>(() => {
     const type = this.stats()?.topEventsChart?.chartType;
     return (type as ChartType) || 'bar';
@@ -177,16 +170,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     console.log('Dashboard ngOnInit - Structure initiale:', this.structureName());
 
-    // First ensure structure data is loaded
     this.userStructureService.refreshUserStructure()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (structure) => {
-          console.log('Structure chargée:', structure);
-          // Déclencher la détection de changement après le chargement de la structure
           this.cdRef.markForCheck();
 
-          // After structure is loaded, load areas and other data
           this.loadStructureData();
           this.loadKpiData();
           this.loadStatistics();
@@ -194,7 +183,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         error: (err) => {
           console.error('Error loading structure data:', err);
           this.cdRef.markForCheck();
-          // Still try to load other data even if structure refresh fails
           this.loadStructureData();
           this.loadKpiData();
           this.loadStatistics();
@@ -203,7 +191,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Update charts after view initialization
     setTimeout(() => {
       this.updateCharts();
     }, 10);
@@ -217,7 +204,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (areas) => {
-          console.log('Zones chargées:', areas);
           this.cdRef.markForCheck();
         },
         error: (err) => {
@@ -231,7 +217,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
    * Loads KPI data (team members and events)
    */
   private loadKpiData(): void {
-    // Load team members count
     this.teamManagementService.loadTeamMembers()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -246,7 +231,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       }
     });
 
-    // Load events count
     this.userStructureService.getUserStructureEvents(true)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -288,7 +272,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       }
     });
 
-    // Also refresh KPI data
     this.loadStructureData();
     this.loadKpiData();
   }
@@ -334,13 +317,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
    * Updates chart data based on statistics
    */
   private updateChartData(stats: StructureDashboardStatsDto): void {
-    // Update top events chart
     this.updateChartFromDto(stats.topEventsChart, this.topEventsChartData);
 
-    // Update category chart
     this.updateChartFromDto(stats.attendanceByCategoryChart, this.categoryChartData);
 
-    // Update charts
     this.updateCharts();
   }
 

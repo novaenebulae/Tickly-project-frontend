@@ -23,7 +23,8 @@ $gap-between-cards: var(--spacing-md); // Espace entre les cartes
     // Elle sera plus grande que 100% si cardsPerPage < events.length.
     // Chaque "page" (groupe de cardsPerPage) occupera 100% de la largeur du viewport.
     // La transition se fait sur ce conteneur global.
-    transition: transform var(--transition-medium); // Transition plus douce
+    transition: transform 0.4s ease-in-out;
+    padding: var(--spacing-md) 0;
   }
 
   &__slide-item {

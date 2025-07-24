@@ -1,3 +1,9 @@
+- Check duplicate API calls
+- Dashboard structure loading error
+- Check responsive
+- Team management design errors
+
+
 # Tickly Frontend Improvement Tasks
 
 API documentation : 'docs/api-documentation.md'

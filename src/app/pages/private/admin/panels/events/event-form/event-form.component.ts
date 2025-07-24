@@ -342,7 +342,7 @@ export class EventFormComponent implements OnInit {
       address: this.fb.group({
         street: [{value: '', disabled: this.isAddressDisabled() || true}], // Always disabled as it comes from structure
         city: [{value: '', disabled: this.isAddressDisabled() || true}],
-        postalCode: [{value: '', disabled: this.isAddressDisabled() || true}],
+        zipCode: [{value: '', disabled: this.isAddressDisabled() || true}],
         country: [{value: 'France', disabled: this.isAddressDisabled() || true}]
       })
     });
@@ -828,7 +828,7 @@ export class EventFormComponent implements OnInit {
   formatAddress(): string {
     const address = this.locationForm.get('address')?.value;
     if (address) {
-      return `${address.street}, ${address.postalCode} ${address.city}`;
+      return `${address.street}, ${address.zipCode} ${address.city}`;
     }
     return 'Non définie';
   }
@@ -1459,7 +1459,7 @@ export class EventFormComponent implements OnInit {
     if (addressGroup) {
       this.setControlDisabled(addressGroup, 'street', true);
       this.setControlDisabled(addressGroup, 'city', true);
-      this.setControlDisabled(addressGroup, 'postalCode', true);
+      this.setControlDisabled(addressGroup, 'zipCode', true);
       this.setControlDisabled(addressGroup, 'country', true);
     }
 

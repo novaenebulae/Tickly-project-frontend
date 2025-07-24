@@ -221,10 +221,10 @@
       align-items: center;
 
       .booking-button {
-        font-size: 14px; // Button size
-        font-weight: 500; // Medium
+        font-size: 18px;
+        font-weight: 600; // Medium
         letter-spacing: 0.25px; // From design guidelines
-        padding: var(--spacing-sm) var(--spacing-lg);
+        padding: var(--spacing-lg);
         gap: var(--spacing-xs);
         transition: var(--transition-fast);
         background-color: var(--accent);
@@ -237,9 +237,9 @@
         }
 
         mat-icon {
-          font-size: 18px;
-          height: 18px;
-          width: 18px;
+          font-size: 24px;
+          height: 24px;
+          width: 24px;
         }
       }
     }

@@ -8,7 +8,7 @@
   border-radius: var(--border-radius-medium);
   background-color: var(--surface);
   box-shadow: var(--shadow-md);
-  transition: transform var(--transition-medium), box-shadow var(--transition-medium);
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   cursor: pointer;
   position: relative;
 
@@ -28,7 +28,7 @@
     height: 200px;
     width: 100%;
     object-fit: cover;
-    transition: transform var(--transition-medium);
+    transition: transform 0.3s ease-in-out;
 
     &:hover {
       transform: scale(1.05);

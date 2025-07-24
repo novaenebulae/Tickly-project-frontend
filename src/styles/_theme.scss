@@ -74,6 +74,11 @@
   // --- TRANSITIONS ---
   --transition-fast: all 0.15s ease-in-out;
   --transition-medium: all 0.3s ease-in-out;
+  --transition-slow: all 0.5s ease-in-out;
+
+  --transition-transform-fast: transform 0.15s ease-in-out;
+  --transition-transform-medium: transform 0.3s ease-in-out;
+  --transition-transform-slow: transform 0.5s ease-in-out;
 
   // --- Z-INDEX ---
   --z-index-dropdown: 1000;
@@ -197,7 +202,6 @@ html, body {
 .mat-mdc-card {
   border-radius: var(--border-radius-medium) !important;
   box-shadow: var(--shadow-sm) !important;
-  transition: var(--transition-medium) !important;
   border: var(--border-width) solid var(--border);
 
   &:hover {
@@ -211,7 +215,7 @@ html, body {
 
 .mat-mdc-raised-button.mat-primary {
   background: var(--primary-gradient) !important;
-  transition: var(--transition-fast);
+  //transition: var(--transition-fast);
 
   &:hover {
     transform: scale(1.03);

@@ -127,7 +127,7 @@
           border: var(--border-width) solid var(--border);
           border-radius: var(--border-radius-medium);
           background-color: var(--surface);
-          transition: all 0.2s ease;
+          transition: var(--transition-medium);
           overflow: hidden;
 
           &:hover {
