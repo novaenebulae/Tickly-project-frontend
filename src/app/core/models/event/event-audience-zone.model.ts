@@ -51,6 +51,11 @@ export interface EventAudienceZone {
   allocatedCapacity: number;
 
   /**
+   * The remaining capacity for this audience zone.
+   */
+  remainingCapacity: number;
+
+  /**
    * The type of seating or placement offered in this zone for the event.
    */
   seatingType: SeatingType;

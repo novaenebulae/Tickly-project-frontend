@@ -126,14 +126,37 @@ export class AuthService {
   }
 
   /**
-   * Logs out the current user, clears authentication data, and navigates to the login page.
+   * Logs out the current user, invalidates the refresh token on the server,
+   * clears authentication data, and navigates to the login page.
    * @param navigateToLogin - Whether to navigate to the login page after logout (default: true).
    */
   logout(navigateToLogin = true): void {
-    this.clearAuthData();
-    this.notification.displayNotification("Vous avez été déconnecté.", 'info');
-    if (navigateToLogin) {
-      this.router.navigate(['/auth/login']);
+    const refreshToken = this.getRefreshToken();
+
+    // If we have a refresh token, call the API to invalidate it
+    if (refreshToken) {
+      this.authApi.logout(refreshToken).subscribe({
+        next: () => {
+          this.notification.displayNotification("Vous avez été déconnecté.", 'info');
+        },
+        error: () => {
+          this.notification.displayNotification("Erreur lors de la déconnexion, mais votre session locale a été supprimée.", 'warning');
+        },
+        complete: () => {
+          // Always clear local auth data and navigate regardless of API call success
+          this.clearAuthData();
+          if (navigateToLogin) {
+            this.router.navigate(['/auth/login']);
+          }
+        }
+      });
+    } else {
+      // If no refresh token, just clear local data
+      this.clearAuthData();
+      this.notification.displayNotification("Vous avez été déconnecté.", 'info');
+      if (navigateToLogin) {
+        this.router.navigate(['/auth/login']);
+      }
     }
   }
 
@@ -210,12 +233,13 @@ export class AuthService {
   }
 
   /**
-   * Handles the authentication response by storing the token and updating user state.
+   * Handles the authentication response by storing the tokens and updating user state.
    * @param response - The authentication response DTO from the API.
    */
   private handleAuthResponse(response: AuthResponseDto): void {
     if (response.accessToken) {
-      this.storeToken(response.accessToken);
+      // Store both tokens
+      this.storeTokens(response);
 
       try {
         const decodedToken = jwtDecode<JwtPayload>(response.accessToken);
@@ -253,6 +277,14 @@ export class AuthService {
   }
 
   /**
+   * Retrieves the stored refresh token.
+   * @returns The refresh token string or null if not found.
+   */
+  public getRefreshToken(): string | null {
+    return localStorage.getItem(APP_CONFIG.auth.refreshTokenKey);
+  }
+
+  /**
    * Stores the authentication token in localStorage or sessionStorage.
    * @param token - The JWT token string.
    */
@@ -268,6 +300,28 @@ export class AuthService {
       localStorage.setItem(APP_CONFIG.auth.tokenKey, token);
     } else {
       sessionStorage.setItem(APP_CONFIG.auth.tokenKey, token);
+    }
+  }
+
+  /**
+   * Stores the refresh token in localStorage.
+   * @param refreshToken - The refresh token string.
+   */
+  private storeRefreshToken(refreshToken: string): void {
+    localStorage.setItem(APP_CONFIG.auth.refreshTokenKey, refreshToken);
+  }
+
+  /**
+   * Stores both the access token and refresh token.
+   * @param response - The authentication response containing both tokens.
+   */
+  private storeTokens(response: AuthResponseDto): void {
+    if (response.accessToken) {
+      this.storeToken(response.accessToken);
+    }
+
+    if (response.refreshToken) {
+      this.storeRefreshToken(response.refreshToken);
     }
   }
 
@@ -318,29 +372,40 @@ export class AuthService {
     // Clear tokens from both storage mechanisms
     localStorage.removeItem(APP_CONFIG.auth.tokenKey);
     sessionStorage.removeItem(APP_CONFIG.auth.tokenKey);
+    localStorage.removeItem(APP_CONFIG.auth.refreshTokenKey);
   }
 
   /**
-   * Refreshes the authentication token by making a call to the backend.
+   * Refreshes the authentication token by making a call to the backend using the refresh token.
    * @returns An Observable that emits true if the token was refreshed successfully, false otherwise.
    */
   refreshToken(): Observable<boolean> {
-    const currentToken = this.getToken();
-    if (!currentToken) {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      console.error('No refresh token available');
       return of(false);
     }
 
-    return this.authApi.refreshToken().pipe(
+    return this.authApi.refreshToken(refreshToken).pipe(
       tap((response: AuthResponseDto) => {
         if (response.accessToken) {
-          this.storeToken(response.accessToken);
+          // Store both the new access token and refresh token
+          this.storeTokens(response);
+
+          // Update user state with the new token
           const decodedToken = jwtDecode<JwtPayload>(response.accessToken);
           this.updateUserState(decodedToken, response.accessToken);
+
+          console.log('Token refreshed successfully');
         }
       }),
       map(() => true),
-      catchError(() => {
+      catchError((error) => {
+        console.error('Failed to refresh token:', error);
+        // If refresh fails, clear auth data and force re-login
         this.clearAuthData();
+        this.notification.displayNotification("Votre session a expiré. Veuillez vous reconnecter.", 'warning');
+        this.router.navigate(['/auth/login']);
         return of(false);
       })
     );

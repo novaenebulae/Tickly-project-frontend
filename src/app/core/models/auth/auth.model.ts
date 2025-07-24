@@ -46,6 +46,11 @@ export interface AuthResponseDto {
   accessToken?: string;
 
   /**
+   * The refresh token used to obtain a new access token when the current one expires.
+   */
+  refreshToken?: string;
+
+  /**
    * The number of seconds until the token expires.
    */
   expiresIn: number;

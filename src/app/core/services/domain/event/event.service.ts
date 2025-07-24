@@ -509,6 +509,7 @@ export class EventService {
       name: az.name,
       areaId: az.areaId,
       allocatedCapacity: az.allocatedCapacity,
+      remainingCapacity: az.remainingCapacity,
       isActive: az.isActive,
       seatingType: az.seatingType as SeatingType,
       templateId: az.templateId
@@ -603,7 +604,7 @@ export class EventService {
       apiDto.audienceZones = apiDto.audienceZones.map((zone: EventAudienceZoneConfigDto) => {
         const apiZone: any = {
           templateId: zone.templateId,
-          allocatedCapacity: zone.allocatedCapacity
+          allocatedCapacity: zone.allocatedCapacity,
         };
         if (zone.id !== undefined && eventIdForUpdate) { // Only include ID for existing zones during an update
           apiZone.id = zone.id;

@@ -6,7 +6,7 @@
 
 import {computed, DestroyRef, effect, inject, Injectable, signal, WritableSignal} from '@angular/core';
 import {forkJoin, Observable, of} from 'rxjs';
-import {catchError, switchMap, tap} from 'rxjs/operators';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {environment} from '../../../../../environments/environment';
 
@@ -27,6 +27,7 @@ import {
   ReservationConfirmationModel,
   ReservationRequestDto,
   TicketPdfDataDto,
+  UserReservationModel
 } from '../../../models/tickets/reservation.model';
 import {TicketModel} from '../../../models/tickets/ticket.model';
 import {ParticipantInfoModel} from '../../../models/tickets/participant-info.model';
@@ -47,9 +48,16 @@ export class TicketService {
   private destroyRef = inject(DestroyRef);
 
   // --- State Management using Signals ---
+  private myReservationsSig: WritableSignal<UserReservationModel[]> = signal([]);
+  /**
+   * A signal representing the list of reservations belonging to the current authenticated user.
+   */
+  public readonly myReservations = computed(() => this.myReservationsSig());
+
   private myTicketsSig: WritableSignal<TicketModel[]> = signal([]);
   /**
    * A signal representing the list of tickets belonging to the current authenticated user.
+   * This is derived from the reservations.
    */
   public readonly myTickets = computed(() => this.myTicketsSig());
 
@@ -147,19 +155,27 @@ export class TicketService {
   }
 
   /**
-   * Retrieves the tickets for the currently authenticated user.
+   * Retrieves the reservations and tickets for the currently authenticated user.
+   * The API now returns data grouped by reservation.
    */
   loadMyTickets(forceRefresh = false): Observable<TicketModel[]> {
     if (!forceRefresh && this.myTicketsSig().length > 0) {
       return of(this.myTicketsSig());
     }
 
-    return this.ticketApi.getMyTickets().pipe(
-      tap(tickets => {
-        this.myTicketsSig.set(tickets);
+    return this.ticketApi.getMyReservations().pipe(
+      tap(reservations => {
+        // Store the reservations
+        this.myReservationsSig.set(reservations);
+
+        // Extract all tickets from all reservations and store them
+        const allTickets = reservations.flatMap(reservation => reservation.tickets);
+        this.myTicketsSig.set(allTickets);
       }),
+      map(reservations => reservations.flatMap(reservation => reservation.tickets)),
       catchError(error => {
         this.handleError("Impossible de récupérer vos billets.", error);
+        this.myReservationsSig.set([]);
         this.myTicketsSig.set([]);
         return of([]);
       })
@@ -198,6 +214,57 @@ export class TicketService {
       catchError(error => {
         this.handleError(`Impossible de récupérer les détails du billet #${ticketId}.`, error);
         this.selectedTicketDetailSig.set(null);
+        return of(undefined);
+      })
+    );
+  }
+
+  /**
+   * Cancels a reservation.
+   * @param reservationId The ID of the reservation to cancel
+   * @returns An Observable of the updated ticket with status set to CANCELLED
+   */
+  cancelTicket(reservationId: number): Observable<TicketModel | undefined> {
+    return this.ticketApi.cancelTicket(reservationId).pipe(
+      tap(updatedTicket => {
+        if (updatedTicket) {
+          // Find the reservation to update
+          const currentReservations = this.myReservationsSig();
+          const reservationIndex = currentReservations.findIndex(r => r.reservationId === reservationId);
+
+          if (reservationIndex !== -1) {
+            // Update the reservation's tickets status to CANCELLED
+            const reservation = currentReservations[reservationIndex];
+            const updatedReservation = {
+              ...reservation,
+              tickets: reservation.tickets.map(ticket => ({
+                ...ticket,
+                status: TicketStatus.CANCELLED
+              }))
+            };
+
+            // Update the reservations list
+            const updatedReservations = [...currentReservations];
+            updatedReservations[reservationIndex] = updatedReservation;
+            this.myReservationsSig.set(updatedReservations);
+
+            // Update the tickets list
+            const currentTickets = this.myTicketsSig();
+            const updatedTickets = currentTickets.map(ticket => {
+              // If this ticket is part of the cancelled reservation, update its status
+              if (reservation.tickets.some(t => t.id === ticket.id)) {
+                return { ...ticket, status: TicketStatus.CANCELLED };
+              }
+              return ticket;
+            });
+            this.myTicketsSig.set(updatedTickets);
+
+            this.notification.displayNotification('Votre réservation a été annulée avec succès.', 'valid');
+          }
+        }
+      }),
+      catchError(error => {
+        this.handleError(`Impossible d'annuler la réservation #${reservationId}.`, error);
         return of(undefined);
       })
     );

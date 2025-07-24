@@ -55,7 +55,7 @@ export class LandingPageComponent implements OnInit {
   // Slides du carousel héros
   heroSlides: HeroSlide[] = [
     {
-      imageUrl: 'https://picsum.photos/seed/hero1/1920/1080',
+      imageUrl: 'images/hero-1.webp',
       altText: 'Ambiance de festival en soirée',
       title: 'Réservez Votre Place Ici, Avec Tickly.',
       subtitle: 'Découvrez des milliers d\'événements près de chez vous et réservez vos places en quelques clics.',
@@ -63,7 +63,7 @@ export class LandingPageComponent implements OnInit {
       ctaLink: '/events'
     },
     {
-      imageUrl: 'https://picsum.photos/seed/hero2/1920/1080',
+      imageUrl: 'images/hero-2.webp',
       altText: 'Concert live avec foule enthousiaste',
       title: 'Votre Prochaine Aventure Commence Ici',
       subtitle: 'De la musique aux sports, en passant par le théâtre, trouvez l\'inspiration pour sortir.',
@@ -71,7 +71,7 @@ export class LandingPageComponent implements OnInit {
       ctaLink: '/structures'
     },
     {
-      imageUrl: 'https://picsum.photos/seed/hero3/1920/1080',
+      imageUrl: 'images/hero-3.webp',
       altText: 'Scène de théâtre illuminée',
       title: 'Organisateurs, Touchez Votre Public',
       subtitle: 'Créez et gérez vos événements facilement avec Tickly.',

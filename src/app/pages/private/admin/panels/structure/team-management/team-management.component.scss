@@ -346,6 +346,11 @@
             justify-content: center;
             flex-shrink: 0;
 
+            img {
+              max-width: 50px;
+              max-height: 50px;
+            }
+
             mat-icon {
               font-size: 20px;
               width: 20px;

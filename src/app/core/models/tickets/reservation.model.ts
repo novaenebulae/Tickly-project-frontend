@@ -8,6 +8,27 @@ import {ParticipantInfoModel} from './participant-info.model';
 import {TicketModel} from './ticket.model';
 
 /**
+ * Represents a reservation as returned by the API in the user's tickets list.
+ * This is the new format returned by the API.
+ */
+export interface UserReservationModel {
+  /**
+   * The unique identifier for this reservation.
+   */
+  reservationId: number;
+
+  /**
+   * The list of tickets included in this reservation.
+   */
+  tickets: TicketModel[];
+
+  /**
+   * The date and time when this reservation was made.
+   */
+  reservationDate: string;
+}
+
+/**
  * Data Transfer Object for creating a new reservation (a request for one or more tickets).
  * This is what the user submits from the frontend.
  * All tickets in this request must be for the same audience zone.

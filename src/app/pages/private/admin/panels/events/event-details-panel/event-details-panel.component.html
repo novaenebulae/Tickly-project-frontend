@@ -174,7 +174,7 @@
               <h3 class="kpi-title">Billets Scannés</h3>
               <p class="kpi-value">{{ event.stats?.ticketsScanned || 0 }}
                 / {{ event.stats?.ticketsAttributed || 0 }}</p>
-              <small class="text-muted d-block">No-shows: {{ (event.stats?.noShowRate || 0) | percent:'1.0-0' }}</small>
+              <small class="text-muted d-block">No-shows: {{ ((event.stats?.noShowRate! / 100) || 0) | percent:'1.0-2' }}</small>
             </mat-card-content>
           </mat-card>
         </div>

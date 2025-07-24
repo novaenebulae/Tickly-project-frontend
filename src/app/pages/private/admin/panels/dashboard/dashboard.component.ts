@@ -189,7 +189,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           // After structure is loaded, load areas and other data
           this.loadStructureData();
           this.loadKpiData();
-          // Load statistics data
           this.loadStatistics();
         },
         error: (err) => {
@@ -214,7 +213,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
    * Loads structure data including areas
    */
   private loadStructureData(): void {
-    // Load structure areas
     this.userStructureService.loadUserStructureAreas()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -364,12 +362,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
    * Updates charts after data changes
    */
   private updateCharts(): void {
-    if (this.topEventsChart) {
-      this.topEventsChart.update();
+    // Vérifier que les ViewChild sont bien initialisés et que les graphiques existent
+    if (this.topEventsChart?.chart) {
+      this.topEventsChart.chart.update();
     }
 
-    if (this.categoryChart) {
-      this.categoryChart.update();
+    if (this.categoryChart?.chart) {
+      this.categoryChart.chart.update();
     }
   }
 }

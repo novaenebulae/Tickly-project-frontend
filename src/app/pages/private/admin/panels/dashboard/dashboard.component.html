@@ -1,19 +1,15 @@
 <div class="dashboard-container">
-  <!-- 🔄 Loading spinner -->
   <div class="loading-container" *ngIf="isLoading()">
     <mat-spinner diameter="50"></mat-spinner>
     <p>Chargement des statistiques...</p>
   </div>
 
-  <!-- 📊 Dashboard content -->
   <div class="dashboard-content" *ngIf="!isLoading() && stats()">
-    <!-- 🎨 En-tête avec informations principales -->
     <section class="header-section">
       <div class="header-card">
         <mat-card class="structure-overview-card">
           <mat-card-content>
             <div class="structure-header">
-              <!-- Logo/Avatar de la structure -->
               <div class="structure-avatar">
                 @if (structureName()?.logoUrl) {
                   <img [src]="structureName()!.logoUrl" [alt]="structureName()!.name" class="structure-logo">
@@ -24,13 +20,11 @@
                 }
               </div>
 
-              <!-- Informations principales -->
               <div class="structure-info">
                 <div class="structure-name-container">
                   <h1 class="structure-name">
                     {{ structureName()?.name || 'Ma Structure' }}
                   </h1>
-                  <!-- Statut de la structure -->
                   <mat-chip
                     [color]="statusConfig().color"
                     class="status-chip">
@@ -45,7 +39,6 @@
                 </p>
               </div>
 
-              <!-- Actions rapides -->
               <div class="header-actions">
                 <button
                   mat-icon-button
@@ -70,9 +63,7 @@
       </div>
     </section>
 
-    <!-- 📊 Structure KPI tiles -->
     <div class="structure-kpi-cards">
-      <!-- Stat: Zones -->
       <mat-card class="stat-card zones-card">
         <mat-card-content>
           <div class="stat-content">
@@ -98,7 +89,6 @@
         </mat-card-content>
       </mat-card>
 
-      <!-- Stat: Équipe -->
       <mat-card class="stat-card team-card">
         <mat-card-content>
           <div class="stat-content">
@@ -124,7 +114,6 @@
         </mat-card-content>
       </mat-card>
 
-      <!-- Stat: Événements -->
       <mat-card class="stat-card events-card">
         <mat-card-content>
           <div class="stat-content">
@@ -140,9 +129,7 @@
       </mat-card>
     </div>
 
-    <!-- 📈 KPI cards -->
     <div class="kpi-cards">
-      <!-- Original KPI cards -->
       <mat-card class="kpi-card">
         <mat-card-content>
           <div class="kpi-value">{{ stats()?.upcomingEventsCount }}</div>
@@ -174,9 +161,7 @@
 
 
 
-    <!-- 📊 Charts -->
     <div class="charts-container">
-      <!-- Top Events Chart -->
       <mat-card class="chart-card">
         <mat-card-header>
           <div mat-card-avatar>
@@ -196,7 +181,6 @@
         </mat-card-content>
       </mat-card>
 
-      <!-- Category Chart -->
       <mat-card class="chart-card">
         <mat-card-header>
           <div mat-card-avatar>
@@ -218,7 +202,6 @@
     </div>
   </div>
 
-  <!-- ⚠️ No data message -->
   <div class="no-data-container" *ngIf="!isLoading() && !stats()">
     <mat-icon class="no-data-icon">bar_chart_off</mat-icon>
     <h2>Aucune donnée statistique disponible</h2>

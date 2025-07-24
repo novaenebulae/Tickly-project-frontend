@@ -63,15 +63,17 @@ export class EventInfoSectionComponent {
   /**
    * Calcule la capacité totale des zones d'audience
    */
-  getTotalCapacity(): number {
+  getRemainingCapacity(): number {
     if (!this.event.audienceZones || this.event.audienceZones.length === 0) {
       return 0;
     }
 
-    // Sum up the allocated capacity of all active audience zones
+    console.log(this.event.audienceZones);
+
+    // Sum up the remaining capacity of all active audience zones
     return this.event.audienceZones
       .filter(zone => zone.isActive)
-      .reduce((total, zone) => total + zone.allocatedCapacity, 0);
+      .reduce((total, zone) => total + zone.remainingCapacity, 0);
   }
 
   /**

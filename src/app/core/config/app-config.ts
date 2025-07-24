@@ -17,9 +17,10 @@ interface AppConfig {
     endpoints: {
       auth: {
         login: string;
+        logout: string,
         register: string;
         validateToken: string;
-        refreshToken?: string; // Optional: if you implement token refresh
+        refreshToken: string;
         passwordResetRequest: string;
       };
       events: {
@@ -74,10 +75,11 @@ interface AppConfig {
       };
       ticketing: {
         reservations: string;  // POST to create a new reservation (batch of tickets)
-        myTickets: string;     // GET tickets for the current user
+        myReservations: string;     // GET reservations for the current user
         ticketById: (ticketId: string) => string; // GET details of a specific ticket
         publicTicketById: (ticketId: string) => string; // GET public details of a specific ticket
         validateTicket?: string; // Optional: POST to validate a ticket (scan)
+        cancelTicket: (ticketId: string) => string; // DELETE to cancel a reservation
       };
       // Add other domains as needed
     };
@@ -96,6 +98,7 @@ interface AppConfig {
     statistics: boolean;
   };
   auth: {
+    refreshTokenKey: string;
     tokenKey: string;             // Key for storing the JWT in localStorage/sessionStorage
     keepLoggedInKey: string;      // Key for storing the 'keep me logged in' preference
     userRoleKey: string;          // Optional: Key for storing user role if needed client-side
@@ -138,7 +141,8 @@ export const APP_CONFIG: AppConfig = {
         register: 'auth/register',
         validateToken: 'auth/validate-email',
         passwordResetRequest: 'auth/forgot-password',
-        refreshToken: 'auth/refresh-token',
+        refreshToken: 'auth/refresh',
+        logout: 'auth/logout',
       },
       events: {
         base: 'events',
@@ -193,10 +197,11 @@ export const APP_CONFIG: AppConfig = {
       },
       ticketing: {
         reservations: 'ticketing/reservations', // POST ReservationRequestDto
-        myTickets: 'ticketing/my-tickets',     // GET current user's TicketModel[]
+        myReservations: 'ticketing/reservations',     // GET current user's Reservations[]
         ticketById: (ticketId) => `ticketing/tickets/${ticketId}`, // GET TicketModel
         publicTicketById: (ticketId) => `ticketing/public/tickets/${ticketId}`, // GET public TicketModel
         validateTicket: 'ticketing/tickets/validate',
+        cancelTicket: (reservationId) => `ticketing/reservations/${reservationId}`, // DELETE to cancel a reservation
       }
     }
   },
@@ -216,6 +221,7 @@ export const APP_CONFIG: AppConfig = {
 
   auth: {
     tokenKey: 'APP_AUTH_TOKEN',
+    refreshTokenKey: 'APP_REFRESH_TOKEN',
     keepLoggedInKey: 'APP_KEEP_LOGGED_IN',
     userRoleKey: 'APP_USER_ROLE',
     structureIdKey: 'APP_USER_STRUCTURE_ID'

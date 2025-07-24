@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {CommonModule, NgOptimizedImage} from '@angular/common';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Router} from '@angular/router';
 
@@ -55,7 +55,8 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
     MatInputModule,
     MatSelectModule,
     MatSnackBarModule,
-    MatDividerModule
+    MatDividerModule,
+    NgOptimizedImage
   ],
   templateUrl: './team-management.component.html',
   styleUrls: ['./team-management.component.scss'],

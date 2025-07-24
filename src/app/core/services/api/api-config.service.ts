@@ -37,16 +37,10 @@ export class ApiConfigService {
    * @returns HttpHeaders - The constructed HTTP headers.
    */
   createHeaders(additionalHeaders: Record<string, string> = {}): HttpHeaders {
-    let headers = new HttpHeaders({
+    return new HttpHeaders({
       'Content-Type': 'application/json',
       ...additionalHeaders
     });
-
-    const token = this.getAuthToken();
-    if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
-    }
-    return headers;
   }
 
   /**
@@ -55,24 +49,7 @@ export class ApiConfigService {
    * @returns HttpHeaders Les en-têtes HTTP construits.
    */
   createFormDataHeaders(): HttpHeaders {
-    let headers = new HttpHeaders();
-
-    const token = this.getAuthToken();
-    if (token) {
-      headers = headers.set('Authorization', `Bearer ${token}`);
-    }
-    return headers;
-  }
-
-  /**
-   * Retrieves the authentication token from localStorage or sessionStorage based on 'keepLoggedIn' setting.
-   * @returns The authentication token, or null if not found.
-   */
-  private getAuthToken(): string | null {
-    const keepLoggedIn = localStorage.getItem(APP_CONFIG.auth.keepLoggedInKey) === 'true';
-    return keepLoggedIn
-      ? localStorage.getItem(APP_CONFIG.auth.tokenKey)
-      : sessionStorage.getItem(APP_CONFIG.auth.tokenKey);
+    return new HttpHeaders();
   }
 
   /**

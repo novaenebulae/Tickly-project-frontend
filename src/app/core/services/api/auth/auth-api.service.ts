@@ -126,21 +126,41 @@ export class AuthApiService {
 
   /**
    * Calls the refresh token API or uses mocks depending on the configuration.
+   * @param refreshToken - The refresh token to use for obtaining a new access token.
    * @returns An Observable of AuthResponseDto with refreshed token.
    */
-  refreshToken(): Observable<AuthResponseDto> {
+  refreshToken(refreshToken: string): Observable<AuthResponseDto> {
     this.apiConfig.logApiRequest('POST', 'refresh-token', {});
 
     const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.auth.refreshToken ?? '');
-    const token = this.getStoredToken();
-    if (!token) {
-      return throwError(() => new Error('No token available for refresh'));
+    if (!refreshToken) {
+      return throwError(() => new Error('No refresh token available for refresh'));
     }
 
     const headers = this.apiConfig.createHeaders();
-    return this.http.post<AuthResponseDto>(url, { token }, { headers }).pipe(
-      tap(response => this.apiConfig.logApiResponse('POST', 'refresh-token', response)),
+    return this.http.post<AuthResponseDto>(url, { refreshToken }, { headers }).pipe(
+      tap(response => this.apiConfig.logApiResponse('POST', 'refresh', response)),
       catchError(error => this.handleAuthError(error, 'refresh'))
+    );
+  }
+
+  /**
+   * Calls the logout API to invalidate the refresh token on the server.
+   * @param refreshToken - The refresh token to invalidate.
+   * @returns An Observable of void that completes when the logout is successful.
+   */
+  logout(refreshToken: string): Observable<void> {
+    this.apiConfig.logApiRequest('POST', 'logout', {});
+
+    const url = this.apiConfig.getUrl(APP_CONFIG.api.endpoints.auth.logout ?? '');
+    if (!refreshToken) {
+      return throwError(() => new Error('No refresh token available for logout'));
+    }
+
+    const headers = this.apiConfig.createHeaders();
+    return this.http.post<void>(url, { refreshToken }, { headers }).pipe(
+      tap(() => this.apiConfig.logApiResponse('POST', 'logout', { success: true })),
+      catchError(error => this.handleAuthError(error, 'logout'))
     );
   }
 
@@ -168,7 +188,7 @@ export class AuthApiService {
    */
   private handleAuthError(
     error: HttpErrorResponse,
-    context: 'login' | 'register' | 'refresh' | 'validate' | 'forgot-password' | 'reset-password'
+    context: 'login' | 'register' | 'refresh' | 'validate' | 'forgot-password' | 'reset-password' | 'logout'
   ): Observable<never> {
     // Déterminer le message d'erreur en fonction du contexte et du code d'erreur
     let userMessage: string;

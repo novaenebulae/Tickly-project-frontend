@@ -8,7 +8,7 @@
 
   // Image de couverture
   .banner-image {
-    height: 320px; // Hauteur réduite par rapport à la version précédente
+    height: 350px;
     width: 100%;
     background-size: cover;
     background-position: center;
@@ -182,7 +182,8 @@
 
       .event-datetime {
         display: flex;
-        gap: var(--spacing-xl);
+        gap: var(--spacing-lg);
+        margin-bottom: var(--spacing-md);
 
         .date-info, .time-info {
           display: flex;

@@ -21,6 +21,7 @@ import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import {TicketService} from '../../../../core/services/domain/ticket/ticket.service';
 import {TicketModel} from '../../../../core/models/tickets/ticket.model';
 import {TicketStatus} from '../../../../core/models/tickets/ticket-status.enum';
+import {UserReservationModel} from '../../../../core/models/tickets/reservation.model';
 import {
   TicketDetailModalComponent
 } from '../../../../shared/domain/users/ticket-detail-modal/ticket-detail-modal.component';
@@ -52,57 +53,92 @@ export class UserTicketsPage implements OnInit {
   private cdRef = inject(ChangeDetectorRef);
 
   // État de l'application
+  allReservations = computed(() => this.ticketService.myReservations());
   allTickets = computed(() => this.ticketService.myTickets());
   isLoading = signal(true);
 
-  // Tickets groupés par événement
+  // Tickets groupés par réservation
+  groupedReservations = computed(() => {
+    return this.allReservations();
+  });
+
+  // Pour la compatibilité avec le code existant, on garde une version groupée par événement
   groupedTickets = computed(() => {
-    const tickets = this.allTickets();
+    const reservations = this.allReservations();
     const grouped = new Map<number, TicketModel[]>();
 
-    tickets.forEach(ticket => {
-      const eventId = ticket.eventSnapshot.eventId;
-      if (!grouped.has(eventId)) {
-        grouped.set(eventId, []);
-      }
-      grouped.get(eventId)!.push(ticket);
+    reservations.forEach(reservation => {
+      reservation.tickets.forEach(ticket => {
+        const eventId = ticket.eventSnapshot.eventId;
+        if (!grouped.has(eventId)) {
+          grouped.set(eventId, []);
+        }
+        grouped.get(eventId)!.push(ticket);
+      });
     });
 
     return grouped;
   });
 
-  // Événements avec billets à venir
-  upcomingEvents = computed(() => {
+  // Réservations avec billets à venir
+  upcomingReservations = computed(() => {
     const now = new Date();
-    const events = new Map<number, TicketModel[]>();
+    const reservations = new Map<number, UserReservationModel>();
 
-    this.groupedTickets().forEach((tickets, eventId) => {
-      const eventDate = new Date(tickets[0].eventSnapshot.startDate);
-      if (eventDate > now) {
-        const validTickets = tickets.filter(t => t.status === TicketStatus.VALID);
-        if (validTickets.length > 0) {
-          events.set(eventId, tickets);
-        }
+    this.groupedReservations().forEach(reservation => {
+      // Vérifier si au moins un billet est valide
+      const hasValidTickets = reservation.tickets.some(t => t.status === TicketStatus.VALID);
+
+      // Vérifier si l'événement est dans le futur
+      const eventDate = new Date(reservation.tickets[0].eventSnapshot.startDate);
+
+      if (eventDate > now && hasValidTickets) {
+        reservations.set(reservation.reservationId, reservation);
       }
     });
 
-    return events;
+    return reservations;
   });
 
-  // Événements passés
-  pastEvents = computed(() => {
+  // Réservations pour événements passés
+  pastReservations = computed(() => {
     const now = new Date();
-    const events = new Map<number, TicketModel[]>();
+    const reservations = new Map<number, UserReservationModel>();
 
-    this.groupedTickets().forEach((tickets, eventId) => {
-      const eventDate = new Date(tickets[0].eventSnapshot.startDate);
-      if (eventDate <= now || tickets.some(t => t.status === TicketStatus.USED || t.status === TicketStatus.EXPIRED)) {
-        events.set(eventId, tickets);
+    this.groupedReservations().forEach(reservation => {
+      // Vérifier si l'événement est passé ou si au moins un billet est utilisé ou expiré
+      const eventDate = new Date(reservation.tickets[0].eventSnapshot.startDate);
+      const isUsedOrExpired = reservation.tickets.some(t =>
+        t.status === TicketStatus.USED || t.status === TicketStatus.EXPIRED
+      );
+
+      if ((eventDate <= now || isUsedOrExpired) &&
+          !reservation.tickets.some(t => t.status === TicketStatus.CANCELLED)) {
+        reservations.set(reservation.reservationId, reservation);
       }
     });
 
-    return events;
+    return reservations;
   });
+
+  // Réservations annulées
+  cancelledReservations = computed(() => {
+    const reservations = new Map<number, UserReservationModel>();
+
+    this.groupedReservations().forEach(reservation => {
+      // Une réservation est considérée comme annulée si tous ses billets sont annulés
+      if (reservation.tickets.some(t => t.status === TicketStatus.CANCELLED)) {
+        reservations.set(reservation.reservationId, reservation);
+      }
+    });
+
+    return reservations;
+  });
+
+  // Pour la compatibilité avec le code existant
+  upcomingEvents = computed(() => this.upcomingReservations());
+  pastEvents = computed(() => this.pastReservations());
+  cancelledEvents = computed(() => this.cancelledReservations());
 
   ngOnInit(): void {
     this.loadTickets();
@@ -122,12 +158,12 @@ export class UserTicketsPage implements OnInit {
   }
 
   /**
-   * Télécharge le PDF pour tous les billets d'un événement
+   * Télécharge le PDF pour tous les billets d'une réservation
    */
-  downloadAllPdfs(tickets: TicketModel[]): void {
+  downloadAllPdfs(reservation: UserReservationModel): void {
     this.isLoading.set(true);
 
-    const ticketIds = tickets.map(ticket => ticket.id);
+    const ticketIds = reservation.tickets.map(ticket => ticket.id);
 
     this.ticketService.downloadMultipleTicketsPdf(ticketIds)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -144,13 +180,48 @@ export class UserTicketsPage implements OnInit {
   }
 
   /**
-   * Télécharge le PDF pour un événement spécifique depuis la carte
+   * Télécharge le PDF pour une réservation spécifique depuis la carte
    */
-  downloadEventPdfsFromCard(event: Event, tickets: TicketModel[]): void {
+  downloadReservationPdfsFromCard(event: Event, reservation: UserReservationModel): void {
     event.stopPropagation(); // Empêche l'ouverture de la modal
-    this.downloadAllPdfs(tickets);
+    this.downloadAllPdfs(reservation);
   }
 
+  /**
+   * Pour la compatibilité avec le code existant
+   */
+  downloadEventPdfsFromCard(event: Event, tickets: TicketModel[]): void {
+    event.stopPropagation();
+    // Trouver la réservation correspondante
+    const reservationId = this.getReservationIdForTicket(tickets[0]);
+    if (reservationId) {
+      const reservation = this.allReservations().find(r => r.reservationId === reservationId);
+      if (reservation) {
+        this.downloadAllPdfs(reservation);
+      }
+    }
+  }
+
+  openReservationTickets(reservation: UserReservationModel): void {
+    const dialogRef = this.dialog.open(TicketDetailModalComponent, {
+      width: 'auto',
+      maxWidth: '800px',
+      data: { ticket: reservation.tickets }
+    });
+
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+      if (result?.action === 'refresh') {
+        this.loadTickets();
+        this.cdRef.markForCheck();
+      }
+    });
+  }
+
+  /**
+   * Pour la compatibilité avec le code existant
+   */
   openEventTickets(tickets: TicketModel[]): void {
     const dialogRef = this.dialog.open(TicketDetailModalComponent, {
       width: 'auto',
@@ -168,6 +239,66 @@ export class UserTicketsPage implements OnInit {
     });
   }
 
+  /**
+   * Cancels a reservation
+   * @param event The click event
+   * @param reservationId The ID of the reservation to cancel
+   */
+  cancelTicket(event: Event, reservationId: number): void {
+    event.stopPropagation(); // Prevent opening the ticket details modal
+
+    if (confirm('Êtes-vous sûr de vouloir annuler cette réservation ? Cette action est irréversible.')) {
+      this.isLoading.set(true);
+
+      this.ticketService.cancelTicket(reservationId)
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          finalize(() => {
+            this.isLoading.set(false);
+            this.cdRef.markForCheck();
+          })
+        )
+        .subscribe({
+          next: () => {
+            this.loadTickets();
+            // Reservation is already updated in the service
+            this.cdRef.markForCheck();
+          }
+        });
+    }
+  }
+
+  /**
+   * Gets the reservation ID for a ticket
+   * @param ticket The ticket to find the reservation ID for
+   * @returns The reservation ID, or undefined if not found
+   */
+  getReservationIdForTicket(ticket: TicketModel): number | undefined {
+    const reservations = this.allReservations();
+    const reservation = reservations.find(r =>
+      r.tickets.some(t => t.id === ticket.id)
+    );
+    return reservation?.reservationId;
+  }
+
+  /**
+   * Obtient un résumé des billets pour une réservation
+   */
+  getReservationTicketsSummary(reservation: UserReservationModel): string {
+    const tickets = reservation.tickets;
+    const validCount = tickets.filter(t => t.status === TicketStatus.VALID).length;
+    const total = tickets.length;
+
+    if (validCount === total) {
+      return `${total} billet${total > 1 ? 's' : ''}`;
+    } else {
+      return `${validCount}/${total} billet${total > 1 ? 's' : ''} valide${validCount > 1 ? 's' : ''}`;
+    }
+  }
+
+  /**
+   * Pour la compatibilité avec le code existant
+   */
   getEventTicketsSummary(tickets: TicketModel[]): string {
     const validCount = tickets.filter(t => t.status === TicketStatus.VALID).length;
     const total = tickets.length;
@@ -179,6 +310,25 @@ export class UserTicketsPage implements OnInit {
     }
   }
 
+  /**
+   * Obtient le statut principal d'une réservation
+   */
+  getReservationMainStatus(reservation: UserReservationModel): TicketStatus {
+    const tickets = reservation.tickets;
+    if (tickets.every(t => t.status === TicketStatus.VALID)) {
+      return TicketStatus.VALID;
+    } else if (tickets.some(t => t.status === TicketStatus.CANCELLED)) {
+      return TicketStatus.CANCELLED;
+    } else if (tickets.some(t => t.status === TicketStatus.USED)) {
+      return TicketStatus.USED;
+    } else {
+      return TicketStatus.EXPIRED;
+    }
+  }
+
+  /**
+   * Pour la compatibilité avec le code existant
+   */
   getMainEventStatus(tickets: TicketModel[]): TicketStatus {
     if (tickets.every(t => t.status === TicketStatus.VALID)) {
       return TicketStatus.VALID;
@@ -231,6 +381,32 @@ export class UserTicketsPage implements OnInit {
       hour: '2-digit',
       minute: '2-digit'
     });
+  }
+
+  /**
+   * Vérifie si une réservation a des billets valides
+   */
+  hasValidReservationTickets(reservation: UserReservationModel): boolean {
+    return reservation.tickets.some(ticket => ticket.status === TicketStatus.VALID);
+  }
+
+  /**
+   * Pour la compatibilité avec le code existant
+   */
+  hasValidTickets(tickets: TicketModel[]): boolean {
+    return tickets.some(ticket => ticket.status === TicketStatus.VALID);
+  }
+
+  /**
+   * Gets the reservation ID for the first valid ticket in a group of tickets
+   * @param tickets The tickets to check
+   * @returns The reservation ID, or undefined if no valid ticket is found
+   */
+  getReservationIdForValidTicket(tickets: TicketModel[]): number | undefined {
+    const validTicket = tickets.find(ticket => ticket.status === TicketStatus.VALID);
+    if (!validTicket) return undefined;
+
+    return this.getReservationIdForTicket(validTicket);
   }
 
   protected readonly TicketStatus = TicketStatus;

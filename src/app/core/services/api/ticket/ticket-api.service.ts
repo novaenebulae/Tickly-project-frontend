@@ -16,7 +16,7 @@ import {ApiConfigService} from '../api-config.service';
 import {APP_CONFIG} from '../../../config/app-config';
 import {ErrorHandlingService} from '../../error-handling.service';
 
-import {ReservationConfirmationModel, ReservationRequestDto} from '../../../models/tickets/reservation.model';
+import {ReservationConfirmationModel, ReservationRequestDto, UserReservationModel} from '../../../models/tickets/reservation.model';
 import {TicketModel} from '../../../models/tickets/ticket.model';
 import {TicketStatus} from '../../../models/tickets/ticket-status.enum';
 
@@ -73,12 +73,12 @@ export class TicketApiService {
   }
 
   /**
-   * Retrieves tickets for the currently authenticated user.
-   * The API is expected to return data mappable to `TicketModel[]`.
-   * @returns An Observable of an array of `TicketModel`.
+   * Retrieves reservations and tickets for the currently authenticated user.
+   * The API now returns data grouped by reservation.
+   * @returns An Observable of an array of `UserReservationModel`.
    */
-  getMyTickets(): Observable<TicketModel[]> {
-    const endpointContext = APP_CONFIG.api.endpoints.ticketing.myTickets;
+  getMyReservations(): Observable<UserReservationModel[]> {
+    const endpointContext = APP_CONFIG.api.endpoints.ticketing.myReservations;
 
     // if (this.apiConfig.isMockEnabledForDomain('ticketing')) {
     //   return this.mockService.mockGetMyTickets();
@@ -87,7 +87,7 @@ export class TicketApiService {
     this.apiConfig.logApiRequest('GET', endpointContext);
     const url = this.apiConfig.getUrl(endpointContext);
     const headers = this.apiConfig.createHeaders();
-    return this.http.get<TicketModel[]>(url, { headers }).pipe(
+    return this.http.get<UserReservationModel[]>(url, { headers }).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
       catchError(error => this.handleTicketingError(error, 'getMyTickets'))
     );
@@ -217,6 +217,24 @@ export class TicketApiService {
     return this.http.get<TicketModel>(url).pipe(
       tap(response => this.apiConfig.logApiResponse('GET', endpointContext, response)),
       catchError(error => this.handleTicketingError(error, 'getPublicTicketById'))
+    );
+  }
+
+  /**
+   * Cancels a reservation.
+   * @param reservationId - The ID of the reservation to cancel.
+   * @returns An Observable of the updated `TicketModel` with status set to CANCELLED.
+   */
+  cancelTicket(reservationId: number): Observable<TicketModel> {
+    const endpointContext = APP_CONFIG.api.endpoints.ticketing.cancelTicket(reservationId.toString());
+
+    this.apiConfig.logApiRequest('DELETE', endpointContext);
+    const url = this.apiConfig.getUrl(endpointContext);
+    const headers = this.apiConfig.createHeaders();
+
+    return this.http.delete<TicketModel>(url, { headers }).pipe(
+      tap(response => this.apiConfig.logApiResponse('DELETE', endpointContext, response)),
+      catchError(error => this.handleTicketingError(error, 'cancelTicket'))
     );
   }
 

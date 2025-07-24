@@ -46,9 +46,12 @@ export class EventBannerComponent implements OnChanges {
   private location = inject(Location);
 
   // Propriétés calculées
-  formattedDate: string = '';
-  formattedTime: string = '';
+  formattedStartDate: string = '';
+  formattedStartTime: string = '';
+  formattedEndDate: string = '';
+  formattedEndTime: string = '';
   structureName: string = '';
+
   statusInfo: { label: string, class: string, icon: string } = {
     label: '',
     class: '',
@@ -68,10 +71,18 @@ export class EventBannerComponent implements OnChanges {
   private formatDateTime(): void {
     if (this.event.startDate) {
       // Formatter la date (ex: "Lundi 15 juin 2023")
-      this.formattedDate = format(new Date(this.event.startDate), 'EEEE d MMMM yyyy', { locale: fr });
+      this.formattedStartDate = format(new Date(this.event.startDate), 'EEEE d MMMM yyyy', { locale: fr });
 
       // Formatter l'heure (ex: "20:00")
-      this.formattedTime = format(new Date(this.event.startDate), 'HH:mm');
+      this.formattedStartTime = format(new Date(this.event.startDate), 'HH:mm');
+    }
+
+    if (this.event.endDate) {
+      // Formatter la date (ex: "Lundi 15 juin 2023")
+      this.formattedEndDate = format(new Date(this.event.endDate), 'EEEE d MMMM yyyy', { locale: fr });
+
+      // Formatter l'heure (ex: "20:00")
+      this.formattedEndTime = format(new Date(this.event.endDate), 'HH:mm');
     }
   }
 
