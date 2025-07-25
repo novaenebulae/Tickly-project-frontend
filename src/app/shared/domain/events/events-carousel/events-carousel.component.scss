@@ -8,9 +8,7 @@ $gap-between-cards: var(--spacing-md); // Espace entre les cartes
 
 .events-carousel {
   position: relative;
-  padding: var(--spacing-lg) 0; // Padding vertical, horizontal géré par les contrôles
   border-radius: var(--border-radius-medium);
-  box-shadow: var(--shadow-sm);
 
   &__viewport {
     overflow: hidden; // Masque les cartes qui ne sont pas dans la "page" actuelle

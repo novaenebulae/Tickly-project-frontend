@@ -23,9 +23,9 @@ describe('StructureService', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   const mockStructureTypes: StructureTypeModel[] = [
-    { id: 1, name: 'Salle de concert' },
-    { id: 2, name: 'Théâtre' },
-    { id: 3, name: 'Stade' }
+    { id: 1, name: 'Salle de concert', icon: 'home'},
+    { id: 2, name: 'Théâtre', icon: 'home' },
+    { id: 3, name: 'Stade', icon: 'home' }
   ];
 
   const mockAddress: StructureAddressModel = {

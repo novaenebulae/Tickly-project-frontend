@@ -917,7 +917,7 @@ export class EventFormComponent implements OnInit {
       }
     });
 
-    return dialogRef.afterClosed().toPromise();
+    return dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).toPromise();
   }
 
   // Form submission

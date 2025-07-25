@@ -3,7 +3,6 @@ import {
   AreasExtendedAccessGuard,
   EventExtendedAccessGuard,
   EventManagementGuard,
-  StaffGuard,
   StructureExtendedAccessGuard,
   TeamManagementGuard,
   TicketValidationGuard
@@ -47,7 +46,6 @@ export const adminRoutes: Routes = [
         path: 'dashboard',
         loadComponent: () => import('./panels/dashboard/dashboard.component')
           .then(m => m.DashboardComponent),
-        canActivate: [StaffGuard],
         title: 'Tableau de bord | Administration'
       },
 
@@ -56,35 +54,35 @@ export const adminRoutes: Routes = [
         path: 'events',
         loadComponent: () => import('./panels/events/events-panel/events-panel.component')
           .then(m => m.EventsPanelComponent),
-        canActivate: [EventExtendedAccessGuard], // 🔥 RESERVATION_SERVICE peut voir en readonly
+        canActivate: [EventExtendedAccessGuard],
         title: 'Gestion des événements | Administration'
       },
       {
         path: 'events/create',
         loadComponent: () => import('./panels/events/event-form/event-form.component')
           .then(m => m.EventFormComponent),
-        canActivate: [EventManagementGuard], // 🔥 Seuls STRUCTURE_ADMINISTRATOR + ORGANIZATION_SERVICE
+        canActivate: [EventManagementGuard],
         title: 'Créer un événement | Administration'
       },
       {
         path: 'events/calendar',
         loadComponent: () => import('./panels/events/event-calendar/event-calendar.component')
           .then(m => m.EventCalendarComponent),
-        canActivate: [EventExtendedAccessGuard], // 🔥 RESERVATION_SERVICE peut voir en readonly
+        canActivate: [EventExtendedAccessGuard],
         title: 'Calendrier des événements | Administration'
       },
       {
         path: 'event/details/:id',
         loadComponent: () => import('./panels/events/event-details-panel/event-details-panel.component')
           .then(m => m.EventDetailsPanelComponent),
-        canActivate: [EventExtendedAccessGuard], // 🔥 RESERVATION_SERVICE peut voir en readonly
+        canActivate: [EventExtendedAccessGuard],
         title: 'Détails d\'événement | Administration'
       },
       {
         path: 'event/:id/edit',
         loadComponent: () => import('./panels/events/event-form/event-form.component')
           .then(m => m.EventFormComponent),
-        canActivate: [EventManagementGuard], // 🔥 Seuls STRUCTURE_ADMINISTRATOR + ORGANIZATION_SERVICE
+        canActivate: [EventManagementGuard],
         title: 'Édition d\'un événement | Administration'
       },
       {
@@ -100,14 +98,14 @@ export const adminRoutes: Routes = [
         path: 'structure',
         loadComponent: () => import('./panels/structure/structure-panel/structure-panel.component')
           .then(m => m.StructurePanelComponent),
-        canActivate: [StructureExtendedAccessGuard], // 🔥 RESERVATION_SERVICE peut voir en readonly
+        canActivate: [StructureExtendedAccessGuard],
         title: 'Gestion de la Structure | Administration'
       },
       {
         path: 'structure/edit',
         loadComponent: () => import('./panels/structure/structure-edit/structure-edit.component')
           .then(m => m.StructureEditComponent),
-        canActivate: [StructureExtendedAccessGuard], // 🔥 RESERVATION_SERVICE peut voir en readonly
+        canActivate: [StructureExtendedAccessGuard],
         title: 'Modifier la structure | Administration'
       },
       {
@@ -121,14 +119,14 @@ export const adminRoutes: Routes = [
         path: 'structure/team',
         loadComponent: () => import('./panels/structure/team-management/team-management.component')
           .then(m => m.TeamManagementComponent),
-        canActivate: [TeamManagementGuard], // 🔥 Seuls STRUCTURE_ADMINISTRATOR + ORGANIZATION_SERVICE
+        canActivate: [TeamManagementGuard],
         title: 'Gestion de l\'équipe | Administration'
       },
       {
         path: 'structure/areas',
         loadComponent: () => import('./panels/structure/areas-management/areas-management.component')
           .then(m => m.AreasManagementComponent),
-        canActivate: [AreasExtendedAccessGuard], // 🔥 RESERVATION_SERVICE peut voir en readonly
+        canActivate: [AreasExtendedAccessGuard],
         title: 'Gestion des zones | Administration'
       }
     ]

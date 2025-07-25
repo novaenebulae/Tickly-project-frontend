@@ -38,7 +38,7 @@ describe('EventService', () => {
     endDate: new Date('2023-12-02'),
     categories: [{ id: 1, name: 'Concert' }],
     address: { city: 'Test City', street: 'Test Street', country: 'Test Country' },
-    structure: { id: 1, name: 'Test Structure', types: [{id: 1, name: "Salle de concert"}], city: 'Test City', isActive: true},
+    structure: { id: 1, name: 'Test Structure', types: [{id: 1, name: "Salle de concert", icon: 'home'}], city: 'Test City', isActive: true},
     displayOnHomepage: true,
     isFeaturedEvent: true,
     mainPhotoUrl: 'test-photo.jpg',

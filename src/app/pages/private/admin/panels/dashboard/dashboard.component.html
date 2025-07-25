@@ -96,11 +96,11 @@
               <mat-icon>group</mat-icon>
             </div>
             <div class="stat-details">
-              <div class="stat-number">{{ teamCount() }}</div>
-              <div class="stat-label">Membre{{ teamCount() !== 1 ? 's' : '' }}</div>
+              <div class="stat-number">{{ teamCount().length }}</div>
+              <div class="stat-label">Membre{{ teamCount().length !== 1 ? 's' : '' }}</div>
             </div>
           </div>
-          @if (teamCount() <= 1) {
+          @if (teamCount().length <= 1) {
             <div class="stat-action">
               <button
                 mat-stroked-button
@@ -159,8 +159,6 @@
       </mat-card>
     </div>
 
-
-
     <div class="charts-container">
       <mat-card class="chart-card">
         <mat-card-header>
@@ -173,9 +171,9 @@
         <mat-card-content>
           <div class="chart-container">
             <canvas baseChart #topEventsChart
-              [data]="topEventsChartData"
-              [options]="topEventsChartOptions"
-              [type]="topEventsChartType()">
+                    [data]="topEventsChartData"
+                    [options]="topEventsChartOptions"
+                    [type]="topEventsChartType()">
             </canvas>
           </div>
         </mat-card-content>
@@ -192,9 +190,9 @@
         <mat-card-content>
           <div class="chart-container">
             <canvas baseChart #categoryChart
-              [data]="categoryChartData"
-              [options]="categoryChartOptions"
-              [type]="attendanceByCategoryChartType()">
+                    [data]="categoryChartData"
+                    [options]="categoryChartOptions"
+                    [type]="attendanceByCategoryChartType()">
             </canvas>
           </div>
         </mat-card-content>

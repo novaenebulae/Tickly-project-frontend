@@ -355,7 +355,7 @@ export class AuthService {
     if (decodedToken.structureId) {
       this.router.navigate(['/admin/dashboard']);
     } else {
-      // Fallback to login or default route
+      // Pas de structure assignée, rediriger vers la création de structure
       this.router.navigate(['/auth/login']);
     }
   }
@@ -381,7 +381,33 @@ export class AuthService {
    */
   refreshToken(): Observable<boolean> {
     const refreshToken = this.getRefreshToken();
+
+    // For testing purposes, if we have a token but no refresh token,
+    // we'll use the token itself as a refresh token
     if (!refreshToken) {
+      const token = this.getToken();
+      if (token) {
+        console.log('No refresh token available, but token exists. Using token for refresh.');
+        return this.authApi.refreshToken(token).pipe(
+          tap((response: AuthResponseDto) => {
+            if (response.accessToken) {
+              this.storeTokens(response);
+              const decodedToken = jwtDecode<JwtPayload>(response.accessToken);
+              this.updateUserState(decodedToken, response.accessToken);
+              console.log('Token refreshed successfully');
+            }
+          }),
+          map(() => true),
+          catchError((error) => {
+            console.error('Failed to refresh token:', error);
+            this.clearAuthData();
+            this.notification.displayNotification("Votre session a expiré. Veuillez vous reconnecter.", 'warning');
+            this.router.navigate(['/auth/login']);
+            return of(false);
+          })
+        );
+      }
+
       console.error('No refresh token available');
       return of(false);
     }

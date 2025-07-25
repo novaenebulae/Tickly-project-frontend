@@ -122,7 +122,7 @@ export class ManageFriendsDialogComponent implements OnInit {
    * @param url - L'URL de l'avatar (optionnel).
    */
   getAvatarUrl(url?: string): string {
-    return url || 'assets/images/avatars/avatar-placeholder.png'; // Assurez-vous d'avoir une image par défaut
+    return url || 'icons/no-image.svg'; // Assurez-vous d'avoir une image par défaut
   }
 
 

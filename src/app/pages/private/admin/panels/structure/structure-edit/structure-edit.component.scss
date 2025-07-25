@@ -22,7 +22,6 @@
   padding: var(--spacing-md);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
 
   @media (max-width: 768px) {
     padding: var(--spacing-sm);

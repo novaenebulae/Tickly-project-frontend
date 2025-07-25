@@ -1,6 +1,5 @@
 <div class="structure-panel-container">
 
-  <!-- 🎨 En-tête avec informations principales -->
   <div class="dashboard-header">
     <div class="header-content">
       <div class="header-left">
@@ -14,9 +13,8 @@
           }
         </div>
         <div class="header-titles">
-          <h1>Structure</h1>
           <div class="structure-name-row">
-            <p class="structure-name">{{ userStructureData?.name || 'Ma Structure' }}</p>
+            <h3 class="structure-name">{{ userStructureData?.name || 'Ma Structure' }}</h3>
             <mat-chip
               [color]="statusConfig().color"
               class="status-chip">
@@ -24,6 +22,7 @@
               {{ statusConfig().label }}
             </mat-chip>
           </div>
+          <p class="structure-name">Panneau de configuration</p>
         </div>
       </div>
       <div class="header-actions">
@@ -45,11 +44,9 @@
     </div>
   </div>
 
-  <!-- 🛠️ Actions principales -->
   <section class="actions-section">
     <div class="actions-grid">
 
-      <!-- Action: Informations -->
       <mat-card class="action-card info-card">
         <mat-card-header class="action-header">
           <div mat-card-avatar class="action-avatar info-avatar">
@@ -74,7 +71,6 @@
         </mat-card-actions>
       </mat-card>
 
-      <!-- Action: Gestion équipe -->
       <mat-card class="action-card team-card">
         <mat-card-header class="action-header">
           <div mat-card-avatar class="action-avatar team-avatar">
@@ -99,7 +95,6 @@
         </mat-card-actions>
       </mat-card>
 
-      <!-- Action: Zones et espaces -->
       <mat-card class="action-card areas-card">
         <mat-card-header class="action-header">
           <div mat-card-avatar class="action-avatar areas-avatar">
@@ -124,7 +119,6 @@
         </mat-card-actions>
       </mat-card>
 
-      <!-- Action: Événements -->
       <mat-card class="action-card events-management-card">
         <mat-card-header class="action-header">
           <div mat-card-avatar class="action-avatar events-avatar">
@@ -152,7 +146,6 @@
     </div>
   </section>
 
-  <!-- 🔄 État de chargement -->
   @if (isLoadingStructure()) {
     <div class="loading-overlay">
       <mat-card class="loading-card">

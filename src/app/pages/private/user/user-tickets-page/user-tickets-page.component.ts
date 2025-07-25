@@ -27,6 +27,9 @@ import {
 } from '../../../../shared/domain/users/ticket-detail-modal/ticket-detail-modal.component';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {finalize} from 'rxjs/operators';
+import {
+  ConfirmationDialogComponent
+} from '../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-user-tickets-page',
@@ -247,25 +250,27 @@ export class UserTicketsPage implements OnInit {
   cancelTicket(event: Event, reservationId: number): void {
     event.stopPropagation(); // Prevent opening the ticket details modal
 
-    if (confirm('Êtes-vous sûr de vouloir annuler cette réservation ? Cette action est irréversible.')) {
-      this.isLoading.set(true);
+    this.showConfirmationDialog().then(confirmed => {
+      if (confirmed) {
+        this.isLoading.set(true);
 
-      this.ticketService.cancelTicket(reservationId)
-        .pipe(
-          takeUntilDestroyed(this.destroyRef),
-          finalize(() => {
-            this.isLoading.set(false);
-            this.cdRef.markForCheck();
-          })
-        )
-        .subscribe({
-          next: () => {
-            this.loadTickets();
-            // Reservation is already updated in the service
-            this.cdRef.markForCheck();
-          }
-        });
-    }
+        this.ticketService.cancelTicket(reservationId)
+          .pipe(
+            takeUntilDestroyed(this.destroyRef),
+            finalize(() => {
+              this.isLoading.set(false);
+              this.cdRef.markForCheck();
+            })
+          )
+          .subscribe({
+            next: () => {
+              this.loadTickets();
+              // Reservation is already updated in the service
+              this.cdRef.markForCheck();
+            }
+          });
+      }
+    })
   }
 
   /**
@@ -407,6 +412,26 @@ export class UserTicketsPage implements OnInit {
     if (!validTicket) return undefined;
 
     return this.getReservationIdForTicket(validTicket);
+  }
+
+  /**
+   * Shows a confirmation dialog for cancelling a reservation
+   * @returns A promise that resolves to true if confirmed, false otherwise
+   */
+  private showConfirmationDialog(): Promise<boolean> {
+
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Annuler la réservation',
+        message: 'Êtes vous sûrs de vouloir supprimer cette réservation ?',
+        confirmButtonText: 'Supprimer',
+        cancelButtonText: 'Annuler',
+        confirmButtonColor: 'danger'
+      }
+    });
+
+    return dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).toPromise();
   }
 
   protected readonly TicketStatus = TicketStatus;

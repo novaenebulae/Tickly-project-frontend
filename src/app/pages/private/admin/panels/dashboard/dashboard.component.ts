@@ -1,14 +1,13 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   computed,
   DestroyRef,
   inject,
   OnInit,
-  signal,
-  ViewChild
+  ViewChild,
+  effect
 } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
@@ -58,30 +57,41 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   private userStructureService = inject(UserStructureService);
   private teamManagementService = inject(TeamManagementService);
   private destroyRef = inject(DestroyRef);
-  private cdRef = inject(ChangeDetectorRef);
 
   @ViewChild('topEventsChart') topEventsChart?: BaseChartDirective;
   @ViewChild('categoryChart') categoryChart?: BaseChartDirective;
 
+  // Utilisation directe des signaux du service
   structureName = this.userStructureService.userStructure;
-  protected readonly structureAreas = this.userStructureService.userStructureAreas;
+  structureAreas = this.userStructureService.userStructureAreas;
+  structureEvents = this.userStructureService.userStructureEvents;
+  isLoadingStructure = this.userStructureService.isLoading;
 
   stats = this.statisticsService.structureDashboardStats;
-  isLoading = this.statisticsService.isLoadingStructureStats;
+  isLoadingStats = this.statisticsService.isLoadingStructureStats;
 
-  protected readonly structureStatus = computed(() => {
+  // Signal combiné pour l'état de chargement général
+  isLoading = computed(() => this.isLoadingStructure() || this.isLoadingStats());
+
+  // Signaux dérivés pour les KPI
+  teamCount = this.teamManagementService.teamMembers;
+  eventCount = computed(() => this.structureEvents().length);
+  areaCount = computed(() => this.structureAreas().length);
+
+  // Statut de la structure
+  structureStatus = computed(() => {
     const structure = this.structureName();
     if (!structure) return 'no-structure';
 
-    const areas = this.structureAreas().length;
-    const team = this.teamCount();
+    const areas = this.areaCount();
+    const team = this.teamCount().length;
 
     if (areas === 0) return 'needs-setup';
     if (team <= 1) return 'needs-team';
     return 'ready';
   });
 
-  protected readonly statusConfig = computed(() => {
+  statusConfig = computed(() => {
     const status = this.structureStatus();
     switch (status) {
       case 'no-structure':
@@ -116,13 +126,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         return { label: 'Inconnu', color: 'warn', icon: 'help', description: '' };
     }
   });
-
-  private teamCountSig = signal<number>(0);
-  private eventCountSig = signal<number>(0);
-
-  protected readonly teamCount = computed(() => this.teamCountSig());
-  protected readonly eventCount = computed(() => this.eventCountSig());
-  protected readonly areaCount = computed(() => this.structureAreas().length);
 
   topEventsChartType = computed<ChartType>(() => {
     const type = this.stats()?.topEventsChart?.chartType;
@@ -167,131 +170,92 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     }
   };
 
+  constructor() {
+    // Effect pour charger les données complémentaires quand la structure est disponible
+    effect(() => {
+      const structure = this.structureName();
+      const isStructureLoaded = this.userStructureService.isStructureDataLoaded();
+
+      if (structure && isStructureLoaded) {
+        // La structure est chargée, charger les données complémentaires
+        this.loadDashboardData();
+      }
+    });
+
+    // Effect pour mettre à jour les graphiques quand les stats changent
+    effect(() => {
+      const stats = this.stats();
+      if (stats) {
+        this.updateChartData(stats);
+        // Petite temporisation pour laisser Angular mettre à jour la vue
+        setTimeout(() => this.updateCharts(), 10);
+      }
+    });
+  }
+
   ngOnInit(): void {
-    console.log('Dashboard ngOnInit - Structure initiale:', this.structureName());
-
-    this.userStructureService.refreshUserStructure()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (structure) => {
-          this.cdRef.markForCheck();
-
-          this.loadStructureData();
-          this.loadKpiData();
-          this.loadStatistics();
-        },
-        error: (err) => {
-          console.error('Error loading structure data:', err);
-          this.cdRef.markForCheck();
-          this.loadStructureData();
-          this.loadKpiData();
-          this.loadStatistics();
-        }
-      });
+    // Plus besoin de logique complexe, les effects gèrent tout
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.updateCharts();
-    }, 10);
+    // Plus besoin de logique ici, les effects gèrent la mise à jour des graphiques
   }
 
   /**
-   * Loads structure data including areas
+   * Charge les données complémentaires du dashboard
    */
-  private loadStructureData(): void {
-    this.userStructureService.loadUserStructureAreas()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (areas) => {
-          this.cdRef.markForCheck();
-        },
-        error: (err) => {
-          console.error('Error loading areas:', err);
-          this.cdRef.markForCheck();
-        }
-      });
+  private loadDashboardData(): void {
+    // Charger les statistiques si pas encore chargées
+    if (!this.stats()) {
+      this.statisticsService.getStructureDashboardStats()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
+    }
+
+    // Charger les membres de l'équipe si pas encore chargés
+    if (this.teamCount().length === 0) {
+      this.teamManagementService.loadTeamMembers()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe();
+    }
   }
 
   /**
-   * Loads KPI data (team members and events)
-   */
-  private loadKpiData(): void {
-    this.teamManagementService.loadTeamMembers()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-      next: (members) => {
-        this.teamCountSig.set(members.length);
-        this.cdRef.markForCheck();
-
-      },
-      error: () => {
-        this.teamCountSig.set(0);
-        this.cdRef.markForCheck();
-      }
-    });
-
-    this.userStructureService.getUserStructureEvents(true)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-      next: (events) => {
-        this.eventCountSig.set(events.length);
-        this.cdRef.markForCheck();
-      },
-      error: () => {
-        this.eventCountSig.set(0);
-        this.cdRef.markForCheck();
-      }
-    });
-  }
-
-  /**
-   * Loads statistics data from the service
-   */
-  loadStatistics(): void {
-    this.statisticsService.getStructureDashboardStats()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(stats => {
-      if (stats) {
-        this.updateChartData(stats);
-        this.cdRef.markForCheck();
-      }
-    });
-  }
-
-  /**
-   * Refreshes the statistics data and KPI data
+   * Actualise toutes les données du dashboard
    */
   refreshStatistics(): void {
+    // Actualiser toutes les données de structure
+    this.userStructureService.refreshAllStructureData()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
+
+    // Actualiser les statistiques
     this.statisticsService.getStructureDashboardStats(true)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(stats => {
-      if (stats) {
-        this.updateChartData(stats);
-        this.cdRef.markForCheck();
-      }
-    });
+      .subscribe();
 
-    this.loadStructureData();
-    this.loadKpiData();
+    // Actualiser les membres de l'équipe
+    this.teamManagementService.loadTeamMembers()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe();
   }
 
   /**
-   * Navigation to team management
+   * Navigation vers la gestion d'équipe
    */
   navigateToTeam(): void {
     this.router.navigate(['/admin/structure/team']);
   }
 
   /**
-   * Navigation to areas management
+   * Navigation vers la gestion des espaces
    */
   navigateToAreas(): void {
     this.router.navigate(['/admin/structure/areas']);
   }
 
   /**
-   * Opens the public page of the structure
+   * Ouvre la page publique de la structure
    */
   openPublicPage(): void {
     const structure = this.structureName();
@@ -302,7 +266,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Formats the address of the structure
+   * Formate l'adresse de la structure
    */
   getFormattedAddress(): string {
     const structure = this.structureName();
@@ -314,18 +278,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Updates chart data based on statistics
+   * Met à jour les données des graphiques
    */
   private updateChartData(stats: StructureDashboardStatsDto): void {
     this.updateChartFromDto(stats.topEventsChart, this.topEventsChartData);
-
     this.updateChartFromDto(stats.attendanceByCategoryChart, this.categoryChartData);
-
-    this.updateCharts();
   }
 
   /**
-   * Updates chart data from DTO
+   * Met à jour un graphique à partir du DTO
    */
   private updateChartFromDto(chartDto: ChartJsDataDto, chartData: ChartData): void {
     chartData.labels = chartDto.labels;
@@ -339,10 +300,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Updates charts after data changes
+   * Met à jour les graphiques après modification des données
    */
   private updateCharts(): void {
-    // Vérifier que les ViewChild sont bien initialisés et que les graphiques existent
     if (this.topEventsChart?.chart) {
       this.topEventsChart.chart.update();
     }

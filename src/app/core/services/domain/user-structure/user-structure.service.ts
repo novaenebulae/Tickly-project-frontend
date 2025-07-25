@@ -4,8 +4,8 @@ import {StructureService} from '../structure/structure.service';
 import {AuthService} from '../user/auth.service';
 import {NotificationService} from '../utilities/notification.service';
 import {StructureModel, StructureUpdateDto} from '../../../models/structure/structure.model';
-import {Observable, of} from 'rxjs';
-import {catchError, map, switchMap, tap} from 'rxjs/operators';
+import {BehaviorSubject, forkJoin, Observable, of} from 'rxjs';
+import {catchError, filter, map, switchMap, take, tap} from 'rxjs/operators';
 import {AreaCreationDto, AreaUpdateDto, StructureAreaModel} from '../../../models/structure/structure-area.model';
 import {EventSummaryModel} from '../../../models/event/event.model';
 import {EventService} from '../event/event.service';
@@ -19,7 +19,7 @@ import {StructureApiService} from '../../api/structure/structure-api.service';
 import {FileUploadResponseDto} from '../../../models/files/file-upload-response.model';
 import {Router} from '@angular/router';
 import {UserModel} from '../../../models/user/user.model';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
 
 
 /**
@@ -38,31 +38,6 @@ export class UserStructureService {
   private notification = inject(NotificationService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
-
-  /**
-   * Checks if the current user has permission to manage structures.
-   * Only users with STRUCTURE_ADMINISTRATOR role can manage structures.
-   * @returns True if the user has permission, false otherwise.
-   */
-  hasStructureManagementPermission(): boolean {
-    const currentUser = this.authService.currentUser();
-    if (!currentUser) return false;
-
-    return currentUser.role === UserRole.STRUCTURE_ADMINISTRATOR;
-  }
-
-  /**
-   * Checks if the current user has permission to manage areas and audience zones.
-   * Users with STRUCTURE_ADMINISTRATOR or ORGANIZATION_SERVICE roles can manage areas and audience zones.
-   * @returns True if the user has permission, false otherwise.
-   */
-  hasAreaManagementPermission(): boolean {
-    const currentUser = this.authService.currentUser();
-    if (!currentUser) return false;
-
-    return currentUser.role === UserRole.STRUCTURE_ADMINISTRATOR ||
-           currentUser.role === UserRole.ORGANIZATION_SERVICE;
-  }
 
   private currentUserSig: WritableSignal<UserModel | null | undefined> = signal(undefined);
   public readonly currentUser = computed(() => this.currentUserSig());
@@ -92,14 +67,21 @@ export class UserStructureService {
     return structure !== null && structure !== undefined;
   });
 
+  // Signal pour indiquer si toutes les données de structure sont chargées
+  private isStructureDataLoadedSig: WritableSignal<boolean> = signal(false);
+  public readonly isStructureDataLoaded = computed(() => this.isStructureDataLoadedSig());
+
   // Signal pour l'ID de la structure utilisateur
   public readonly userStructureId = computed(() => {
     const userProfile = this.userService.currentUserProfileData();
     return userProfile?.structureId || null;
   });
 
+  // BehaviorSubject pour les observables de refresh
+  private refreshCompletedSubject = new BehaviorSubject<boolean>(false);
+
   constructor() {
-    // Effect pour charger la structure quand l'utilisateur ou son profil change
+    // Effect pour charger toutes les données quand l'utilisateur ou son profil change
     effect(() => {
       const authUser = this.authService.currentUser();
       const userProfile = this.userService.currentUserProfileData();
@@ -109,20 +91,149 @@ export class UserStructureService {
           // Vérifier si la structure actuelle correspond toujours
           const currentStructure = this.userStructureSig();
           if (!currentStructure || currentStructure.id !== userProfile.structureId) {
-            this.loadUserStructure()
-              .subscribe();
-            this.getUserStructureEvents()
-              .subscribe();
+            this.loadAllStructureData();
           }
         });
       } else {
         // Pas d'utilisateur connecté ou pas de structure assignée
         untracked(() => {
-          this.userStructureSig.set(authUser ? null : undefined);
+          this.resetStructureData();
         });
       }
     });
   }
+
+  /**
+   * Checks if the current user has permission to manage structures.
+   * Only users with STRUCTURE_ADMINISTRATOR role can manage structures.
+   * @returns True if the user has permission, false otherwise.
+   */
+  hasStructureManagementPermission(): boolean {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return false;
+
+    return currentUser.role === UserRole.STRUCTURE_ADMINISTRATOR;
+  }
+
+  /**
+   * Checks if the current user has permission to manage areas and audience zones.
+   * Users with STRUCTURE_ADMINISTRATOR or ORGANIZATION_SERVICE roles can manage areas and audience zones.
+   * @returns True if the user has permission, false otherwise.
+   */
+  hasAreaManagementPermission(): boolean {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return false;
+
+    return currentUser.role === UserRole.STRUCTURE_ADMINISTRATOR ||
+      currentUser.role === UserRole.ORGANIZATION_SERVICE;
+  }
+
+  /**
+   * Charge toutes les données liées à la structure de l'utilisateur
+   * Cette méthode centralise le chargement de toutes les données nécessaires
+   */
+  private loadAllStructureData(): void {
+    const userProfile = this.userService.currentUserProfileData();
+
+    if (!userProfile?.structureId) {
+      this.resetStructureData();
+      return;
+    }
+
+    console.log('UserStructureService: Chargement de toutes les données de structure...');
+    this.isLoadingSig.set(true);
+    this.isStructureDataLoadedSig.set(false);
+
+    // 1. Charger d'abord la structure principale
+    this.structureService.getStructureById(userProfile.structureId, true).pipe(
+      tap(structure => {
+        this.userStructureSig.set(structure || null);
+
+        if (structure) {
+          this.authService.updateUserStructureContext(structure.id!);
+        }
+      }),
+      // 2. Puis charger les areas en parallèle si la structure existe
+      switchMap(structure => {
+        if (!structure) {
+          return of({ structure: null, areas: [], events: [] });
+        }
+
+        return forkJoin({
+          structure: of(structure),
+          areas: this.loadStructureAreas(structure.id!),
+          events: this.eventService.getEventsByStructure(structure.id!)
+        });
+      }),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (result) => {
+        console.log('UserStructureService: Toutes les données chargées:', result);
+
+        if (result.structure) {
+          this.userStructureAreasSig.set(result.areas);
+          this.userStructureEventsSig.set(result.events);
+        }
+
+        this.isLoadingSig.set(false);
+        this.isStructureDataLoadedSig.set(true);
+        this.refreshCompletedSubject.next(true);
+      },
+      error: (error) => {
+        console.error('UserStructureService: Erreur lors du chargement des données:', error);
+        this.isLoadingSig.set(false);
+        this.isStructureDataLoadedSig.set(false);
+        this.refreshCompletedSubject.next(false);
+        this.handleError('Erreur lors du chargement des données', error);
+      }
+    });
+  }
+
+  /**
+   * Charge les areas d'une structure
+   */
+  private loadStructureAreas(structureId: number): Observable<StructureAreaModel[]> {
+    return this.structureApi.getStructureAreas(structureId).pipe(
+      catchError(error => {
+        console.error('Erreur lors du chargement des areas:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Réinitialise toutes les données de structure
+   */
+  private resetStructureData(): void {
+    this.userStructureSig.set(null);
+    this.userStructureAreasSig.set([]);
+    this.userStructureEventsSig.set([]);
+    this.isLoadingSig.set(false);
+    this.isStructureDataLoadedSig.set(false);
+  }
+
+  /**
+   * Force le rechargement de toutes les données de structure
+   * Version simplifiée utilisant BehaviorSubject au lieu de toObservable()
+   */
+  refreshAllStructureData(): Observable<boolean> {
+    // Déclencher le rechargement
+    const userProfile = this.userService.currentUserProfileData();
+    if (!userProfile?.structureId) {
+      return of(false);
+    }
+
+    this.loadAllStructureData();
+
+    // Retourner un observable qui émet quand le chargement est terminé
+    return this.refreshCompletedSubject.pipe(
+      filter(completed => completed === true),
+      take(1),
+      map(() => true)
+    );
+  }
+
+
 
   /**
    * Gets events for the structure associated with the current user.
@@ -196,6 +307,7 @@ export class UserStructureService {
   refreshUserStructure(): Observable<StructureModel | undefined> {
     return this.loadUserStructure(true);
   }
+
 
   /**
    * Updates an existing structure.

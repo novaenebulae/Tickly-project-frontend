@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 .dashboard-container {
   padding: var(--spacing-lg);
   height: 100%;
@@ -255,7 +257,7 @@
       animation: fadeInUp 0.5s ease-out forwards;
 
       .zones-icon {
-        background: linear-gradient(45deg, var(--zones-color), lighten(#ff9800, 10%));
+        background: linear-gradient(45deg, var(--zones-color), color.adjust(#ff9800, $lightness: 10%));
         color: var(--text-on-primary);
       }
     }
@@ -265,7 +267,7 @@
       animation: fadeInUp 0.5s ease-out 0.1s forwards;
 
       .team-icon {
-        background: linear-gradient(45deg, var(--team-color), lighten(#9c27b0, 10%));
+        background: linear-gradient(45deg, var(--team-color), color.adjust(#9c27b0, $lightness: 10%));
         color: var(--text-on-primary);
       }
     }
@@ -275,7 +277,7 @@
       animation: fadeInUp 0.5s ease-out 0.2s forwards;
 
       .events-icon {
-        background: linear-gradient(45deg, var(--events-color), lighten(#00bcd4, 10%));
+        background: linear-gradient(45deg, var(--events-color), color.adjust(#00bcd4, $lightness: 10%));
         color: var(--text-on-primary);
       }
     }

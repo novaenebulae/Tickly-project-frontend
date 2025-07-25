@@ -21,7 +21,7 @@
   background: var(--primary-gradient);
   color: var(--text-on-primary);
   border-radius: var(--border-radius-large);
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
   box-shadow: var(--shadow-md);
   animation: fadeInUp 0.6s ease-out;
 
@@ -82,7 +82,6 @@
 
     .structure-name {
       margin: var(--spacing-xs) 0 0 0;
-      font-size: var(--font-size-base);
       color: rgba(255, 255, 255, 0.8);
     }
 
@@ -228,7 +227,6 @@
   }
 }
 
-// 🛠️ Section Actions
 .actions-section {
   .actions-grid {
     display: grid;
@@ -242,6 +240,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    padding: var(--spacing-sm);
 
     &:hover {
       transform: translateY(-4px);
@@ -311,7 +310,6 @@
   }
 }
 
-// 🔄 État de chargement
 .loading-overlay {
   position: fixed;
   top: 0;

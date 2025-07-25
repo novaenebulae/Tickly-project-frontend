@@ -4,8 +4,6 @@
 
 @use 'theme';
 
-@include mat.all-component-themes(theme.$tickly-theme);
-
 // ✅ Suppression du thème redondant - déjà défini dans _theme.scss
 
 // Styles pour le panneau déroulant du sélecteur de rôle dans la dialogue

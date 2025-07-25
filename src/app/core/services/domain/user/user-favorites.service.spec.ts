@@ -27,7 +27,7 @@ describe('UserFavoritesService', () => {
       structure: {
         id: 101,
         name: 'Test Structure 1',
-        types: [{ id: 1, name: 'Concert Hall' }],
+        types: [{ id: 1, name: 'Concert Hall', icon: 'home' }],
         city: 'Paris',
         isActive: true
       },
@@ -39,7 +39,7 @@ describe('UserFavoritesService', () => {
       structure: {
         id: 102,
         name: 'Test Structure 2',
-        types: [{ id: 2, name: 'Theater' }],
+        types: [{ id: 2, name: 'Theater', icon: 'home' }],
         city: 'Lyon',
         isActive: true
       },
@@ -147,7 +147,7 @@ describe('UserFavoritesService', () => {
         structure: {
           id: 103,
           name: 'Test Structure 3',
-          types: [{ id: 3, name: 'Stadium' }],
+          types: [{ id: 3, name: 'Stadium', icon: 'home' }],
           city: 'Marseille',
           isActive: true
         },
