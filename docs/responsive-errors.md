@@ -30,6 +30,10 @@ Event form : step completed error on media + configuration panels
 - Place the user dropdown menu outside the burger menu, on the left of the burger menu trigger
 - Login + register button should be placed on the bottom of the navigation links
 
+- Section title designs (impactful, colorful, animated)
+- Discovery section cards buttons: smaller width, colorful, animated.
+- Modify section backgrounds to use consistent textures and colors to help differentiate transitions between sections.
+Use https://www.fffuel.co/wwwatercolor/ to generate colorful and creative textures. Do not use existing texture located in `public`, create new ones.
 
 - Favorite structures header
 - Register : delete Etape 1/1 + squared corner on mobile

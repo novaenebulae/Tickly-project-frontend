@@ -1,16 +1,32 @@
-// Chemins vers vos textures SVG. Assurez-vous que ces fichiers existent.
+// Chemins vers les textures SVG avec les couleurs du thème
 $discovery-texture-path: url('../../../../../public/backgrounds/background.svg');
-$cta-texture-path: "url('/public/textures/section-texture.svg')";
+$events-texture-path: url('../../../../../public/theme-textures/events-texture.svg');
+$cta-texture-path: url('../../../../../public/theme-textures/cta-texture.svg');
 
-// Mixin pour les titres de section
+// Mixin pour les titres de section - Style simplifié sans gradient
 @mixin section-title-style {
   font-size: 32px; // Heading 1 from design guidelines
   font-weight: 700; // Bold
-  color: var(--text-primary);
   margin-bottom: var(--spacing-md);
   text-align: center;
-  position: relative; // Pour d'éventuels effets de soulignement animés
+  position: relative; // Pour les effets de soulignement animés
   letter-spacing: -0.25px; // From design guidelines
+  color: var(--primary); // Utilisation de la couleur primaire du thème
+
+  // Ligne décorative sous le titre
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    width: 0;
+    height: 3px;
+    background: var(--accent);
+    transform: translateX(-50%);
+    transition: width 0.5s ease;
+    border-radius: 2px;
+    animation: line-expand 1s ease-out forwards 0.5s;
+  }
 }
 
 @mixin section-subtitle-style {
@@ -40,7 +56,7 @@ $cta-texture-path: "url('/public/textures/section-texture.svg')";
 }
 
 .section-padding {
-  padding: var(--spacing-xxl) 0;
+  padding: var(--spacing-xl) 0;
   position: relative; // Pour les textures en arrière-plan
 }
 
@@ -95,7 +111,7 @@ $cta-texture-path: "url('/public/textures/section-texture.svg')";
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%); // Overlay pour lisibilité
+      background-color: rgba(0,0,0,0.4); // Simplified overlay with consistent opacity
       z-index: 1;
     }
 
@@ -223,6 +239,27 @@ $cta-texture-path: "url('/public/textures/section-texture.svg')";
 // --- Section "Nos Derniers Événements" ---
 .latest-events-section {
   width: 100%;
+  position: relative;
+  padding-bottom: var(--spacing-xxl);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: $events-texture-path;
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: 0;
+    opacity: 0.3; // Reduced opacity for better blending
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+  }
 }
 
 
@@ -230,14 +267,19 @@ $cta-texture-path: "url('/public/textures/section-texture.svg')";
 .discovery-section {
   //background-image: url('/public/backgrounds/background.svg');
   //background-color: var(--background); // Fond légèrement différent
-  padding-bottom: var(--spacing-xxl);
+  padding-top: var(--spacing-xl);
+
+  .section-title {
+    padding-top: var(--spacing-xl);
+  }
 
   .discovery-texture-bg {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background-image: $discovery-texture-path !important;
+    background-image: $discovery-texture-path;
     background-size: cover;
     background-repeat: no-repeat;
+    opacity: 0; // Added opacity for better blending
     z-index: 0;
   }
 
@@ -250,7 +292,7 @@ $cta-texture-path: "url('/public/textures/section-texture.svg')";
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: var(--spacing-lg);
-    margin-top: var(--spacing-xl);
+    margin-top: var(--spacing-xxl);
 
     @media (max-width: 768px) {
       grid-template-columns: 1fr; // Une colonne sur mobile
@@ -328,10 +370,34 @@ $cta-texture-path: "url('/public/textures/section-texture.svg')";
 
     &__cta {
       margin-top: auto; // Pousse le bouton vers le bas
-      width: 100%;
+      width: auto; // Réduit la largeur du bouton
+      max-width: 80%; // Limite la largeur maximale
+      margin-left: auto;
+      margin-right: auto;
       font-weight: 500; // Medium weight for buttons
       letter-spacing: 0.25px; // From design guidelines
-      mat-icon { margin-left: var(--spacing-xs); }
+      position: relative;
+
+      // Utilisation de la couleur primaire du thème
+      background-color: var(--primary);
+      color: var(--text-on-primary) !important;
+      border: none !important;
+
+      // Animation au survol
+      &:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+        background-color: var(--primary-dark) !important;
+      }
+
+      mat-icon {
+        margin-left: var(--spacing-xs);
+        transition: transform 0.3s ease;
+      }
+
+      &:hover mat-icon {
+        transform: translateX(3px);
+      }
     }
   }
 }
@@ -345,9 +411,9 @@ $cta-texture-path: "url('/public/textures/section-texture.svg')";
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     background-image: $cta-texture-path;
-    background-repeat: repeat;
-    background-size: 70px; // Ajustez
-    opacity: 0.04; // Subtil
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 0.2; // Adjusted for better visibility on primary background
     z-index: 0;
   }
   .container {
@@ -409,7 +475,7 @@ $cta-texture-path: "url('/public/textures/section-texture.svg')";
   }
 }
 
-// --- Animations complexes (exemples) ---
+// --- Animations complexes ---
 @keyframes fadeInContent {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -426,4 +492,18 @@ $cta-texture-path: "url('/public/textures/section-texture.svg')";
   100% { opacity: 1; transform: scale(1); }
 }
 
-// Vous pouvez ajouter d'autres animations pour les sections ou éléments au scroll (avec Intersection Observer par exemple)
+// Animation keyframes
+// Note: gradient-shift animation removed as it's no longer needed
+
+@keyframes line-expand {
+  0% { width: 0; }
+  100% { width: 80px; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+// Shimmer animation removed as it's no longer needed

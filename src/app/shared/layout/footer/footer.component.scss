@@ -58,6 +58,12 @@ $footer-texture-svg-path: "url('/public/textures/footer-texture.svg')";
         flex-direction: column-reverse;
       }
     }
+
+    &--legal {
+      @media (max-width: 991px) {
+        margin-top: var(--spacing-sm);
+      }
+    }
   }
 
   .footer-logo {
@@ -71,6 +77,12 @@ $footer-texture-svg-path: "url('/public/textures/footer-texture.svg')";
       }
     }
   }
+
+@media (max-width: 768px) {
+  .footer-nav {
+    display: none;
+  }
+}
 
   .footer-nav,
   .footer-legal-links {

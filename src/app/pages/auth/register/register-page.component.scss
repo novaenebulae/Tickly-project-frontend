@@ -268,12 +268,7 @@
   }
 
   .brand-logo {
-    justify-content: center;
-    margin-top: 0;
-
-    img {
-      max-width: 70%;
-    }
+    display: none;
   }
 
   .action-buttons {
@@ -286,7 +281,7 @@
   }
 
   .register-form .form-group {
-    margin-bottom: 0;
+    margin-bottom: var(--spacing-sm);
   }
 
   .register-container {
