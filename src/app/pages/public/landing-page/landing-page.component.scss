@@ -1,7 +1,3 @@
-// Chemins vers les textures SVG avec les couleurs du thème
-$discovery-texture-path: url('../../../../../public/backgrounds/background.svg');
-$events-texture-path: url('../../../../../public/theme-textures/events-texture.svg');
-$cta-texture-path: url('../../../../../public/theme-textures/cta-texture.svg');
 
 // Mixin pour les titres de section - Style simplifié sans gradient
 @mixin section-title-style {
@@ -249,7 +245,6 @@ $cta-texture-path: url('../../../../../public/theme-textures/cta-texture.svg');
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: $events-texture-path;
     background-size: cover;
     background-repeat: no-repeat;
     z-index: 0;
@@ -276,7 +271,6 @@ $cta-texture-path: url('../../../../../public/theme-textures/cta-texture.svg');
   .discovery-texture-bg {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background-image: $discovery-texture-path;
     background-size: cover;
     background-repeat: no-repeat;
     opacity: 0; // Added opacity for better blending
@@ -410,7 +404,6 @@ $cta-texture-path: url('../../../../../public/theme-textures/cta-texture.svg');
   .cta-texture-bg {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background-image: $cta-texture-path;
     background-size: cover;
     background-repeat: no-repeat;
     opacity: 0.2; // Adjusted for better visibility on primary background
