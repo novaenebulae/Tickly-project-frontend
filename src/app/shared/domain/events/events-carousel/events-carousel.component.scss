@@ -9,6 +9,7 @@ $gap-between-cards: var(--spacing-md); // Espace entre les cartes
 .events-carousel {
   position: relative;
   border-radius: var(--border-radius-medium);
+  width: 100%; // Ensure the carousel takes full width
 
   &__viewport {
     overflow: hidden; // Masque les cartes qui ne sont pas dans la "page" actuelle
@@ -23,6 +24,7 @@ $gap-between-cards: var(--spacing-md); // Espace entre les cartes
     // La transition se fait sur ce conteneur global.
     transition: transform 0.4s ease-in-out;
     padding: var(--spacing-md) 0;
+    touch-action: pan-y; // Enable horizontal touch swiping, but allow vertical scrolling
   }
 
   &__slide-item {
@@ -88,7 +90,7 @@ $gap-between-cards: var(--spacing-md); // Espace entre les cartes
 
   &__indicators {
     text-align: center;
-    margin-top: var(--spacing-lg);
+    //margin-top: var(--spacing-lg);
   }
 
   &__indicator {
@@ -124,10 +126,10 @@ $gap-between-cards: var(--spacing-md); // Espace entre les cartes
     --cards-per-page-dynamic: var(--cards-per-page, 1); // 1 carte sur petits écrans
   }
   .events-carousel {
-    padding: var(--spacing-md) 0;
+    padding: var(--spacing-xs) 0; // Reduced padding for mobile
 
     &__viewport {
-      margin: 0 var(--spacing-sm); // Moins de marge pour les flèches
+      margin: 0; // Remove side margins completely on mobile
     }
 
     &__slide-item {
@@ -135,13 +137,11 @@ $gap-between-cards: var(--spacing-md); // Espace entre les cartes
     }
 
     &__control {
-      display: none;
-      // Les styles de mat-icon-button peuvent suffire, sinon ajuster
-      mat-icon {
-        font-size: 28px;
-        height: 28px;
-        width: 28px;
-      }
+      display: none !important; // Ensure controls are hidden on mobile
     }
+
+    //&__indicators {
+    //  margin-top: var(--spacing-md); // Reduced margin for indicators
+    //}
   }
 }

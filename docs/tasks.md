@@ -1,7 +1,3 @@
-- Check duplicate API calls
-- Dashboard structure loading error
-- Check responsive
-- Team management design errors
 
 
 # Tickly Frontend Improvement Tasks

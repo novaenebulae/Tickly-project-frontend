@@ -2,7 +2,7 @@
   box-shadow: var(--shadow-sm);
   backdrop-filter: blur(10px);
   z-index: var(--z-index-sticky);
-  background-color: var(--primary) !important;
+  background-color: var(--primary-dark) !important;
 
   //.container-fluid {
   //  padding: var(--spacing-md) var(--spacing-md);
@@ -219,7 +219,7 @@
   min-width: 250px;
   border: none;
   box-shadow: var(--shadow-lg);
-  padding: var(--spacing-sm) 0;
+  //padding: var(--spacing-sm) 0;
   margin-top: var(--spacing-xs);
   overflow-x: hidden !important;
   border-radius: var(--border-radius-medium);
@@ -343,11 +343,45 @@
 }
 
 // === RESPONSIVE ===
+
+@media (max-width: 1100px) {
+  .navbar {
+    .nav-link {
+      padding: 0;
+      margin: 0 var(--spacing-sm);
+    }
+  }
+}
+
 @media (max-width: 991px) {
   .navbar {
+    .navbar-brand {
+      order: 1;
+    }
+
+    // Mobile user menu (outside collapse)
+    .mobile-user-menu {
+      margin-left: auto;
+      margin-right: var(--spacing-md);
+      order: 2;
+    }
+
+    .nav-item:has(.user-menu-trigger) {
+      margin-bottom: 0;
+    }
+
+    .navbar-toggler {
+      order: 3;
+      margin-bottom: 0;
+    }
+
+    .navbar-collapse {
+      order: 4;
+    }
 
     .user-menu-trigger {
       max-width: none;
+      padding: var(--spacing-xs);
 
       .user-info {
         display: none;
@@ -358,21 +392,44 @@
       }
     }
 
+    .navbar-nav {
+      margin: var(--spacing-lg) 0;
+      width: 100%;
+    }
+
     .nav-link {
+      padding: var(--spacing-md) 0;
+
       .nav-text {
         margin-left: var(--spacing-xs);
+        font-size: 24px;
       }
     }
 
-    // Improve touch targets on mobile
-    .nav-item {
-      margin-bottom: var(--spacing-xs);
+    // Mobile auth buttons at the bottom of navigation
+    .mobile-auth-buttons {
+      margin-top: var(--spacing-sm);
+      padding-top: var(--spacing-lg);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      width: 100%;
+
+      .mobile-auth-container {
+        padding: var(--spacing-sm) var(--spacing-md);
+      }
+
+      .btn {
+        justify-content: center;
+        padding: var(--spacing-md);
+      }
     }
   }
 }
 
 @media (max-width: 576px) {
   .navbar {
+    padding-top: 0;
+    padding-bottom: 0;
+
     .container-fluid {
       padding: var(--spacing-sm);
     }
@@ -390,7 +447,6 @@
     .btn-light {
       width: 100%;
       justify-content: center;
-      margin-bottom: var(--spacing-xs);
     }
   }
 }
@@ -405,40 +461,6 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-@media (max-width: 991px) {
-
-// Dans votre CSS existant, modifiez la section navbar-collapse
-.navbar-collapse {
-  // Ajoutez display: flex dès l'état initial
-  display: flex;
-  align-items: flex-start;
-  padding-right: var(--spacing-sm);
-
-
-  // Masquez initialement avec opacity et height
-  opacity: 0;
-  height: 0;
-  overflow: hidden;
-  transition: opacity 0.3s ease, height 0.3s ease;
-
-  // Add padding for better spacing on mobile
-
-  &.show {
-    padding-top: var(--spacing-sm);
-    opacity: 1;
-    height: auto;
-    animation: slideIn 0.3s ease;
-
-    // Improve touch targets on mobile
-    @media (max-width: 991px) {
-      .nav-link {
-        padding: var(--spacing-md);
-      }
-    }
-  }
-}
 }
 
 // === BADGE CUSTOMIZATION ===

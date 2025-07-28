@@ -37,6 +37,37 @@
   </div>
 </section>
 
+<!-- Section "Découverte" -->
+<section class="discovery-section section-padding">
+  <div class="discovery-texture-bg"></div>
+  <div class="container">
+    <h2 class="section-title">Explorez l'Univers Tickly</h2>
+    <p class="section-subtitle">Plongez au cœur de la culture et du divertissement.</p>
+    <div class="discovery-grid">
+      <div class="discovery-card" (click)="navigateToAllEvents()">
+        <div class="discovery-card__icon-wrapper">
+          <mat-icon>event_available</mat-icon>
+        </div>
+        <h3 class="discovery-card__title">Tous les Événements</h3>
+        <p class="discovery-card__description">Parcourez une sélection variée de spectacles, concerts, festivals et bien plus encore.</p>
+        <button mat-stroked-button color="primary" class="discovery-card__cta">
+          Voir les événements <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+      <div class="discovery-card" (click)="navigateToAllStructures()">
+        <div class="discovery-card__icon-wrapper">
+          <mat-icon>storefront</mat-icon>
+        </div>
+        <h3 class="discovery-card__title">Toutes les Structures</h3>
+        <p class="discovery-card__description">Trouvez les organisateurs, les salles et les lieux qui font vibrer votre ville.</p>
+        <button mat-stroked-button color="primary" class="discovery-card__cta">
+          Explorer les structures <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Section "Nos Derniers Événements" -->
 <section class="latest-events-section section-padding">
   <div class="container">
@@ -71,37 +102,6 @@
         <p class="mt-3">Aucun événement récent à afficher pour le moment.</p>
       </div>
     }
-  </div>
-</section>
-
-<!-- Section "Découverte" -->
-<section class="discovery-section section-padding">
-  <div class="discovery-texture-bg"></div>
-  <div class="container">
-    <h2 class="section-title">Explorez l'Univers Tickly</h2>
-    <p class="section-subtitle">Plongez au cœur de la culture et du divertissement.</p>
-    <div class="discovery-grid">
-      <div class="discovery-card" (click)="navigateToAllEvents()">
-        <div class="discovery-card__icon-wrapper">
-          <mat-icon>event_available</mat-icon>
-        </div>
-        <h3 class="discovery-card__title">Tous les Événements</h3>
-        <p class="discovery-card__description">Parcourez une sélection variée de spectacles, concerts, festivals et bien plus encore.</p>
-        <button mat-stroked-button color="primary" class="discovery-card__cta">
-          Voir les événements <mat-icon>arrow_forward</mat-icon>
-        </button>
-      </div>
-      <div class="discovery-card" (click)="navigateToAllStructures()">
-        <div class="discovery-card__icon-wrapper">
-          <mat-icon>storefront</mat-icon>
-        </div>
-        <h3 class="discovery-card__title">Toutes les Structures</h3>
-        <p class="discovery-card__description">Trouvez les organisateurs, les salles et les lieux qui font vibrer votre ville.</p>
-        <button mat-stroked-button color="primary" class="discovery-card__cta">
-          Explorer les structures <mat-icon>arrow_forward</mat-icon>
-        </button>
-      </div>
-    </div>
   </div>
 </section>
 

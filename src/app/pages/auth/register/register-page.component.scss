@@ -249,6 +249,7 @@
   }
   .creation-card {
     margin: 0;
+    border-radius: 0;
   }
 
   .info-section {
@@ -282,6 +283,10 @@
   .form-section,
   .info-section .content-wrapper {
     padding: var(--spacing-xl);
+  }
+
+  .register-form .form-group {
+    margin-bottom: 0;
   }
 
   .register-container {

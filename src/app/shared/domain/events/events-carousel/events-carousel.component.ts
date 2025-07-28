@@ -9,7 +9,8 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  ViewChild
+  ViewChild,
+  HostListener
 } from '@angular/core';
 import {interval, Subscription} from 'rxjs';
 import {CommonModule} from '@angular/common';
@@ -43,8 +44,49 @@ export class EventsCarouselComponent implements OnInit, AfterViewInit, OnDestroy
   currentPage = 0;
   totalPages = 0;
 
+  // Touch handling variables
+  private touchStartX = 0;
+  private touchEndX = 0;
+  private minSwipeDistance = 50; // Minimum distance to register as a swipe
+
   private autoSlideSubscription: Subscription | undefined;
   private destroyRef = inject(DestroyRef);
+
+  // Touch event handlers
+  @HostListener('touchstart', ['$event'])
+  onTouchStart(event: TouchEvent): void {
+    this.touchStartX = event.touches[0].clientX;
+    // Pause auto-slide during touch interaction
+    if (this.autoSlide) {
+      this.stopAutoSlide();
+    }
+  }
+
+  @HostListener('touchmove', ['$event'])
+  onTouchMove(event: TouchEvent): void {
+    this.touchEndX = event.touches[0].clientX;
+  }
+
+  @HostListener('touchend')
+  onTouchEnd(): void {
+    const swipeDistance = this.touchEndX - this.touchStartX;
+    const isSignificantSwipe = Math.abs(swipeDistance) > this.minSwipeDistance;
+
+    if (isSignificantSwipe) {
+      if (swipeDistance > 0) {
+        // Swipe right - go to previous page
+        this.prevPage();
+      } else {
+        // Swipe left - go to next page
+        this.nextPage();
+      }
+    }
+
+    // Resume auto-slide after touch interaction
+    if (this.autoSlide && this.totalPages > 1) {
+      this.startAutoSlide();
+    }
+  }
 
   // Lie la variable CSS au composant pour l'utiliser dans le SCSS
   @HostBinding('style.--cards-per-page')

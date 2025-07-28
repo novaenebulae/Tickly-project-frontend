@@ -1,7 +1,6 @@
 // Chemins vers vos textures SVG. Assurez-vous que ces fichiers existent.
-$discovery-texture-path: "url('/public/textures/discovery-texture.svg')";
-$cta-texture-path: "url('/public/textures/cta-texture.svg')";
-// $hero-texture-path: "url('/public/textures/hero-texture.svg')"; // Si besoin pour le hero
+$discovery-texture-path: url('../../../../../public/backgrounds/background.svg');
+$cta-texture-path: "url('/public/textures/section-texture.svg')";
 
 // Mixin pour les titres de section
 @mixin section-title-style {
@@ -43,10 +42,6 @@ $cta-texture-path: "url('/public/textures/cta-texture.svg')";
 .section-padding {
   padding: var(--spacing-xxl) 0;
   position: relative; // Pour les textures en arrière-plan
-
-  @media (max-width: 768px) {
-    padding: var(--spacing-xl) 0;
-  }
 }
 
 .section-title {
@@ -233,16 +228,19 @@ $cta-texture-path: "url('/public/textures/cta-texture.svg')";
 
 // --- Section "Découverte" ---
 .discovery-section {
-  background-color: var(--background); // Fond légèrement différent
+  //background-image: url('/public/backgrounds/background.svg');
+  //background-color: var(--background); // Fond légèrement différent
+  padding-bottom: var(--spacing-xxl);
+
   .discovery-texture-bg {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background-image: $discovery-texture-path;
-    background-repeat: repeat;
-    background-size: 80px; // Ajustez
-    opacity: 0.03; // Très subtil
+    background-image: $discovery-texture-path !important;
+    background-size: cover;
+    background-repeat: no-repeat;
     z-index: 0;
   }
+
   .container {
     position: relative; z-index: 1;
     max-width: 1200px;
