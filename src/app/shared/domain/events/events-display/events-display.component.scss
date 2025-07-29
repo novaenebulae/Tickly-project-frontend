@@ -53,7 +53,7 @@ $skeleton-gradient-middle: #e0e0e0; // Slightly darker shade for skeleton animat
 
 // Conteneur des événements
 .events-container {
-  padding: var(--spacing-xl) 0;
+  padding: var(--spacing-lg) 0;
   box-sizing: border-box;
   flex: 1;
   margin: 0 auto;
@@ -330,7 +330,7 @@ $skeleton-gradient-middle: #e0e0e0; // Slightly darker shade for skeleton animat
 
     .events-grid, .loading-container.grid-layout {
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: var(--spacing-md);
+      gap: var(--spacing-lg);
     }
   }
 }
@@ -346,7 +346,6 @@ $skeleton-gradient-middle: #e0e0e0; // Slightly darker shade for skeleton animat
   .events-container {
     .events-grid, .loading-container.grid-layout {
       grid-template-columns: 1fr;
-      gap: var(--spacing-md);
     }
   }
 

@@ -23,7 +23,7 @@ $gap-between-cards: var(--spacing-md); // Espace entre les cartes
     // Chaque "page" (groupe de cardsPerPage) occupera 100% de la largeur du viewport.
     // La transition se fait sur ce conteneur global.
     transition: transform 0.4s ease-in-out;
-    padding: var(--spacing-md) 0;
+    padding: 0;
     touch-action: pan-y; // Enable horizontal touch swiping, but allow vertical scrolling
   }
 
