@@ -14,7 +14,7 @@ $skeleton-gradient-middle: #e0e0e0; // Slightly darker shade for skeleton animat
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-md) var(--spacing-xl);
+  padding: var(--spacing-xs) var(--spacing-xl);
   background-color: var(--surface);
   box-shadow: var(--shadow-sm);
   margin: 0 auto;
@@ -223,11 +223,11 @@ $skeleton-gradient-middle: #e0e0e0; // Slightly darker shade for skeleton animat
 
 // Pagination
 .pagination-container {
-  padding: var(--spacing-xl);
   display: flex;
   justify-content: center;
   width: 100%;
   background-color: var(--background);
+  margin-bottom: var(--spacing-lg);
 
   ::ng-deep {
     .mat-mdc-paginator {
@@ -253,17 +253,31 @@ $skeleton-gradient-middle: #e0e0e0; // Slightly darker shade for skeleton animat
       }
 
       .mat-mdc-paginator-range-label {
-        margin: 0 var(--spacing-xl);
+        margin: 0 var(--spacing-md);
         font-size: 14px; // Body Small from design guidelines
         letter-spacing: 0.1px; // From design guidelines
         color: var(--text-secondary);
+        order: 2;
+      }
+
+      .mat-mdc-paginator-page-size {
+        margin: 0;
+        order: 4;
       }
 
       .mat-mdc-paginator-page-size-select {
-        margin: 0 var(--spacing-md) 0 0;
+        //margin: 0 var(--spacing-md) 0 0;
         width: 70px;
       }
-    }
+
+      .mat-mdc-paginator-navigation-next {
+        order: 3;
+      }
+
+      .mat-mdc-paginator-navigation-previous {
+        order: 1;
+      }
+     }
   }
 }
 
@@ -288,7 +302,7 @@ $skeleton-gradient-middle: #e0e0e0; // Slightly darker shade for skeleton animat
 // Media queries pour la responsivité
 @media (max-width: 1200px) {
   .display-options-bar {
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: 0 var(--spacing-lg);
   }
   .events-container {
     // Container padding is handled by the parent
@@ -330,7 +344,7 @@ $skeleton-gradient-middle: #e0e0e0; // Slightly darker shade for skeleton animat
   }
 
   .events-container {
-    // Container padding is handled by the parent
+    padding-bottom: var(--spacing-md);
 
     .events-grid, .loading-container.grid-layout {
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -352,8 +366,8 @@ $skeleton-gradient-middle: #e0e0e0; // Slightly darker shade for skeleton animat
       grid-template-columns: 1fr;
     }
   }
-
-  .pagination-container {
-    padding: var(--spacing-lg) var(--spacing-md);
-  }
+  //
+  //.pagination-container {
+  //  padding: var(--spacing-lg) var(--spacing-md);
+  //}
 }

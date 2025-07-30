@@ -3,18 +3,6 @@
     <!-- Section principale des filtres (Card design) -->
     <div class="filters-card">
       <div class="filters-row">
-        <!-- Trier par avec design compact -->
-        <div class="sort-wrapper">
-          <mat-form-field appearance="fill" class="sort-select">
-            <mat-label>Trier par</mat-label>
-            <mat-select formControlName="sortBy">
-              @for (option of sortOptions; track option.value) {
-                <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
-              }
-            </mat-select>
-            <mat-icon matPrefix>sort</mat-icon>
-          </mat-form-field>
-        </div>
         <!-- Barre de recherche réimagine avec effet float label -->
         <div class="search-wrapper">
           <mat-form-field appearance="outline" class="search-field">
@@ -24,13 +12,29 @@
           </mat-form-field>
         </div>
 
-        <!-- Bouton des filtres avancés remanié -->
-        <div class="advanced-filters-toggle">
-          <button mat-flat-button color="primary" (click)="toggleAdvancedFilters()" class="advanced-filters-button"
-                  [class.active]="isAdvancedFilterOpen">
-            <mat-icon>{{ isAdvancedFilterOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
-            Filtres avancés
-          </button>
+        <!-- Conteneur pour sort et filtres avancés en mobile -->
+        <div class="controls-row">
+          <!-- Trier par avec design compact -->
+          <div class="sort-wrapper">
+            <mat-form-field appearance="fill" class="sort-select">
+              <mat-label>Trier par</mat-label>
+              <mat-select formControlName="sortBy">
+                @for (option of sortOptions; track option.value) {
+                  <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>sort</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <!-- Bouton des filtres avancés remanié -->
+          <div class="advanced-filters-toggle">
+            <button mat-flat-button color="primary" (click)="toggleAdvancedFilters()" class="advanced-filters-button"
+                    [class.active]="isAdvancedFilterOpen">
+              <mat-icon>{{ isAdvancedFilterOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
+              Filtres
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -6,8 +6,21 @@
   margin: 0;
   margin-bottom: calc(var(--spacing-sm) + 35px);
 
+  // Supprimer la marge quand le panneau avancé est ouvert
+  &.advanced-open {
+    margin-bottom: 0 !important;
+  }
+
   ::ng-deep .mat-mdc-form-field-subscript-wrapper, .mat-mdc-form-field-bottom-align::before {
     display: none !important;
+  }
+
+  @media (max-width: 768px) {
+    margin-bottom: calc(var(--spacing-sm) + 24px);
+
+    &.advanced-open {
+      margin-bottom: 0 !important;
+    }
   }
 }
 
@@ -52,6 +65,7 @@
   &:hover {
     box-shadow: var(--shadow-md);
   }
+
 }
 
 // Style de la rangée principale des filtres
@@ -65,10 +79,33 @@
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: stretch;
+    gap: var(--spacing-sm);
+
+    .search-wrapper {
+      margin-bottom: var(--spacing-sm);
+    }
+  }
+}
+
+// Conteneur pour les contrôles (sort + filtres avancés)
+.controls-row {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: stretch;
+  width: 100%;
+
+  @media (min-width: 769px) {
+    width: auto; // Sur desktop, ne pas prendre toute la largeur
+  }
+
+  @media (max-width: 768px) {
+    .sort-wrapper {
+      flex: 1;
+      min-width: 0; // Permet au champ de se rétrécir si nécessaire
+    }
 
     .advanced-filters-toggle {
-      width: 100%;
-      margin-top: var(--spacing-sm);
+      flex: 0 0 auto; // Garde sa taille naturelle
     }
   }
 }
@@ -95,6 +132,19 @@
         background-color: rgba(90, 72, 245, 0.03); // var(--primary) with 3% opacity
       }
     }
+
+    // Ajustements pour mobile
+    @media (max-width: 576px) {
+      ::ng-deep .mat-mdc-form-field-infix {
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+
+      ::ng-deep .mat-mdc-text-field-wrapper {
+        padding-left: var(--spacing-sm);
+        padding-right: var(--spacing-sm);
+      }
+    }
   }
 }
 
@@ -103,7 +153,8 @@
   width: 180px;
 
   @media (max-width: 768px) {
-    width: 100%;
+    width: 100%; // Prendre toute la place disponible dans le flex
+    min-width: 120px; // Largeur minimale
   }
 
   .sort-select {
@@ -121,7 +172,46 @@
     ::ng-deep .mdc-line-ripple {
       display: none;
     }
+
+    // Correction des border-radius pour tous les coins
+    ::ng-deep .mat-mdc-text-field-wrapper {
+      border-radius: var(--border-radius-small) !important;
+      border-top-left-radius: var(--border-radius-small) !important;
+      border-top-right-radius: var(--border-radius-small) !important;
+    }
+
+
+    // Ajustements pour mobile
+    @media (max-width: 576px) {
+
+      ::ng-deep .mdc-floating-label {
+        transform: translateY(-13px);
+      }
+
+      ::ng-deep .mdc-floating-label--float-above {
+        display: none;
+      }
+
+      ::ng-deep .mat-mdc-form-field-infix {
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+
+      ::ng-deep .mat-mdc-text-field-wrapper {
+        padding-left: var(--spacing-sm);
+        padding-right: var(--spacing-sm);
+      }
+
+      ::ng-deep .mat-mdc-form-field-flex {
+        height: 48px;
+      }
+
+      ::ng-deep .mat-mdc-select-arrow-wrapper {
+        transform: translateY(0);
+      }
+    }
   }
+
 }
 
 // Bouton des filtres avancés
@@ -130,8 +220,11 @@
   display: flex;
   align-items: stretch;
 
+  @media (max-width: 768px) {
+    min-width: fit-content;
+  }
+
   .advanced-filters-button {
-    border-radius: var(--border-radius-medium);
     padding: 0 var(--spacing-md);
     height: 100%;
     min-height: 56px;
@@ -140,6 +233,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-xs);
+    white-space: nowrap; // Empêcher le retour à la ligne du texte
 
     &.active {
       background-color: var(--primary-dark);
@@ -149,9 +243,24 @@
       transition: transform var(--transition-fast);
     }
 
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+    @media (min-width: 768px) {
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+      }
+    }
+
+    // Ajustements pour mobile
+    @media (max-width: 576px) {
+      min-height: 48px;
+      padding: 0 var(--spacing-sm);
+      font-size: 14px;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
     }
   }
 }
@@ -202,43 +311,50 @@
     }
   }
 
-  .categories-chips {
-    display: flex;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-xs) 0;
+  .category-chip {
+    border-radius: var(--border-radius-medium);
+    transition: var(--transition-fast);
+    font-size: 13px;
+    height: 32px;
+    letter-spacing: 0.25px;
+    font-weight: 500;
+    box-shadow: var(--shadow-sm);
 
-    // Empêcher le retour à la ligne des chips
-    ::ng-deep .mat-mdc-chip-set-wrapper {
-      flex-wrap: nowrap !important;
+    // Style par défaut amélioré
+    &:not(.mat-mdc-chip-selected) {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
     }
 
-    .category-chip {
-      border-radius: var(--border-radius-large);
-      transition: var(--transition-fast);
-      font-size: 12px; // Label size
-      height: 30px;
-      letter-spacing: 0.5px; // From design guidelines
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
 
-      &:hover {
-        transform: translateY(-1px);
+    // Style des chips sélectionnées - correction de l'espacement
+    &.mat-mdc-chip-selected {
+      background-color: var(--primary-light);
+      color: var(--text-on-primary);
+      position: relative;
+
+      &::after {
+        content: "";
+        position: absolute;
+        inset: 0; // Changé de -2px à 0 pour éliminer l'espace
+        border-radius: var(--border-radius-medium);
+        border: 1px solid var(--primary);
+        pointer-events: none;
       }
+    }
 
-      // Style des chips sélectionnées
-      &.mat-mdc-chip-selected {
-        background-color: var(--accent);
-        color: var(--text-on-accent);
-
-        &::after {
-          content: "";
-          position: absolute;
-          inset: -2px;
-          border-radius: 22px;
-          border: 2px solid rgba(255, 170, 0, 0.4); // var(--accent) with 40% opacity
-          pointer-events: none;
-        }
-      }
+    // Ajustements pour mobile
+    @media (max-width: 576px) {
+      height: 28px;
+      font-size: 12px;
+      padding: 0 var(--spacing-sm);
     }
   }
+
 }
 
 // Panel de filtres avancés (Accordéon)
@@ -247,7 +363,7 @@
   overflow: hidden;
   transition: max-height 0.4s cubic-bezier(0, 1, 0, 1);
   background-color: var(--surface);
-  border-radius: var(--border-radius-large);
+  border-radius: var(--border-radius-medium);
   box-shadow: var(--shadow-sm);
   margin-top: -35px; // Chevauchement avec la carte principale
 
@@ -260,9 +376,16 @@
 
   .advanced-filters-content {
     padding: var(--spacing-lg);
+    padding-top: 0;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-lg);
+
+    @media (max-width: 576px) {
+      padding: var(--spacing-md);
+      padding-top: 0;
+      gap: var(--spacing-md);
+    }
   }
 
   .advanced-filters-header {
@@ -278,6 +401,10 @@
       font-size: 20px; // Heading 3 size
       font-weight: 600; // SemiBold
       letter-spacing: 0px; // From design guidelines
+
+      @media (max-width: 576px) {
+        font-size: 18px;
+      }
     }
 
     .applied-filters-count {
@@ -289,6 +416,14 @@
       font-weight: 500; // Medium
       letter-spacing: 0.5px; // From design guidelines
     }
+
+    @media (max-width: 576px) {
+      padding-bottom: var(--spacing-sm);
+    }
+  }
+
+  @media (max-width: 576px) {
+    margin-top: -25px; // Réduire le chevauchement en mobile
   }
 }
 
@@ -307,6 +442,7 @@
 
   @media (max-width: 576px) {
     grid-template-columns: 1fr;
+    gap: var(--spacing-md); // Réduire l'espace entre les éléments en mobile
   }
 }
 
@@ -339,11 +475,42 @@
       letter-spacing: 0px; // From design guidelines
     }
   }
+
+  // Ajustements pour mobile
+  @media (max-width: 576px) {
+    padding: var(--spacing-sm);
+
+    .filter-item-header {
+      margin-bottom: var(--spacing-sm); // Réduire la marge en bas pour mobile
+    }
+
+    // Correction pour les champs de formulaire
+    ::ng-deep .mat-mdc-form-field {
+      .mat-mdc-form-field-infix {
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+
+      // Empêcher le débordement du texte sur les icônes
+      .mat-mdc-form-field-flex {
+        align-items: center;
+      }
+
+      // Ajuster les icônes pour éviter le débordement
+      .mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        margin-right: var(--spacing-xs);
+      }
+    }
+  }
 }
 
 // Grid pour les checkboxes de genres
 .genres-filter {
   margin-top: var(--spacing-sm);
+
   .genres-grid {
     display: flex;
     flex-wrap: wrap;
@@ -499,9 +666,28 @@
   @media (max-width: 576px) {
     flex-direction: column;
     align-items: flex-start;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+
+    .active-filters-label {
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
 
     .active-filters-chips {
       width: 100%;
+
+      .active-filter-chip {
+        height: 28px;
+        font-size: 11px;
+      }
+
+      .clear-all-button {
+        height: 28px;
+        line-height: 28px;
+        font-size: 11px;
+      }
     }
   }
 }

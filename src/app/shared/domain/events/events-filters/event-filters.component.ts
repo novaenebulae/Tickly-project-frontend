@@ -47,6 +47,9 @@ interface FilterState {
   templateUrl: './event-filters.component.html',
   styleUrls: ['./event-filters.component.scss'],
   standalone: true,
+  host: {
+    '[class.advanced-open]': 'isAdvancedFilterOpen'
+  },
   imports: [
     CommonModule,
     ReactiveFormsModule,
