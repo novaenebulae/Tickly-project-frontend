@@ -21,10 +21,10 @@
 
   <!-- Lightbox overlay -->
   <div class="lightbox-overlay" *ngIf="showLightbox" (click)="closeLightbox()">
-    <div class="lightbox-container" (click)="$event.stopPropagation()">
       <button mat-icon-button class="close-button" (click)="closeLightbox()">
         <mat-icon>close</mat-icon>
       </button>
+    <div class="lightbox-container" (click)="$event.stopPropagation()">
 
       <div class="lightbox-content">
         <button mat-icon-button class="nav-button prev-button" (click)="prevImage()" *ngIf="galleryImages.length > 1">

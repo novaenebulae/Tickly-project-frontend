@@ -3,7 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   computed,
-  DestroyRef,
+  DestroyRef, HostListener,
   inject,
   OnInit,
   signal
@@ -64,6 +64,7 @@ export class StructureDetailsPageComponent implements OnInit {
   structure = signal<StructureModel | null>(null);
   isLoadingStructure = signal(true);
   structureError = signal<string | null>(null);
+  cardsPerPage = signal(3);
 
   // Événements
   featuredEvent = signal<EventSummaryModel | null>(null);
@@ -86,7 +87,13 @@ export class StructureDetailsPageComponent implements OnInit {
     return id ? parseInt(id, 10) : null;
   });
 
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.updateCardsPerPage();
+  }
+
   ngOnInit(): void {
+    this.updateCardsPerPage();
     const id = this.structureId();
     if (id) {
       this.loadStructureDetails(id);
@@ -201,6 +208,12 @@ export class StructureDetailsPageComponent implements OnInit {
     if (structureId) {
       this.loadStructureEvents(structureId);
     }
+  }
+
+  private updateCardsPerPage(): void {
+    const viewportWidth = window.innerWidth;
+    const newCardsPerPage = viewportWidth <= 768 ? 1 : 3;
+    this.cardsPerPage.set(newCardsPerPage);
   }
 
   /**
