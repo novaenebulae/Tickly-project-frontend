@@ -1,4 +1,9 @@
 <div class="filters-container">
+  <!-- Ajout du header comme structure-filters -->
+  <div class="filters-header">
+    <h3 class="filters-title">Filtrer les événements</h3>
+  </div>
+
   <form [formGroup]="filtersForm" class="filters-form">
     <!-- Section principale des filtres (Card design) -->
     <div class="filters-card">
@@ -42,12 +47,6 @@
     <!-- Panel de filtres avancés (Accordéon plutôt que drawer) -->
     <div class="advanced-filters-panel" [class.open]="isAdvancedFilterOpen">
       <div class="advanced-filters-content">
-        <div class="advanced-filters-header">
-          <h3>Filtres Avancés</h3>
-          <div class="applied-filters-count" *ngIf="getAppliedFiltersCount() > 0">
-            {{ getAppliedFiltersCount() }} filtres appliqués
-          </div>
-        </div>
 
         <div class="advanced-filters-body">
           <!-- Rangée 1: Date et Lieu -->

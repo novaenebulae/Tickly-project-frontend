@@ -15,10 +15,9 @@
   display: flex;
   align-items: center;
   flex-direction: column;
-  width: 100%;
-  //max-width: 1400px;
+  width: 90vw;
+  max-width: 1400px;
   margin-top: var(--spacing-xl);
-  padding: 0 var(--spacing-xl); // Ajout du padding horizontal
   box-sizing: border-box; // Pour inclure le padding dans la largeur totale
 }
 
@@ -87,26 +86,13 @@ $page-header-texture-path: url('../../../../../../public/textures/page-header-te
 .events-display {
   width: 100% !important;
   height: fit-content;
-  padding: 0 var(--spacing-xxl);
-
-  @media (max-width: 768px) {
-    padding: 0 var(--spacing-sm);
-  }
 }
 
-@media (max-width: 1200px) {
-  .all-events-content {
-    padding: 0 var(--spacing-lg);
-  }
-}
+
 
 @media (max-width: 768px) {
   .all-events-page-container {
     padding-bottom: var(--spacing-md);
-  }
-  .all-events-content {
-    padding: 0 var(--spacing-md);
-    margin-top: var(--spacing-lg);
   }
 }
 

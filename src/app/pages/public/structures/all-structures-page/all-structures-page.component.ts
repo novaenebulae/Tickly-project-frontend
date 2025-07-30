@@ -96,7 +96,7 @@ export class AllStructuresPageComponent implements OnInit {
 
   // Paramètres de recherche et pagination
   readonly totalCount = signal(0);
-  readonly pageSize = signal(12);
+  readonly pageSize = signal(8);
   readonly currentPageIndex = signal(0);
   readonly currentFilters = signal<StructureFilters>({});
   readonly currentSort = signal<StructureSortOptions>({ sortBy: 'name', sortDirection: 'asc' });

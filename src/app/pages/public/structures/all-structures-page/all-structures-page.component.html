@@ -51,6 +51,7 @@
     </div>
 
 
+    <div class="pagination-container">
     <mat-paginator
       *ngIf="!isLoading() && totalCount() > pageSize()"
       [length]="totalCount()"
@@ -59,5 +60,6 @@
       (page)="onPageChange($event)"
       aria-label="Sélectionnez une page">
     </mat-paginator>
+    </div>
   </div>
 </div>

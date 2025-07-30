@@ -164,9 +164,62 @@ $page-header-texture-path: url('../../../../../../public/textures/header-texture
 }
 
 // Pagination
-mat-paginator {
-  margin-top: var(--spacing-xl);
-  border-radius: var(--border-radius-medium);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  background-color: var(--background);
+  margin-bottom: var(--spacing-lg);
+
+  ::ng-deep {
+    .mat-mdc-paginator {
+      background-color: transparent;
+
+      .mat-mdc-paginator-container {
+        justify-content: center;
+      }
+
+      .mat-mdc-paginator-range-actions {
+        button {
+          color: var(--primary);
+
+          &:disabled {
+            color: var(--text-secondary);
+            opacity: 0.5;
+          }
+
+          &:not(:disabled):hover {
+            background-color: rgba(90, 72, 245, 0.05); // var(--primary) with 5% opacity
+          }
+        }
+      }
+
+      .mat-mdc-paginator-range-label {
+        margin: 0 var(--spacing-md);
+        font-size: 14px; // Body Small from design guidelines
+        letter-spacing: 0.1px; // From design guidelines
+        color: var(--text-secondary);
+        order: 2;
+      }
+
+      .mat-mdc-paginator-page-size {
+        margin: 0;
+        order: 4;
+      }
+
+      .mat-mdc-paginator-page-size-select {
+        //margin: 0 var(--spacing-md) 0 0;
+        width: 70px;
+      }
+
+      .mat-mdc-paginator-navigation-next {
+        order: 3;
+      }
+
+      .mat-mdc-paginator-navigation-previous {
+        order: 1;
+      }
+    }
+  }
 }
+
