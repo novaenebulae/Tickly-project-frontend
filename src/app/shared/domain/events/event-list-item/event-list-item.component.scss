@@ -183,38 +183,6 @@
     }
   }
 
-  // Affichage des prix
-  &__price {
-    margin-left: auto;
-
-    .free-event {
-      background-color: var(--success);
-      color: white;
-      font-weight: 600; // SemiBold
-      font-size: 12px; // Label size
-      padding: var(--spacing-xs) var(--spacing-sm);
-      border-radius: var(--border-radius-small);
-      text-transform: uppercase;
-      letter-spacing: 0.5px; // From design guidelines
-    }
-
-    .price {
-      background-color: var(--accent);
-      color: var(--text-on-accent);
-      font-weight: 600; // SemiBold
-      font-size: 12px; // Label size
-      padding: var(--spacing-xs) var(--spacing-sm);
-      border-radius: var(--border-radius-small);
-      letter-spacing: 0.5px; // From design guidelines
-    }
-
-    .price-na {
-      color: var(--text-secondary);
-      font-size: 12px; // Label size
-      font-style: italic;
-      letter-spacing: 0.5px; // From design guidelines
-    }
-  }
 
   // Description de l'événement
   &__description {

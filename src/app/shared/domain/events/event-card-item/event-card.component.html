@@ -27,12 +27,17 @@
 
   <!-- Détails de l'événement -->
   <div class="event-card__content">
+    <div class="event-card__category-container">
+    @for (category of event.categories; track category.id) {
         <span class="event-card__category">
-          {{ formattedCategories }}
+          {{ category.name }}
         </span>
+    }
+    </div>
 
     <h3 class="event-card__title">{{ event.name }}</h3>
 
+    <div class="event-card__meta">
     <div class="event-card__location">
       <mat-icon class="event-card__icon">home</mat-icon>
       <span>{{ displayStructure }}</span>
@@ -42,32 +47,21 @@
       <span>{{ displayLocation }}</span>
     </div>
 
-<!--    @if (event.shortDescription) {-->
-<!--      <p class="event-card__description">-->
-<!--        {{ event.shortDescription | slice:0:80 }}{{ event.shortDescription.length > 80 ? '...' : '' }}-->
-<!--      </p>-->
-<!--    }-->
+    @if (event.shortDescription) {
+      <p class="event-card__description">
+        {{ event.shortDescription | slice:0:80 }}{{ event.shortDescription.length > 80 ? '...' : '' }}
+      </p>
+    }
+    </div>
   </div>
 
   <!-- Boutons d'action et prix -->
   <div class="event-card__footer">
     <div class="event-card__buttons">
-<!--      <button mat-flat-button color="primary" class="event-card__button-discover" (click)="viewEventDetails(event.id)">-->
-<!--        <span>Découvrir</span>-->
-<!--        <mat-icon>arrow_forward</mat-icon>-->
-<!--      </button>-->
-    <!-- Prix ou statut gratuit -->
-<!--    <div class="event-card__price-container">-->
-<!--      @if (event.isFreeEvent) {-->
-<!--        <span class="event-card__free-tag">GRATUIT</span>-->
-<!--      } @else {-->
-<!--        &lt;!&ndash; Toujours afficher un prix si c'est payant (même si 0 ou non défini) &ndash;&gt;-->
-<!--        <span-->
-<!--          [ngClass]="{'event-card__price': getMinTicketPrice() > 0, 'event-card__price-na': getMinTicketPrice() <= 0}">-->
-<!--          {{ getMinTicketPrice() > 0 ? (getMinTicketPrice() | currency:'EUR':'symbol':'1.2-2':'fr') : 'Prix à venir' }}-->
-<!--        </span>-->
-<!--      }-->
-<!--    </div>-->
+      <button mat-flat-button color="primary" class="event-card__button-discover" (click)="viewEventDetails(event.id)">
+        <span>Découvrir</span>
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
     </div>
 
   </div>

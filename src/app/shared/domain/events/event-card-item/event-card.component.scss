@@ -129,15 +129,25 @@
     padding: var(--spacing-lg);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
+  }
+
+  &__category-container {
+    display: flex;
+    gap: var(--spacing-sm);
   }
 
   &__category {
-    color: var(--primary);
+    display: inline-block;
     font-size: 12px; // Label size
     font-weight: 500; // Medium
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.5px; // From design guidelines
+    color: var(--primary);
+    background-color: rgba(90, 72, 245, 0.1); // var(--primary) with 10% opacity
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-small);
+    align-self: flex-start;
   }
 
   &__title {
@@ -146,6 +156,15 @@
     font-weight: 600; // SemiBold
     color: var(--text-primary);
     line-height: 1.4;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100%;
+    gap: var(--spacing-xs);
   }
 
   &__location {
@@ -180,40 +199,11 @@
     gap: var(--spacing-md);
   }
 
-  &__price-container {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    margin-left: var(--spacing-md);
-  }
-
-  &__free-tag {
-    background-color: var(--success);
-    color: white;
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--border-radius-small);
-    font-weight: 600; // SemiBold
-    font-size: 12px; // Label size
-    letter-spacing: 0.5px;
-  }
-
-  &__price {
-    font-size: 18px; // Body Large size
-    font-weight: 600; // SemiBold
-    color: var(--text-primary);
-  }
-
-  &__price-na {
-    font-size: 14px; // Body Small size
-    color: var(--text-secondary);
-    font-style: italic;
-    letter-spacing: 0.1px;
-  }
 
   // Conteneur des boutons
   &__buttons {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     width: 100%;
     gap: var(--spacing-sm);
     flex-shrink: 0;

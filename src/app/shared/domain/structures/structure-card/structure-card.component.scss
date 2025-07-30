@@ -227,11 +227,6 @@
   }
 
   .card-actions {
-    flex-direction: column;
     gap: var(--spacing-xs);
-
-    .action-btn {
-      width: 100%;
-    }
   }
 }

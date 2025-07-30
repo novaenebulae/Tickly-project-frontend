@@ -48,6 +48,10 @@ $skeleton-gradient-middle: #e0e0e0; // Slightly darker shade for skeleton animat
         transform: scale(1.1);
       }
     }
+
+    @media (max-width: 768px) {
+      display: none;
+    }
   }
 }
 

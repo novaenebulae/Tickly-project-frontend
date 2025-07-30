@@ -81,9 +81,9 @@ export class EventCardComponent implements OnInit {
     return 'Lieu à déterminer';
   }
 
-get formattedCategories () {
-    return this.event.categories.map(cat => cat.name).join(', ');
-}
+// get formattedCategories () {
+//     return this.event.categories.map(cat => cat.name).join(', ');
+// }
 
 
   protected readonly Array = Array;

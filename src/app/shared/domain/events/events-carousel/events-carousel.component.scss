@@ -100,7 +100,7 @@ $gap-between-cards: var(--spacing-md); // Espace entre les cartes
     border-radius: 50%;
     background-color: rgba(0, 0, 0, 0.3); // Inactive indicator color
     border: none;
-    margin: 0 var(--spacing-xs);
+    margin: var(--spacing-lg) var(--spacing-xs) 0;
     cursor: pointer;
     transition: var(--transition-fast);
 
