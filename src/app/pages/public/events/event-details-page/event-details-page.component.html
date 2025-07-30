@@ -65,7 +65,7 @@
         <h2 class="section-title">Événements similaires</h2>
         <app-events-carousel
           [events]="similarEvents()"
-          [cardsPerPage]="3"
+          [cardsPerPage]="cardsPerPage()"
           [autoSlide]="true"
           [slideInterval]="5000">
         </app-events-carousel>

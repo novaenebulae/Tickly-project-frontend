@@ -59,8 +59,8 @@
   .info-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-xl);
-    margin-bottom: var(--spacing-xxl);
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm);
     width: 100%;
 
     @media (max-width: 768px) {

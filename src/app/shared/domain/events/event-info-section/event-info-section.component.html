@@ -1,7 +1,7 @@
 <!-- src/app/shared/components/event-details/event-info-section/event-info-section.component.html -->
 
-<div class="info-section my-4">
-  <div class="container-fluid w-100">
+<div class="info-section">
+  <div class="w-100">
     <h2 class="section-title">Informations</h2>
 
     <div class="info-container w-100">
@@ -98,25 +98,6 @@
                 <span class="capacity-text">places</span>
               </div>
             </div>
-
-<!--            <div class="audience-zones" *ngIf="event.audienceZones && event.audienceZones.length > 0">-->
-<!--              <h4>Zones disponibles</h4>-->
-<!--              <ul class="zones-list">-->
-<!--                @for (zone of event.audienceZones; track $index) {-->
-<!--                  @if (zone.isActive) {-->
-<!--                    <li>-->
-<!--                      <span class="zone-name">{{ zone.name }}</span>-->
-<!--                      <span class="zone-capacity">{{ zone.allocatedCapacity }} places</span>-->
-<!--                      <span class="zone-type">-->
-<!--                        <mat-icon [matTooltip]="zone.seatingType === 'SEATED' ? 'Places assises' : zone.seatingType === 'STANDING' ? 'Debout' : 'Mixte'">-->
-<!--                          {{ zone.seatingType === 'SEATED' ? 'chair' : zone.seatingType === 'STANDING' ? 'accessibility_new' : 'swap_horiz' }}-->
-<!--                        </mat-icon>-->
-<!--                      </span>-->
-<!--                    </li>-->
-<!--                  }-->
-<!--                }-->
-<!--              </ul>-->
-<!--            </div>-->
 
             <button mat-raised-button color="accent" class="reservation-button" (click)="onBookEvent()">
               <mat-icon>arrow_forward</mat-icon>

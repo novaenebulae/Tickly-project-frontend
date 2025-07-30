@@ -1,5 +1,4 @@
 .description-section {
-  padding: var(--spacing-xl) 0;
 
   .section-title {
     font-size: 24px; // Heading 2 size
@@ -29,7 +28,6 @@
     border-radius: var(--border-radius-medium);
     padding: var(--spacing-xl);
     box-shadow: var(--shadow-sm);
-    margin-bottom: var(--spacing-xl);
     height: 100%;
 
     .description-text {

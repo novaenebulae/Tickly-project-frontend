@@ -1,6 +1,15 @@
 // src/app/pages/public/event-details-page/event-details-page.component.ts
 
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  HostListener,
+  inject,
+  OnInit,
+  signal
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
@@ -73,12 +82,19 @@ export class EventDetailsPageComponent implements OnInit {
   event = signal<EventModel | undefined>(undefined);
   structure = signal<StructureModel | null>(null);
   similarEvents = signal<EventSummaryModel[]>([]);
+  cardsPerPage = signal(3);
   isUserLoggedIn = false;
   isLoading = true;
   hasError = false;
   errorMessage = '';
 
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.updateCardsPerPage();
+  }
+
   ngOnInit(): void {
+    this.updateCardsPerPage();
 
     // Vérifier si l'utilisateur est connecté
     this.isUserLoggedIn = this.authService.isLoggedIn();
@@ -209,6 +225,12 @@ export class EventDetailsPageComponent implements OnInit {
       'valid',
       'Fermer'
     );
+  }
+
+  private updateCardsPerPage(): void {
+    const viewportWidth = window.innerWidth;
+    const newCardsPerPage = viewportWidth <= 768 ? 1 : 3;
+    this.cardsPerPage.set(newCardsPerPage);
   }
 
   /**
