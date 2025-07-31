@@ -3,12 +3,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
   padding: var(--spacing-md);
 
   .logo {
     width: 300px;
-    height: auto;
+    //height: auto;
     margin-bottom: var(--spacing-lg);
 
     @media (max-width: 576px) {
@@ -75,7 +74,7 @@ button[mat-raised-button] {
 
 .register-link {
   text-align: center;
-  margin-top: var(--spacing-md);
+  //margin-top: var(--spacing-md);
 
   a {
     color: var(--primary);

@@ -1,0 +1,133 @@
+<div class="filters-container">
+  <div class="filters-header">
+    <h3 class="filters-title">Filtrer les événements</h3>
+    <button class="reset-button" (click)="resetFilters()">
+      <mat-icon>refresh</mat-icon>
+      Réinitialiser les filtres
+    </button>
+  </div>
+
+  <div class="filters-body">
+    <!-- Ligne principale: recherche et tri sur la même ligne -->
+    <div class="main-filter-row">
+      <!-- Recherche -->
+      <div class="search-field">
+        <div class="input-with-icon">
+          <mat-icon>search</mat-icon>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Rechercher un événement..."
+            [value]="searchQuery()"
+            (input)="searchQuerySubject.next($any($event.target).value)"
+          >
+        </div>
+      </div>
+
+      <!-- Options de tri avec direction -->
+      <div class="sort-field">
+        <div class="sort-wrapper">
+          <!-- Sélecteur de tri natif -->
+          <select class="sort-select" [value]="sortBy()" (change)="onSortByChange($any($event.target).value)">
+            <option value="startDate">Date</option>
+            <option value="name">Nom</option>
+          </select>
+
+<!--          &lt;!&ndash; Bouton de direction de tri &ndash;&gt;-->
+<!--          <button class="sort-direction-button" (click)="toggleSortDirection()">-->
+<!--            <mat-icon>{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>-->
+<!--          </button>-->
+        </div>
+      </div>
+    </div>
+
+    <!-- Catégories avec scroll vertical -->
+    <div class="category-section">
+      <div class="category-header">
+        <label class="filter-label">Catégories</label>
+        <button class="expand-categories-btn" (click)="toggleCategoriesExpand()" *ngIf="categoriesList.length >= MAX_VISIBLE_CATEGORIES">
+          <mat-icon>{{ isCategoriesExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+          {{ isCategoriesExpanded() ? 'Réduire' : 'Voir tout' }}
+        </button>
+      </div>
+
+      <div class="type-chips-container" [class.expanded]="isCategoriesExpanded()">
+        <div class="type-chips">
+          <div
+            *ngFor="let category of categoriesList; let i = index"
+            class="type-chip"
+            [class.active]="isCategorySelected(category)"
+            [class.hidden]="!isCategoriesExpanded() && i >= MAX_VISIBLE_CATEGORIES"
+            (click)="toggleCategory(category)"
+          >
+            <mat-icon>{{ getCategoryIcon(category) }}</mat-icon>
+            {{ category.name }}
+          </div>
+
+          <!-- Message si pas de catégories disponibles -->
+          <div *ngIf="!categoriesList || categoriesList.length === 0" class="no-types-message">
+            Aucune catégorie disponible
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section lieu -->
+    <div class="filter-fields">
+    <div class="location-section">
+      <div class="filter-label">Lieu / Ville</div>
+      <div class="input-with-icon location-field">
+        <mat-icon>location_on</mat-icon>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Ex: Paris, Zénith..."
+          [value]="location()"
+          (input)="locationSubject.next($any($event.target).value)"
+        >
+      </div>
+    </div>
+    <!-- Section dates (datepicker Material) -->
+    <div class="date-section">
+      <div class="filter-label">Période</div>
+      <div class="date-inputs">
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>Dates de l'événement</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate [value]="startDate()" (dateChange)="onStartDateChange($event)" placeholder="Date de début">
+            <input matEndDate [value]="endDate()" (dateChange)="onEndDateChange($event)" placeholder="Date de fin">
+          </mat-date-range-input>
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+      </div>
+    </div>
+    </div>
+
+  </div>
+
+  <!-- Indicateur des filtres actifs -->
+  <div class="active-filters" *ngIf="hasActiveFilters()">
+    <div class="active-filter-chips">
+      <div class="filter-chip" *ngIf="searchQuery()">
+        <span>Recherche: {{ searchQuery() }}</span>
+        <mat-icon (click)="clearSearch()">cancel</mat-icon>
+      </div>
+      <div class="filter-chip" *ngFor="let category of selectedCategories()">
+        <span>{{ category.name }}</span>
+        <mat-icon (click)="toggleCategory(category)">cancel</mat-icon>
+      </div>
+      <div class="filter-chip" *ngIf="startDate() || endDate()">
+        <span>Période: {{ getDateRangeLabel() }}</span>
+        <mat-icon (click)="clearDateRange()">cancel</mat-icon>
+      </div>
+      <div class="filter-chip" *ngIf="location()">
+        <span>Lieu: {{ location() }}</span>
+        <mat-icon (click)="clearLocation()">cancel</mat-icon>
+      </div>
+      <div class="filter-chip sort-chip">
+        <span>Tri: {{ getSortLabel() }} ({{ sortDirection() === 'asc' ? '↑' : '↓' }})</span>
+      </div>
+    </div>
+  </div>
+</div>

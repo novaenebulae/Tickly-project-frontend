@@ -8,7 +8,7 @@ import {RouterModule} from '@angular/router';
 import {animate, query, stagger, style, transition, trigger} from '@angular/animations';
 import {EventCardComponent} from '../event-card-item/event-card.component';
 import {EventListItemComponent} from '../event-list-item/event-list-item.component';
-import {EventFiltersComponent} from '../events-filters/event-filters.component';
+import {EventFiltersComponent} from '../event-filters/event-filters.component';
 import {EventSummaryModel} from '../../../../core/models/event/event.model';
 
 @Component({

@@ -88,3 +88,5 @@ Use `src/styles/_theme.scss` for consistent design.
 4. Check for design errors, if any fix them.
 
 5. Wait for feedback when all the modifications are done.
+
+
