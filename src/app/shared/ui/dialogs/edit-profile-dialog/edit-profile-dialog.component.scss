@@ -42,8 +42,8 @@
     .avatar-container {
       position: relative;
       margin-bottom: 0.75rem;
-      width: 80px;
-      height: 80px;
+      width: 100px;
+      height: 100px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
@@ -277,10 +277,10 @@
     .avatar-section {
       padding: 1rem 0.75rem 0.75rem;
 
-      .avatar-container {
-        width: 70px;
-        height: 70px;
-      }
+      //.avatar-container {
+      //  width: 70px;
+      //  height: 70px;
+      //}
 
       .avatar-info {
         font-size: 0.8rem;
@@ -343,10 +343,10 @@
     .avatar-section {
       padding: 0.75rem 0.5rem 0.5rem;
 
-      .avatar-container {
-        width: 60px;
-        height: 60px;
-      }
+      //.avatar-container {
+      //  width: 60px;
+      //  height: 60px;
+      //}
     }
 
     .profile-form,

@@ -8,7 +8,7 @@
   </div>
 
   <div class="filters-body">
-    <!-- Ligne principale: recherche et tri sur la même ligne -->
+    <!-- Ligne principale: recherche, tri et bouton filtres avancés -->
     <div class="main-filter-row">
       <!-- Recherche -->
       <div class="search-field">
@@ -24,86 +24,96 @@
         </div>
       </div>
 
-      <!-- Options de tri avec direction -->
+      <!-- Sélecteur de tri avec directions intégrées -->
       <div class="sort-field">
-        <div class="sort-wrapper">
-          <!-- Sélecteur de tri natif -->
-          <select class="sort-select" [value]="sortBy()" (change)="onSortByChange($any($event.target).value)">
-            <option value="startDate">Date</option>
-            <option value="name">Nom</option>
-          </select>
-
-<!--          &lt;!&ndash; Bouton de direction de tri &ndash;&gt;-->
-<!--          <button class="sort-direction-button" (click)="toggleSortDirection()">-->
-<!--            <mat-icon>{{ sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>-->
-<!--          </button>-->
-        </div>
+        <select class="sort-select" [value]="currentSortValue()" (change)="onSortChange($any($event.target).value)">
+          <option value="startDate_asc">Date (plus proche)</option>
+          <option value="startDate_desc">Date (plus lointaine)</option>
+          <option value="name_asc">Nom (A-Z)</option>
+          <option value="name_desc">Nom (Z-A)</option>
+        </select>
       </div>
-    </div>
 
-    <!-- Catégories avec scroll vertical -->
-    <div class="category-section">
-      <div class="category-header">
-        <label class="filter-label">Catégories</label>
-        <button class="expand-categories-btn" (click)="toggleCategoriesExpand()" *ngIf="categoriesList.length >= MAX_VISIBLE_CATEGORIES">
-          <mat-icon>{{ isCategoriesExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
-          {{ isCategoriesExpanded() ? 'Réduire' : 'Voir tout' }}
+      <!-- Bouton des filtres avancés -->
+      <div class="advanced-filters-toggle">
+        <button class="advanced-filters-button" (click)="toggleAdvancedFilters()">
+          <mat-icon>{{ isAdvancedFiltersOpen() ? 'expand_less' : 'expand_more' }}</mat-icon>
+          Filtres
+          <span class="filters-count" *ngIf="getAdvancedFiltersCount() > 0">({{ getAdvancedFiltersCount() }})</span>
         </button>
       </div>
+    </div>
 
-      <div class="type-chips-container" [class.expanded]="isCategoriesExpanded()">
-        <div class="type-chips">
-          <div
-            *ngFor="let category of categoriesList; let i = index"
-            class="type-chip"
-            [class.active]="isCategorySelected(category)"
-            [class.hidden]="!isCategoriesExpanded() && i >= MAX_VISIBLE_CATEGORIES"
-            (click)="toggleCategory(category)"
-          >
-            <mat-icon>{{ getCategoryIcon(category) }}</mat-icon>
-            {{ category.name }}
+    <!-- Drawer des filtres avancés -->
+    <div class="advanced-filters-drawer" [class.open]="isAdvancedFiltersOpen()">
+      <div class="advanced-filters-content">
+
+        <!-- Catégories avec scroll vertical -->
+        <div class="category-section">
+          <div class="category-header">
+            <label class="filter-label">Catégories</label>
+            <button class="expand-categories-btn" (click)="toggleCategoriesExpanded()" *ngIf="categoriesList.length >= MAX_VISIBLE_CATEGORIES">
+              <mat-icon>{{ isCategoriesExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+              {{ isCategoriesExpanded() ? 'Réduire' : 'Voir tout' }}
+            </button>
           </div>
 
-          <!-- Message si pas de catégories disponibles -->
-          <div *ngIf="!categoriesList || categoriesList.length === 0" class="no-types-message">
-            Aucune catégorie disponible
+          <div class="type-chips-container" [class.expanded]="isCategoriesExpanded()">
+            <div class="type-chips">
+              <div
+                *ngFor="let category of categoriesList; let i = index"
+                class="type-chip"
+                [class.active]="isCategorySelected(category)"
+                [class.hidden]="!isCategoriesExpanded() && i >= MAX_VISIBLE_CATEGORIES"
+                (click)="toggleCategory(category)"
+              >
+                <mat-icon>{{ getCategoryIcon(category) }}</mat-icon>
+                {{ category.name }}
+              </div>
+
+              <!-- Message si pas de catégories disponibles -->
+              <div *ngIf="!categoriesList || categoriesList.length === 0" class="no-types-message">
+                Aucune catégorie disponible
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Section lieu -->
-    <div class="filter-fields">
-    <div class="location-section">
-      <div class="filter-label">Lieu / Ville</div>
-      <div class="input-with-icon location-field">
-        <mat-icon>location_on</mat-icon>
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Ex: Paris, Zénith..."
-          [value]="location()"
-          (input)="locationSubject.next($any($event.target).value)"
-        >
-      </div>
-    </div>
-    <!-- Section dates (datepicker Material) -->
-    <div class="date-section">
-      <div class="filter-label">Période</div>
-      <div class="date-inputs">
-        <mat-form-field appearance="outline" class="date-field">
-          <mat-label>Dates de l'événement</mat-label>
-          <mat-date-range-input [rangePicker]="picker">
-            <input matStartDate [value]="startDate()" (dateChange)="onStartDateChange($event)" placeholder="Date de début">
-            <input matEndDate [value]="endDate()" (dateChange)="onEndDateChange($event)" placeholder="Date de fin">
-          </mat-date-range-input>
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-date-range-picker #picker></mat-date-range-picker>
-        </mat-form-field>
-      </div>
-    </div>
-    </div>
+        <!-- Section lieu et dates -->
+        <div class="filter-fields">
+          <div class="location-section">
+            <div class="filter-label">Lieu / Ville</div>
+            <div class="input-with-icon location-field">
+              <mat-icon>location_on</mat-icon>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Ex: Paris, Zénith..."
+                [value]="location()"
+                (input)="locationSubject.next($any($event.target).value)"
+              >
+            </div>
+          </div>
 
+          <!-- Section dates (datepicker Material) -->
+          <div class="date-section">
+            <div class="filter-label">Période</div>
+            <div class="date-inputs">
+              <mat-form-field appearance="outline" class="date-field">
+                <mat-label>Dates de l'événement</mat-label>
+                <mat-date-range-input [rangePicker]="picker">
+                  <input matStartDate [value]="startDate()" (dateChange)="onStartDateChange($event)" placeholder="Date de début">
+                  <input matEndDate [value]="endDate()" (dateChange)="onEndDateChange($event)" placeholder="Date de fin">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
 
   <!-- Indicateur des filtres actifs -->
@@ -126,7 +136,7 @@
         <mat-icon (click)="clearLocation()">cancel</mat-icon>
       </div>
       <div class="filter-chip sort-chip">
-        <span>Tri: {{ getSortLabel() }} ({{ sortDirection() === 'asc' ? '↑' : '↓' }})</span>
+        <span>Tri: {{ getSortLabel() }}</span>
       </div>
     </div>
   </div>

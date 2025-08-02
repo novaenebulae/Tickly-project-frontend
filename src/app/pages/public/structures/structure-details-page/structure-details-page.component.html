@@ -215,6 +215,7 @@
             [showFilters]="showFilters()"
             [currentPage]="currentPage()"
             [pageSize]="pageSize()"
+            [totalItems]="allEvents().length"
             (filtersChanged)="onFiltersChanged($event)"
             (pageChanged)="onPageChanged($event)"
             (displayModeChanged)="onDisplayModeChanged($event)">

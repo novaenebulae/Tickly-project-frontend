@@ -27,20 +27,8 @@ import { NotificationService } from '../../../../core/services/domain/utilities/
 
 // Models
 import { EventCategoryModel } from '../../../../core/models/event/event-category.model';
-
-// Interfaces pour les événements émis
-interface EventFilters {
-  query?: string;
-  categoryIds?: number[];
-  startDateAfter?: Date;
-  startDateBefore?: Date;
-  city?: string;
-}
-
-interface EventSortOptions {
-  sortBy: string;
-  sortDirection: 'asc' | 'desc';
-}
+import { EventSearchParams } from '../../../../core/models/event/event-search-params.model';
+import { EventStatus } from '../../../../core/models/event/event.model';
 
 @Component({
   selector: 'app-event-filters',
@@ -66,9 +54,8 @@ export class EventFiltersComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private notificationService = inject(NotificationService);
 
-  // Événements émis vers le parent
-  @Output() filtersChanged = new EventEmitter<EventFilters>();
-  @Output() sortChanged = new EventEmitter<EventSortOptions>();
+  // Événement émis vers le parent avec tous les filtres incluant le tri
+  @Output() filtersChanged = new EventEmitter<EventSearchParams>();
 
   // --- État des filtres transformé en signaux ---
   searchQuery = signal('');
@@ -83,6 +70,7 @@ export class EventFiltersComponent implements OnInit {
   categoriesList: EventCategoryModel[] = [];
   isLoadingCategories = signal(false);
   isCategoriesExpanded = signal(false);
+  isAdvancedFiltersOpen = signal(false);
 
   protected searchQuerySubject = new Subject<string>();
   protected locationSubject = new Subject<string>();
@@ -100,29 +88,36 @@ export class EventFiltersComponent implements OnInit {
       this.location()
   );
 
-  /** Calcule l'objet des filtres à émettre. */
-  private currentFilters = computed<EventFilters>(() => ({
+  /** Calcule la valeur actuelle du tri pour le sélecteur. */
+  currentSortValue = computed(() => `${this.sortBy()}_${this.sortDirection()}`);
+
+  /** Calcule le nombre de filtres avancés appliqués. */
+  getAdvancedFiltersCount = computed(() => {
+    let count = 0;
+    if (this.selectedCategories().length > 0) count++;
+    if (this.startDate() || this.endDate()) count++;
+    if (this.location()) count++;
+    return count;
+  });
+
+  /** Calcule l'objet complet des filtres à émettre incluant le tri. */
+  private currentFilters = computed<EventSearchParams>(() => ({
     query: this.searchQuery() || undefined,
     categoryIds: this.selectedCategories().length > 0 ? this.selectedCategories().map(cat => cat.id) : undefined,
     startDateAfter: this.startDate() || undefined,
     startDateBefore: this.endDate() || undefined,
-    city: this.location() || undefined
-  }));
-
-  /** Calcule l'objet de tri à émettre. */
-  private currentSortOptions = computed<EventSortOptions>(() => ({
+    city: this.location() || undefined,
     sortBy: this.sortBy(),
-    sortDirection: this.sortDirection()
+    sortDirection: this.sortDirection(),
+    status: EventStatus.PUBLISHED // Toujours inclure le statut publié
   }));
 
   constructor() {
-    // --- Effets pour émettre les changements au parent ---
+    // --- Effet pour émettre tous les changements au parent ---
     effect(() => {
-      this.filtersChanged.emit(this.currentFilters());
-    });
-
-    effect(() => {
-      this.sortChanged.emit(this.currentSortOptions());
+      const filters = this.currentFilters();
+      console.log('All filters changed:', filters); // Debug log
+      this.filtersChanged.emit(filters);
     });
   }
 
@@ -190,14 +185,22 @@ export class EventFiltersComponent implements OnInit {
     });
   }
 
-  /** Gère le changement de tri. */
-  onSortByChange(sortBy: string): void {
-    this.sortBy.set(sortBy);
+  /** Gère le changement de tri avec direction intégrée. */
+  onSortChange(sortValue: string): void {
+    console.log('Sort change triggered with value:', sortValue); // Debug log
+    const [field, direction] = sortValue.split('_');
+    console.log('Parsed field:', field, 'direction:', direction); // Debug log
+
+    this.sortBy.set(field);
+    this.sortDirection.set(direction as 'asc' | 'desc');
+
+    // Force la détection de changement pour s'assurer que l'effect se déclenche
+    this.cdRef.markForCheck();
   }
 
-  /** Inverse la direction du tri. */
-  toggleSortDirection(): void {
-    this.sortDirection.update(current => current === 'asc' ? 'desc' : 'asc');
+  /** Bascule l'état du drawer des filtres avancés. */
+  toggleAdvancedFilters(): void {
+    this.isAdvancedFiltersOpen.update(v => !v);
   }
 
   /** Gère le changement de date de début. */
@@ -240,10 +243,12 @@ export class EventFiltersComponent implements OnInit {
   /** Retourne le label du tri actuel. */
   getSortLabel(): string {
     const sortLabels: { [key: string]: string } = {
-      'startDate': 'Date',
-      'name': 'Nom'
+      'startDate_asc': 'Date (plus proche)',
+      'startDate_desc': 'Date (plus lointaine)',
+      'name_asc': 'Nom (A-Z)',
+      'name_desc': 'Nom (Z-A)'
     };
-    return sortLabels[this.sortBy()] || 'Date';
+    return sortLabels[this.currentSortValue()] || 'Date (plus proche)';
   }
 
   /** Retourne le label de la plage de dates. */
@@ -268,7 +273,7 @@ export class EventFiltersComponent implements OnInit {
   }
 
   /** Bascule l'affichage des catégories. */
-  toggleCategoriesExpand(): void {
+  toggleCategoriesExpanded(): void {
     this.isCategoriesExpanded.update(v => !v);
   }
 }

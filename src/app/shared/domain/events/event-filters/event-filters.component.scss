@@ -97,12 +97,13 @@
 .filters-body {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
 }
 
-// Ligne principale avec recherche et tri - TOUJOURS sur la même rangée
+// Ligne principale avec recherche, tri et bouton filtres avancés
 .main-filter-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-md);
   width: 100%;
@@ -110,83 +111,118 @@
   .search-field {
     flex: 1; // Prend tout l'espace disponible
     min-width: 0; // Permet au champ de se rétrécir si nécessaire
+
+    @media (max-width: 768px) {
+      //width: 100%;
+      flex: 1 1 100%;
+    }
   }
 
   .sort-field {
     flex: 0 0 auto; // Ne grandit pas, ne rétrécit pas
-    display: flex;
-    align-items: center;
 
-    .sort-wrapper {
+    .sort-select {
+      padding: var(--spacing-md);
+      height: 56px; // 3.5rem
+      border-radius: var(--border-radius-large);
+      border: var(--border-width) solid var(--border);
+      font-size: 16px; // Body Default size
+      font-weight: 500; // Medium
+      background-color: var(--surface);
+      color: var(--text-primary);
+      transition: var(--transition-fast);
+      min-width: 180px;
+      letter-spacing: 0px;
+
+      &:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(90, 72, 245, 0.1);
+      }
+
+      // Mobile responsive
+      @media (max-width: 768px) {
+        height: 48px;
+        padding: var(--spacing-sm);
+        font-size: 14px;
+        //min-width: 150px;
+      }
+
+      @media (max-width: 480px) {
+        //min-width: 120px;
+        font-size: 12px;
+      }
+    }
+  }
+
+  .advanced-filters-toggle {
+    flex: 0 0 auto;
+
+    .advanced-filters-button {
+      background: var(--primary);
+      color: var(--surface);
+      border: none;
+      padding: var(--spacing-md) var(--spacing-lg);
+      height: 56px;
+      border-radius: var(--border-radius-large);
+      font-size: 14px; // Button size
+      font-weight: 500; // Medium
       display: flex;
       align-items: center;
       gap: var(--spacing-sm);
+      cursor: pointer;
+      transition: var(--transition-fast);
+      letter-spacing: 0.25px;
+      white-space: nowrap;
 
-      .sort-select {
-        padding: var(--spacing-md);
-        height: 56px; // 3.5rem
-        border-radius: var(--border-radius-large);
-        border: var(--border-width) solid var(--border);
-        font-size: 16px; // Body Default size
-        font-weight: 500; // Medium
-        background-color: var(--surface);
-        color: var(--text-primary);
-        transition: var(--transition-fast);
-        //width: 150px;
-        letter-spacing: 0px;
+      &:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+      }
 
-        &:focus {
-          outline: none;
-          border-color: var(--primary);
-          box-shadow: 0 0 0 3px rgba(90, 72, 245, 0.1);
-        }
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        transition: transform var(--transition-fast);
+      }
 
-        // Mobile responsive
-        @media (max-width: 768px) {
-          height: 48px;
-          padding: var(--spacing-sm);
-          font-size: 14px;
-          //min-width: 100px;
+      .filters-count {
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--surface);
+        padding: 2px 6px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: var(--spacing-xs);
+      }
+
+      // Mobile responsive
+      @media (max-width: 768px) {
+        height: 48px;
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: 12px;
+
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
         }
       }
 
-      //.sort-direction-button {
-      //  width: 56px; // 3.5rem
-      //  height: 56px; // 3.5rem
-      //  border-radius: 50%;
-      //  border: var(--border-width) solid var(--border);
-      //  background-color: var(--surface);
-      //  display: flex;
-      //  align-items: center;
-      //  justify-content: center;
-      //  cursor: pointer;
-      //  transition: var(--transition-fast);
-      //  flex-shrink: 0;
-      //
-      //  mat-icon {
-      //    font-size: 20px;
-      //    width: 20px;
-      //    height: 20px;
-      //    color: var(--primary);
-      //  }
-      //
-      //  &:hover {
-      //    background-color: rgba(90, 72, 245, 0.1); // var(--primary) with 10% opacity
-      //    transform: translateY(-2px);
-      //  }
-      //
-      //  // Mobile responsive
-      //  @media (max-width: 768px) {
-      //    width: 48px;
-      //    height: 48px;
-      //
-      //    mat-icon {
-      //      font-size: 18px;
-      //      width: 18px;
-      //      height: 18px;
-      //    }
-      //  }
-      //}
+      @media (max-width: 480px) {
+        padding: var(--spacing-sm);
+
+        // Masquer le texte sur très petit écran
+        span:not(.filters-count) {
+          display: none;
+        }
+      }
+    }
+
+    @media (max-width: 768px) {
+      margin-left: auto;
     }
   }
 
@@ -251,6 +287,25 @@
       width: 18px;
       height: 18px;
     }
+  }
+}
+
+// Drawer des filtres avancés
+.advanced-filters-drawer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+  padding: 0;
+
+  &.open {
+    max-height: 800px; // Hauteur suffisante pour le contenu
+    padding: var(--spacing-lg) 0 0 0;
+  }
+
+  .advanced-filters-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
   }
 }
 
@@ -399,7 +454,6 @@
 
 // Sections des filtres spécifiques
 .date-section, .location-section {
-
   .filter-label {
     font-size: 16px; // Body Default size
     font-weight: 600; // SemiBold
@@ -407,9 +461,10 @@
     margin-bottom: var(--spacing-sm);
     letter-spacing: 0px;
   }
-@media (min-width: 768px) {
-  width: 50%;
-}
+
+  @media (min-width: 768px) {
+    width: 50%;
+  }
 }
 
 .date-section {
@@ -419,7 +474,6 @@
     }
   }
 }
-
 
 ::ng-deep .mat-mdc-form-field-subscript-wrapper {
   display: none !important;

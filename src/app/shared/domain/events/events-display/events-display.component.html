@@ -8,7 +8,7 @@
   <!-- Affichage du nombre de résultats et sélecteur de mode d'affichage -->
   <div class="display-options-bar">
     <div class="results-count">
-      <span>{{ totalItems }} résultats trouvés</span>
+      <span>{{ totalItems }} résultat{{ totalItems > 1 ? 's' : ''}} trouvé{{ totalItems > 1 ? 's' : ''}}</span>
     </div>
     <div class="view-mode-selector">
       <button
@@ -68,7 +68,7 @@
   </div>
 
   <!-- Pagination -->
-  <div class="pagination-container" *ngIf="!isLoading && events.length > 0">
+  <div class="pagination-container" *ngIf="!isLoading && totalItems > pageSize">
     <mat-paginator
       [length]="totalItems"
       [pageSize]="pageSize"

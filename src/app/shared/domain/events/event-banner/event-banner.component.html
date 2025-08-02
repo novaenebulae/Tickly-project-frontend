@@ -19,7 +19,7 @@
         </mat-chip>
       </div>
 
-      <div class="event-info mx-sm-2 mx-md-3 mx-5 ">
+      <div class="event-info mx-sm-2 mx-md-3">
         <h1 class="event-title">{{ event.name }}</h1>
 
         <div class="event-location">
@@ -30,7 +30,7 @@
 
           <div class="structure-address">
             <mat-icon>location_on</mat-icon>
-            <span>{{ this.event.address?.street }}, {{ this.event.address?.city }}</span>
+            <span>{{ this.event.address?.street  ? this.event.address?.street + ', ' : ''}}{{ this.event.address?.city }}</span>
           </div>
         </div>
 
