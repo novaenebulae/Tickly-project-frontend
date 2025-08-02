@@ -46,7 +46,7 @@
     padding: 0;
 
     @media (max-width: 768px) {
-      padding: 0 var(--spacing-sm);
+      padding: 0;
     }
   }
 
@@ -59,6 +59,17 @@
     position: relative;
     box-shadow: var(--shadow-md);
 
+    // Responsive: Réduire le padding sur mobile
+    @media (max-width: 768px) {
+      padding: var(--spacing-xl) 0 var(--spacing-lg) 0;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    @media (max-width: 480px) {
+      padding: var(--spacing-lg) 0;
+      margin-bottom: var(--spacing-md);
+    }
+
     .banner-content {
       max-width: 1200px;
       margin: 0 auto;
@@ -68,11 +79,32 @@
       justify-content: center;
       align-items: center;
 
+      // Responsive: Réduire le padding sur mobile
+      @media (max-width: 768px) {
+        padding: 0 var(--spacing-lg);
+      }
+
+      @media (max-width: 480px) {
+        padding: 0 var(--spacing-md);
+      }
+
       .header-title {
         display: flex;
         align-items: center;
         gap: var(--spacing-md);
         margin-bottom: var(--spacing-md);
+
+        // Responsive: Réduire l'espacement sur mobile
+        @media (max-width: 768px) {
+          gap: var(--spacing-sm);
+          margin-bottom: var(--spacing-sm);
+        }
+
+        @media (max-width: 480px) {
+          flex-direction: column;
+          gap: var(--spacing-xs);
+          text-align: center;
+        }
       }
 
       .header-icon {
@@ -91,6 +123,12 @@
           height: 2rem;
           padding: var(--spacing-xs);
         }
+
+        @media (max-width: 480px) {
+          font-size: 1.8rem;
+          width: 1.8rem;
+          height: 1.8rem;
+        }
       }
 
       h1 {
@@ -101,6 +139,11 @@
 
         @media (max-width: 768px) {
           font-size: 2rem;
+        }
+
+        @media (max-width: 480px) {
+          font-size: 1.6rem;
+          text-align: center;
         }
       }
 
@@ -113,6 +156,12 @@
 
         @media (max-width: 768px) {
           font-size: 1rem;
+          max-width: 100%;
+        }
+
+        @media (max-width: 480px) {
+          font-size: 0.9rem;
+          line-height: 1.4;
         }
       }
     }
@@ -130,6 +179,13 @@
     p {
       color: var(--text-primary);
       font-size: 1.1rem;
+
+      // Responsive: Texte plus petit sur mobile
+      @media (max-width: 768px) {
+        font-size: 1rem;
+        text-align: center;
+        padding: 0 var(--spacing-md);
+      }
     }
   }
 
@@ -138,6 +194,15 @@
     text-align: center;
     padding: var(--spacing-xxl) var(--spacing-xl);
 
+    // Responsive: Réduire le padding sur mobile
+    @media (max-width: 768px) {
+      padding: var(--spacing-xl) var(--spacing-lg);
+    }
+
+    @media (max-width: 480px) {
+      padding: var(--spacing-lg) var(--spacing-md);
+    }
+
     mat-icon {
       font-size: 4rem;
       width: 4rem;
@@ -145,12 +210,34 @@
       color: var(--primary);
       margin-bottom: var(--spacing-md);
       opacity: 0.8;
+
+      // Responsive: Icône plus petite sur mobile
+      @media (max-width: 768px) {
+        font-size: 3rem;
+        width: 3rem;
+        height: 3rem;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 2.5rem;
+        width: 2.5rem;
+        height: 2.5rem;
+      }
     }
 
     h2 {
       color: var(--text-primary);
       margin-bottom: var(--spacing-md);
       font-weight: 500;
+
+      // Responsive: Titre plus petit sur mobile
+      @media (max-width: 768px) {
+        font-size: 1.4rem;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 1.2rem;
+      }
     }
 
     p {
@@ -160,22 +247,68 @@
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
+
+      // Responsive: Texte plus petit sur mobile
+      @media (max-width: 768px) {
+        font-size: 1rem;
+        max-width: 100%;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+    }
+
+    button {
+      // Responsive: Bouton en pleine largeur sur mobile
+      @media (max-width: 480px) {
+        width: 100%;
+        max-width: 300px;
+      }
     }
   }
 
   .tickets-content {
     max-width: 80%;
     margin: 0 auto;
+
+    // Responsive: Largeur pleine sur mobile
+    @media (max-width: 768px) {
+      max-width: 95%;
+    }
+
+    @media (max-width: 480px) {
+      max-width: 100%;
+      padding: 0 var(--spacing-sm);
+    }
   }
 
   // Onglets des billets
   .tickets-tabs {
     margin-top: var(--spacing-lg);
 
+    // Responsive: Ajuster l'espacement sur mobile
+    @media (max-width: 768px) {
+      margin-top: var(--spacing-md);
+    }
+
     ::ng-deep {
       .mat-tab-label {
         font-weight: 500;
         transition: var(--transition-fast);
+
+        // Responsive: Texte plus petit sur mobile
+        @media (max-width: 768px) {
+          font-size: 0.9rem;
+          min-width: auto !important;
+          padding: 12px 16px !important;
+        }
+
+        @media (max-width: 480px) {
+          font-size: 0.8rem;
+          padding: 12px 8px !important;
+        }
       }
 
       .mat-tab-label-active {
@@ -185,10 +318,32 @@
       .mat-ink-bar {
         background-color: var(--primary);
       }
+
+      // Responsive: Ajuster les onglets sur mobile
+      .mat-tab-group {
+        @media (max-width: 480px) {
+          .mat-tab-header {
+            .mat-tab-list {
+              .mat-tab-labels {
+                justify-content: space-around;
+              }
+            }
+          }
+        }
+      }
     }
 
     .tab-content {
       padding: var(--spacing-xl) 0;
+
+      // Responsive: Réduire le padding sur mobile
+      @media (max-width: 768px) {
+        padding: var(--spacing-lg) 0;
+      }
+
+      @media (max-width: 480px) {
+        padding: var(--spacing-md) 0;
+      }
 
       // Grille des événements
       .events-grid {
@@ -196,8 +351,14 @@
         grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
         gap: var(--spacing-lg);
 
+        // Responsive: Une seule colonne sur mobile
         @media (max-width: 768px) {
           grid-template-columns: 1fr;
+          gap: var(--spacing-md);
+        }
+
+        @media (max-width: 600px) {
+          gap: var(--spacing-sm);
         }
 
         .event-card {
@@ -210,6 +371,11 @@
           &:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
+
+            // Responsive: Réduire l'effet hover sur mobile
+            @media (max-width: 768px) {
+              transform: translateY(-1px);
+            }
           }
 
           &.past-event {
@@ -227,6 +393,18 @@
             width: 100%;
             padding: var(--spacing-xs) var(--spacing-xs) 0;
 
+            // Responsive: Ajuster l'espacement sur mobile
+            @media (max-width: 768px) {
+              gap: var(--spacing-sm);
+              padding: var(--spacing-sm) var(--spacing-sm) 0;
+            }
+
+            @media (max-width: 480px) {
+              flex-direction: column;
+              align-items: stretch;
+              gap: var(--spacing-xs);
+            }
+
             .event-image {
               width: 60px;
               height: 60px;
@@ -239,6 +417,19 @@
               background-color: var(--background);
               border: var(--border-width) solid var(--border);
 
+              // Responsive: Image plus petite sur mobile
+              @media (max-width: 768px) {
+                width: 50px;
+                height: 50px;
+              }
+
+              @media (max-width: 480px) {
+                width: 100%;
+                height: 120px;
+                border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
+                margin: calc(-1 * var(--spacing-sm)) calc(-1 * var(--spacing-sm)) 0 calc(-1 * var(--spacing-sm));
+              }
+
               img {
                 width: 100%;
                 height: 100%;
@@ -250,6 +441,18 @@
                 font-size: 24px;
                 width: 24px;
                 height: 24px;
+
+                @media (max-width: 768px) {
+                  font-size: 20px;
+                  width: 20px;
+                  height: 20px;
+                }
+
+                @media (max-width: 480px) {
+                  font-size: 48px;
+                  width: 48px;
+                  height: 48px;
+                }
               }
             }
 
@@ -257,27 +460,67 @@
               flex: 1;
               min-width: 0;
 
+              // Responsive: Ajuster sur mobile
+              @media (max-width: 480px) {
+                padding: 0 var(--spacing-sm);
+              }
+
               mat-card-title {
                 font-size: 1.2rem;
                 font-weight: 600;
                 margin-bottom: var(--spacing-xs);
                 word-wrap: break-word;
                 color: var(--text-primary);
+
+                // Responsive: Titre plus petit sur mobile
+                @media (max-width: 768px) {
+                  font-size: 1.1rem;
+                }
+
+                @media (max-width: 480px) {
+                  font-size: 1rem;
+                  line-height: 1.2;
+                  margin-bottom: var(--spacing-xs);
+                }
               }
 
               mat-card-subtitle {
                 font-size: 0.9rem;
                 opacity: 0.8;
                 color: var(--text-secondary);
+
+                // Responsive: Sous-titre plus petit sur mobile
+                @media (max-width: 768px) {
+                  font-size: 0.85rem;
+                }
+
+                @media (max-width: 480px) {
+                  font-size: 0.8rem;
+                }
               }
             }
 
             .tickets-summary {
               flex-shrink: 0;
 
+              // Responsive: Ajuster sur mobile
+              @media (max-width: 480px) {
+                align-self: flex-start;
+                margin: 0 var(--spacing-sm);
+              }
+
               mat-chip {
                 font-size: 0.8rem;
                 transition: var(--transition-fast);
+
+                // Responsive: Chip plus petit sur mobile
+                @media (max-width: 768px) {
+                  font-size: 0.75rem;
+                }
+
+                @media (max-width: 480px) {
+                  font-size: 0.7rem;
+                }
               }
             }
           }
@@ -286,6 +529,16 @@
             margin: var(--spacing-lg) 0;
             padding: 0 var(--spacing-xs);
 
+            // Responsive: Ajuster l'espacement sur mobile
+            @media (max-width: 768px) {
+              margin: var(--spacing-md) 0;
+              padding: 0 var(--spacing-sm);
+            }
+
+            @media (max-width: 480px) {
+              margin: var(--spacing-sm) 0;
+            }
+
             .participant-item {
               display: flex;
               align-items: center;
@@ -293,6 +546,18 @@
               margin: var(--spacing-xs) 0;
               font-size: 0.9rem;
               color: var(--text-primary);
+
+              // Responsive: Ajuster sur mobile
+              @media (max-width: 768px) {
+                font-size: 0.85rem;
+                gap: var(--spacing-xs);
+              }
+
+              @media (max-width: 480px) {
+                font-size: 0.8rem;
+                flex-wrap: wrap;
+                align-items: flex-start;
+              }
 
               &.invalid {
                 opacity: 0.6;
@@ -308,11 +573,25 @@
                 width: 16px;
                 height: 16px;
                 color: var(--primary);
+                flex-shrink: 0;
+
+                // Responsive: Icône plus petite sur mobile
+                @media (max-width: 768px) {
+                  font-size: 14px;
+                  width: 14px;
+                  height: 14px;
+                }
               }
 
               span {
                 flex: 1;
                 word-wrap: break-word;
+
+                // Responsive: Gérer le débordement sur mobile
+                @media (max-width: 480px) {
+                  word-break: break-word;
+                  hyphens: auto;
+                }
               }
 
               .mini-status {
@@ -320,6 +599,21 @@
                 height: 20px;
                 line-height: 20px;
                 border-radius: var(--border-radius-small);
+                flex-shrink: 0;
+
+                // Responsive: Status plus petit sur mobile
+                @media (max-width: 768px) {
+                  font-size: 0.65rem;
+                  height: 18px;
+                  line-height: 18px;
+                }
+
+                @media (max-width: 480px) {
+                  font-size: 0.6rem;
+                  height: 16px;
+                  line-height: 16px;
+                  margin-top: 2px;
+                }
               }
             }
 
@@ -329,6 +623,15 @@
               opacity: 0.7;
               margin-top: var(--spacing-xs);
               font-style: italic;
+
+              // Responsive: Texte plus petit sur mobile
+              @media (max-width: 768px) {
+                font-size: 0.75rem;
+              }
+
+              @media (max-width: 480px) {
+                font-size: 0.7rem;
+              }
             }
           }
 
@@ -338,12 +641,41 @@
             width: 100%;
             justify-content: space-between;
 
+            // Responsive: Actions en colonne sur mobile
+            @media (max-width: 768px) {
+              flex-direction: column;
+              gap: var(--spacing-xs);
+              align-items: stretch;
+            }
+
+            @media (max-width: 480px) {
+              padding: var(--spacing-sm);
+            }
+
             button {
               font-size: 0.9rem;
               transition: var(--transition-fast);
 
+              // Responsive: Boutons plus grands sur mobile
+              @media (max-width: 768px) {
+                width: 100%;
+                justify-content: flex-start;
+                font-size: 0.85rem;
+                padding: 0.5rem 0.75rem;
+              }
+
+              @media (max-width: 480px) {
+                padding: 0.75rem;
+                font-size: 0.9rem;
+              }
+
               &:hover {
                 transform: translateY(-2px);
+
+                // Responsive: Réduire l'effet hover sur mobile
+                @media (max-width: 768px) {
+                  transform: none;
+                }
               }
 
               mat-icon {
@@ -351,6 +683,12 @@
                 width: 18px;
                 height: 18px;
                 margin-right: var(--spacing-xs);
+
+                @media (max-width: 768px) {
+                  font-size: 16px;
+                  width: 16px;
+                  height: 16px;
+                }
               }
             }
           }
@@ -362,6 +700,15 @@
         text-align: center;
         padding: var(--spacing-xxl) var(--spacing-xl);
 
+        // Responsive: Réduire le padding sur mobile
+        @media (max-width: 768px) {
+          padding: var(--spacing-xl) var(--spacing-lg);
+        }
+
+        @media (max-width: 480px) {
+          padding: var(--spacing-lg) var(--spacing-md);
+        }
+
         mat-icon {
           font-size: 3rem;
           width: 3rem;
@@ -369,12 +716,34 @@
           color: var(--primary);
           margin-bottom: var(--spacing-md);
           opacity: 0.8;
+
+          // Responsive: Icône plus petite sur mobile
+          @media (max-width: 768px) {
+            font-size: 2.5rem;
+            width: 2.5rem;
+            height: 2.5rem;
+          }
+
+          @media (max-width: 480px) {
+            font-size: 2rem;
+            width: 2rem;
+            height: 2rem;
+          }
         }
 
         h3 {
           color: var(--text-primary);
           margin-bottom: var(--spacing-md);
           font-weight: 500;
+
+          // Responsive: Titre plus petit sur mobile
+          @media (max-width: 768px) {
+            font-size: 1.2rem;
+          }
+
+          @media (max-width: 480px) {
+            font-size: 1.1rem;
+          }
         }
 
         p {
@@ -383,6 +752,73 @@
           max-width: 600px;
           margin-left: auto;
           margin-right: auto;
+
+          // Responsive: Texte plus petit sur mobile
+          @media (max-width: 768px) {
+            font-size: 0.9rem;
+            max-width: 100%;
+          }
+
+          @media (max-width: 480px) {
+            font-size: 0.85rem;
+            line-height: 1.4;
+          }
+        }
+
+        button {
+          // Responsive: Bouton en pleine largeur sur mobile
+          @media (max-width: 480px) {
+            width: 100%;
+            max-width: 300px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive: Améliorer la lisibilité sur très petits écrans
+@media (max-width: 360px) {
+  .tickets-page {
+    .tickets-content {
+      padding: 0 var(--spacing-xs);
+    }
+
+    .tickets-tabs {
+      .tab-content {
+        .events-grid {
+          .event-card {
+            .event-header {
+              .event-info {
+                mat-card-title {
+                  font-size: 0.9rem;
+                }
+
+                mat-card-subtitle {
+                  font-size: 0.75rem;
+                }
+              }
+            }
+
+            .participants-preview {
+              .participant-item {
+                font-size: 0.75rem;
+
+                .mini-status {
+                  font-size: 0.55rem;
+                  height: 14px;
+                  line-height: 14px;
+                }
+              }
+            }
+
+            mat-card-actions {
+              button {
+                font-size: 0.8rem;
+                padding: 0.6rem;
+              }
+            }
+          }
         }
       }
     }

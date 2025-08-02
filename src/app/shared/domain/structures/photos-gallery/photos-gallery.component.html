@@ -1,4 +1,4 @@
-<div class="structure-gallery-container" *ngIf="galleryImages && galleryImages.length > 0">
+<div class="gallery-container" *ngIf="galleryImages && galleryImages.length > 0">
   <div class="gallery-header">
     <mat-icon>photo_library</mat-icon>
     <h3>Galerie photos</h3>
@@ -6,7 +6,7 @@
 
   <div class="gallery-grid">
     <div class="gallery-item" *ngFor="let image of galleryImages; let i = index" (click)="openLightbox(i)">
-      <img [ngSrc]="image" [alt]="structureName + ' image ' + (i + 1)" class="gallery-image" fill>
+      <img [ngSrc]="image" [alt]="altText + ' image ' + (i + 1)" class="gallery-image" fill>
       <div class="gallery-overlay">
         <mat-icon>zoom_in</mat-icon>
       </div>
@@ -32,7 +32,7 @@
         </button>
 
         <div class="lightbox-image-container">
-          <img [ngSrc]="galleryImages[selectedImageIndex]" [alt]="structureName + ' image ' + (selectedImageIndex + 1)" class="lightbox-image"
+          <img [ngSrc]="galleryImages[selectedImageIndex]" [alt]="altText + ' image ' + (selectedImageIndex + 1)" class="lightbox-image"
                fill>
         </div>
 

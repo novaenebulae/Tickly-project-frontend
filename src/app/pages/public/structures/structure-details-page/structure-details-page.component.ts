@@ -21,8 +21,8 @@ import {EventBannerComponent} from '../../../../shared/domain/events/event-banne
 import {EventsCarouselComponent} from '../../../../shared/domain/events/events-carousel/events-carousel.component';
 import {EventsDisplayComponent} from '../../../../shared/domain/events/events-display/events-display.component';
 import {
-  StructureGalleryComponent
-} from '../../../../shared/domain/structures/structure-gallery/structure-gallery.component';
+  PhotosGalleryComponent
+} from '../../../../shared/domain/structures/photos-gallery/photos-gallery.component';
 import {StructureService} from '../../../../core/services/domain/structure/structure.service';
 import {EventService} from '../../../../core/services/domain/event/event.service';
 import {StructureModel} from '../../../../core/models/structure/structure.model';
@@ -44,7 +44,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
     EventBannerComponent,
     EventsCarouselComponent,
     EventsDisplayComponent,
-    StructureGalleryComponent,
+    PhotosGalleryComponent,
     RouterLink
   ],
   templateUrl: './structure-details-page.component.html',
@@ -212,8 +212,15 @@ export class StructureDetailsPageComponent implements OnInit {
 
   private updateCardsPerPage(): void {
     const viewportWidth = window.innerWidth;
-    const newCardsPerPage = viewportWidth <= 768 ? 1 : 3;
-    this.cardsPerPage.set(newCardsPerPage);
+
+    if (viewportWidth <= 768) {
+      this.cardsPerPage.set(1);
+    } else if (viewportWidth <= 991) {
+      this.cardsPerPage.set(2);
+    } else {
+      this.cardsPerPage.set(3);
+    }
+
   }
 
   /**

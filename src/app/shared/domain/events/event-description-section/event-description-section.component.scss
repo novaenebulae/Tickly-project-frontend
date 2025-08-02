@@ -47,6 +47,10 @@
           margin-bottom: var(--spacing-sm);
         }
       }
+
+      @media (max-width: 768px) {
+        font-size: 14px;
+      }
     }
 
     .event-categories {
@@ -64,12 +68,13 @@
         gap: var(--spacing-sm);
 
         mat-chip {
-          background-color: var(--primary);
-          color: var(--text-on-primary);
-          font-weight: 400; // Regular
-          font-size: 14px; // Body Small size
-          letter-spacing: 0.1px; // From design guidelines
+          background-color: rgba(90, 72, 245, 0.1);
+          color: var(--primary);
+          height: 24px;
+          margin-right: var(--spacing-sm);
+          letter-spacing: 0.1px;
         }
+
       }
     }
   }

@@ -6,6 +6,7 @@
   border-radius: var(--border-radius-medium);
   box-shadow: var(--shadow-sm);
   padding: var(--spacing-lg);
+  padding-bottom: var(--spacing-sm);
   margin-bottom: var(--spacing-lg);
   position: relative;
   overflow: hidden;
@@ -29,7 +30,7 @@
 .filters-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   margin-bottom: var(--spacing-lg);
 
   .filters-title {
@@ -231,9 +232,6 @@
     gap: var(--spacing-sm);
   }
 
-  @media (max-width: 480px) {
-    gap: var(--spacing-xs);
-  }
 }
 
 // Champ avec icône
@@ -299,7 +297,7 @@
 
   &.open {
     max-height: 800px; // Hauteur suffisante pour le contenu
-    padding: var(--spacing-lg) 0 0 0;
+    padding: var(--spacing-lg) 0;
   }
 
   .advanced-filters-content {

@@ -6,7 +6,6 @@ $skeleton-gradient-middle: #e0e0e0; // Slightly darker shade for skeleton animat
   display: flex;
   flex-direction: column;
   height: fit-content;
-  background-color: var(--background);
 }
 
 // Barre d'options d'affichage
@@ -66,7 +65,7 @@ $skeleton-gradient-middle: #e0e0e0; // Slightly darker shade for skeleton animat
   // Grille d'événements
   .events-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: var(--spacing-xl);
 
     .event-card-container {
@@ -88,7 +87,7 @@ $skeleton-gradient-middle: #e0e0e0; // Slightly darker shade for skeleton animat
   .loading-container {
     &.grid-layout {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
       gap: var(--spacing-xl);
     }
 
@@ -226,7 +225,6 @@ $skeleton-gradient-middle: #e0e0e0; // Slightly darker shade for skeleton animat
   display: flex;
   justify-content: center;
   width: 100%;
-  background-color: var(--background);
   margin-bottom: var(--spacing-lg);
 
   ::ng-deep {

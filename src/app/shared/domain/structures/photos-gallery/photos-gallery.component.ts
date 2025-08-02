@@ -5,7 +5,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatDialogModule} from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-structure-gallery',
+  selector: 'app-photos-gallery',
   standalone: true,
   imports: [
     CommonModule,
@@ -14,12 +14,12 @@ import {MatDialogModule} from '@angular/material/dialog';
     MatDialogModule,
     NgOptimizedImage
   ],
-  templateUrl: './structure-gallery.component.html',
-  styleUrls: ['./structure-gallery.component.scss']
+  templateUrl: './photos-gallery.component.html',
+  styleUrls: ['./photos-gallery.component.scss']
 })
-export class StructureGalleryComponent {
+export class PhotosGalleryComponent {
   @Input() galleryImages: string[] = [];
-  @Input() structureName: string = '';
+  @Input() altText: string = '';
 
   // Track the currently selected image for the lightbox
   selectedImageIndex: number = 0;

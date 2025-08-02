@@ -147,10 +147,10 @@
     <!-- Section galerie photos -->
     <section class="gallery-section" *ngIf="structure() && structure()!.galleryImageUrls && structure()!.galleryImageUrls!.length > 0">
       <div class="container">
-        <app-structure-gallery
+        <app-photos-gallery
           [galleryImages]="structure()!.galleryImageUrls!"
-          [structureName]="structure()!.name">
-        </app-structure-gallery>
+          [altText]="structure()!.name">
+        </app-photos-gallery>
       </div>
     </section>
 

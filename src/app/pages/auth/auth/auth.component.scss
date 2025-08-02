@@ -3,7 +3,6 @@
 // ================================================================================================
 
 .auth-wrapper {
-  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -31,7 +30,7 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 450px;
+  max-width: 600px;
   padding: var(--spacing-lg);
   display: flex;
   flex-direction: column;
@@ -133,6 +132,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+
+  @media (max-width: 576px) {
+    gap: var(--spacing-sm);
+  }
 }
 
 .full-width {
@@ -175,11 +178,11 @@
     gap: var(--spacing-sm);
   }
 
-  @media (max-width: 400px) {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--spacing-xs);
-  }
+  //@media (max-width: 400px) {
+  //  flex-direction: column;
+  //  align-items: stretch;
+  //  gap: var(--spacing-xs);
+  //}
 
   .remember-me {
     .mat-mdc-checkbox {
@@ -275,7 +278,7 @@
 
   // Seulement sur très petits écrans
   @media (max-width: 400px) {
-    flex-direction: column;
+    //flex-direction: column;
 
     .btn-secondary,
     .btn-primary {

@@ -35,9 +35,6 @@ import {
   EventInfoSectionComponent
 } from '../../../../shared/domain/events/event-info-section/event-info-section.component';
 import {
-  EventGallerySectionComponent
-} from '../../../../shared/domain/events/event-gallery-section/event-gallery-section.component';
-import {
   EventSocialSectionComponent
 } from '../../../../shared/domain/events/event-social-section/event-social-section.component';
 import {MatIcon} from '@angular/material/icon';
@@ -45,6 +42,7 @@ import {MatButton} from '@angular/material/button';
 import {EventsCarouselComponent} from '../../../../shared/domain/events/events-carousel/events-carousel.component';
 import {EventCategoryModel} from '../../../../core/models/event/event-category.model';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {PhotosGalleryComponent} from '../../../../shared/domain/structures/photos-gallery/photos-gallery.component';
 
 @Component({
   selector: 'app-event-details-page',
@@ -55,12 +53,12 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
     MatProgressSpinnerModule,
     EventBannerComponent,
     EventInfoSectionComponent,
-    EventGallerySectionComponent,
     EventSocialSectionComponent,
     MatIcon,
     EventDescriptionSectionComponent,
     MatButton,
     EventsCarouselComponent,
+    PhotosGalleryComponent,
   ],
   templateUrl: './event-details-page.component.html',
   styleUrls: ['./event-details-page.component.scss'],
@@ -229,8 +227,15 @@ export class EventDetailsPageComponent implements OnInit {
 
   private updateCardsPerPage(): void {
     const viewportWidth = window.innerWidth;
-    const newCardsPerPage = viewportWidth <= 768 ? 1 : 3;
-    this.cardsPerPage.set(newCardsPerPage);
+
+    if (viewportWidth <= 768) {
+      this.cardsPerPage.set(1);
+    } else if (viewportWidth <= 991) {
+      this.cardsPerPage.set(2);
+    } else {
+      this.cardsPerPage.set(3);
+    }
+
   }
 
   /**

@@ -6,12 +6,30 @@
   --dark-gradient: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.4) 100%);
 
   min-height: 100vh;
-  background-color: var(--background);
+  // Background plus visible avec dégradé subtil
+  position: relative;
+
+  // Ajout d'un pattern subtil pour plus de texture
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+      radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
 
   .container {
-    max-width: 1200px;
+    //max-width: 90vw;
     margin: 0 auto;
     padding: 0 var(--spacing-md);
+    position: relative;
+    z-index: 1;
   }
 
   // Loading et erreurs
@@ -22,6 +40,8 @@
     justify-content: center;
     min-height: 60vh;
     padding: var(--spacing-xl);
+    position: relative;
+    z-index: 2;
 
     .structure-skeleton {
       width: 100%;
@@ -64,10 +84,11 @@
     position: relative;
     height: 350px;
     overflow: hidden;
-    margin-bottom: var(--spacing-xxl);
+    margin-bottom: 0; // Suppression de la marge pour meilleure continuité
+    z-index: 2;
 
     @media (max-width: 768px) {
-      height: 280px;
+      height: 300px;
     }
 
     // Bouton retour
@@ -162,10 +183,8 @@
           }
 
           .structure-logo {
-            //width: auto;
             width: auto;
             max-height: 200px;
-            //border-radius: 50%;
             border: 4px solid rgba(255, 255, 255, 0.3);
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
@@ -181,7 +200,6 @@
           .structure-logo-placeholder {
             width: 100px;
             height: 100px;
-            //border-radius: 50%;
             border: 4px solid rgba(255, 255, 255, 0.3);
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
@@ -314,10 +332,24 @@
     }
   }
 
-  // Section détails - cards plus petites et responsive
+  // Section détails - séparation plus visible avec design moderne
   .structure-details-section {
     position: relative;
+    z-index: 2;
+    padding: var(--spacing-xxl) 0;
 
+    //// Séparation visuelle avec une ligne décorative
+    //&::before {
+    //  content: '';
+    //  position: absolute;
+    //  top: 0;
+    //  left: 50%;
+    //  transform: translateX(-50%);
+    //  width: 60px;
+    //  height: 4px;
+    //  background: var(--primary-gradient);
+    //  border-radius: 2px;
+    //}
 
     .details-grid {
       display: grid;
@@ -332,11 +364,12 @@
       }
 
       .detail-card {
-        background: var(--surface);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
         border-radius: var(--border-radius-medium);
         padding: var(--spacing-lg);
-        box-shadow: var(--shadow-md);
-        border: var(--border-width) solid var(--border);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
         transition: var(--transition-medium);
         position: relative;
         overflow: hidden;
@@ -357,7 +390,7 @@
 
         &:hover {
           transform: translateY(-5px);
-          box-shadow: var(--shadow-lg);
+          box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
         }
 
         &.description-card::before {
@@ -393,12 +426,12 @@
 
           h3 {
             margin: 0;
-            font-size: 18px;
-            font-weight: 500;
+            font-size: 20px; // Taille standardisée
+            font-weight: 600;
             color: var(--text-primary);
 
             @media (max-width: 768px) {
-              font-size: 16px;
+              font-size: 18px;
             }
           }
         }
@@ -478,9 +511,44 @@
     }
   }
 
-  // Section événements - titres redesignés
+  // Section galerie - séparation visuelle
+  .gallery-section {
+    position: relative;
+    z-index: 2;
+    padding: var(--spacing-xxl) 0;
+
+    // Séparation visuelle
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(to right, var(--accent), var(--primary));
+      border-radius: 2px;
+    }
+  }
+
+  // Section événements - titres uniformisés et séparation améliorée
   .events-section {
-    margin: var(--spacing-xxl) 0;
+    position: relative;
+    z-index: 2;
+    padding: var(--spacing-xxl) 0;
+
+    // Séparation visuelle plus marquée
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 4px;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      border-radius: 2px;
+    }
 
     .events-header {
       margin-bottom: var(--spacing-xl);
@@ -491,32 +559,31 @@
         gap: var(--spacing-sm);
 
         @media (max-width: 768px) {
-          //flex-direction: column;
-          //align-items: flex-start;
           gap: var(--spacing-xs);
         }
 
         mat-icon {
           color: var(--primary);
-          font-size: 28px;
-          height: 28px;
-          width: 28px;
+          font-size: 32px; // Icône plus grande
+          height: 32px;
+          width: 32px;
 
           @media (max-width: 768px) {
-            font-size: 24px;
-            height: 24px;
-            width: 24px;
+            font-size: 28px;
+            height: 28px;
+            width: 28px;
           }
         }
 
         h2 {
           margin: 0;
-          font-size: 28px;
-          font-weight: 600;
+          font-size: 32px; // Taille principale standardisée
+          font-weight: 700;
           color: var(--text-primary);
+          letter-spacing: -0.5px;
 
           @media (max-width: 768px) {
-            font-size: 20px;
+            font-size: 24px;
           }
         }
       }
@@ -541,12 +608,11 @@
           align-items: center;
           gap: var(--spacing-sm);
           margin: 0;
-          font-size: 22px;
           font-weight: 600;
           color: var(--text-primary);
 
           @media (max-width: 768px) {
-            font-size: 22px; // Même taille sur mobile
+            font-size: 18px;
           }
 
           mat-icon {
@@ -581,20 +647,20 @@
             align-items: center;
             gap: var(--spacing-sm);
             margin: 0;
-            font-size: 22px;
+            font-size: 26px; // Légèrement plus petit que le titre principal
             font-weight: 600;
             color: var(--text-primary);
 
             @media (max-width: 768px) {
-              font-size: 22px; // Même taille sur mobile
+              font-size: 20px;
               width: 100%;
             }
 
             mat-icon {
               color: var(--info);
-              font-size: 24px;
-              height: 24px;
-              width: 24px;
+              font-size: 28px;
+              height: 28px;
+              width: 28px;
             }
 
             .events-count {
@@ -603,7 +669,6 @@
               color: var(--text-secondary);
             }
           }
-
         }
       }
     }
@@ -615,6 +680,10 @@
       justify-content: center;
       padding: var(--spacing-xxl);
       color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius-medium);
+      margin-top: var(--spacing-xl);
 
       mat-icon {
         font-size: 48px;

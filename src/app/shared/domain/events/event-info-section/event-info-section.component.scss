@@ -1,48 +1,22 @@
 // src/app/shared/components/event-details/event-info-section/event-info-section.component.scss
-.reservation-button {
-  min-width: 120px;
-  margin-top: var(--spacing-lg);
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  width: 100%;
-  background-color: var(--accent);
-  color: var(--text-on-accent);
-  font-weight: 600; // Medium
-  border-radius: var(--border-radius-medium);
-  transition: var(--transition-medium);
 
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-  }
-
-  span {
-    margin-right: var(--spacing-sm);
-  }
-}
 .info-section {
   background-color: var(--background);
   width: 100%;
   margin: 0;
 
-  .container {
-    //max-width: 1200px;
-    //margin: 0 auto;
-    //padding: 0 1.5rem;
-    width: 100%;
-    margin: 0;
-  }
-
   .section-title {
-    font-size: 24px; // Heading 2 size
-    font-weight: 600; // SemiBold
+    font-size: 24px;
+    font-weight: 600;
     color: var(--text-primary);
     margin-bottom: var(--spacing-xl);
     position: relative;
-    letter-spacing: 0px; // From design guidelines
+    letter-spacing: 0px;
+
+    @media (max-width: 768px) {
+      font-size: 20px;
+      margin-bottom: var(--spacing-lg);
+    }
 
     &:after {
       content: '';
@@ -53,6 +27,12 @@
       height: 4px;
       background: var(--primary);
       border-radius: var(--border-radius-small);
+
+      @media (max-width: 768px) {
+        width: 40px;
+        height: 3px;
+        bottom: -8px;
+      }
     }
   }
 
@@ -65,6 +45,7 @@
 
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
+      gap: var(--spacing-md);
     }
   }
 
@@ -74,7 +55,13 @@
     overflow: hidden;
     box-shadow: var(--shadow-md);
     transition: var(--transition-medium);
-    height: 100%; /* Make all cards the same height */
+    display: flex;
+    flex-direction: column;
+    min-height: 350px;
+
+    @media (max-width: 768px) {
+      min-height: auto;
+    }
 
     &:hover {
       transform: translateY(-5px);
@@ -85,7 +72,12 @@
       display: flex;
       align-items: center;
       border-bottom: 1px solid var(--border);
-      background-color: var(--background); /* Light background for headers */
+      background-color: var(--background);
+      flex-shrink: 0;
+
+      @media (max-width: 768px) {
+        padding: var(--spacing-md);
+      }
 
       .icon-wrapper {
         width: 48px;
@@ -95,35 +87,101 @@
         align-items: center;
         justify-content: center;
         margin-right: var(--spacing-md);
-        box-shadow: var(--shadow-sm); /* Add subtle shadow */
+        box-shadow: var(--shadow-sm);
+
+        @media (max-width: 768px) {
+          width: 40px;
+          height: 40px;
+          margin-right: var(--spacing-sm);
+        }
 
         mat-icon {
           font-size: 28px;
           width: 28px;
           height: 28px;
+
+          @media (max-width: 768px) {
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+          }
         }
       }
 
       h3 {
-        font-size: 20px; // Heading 3 size
-        font-weight: 600; // SemiBold
+        font-size: 20px;
+        font-weight: 600;
         color: var(--text-primary);
         margin: 0;
-        letter-spacing: 0px; // From design guidelines
+        letter-spacing: 0px;
+
+        @media (max-width: 768px) {
+          font-size: 18px;
+        }
       }
     }
 
     .card-content {
       padding: var(--spacing-lg);
-      height: calc(100% - 90px); /* Subtract header height to make content fill remaining space */
       display: flex;
       flex-direction: column;
+      flex: 1;
+
+      @media (max-width: 768px) {
+        padding: var(--spacing-md);
+      }
+
+      > *:first-child {
+        flex: 1;
+      }
+    }
+
+    .card-actions {
+      margin-top: auto;
+      padding-top: var(--spacing-md);
+
+      .action-button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-radius: var(--border-radius-medium);
+        font-weight: 500;
+        transition: var(--transition-fast);
+
+        @media (max-width: 768px) {
+          padding: var(--spacing-xs) var(--spacing-sm);
+          font-size: 14px;
+        }
+
+        &.reservation-button {
+          background-color: var(--accent);
+          color: var(--text-on-accent);
+          border: none;
+          font-weight: 600;
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+          }
+
+          mat-icon {
+            order: 2;
+          }
+
+          span {
+            order: 1;
+          }
+        }
+      }
     }
 
     // Styles spécifiques pour la carte organisateur
     &.organizer-card {
       .icon-wrapper {
-        background-color: rgba(90, 72, 245, 0.1); // var(--primary) with 10% opacity
+        background-color: rgba(90, 72, 245, 0.1);
 
         mat-icon {
           color: var(--primary);
@@ -133,50 +191,75 @@
       .organizer-info {
         display: flex;
         flex-direction: column;
-
-        .organizer-logo {
-          height: 120px;
-          margin-bottom: var(--spacing-md);
-          background-size: contain;
-          background-position: center;
-          background-repeat: no-repeat;
-          border-radius: var(--border-radius-medium);
-          float: right;
-          width: 40%;
-        }
+        flex: 1;
 
         .organizer-details {
-          .organizer-name {
-            font-size: 20px; // Heading 3 size
-            font-weight: 600; // SemiBold
-            margin: 0 0 var(--spacing-sm) 0;
-            color: var(--text-primary);
-            letter-spacing: 0px; // From design guidelines
+          flex: 1;
+
+          .organizer-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-md);
+            gap: var(--spacing-md);
+
+            .organizer-name {
+              font-size: 20px;
+              font-weight: 600;
+              margin: 0;
+              color: var(--text-primary);
+              letter-spacing: 0px;
+              flex: 1;
+
+              @media (max-width: 768px) {
+                font-size: 18px;
+              }
+            }
+
+            .organizer-logo {
+              width: 80px;
+              height: 80px;
+              background-size: contain;
+              background-position: center;
+              background-repeat: no-repeat;
+              border-radius: var(--border-radius-medium);
+              flex-shrink: 0;
+              border: 1px solid var(--border);
+
+              @media (max-width: 768px) {
+                width: 60px;
+                height: 60px;
+              }
+            }
           }
 
           .organizer-types {
             margin-bottom: var(--spacing-md);
 
             mat-chip {
-              background-color: rgba(90, 72, 245, 0.1); // var(--primary) with 10% opacity
+              background-color: rgba(90, 72, 245, 0.1);
               color: var(--primary);
-              font-size: 14px; // Body Small size
+              font-size: 14px;
               height: 24px;
               margin-right: var(--spacing-sm);
-              letter-spacing: 0.1px; // From design guidelines
+              letter-spacing: 0.1px;
+
+              @media (max-width: 768px) {
+                font-size: 12px;
+                height: 20px;
+              }
             }
           }
 
           .organizer-description {
-            font-size: 16px; // Body Default size
+            font-size: 16px;
             line-height: 1.5;
             color: var(--text-secondary);
-            margin-bottom: var(--spacing-lg);
-            letter-spacing: 0px; // From design guidelines
-          }
+            letter-spacing: 0px;
 
-          .view-button {
-            align-self: flex-end;
+            @media (max-width: 768px) {
+              font-size: 14px;
+            }
           }
         }
       }
@@ -185,7 +268,7 @@
     // Styles spécifiques pour la carte lieu
     &.location-card {
       .icon-wrapper {
-        background-color: rgba(41, 182, 246, 0.1); // var(--twilight-blue) with 10% opacity
+        background-color: rgba(41, 182, 246, 0.1);
 
         mat-icon {
           color: var(--twilight-blue);
@@ -195,34 +278,25 @@
       .location-info {
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
-        height: 100%;
+        flex: 1;
 
-        .address-container {
-          margin-bottom: var(--spacing-lg);
+        h4 {
+          font-size: 18px;
+          font-weight: 500;
+          margin: 0 0 var(--spacing-sm) 0;
+          color: var(--text-primary);
+          letter-spacing: 0px;
 
-          .address {
-            font-size: 18px; // Body Large size
-            margin: 0 0 var(--spacing-md) 0;
-            line-height: 1.4;
-            color: var(--text-primary);
-            letter-spacing: 0px; // From design guidelines
-          }
-
-          .map-button {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
+          @media (max-width: 768px) {
+            font-size: 16px;
           }
         }
 
         .areas-container {
-          h4 {
-            font-size: 18px; // Body Large size
-            font-weight: 500; // Medium
-            margin: 0 0 var(--spacing-sm) 0;
-            color: var(--text-primary);
-            letter-spacing: 0px; // From design guidelines
+          margin-bottom: var(--spacing-lg);
+
+          @media (max-width: 768px) {
+            margin-bottom: var(--spacing-md);
           }
 
           .areas-list {
@@ -230,11 +304,33 @@
             padding-left: var(--spacing-lg);
             margin: 0;
 
+            @media (max-width: 768px) {
+              padding-left: var(--spacing-md);
+            }
+
             li {
               margin-bottom: var(--spacing-sm);
-              font-size: 16px; // Body Default size
+              font-size: 16px;
               color: var(--text-secondary);
-              letter-spacing: 0px; // From design guidelines
+              letter-spacing: 0px;
+
+              @media (max-width: 768px) {
+                font-size: 14px;
+                margin-bottom: var(--spacing-xs);
+              }
+            }
+          }
+        }
+
+        .address-container {
+          .address {
+            line-height: 1.4;
+            font-size: 16px;
+            color: var(--text-secondary);
+            letter-spacing: 0px;
+
+            @media (max-width: 768px) {
+              font-size: 14px;
             }
           }
         }
@@ -244,7 +340,7 @@
     // Styles spécifiques pour la carte prix
     &.price-card {
       .icon-wrapper {
-        background-color: rgba(255, 170, 0, 0.1); // var(--accent) with 10% opacity
+        background-color: rgba(255, 170, 0, 0.1);
 
         mat-icon {
           color: var(--accent);
@@ -252,23 +348,33 @@
       }
 
       .reservation-info {
-        .capacity-info {
-          margin-bottom: var(--spacing-lg);
+        display: flex;
+        flex-direction: column;
+        flex: 1;
 
+        .capacity-info {
           h4 {
-            font-size: 18px; // Body Large size
-            font-weight: 500; // Medium
+            font-size: 18px;
+            font-weight: 500;
             margin: 0 0 var(--spacing-sm) 0;
             color: var(--text-primary);
-            letter-spacing: 0px; // From design guidelines
+            letter-spacing: 0px;
+
+            @media (max-width: 768px) {
+              font-size: 16px;
+            }
           }
 
           .capacity-display {
             display: flex;
             align-items: center;
-            background-color: rgba(90, 72, 245, 0.1); // var(--primary) with 10% opacity
+            background-color: rgba(90, 72, 245, 0.1);
             padding: var(--spacing-md);
             border-radius: var(--border-radius-medium);
+
+            @media (max-width: 768px) {
+              padding: var(--spacing-sm);
+            }
 
             mat-icon {
               color: var(--primary);
@@ -276,129 +382,37 @@
               font-size: 24px;
               width: 24px;
               height: 24px;
+
+              @media (max-width: 768px) {
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+              }
             }
 
             .capacity-number {
-              font-size: 24px; // Heading 2 size
-              font-weight: 700; // Bold
+              font-size: 24px;
+              font-weight: 700;
               color: var(--primary);
               margin-right: var(--spacing-sm);
-              letter-spacing: 0px; // From design guidelines
+              letter-spacing: 0px;
+
+              @media (max-width: 768px) {
+                font-size: 20px;
+              }
             }
 
             .capacity-text {
-              font-size: 16px; // Body Default size
+              font-size: 16px;
               color: var(--text-secondary);
-              letter-spacing: 0px; // From design guidelines
-            }
-          }
-        }
+              letter-spacing: 0px;
 
-        .audience-zones {
-          margin-bottom: var(--spacing-lg);
-
-          h4 {
-            font-size: 18px; // Body Large size
-            font-weight: 500; // Medium
-            margin: 0 0 var(--spacing-sm) 0;
-            color: var(--text-primary);
-            letter-spacing: 0px; // From design guidelines
-          }
-
-          .zones-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-
-            li {
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              padding: var(--spacing-sm) 0;
-              border-bottom: 1px solid var(--border);
-
-              &:last-child {
-                border-bottom: none;
-              }
-
-              .zone-name {
-                font-weight: 500; // Medium
-                color: var(--text-primary);
-                flex: 1;
-                font-size: 16px; // Body Default size
-                letter-spacing: 0px; // From design guidelines
-              }
-
-              .zone-capacity {
-                color: var(--text-secondary);
-                margin: 0 var(--spacing-md);
-                font-size: 14px; // Body Small size
-                letter-spacing: 0.1px; // From design guidelines
-              }
-
-              .zone-type {
-                display: flex;
-                align-items: center;
-
-                mat-icon {
-                  color: var(--text-secondary);
-                  font-size: 20px;
-                  width: 20px;
-                  height: 20px;
-                }
+              @media (max-width: 768px) {
+                font-size: 14px;
               }
             }
           }
         }
-      }
-    }
-  }
-
-  // Styles pour les actions rapides
-  .quick-actions {
-    display: flex;
-    gap: var(--spacing-md);
-    justify-content: center;
-
-    @media (max-width: 576px) {
-      flex-direction: column;
-    }
-
-    button {
-      padding: var(--spacing-sm) var(--spacing-lg);
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-sm);
-      border-radius: var(--border-radius-medium);
-      font-weight: 500; // Medium
-      transition: var(--transition-fast);
-      font-size: 14px; // Button size
-      letter-spacing: 0.25px; // From design guidelines
-
-      mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-      }
-    }
-
-    .calendar-button {
-      background-color: var(--background);
-      color: var(--text-primary);
-
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.05);
-        transform: translateY(-2px);
-      }
-    }
-
-    .favorite-button {
-      background-color: rgba(255, 170, 0, 0.1); // var(--accent) with 10% opacity
-      color: var(--accent);
-
-      &:hover {
-        background-color: rgba(255, 170, 0, 0.2); // var(--accent) with 20% opacity
-        transform: translateY(-2px);
       }
     }
   }
