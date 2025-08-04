@@ -23,6 +23,7 @@ import {StructureCreationDto, StructureCreationResponseDto} from '../../../../co
 import {StructureTypeModel} from '../../../../core/models/structure/structure-type.model';
 import {StructureAddressModel} from '../../../../core/models/structure/structure-address.model';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {UserStructureService} from '../../../../core/services/domain/user-structure/user-structure.service';
 
 @Component({
   selector: 'app-structure-setup',
@@ -53,6 +54,7 @@ export class StructureSetupComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private structureService = inject(StructureService);
+  private userStructureService = inject(UserStructureService);
   private router = inject(Router);
   private notificationService = inject(NotificationService);
   private destroyRef = inject(DestroyRef);
@@ -132,14 +134,12 @@ export class StructureSetupComponent implements OnInit {
       socialsUrl: this.structureForm.get('socialsUrl')?.value,
     };
 
-    this.structureService.createStructure(structureData)
+    this.userStructureService.createStructure(structureData)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: StructureCreationResponseDto) => {
           this.isLoading.set(false);
           this.cdRef.markForCheck();
-          // The structureService.createStructure method already handles navigation
-          // and token refresh if needed
         },
         error: (err) => {
           console.error('Error creating structure:', err);

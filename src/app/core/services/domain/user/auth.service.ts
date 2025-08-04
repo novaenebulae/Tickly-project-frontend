@@ -331,11 +331,14 @@ export class AuthService {
    * @param token - The raw JWT token string (optional, for re-storing if needed).
    */
   private updateUserState(decodedToken: JwtPayload, token?: string): void {
+    if (token) {
+      this.storeToken(token);
+    }
+
     this.currentUserSig.set(decodedToken);
     this.isLoggedInSig.set(true);
     this.userRoleSig.set(decodedToken.role as UserRole);
     this.userStructureIdSig.set(decodedToken.structureId || null);
-
   }
 
   /**

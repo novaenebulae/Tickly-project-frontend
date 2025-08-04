@@ -129,17 +129,6 @@
       <!-- Authentication Section - Desktop only -->
       <div class="navbar-nav ms-auto d-none d-lg-flex">
         @if (isLoggedIn()) {
-          <!-- Structure Creation Button (only for SPECTATOR users) -->
-          @if (currentUser()?.role === UserRole.SPECTATOR) {
-            <div class="nav-item me-2">
-              <a class="btn btn-outline-light btn-sm"
-                 routerLink="/create-structure"
-                 (click)="navigateAndCloseMenus()">
-                <mat-icon class="auth-icon align-content-center">add_business</mat-icon>
-                <span class="auth-text align-content-center">Créer une structure</span>
-              </a>
-            </div>
-          }
           <!-- User is logged in -->
           <div class="nav-item dropdown d-flex">
             <!-- User Menu Trigger avec Badge de notifications -->
@@ -258,13 +247,24 @@
         <span>Mes amis</span>
       </button>
 
+      <mat-divider></mat-divider>
+
       <!-- Staff Link (if user is staff) -->
       @if (currentUser()?.role !== UserRole.SPECTATOR) {
-        <mat-divider></mat-divider>
         <a mat-menu-item routerLink="/admin" (click)="navigateAndCloseMenus()">
           <mat-icon>admin_panel_settings</mat-icon>
           <span>Administration</span>
         </a>
+      }
+
+      <!-- Structure Creation Button (only for SPECTATOR users) -->
+      @if (currentUser()?.role === UserRole.SPECTATOR) {
+          <a mat-menu-item
+             routerLink="/create-structure"
+             (click)="navigateAndCloseMenus()">
+            <mat-icon>add_business</mat-icon>
+            <span>Créer une structure</span>
+          </a>
       }
 
       <mat-divider></mat-divider>

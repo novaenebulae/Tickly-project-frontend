@@ -3,8 +3,13 @@ import {UserService} from '../user/user.service';
 import {StructureService} from '../structure/structure.service';
 import {AuthService} from '../user/auth.service';
 import {NotificationService} from '../utilities/notification.service';
-import {StructureModel, StructureUpdateDto} from '../../../models/structure/structure.model';
-import {BehaviorSubject, forkJoin, Observable, of} from 'rxjs';
+import {
+  StructureCreationDto,
+  StructureCreationResponseDto,
+  StructureModel,
+  StructureUpdateDto
+} from '../../../models/structure/structure.model';
+import {BehaviorSubject, forkJoin, Observable, of, throwError} from 'rxjs';
 import {catchError, filter, map, switchMap, take, tap} from 'rxjs/operators';
 import {AreaCreationDto, AreaUpdateDto, StructureAreaModel} from '../../../models/structure/structure-area.model';
 import {EventSummaryModel} from '../../../models/event/event.model';
@@ -20,6 +25,8 @@ import {FileUploadResponseDto} from '../../../models/files/file-upload-response.
 import {Router} from '@angular/router';
 import {UserModel} from '../../../models/user/user.model';
 import {takeUntilDestroyed, toObservable} from '@angular/core/rxjs-interop';
+import {StructureSearchParams} from '../../../models/structure/structure-search-params.model';
+import {StructureSummaryModel} from '../../../models/structure/structure-summary.model';
 
 
 /**
@@ -84,14 +91,14 @@ export class UserStructureService {
     // Effect pour charger toutes les données quand l'utilisateur ou son profil change
     effect(() => {
       const authUser = this.authService.currentUser();
-      const userProfile = this.userService.currentUserProfileData();
 
-      if (authUser && userProfile?.structureId) {
+      if (authUser && authUser.structureId) {
         untracked(() => {
           // Vérifier si la structure actuelle correspond toujours
           const currentStructure = this.userStructureSig();
-          if (!currentStructure || currentStructure.id !== userProfile.structureId) {
-            this.loadAllStructureData();
+          if (!currentStructure || currentStructure.id !== authUser.structureId && authUser.structureId) {
+            console.log('Loading structure data for structureId:', authUser.structureId);
+            this.loadAllStructureData(authUser.structureId!);
           }
         });
       } else {
@@ -102,6 +109,7 @@ export class UserStructureService {
       }
     });
   }
+
 
   /**
    * Checks if the current user has permission to manage structures.
@@ -129,23 +137,94 @@ export class UserStructureService {
   }
 
   /**
+   * Creates a new structure.
+   * This is used as part of the structure administrator registration flow.
+   * @param structureData - The data for the new structure.
+   * @returns An Observable of the creation response.
+   */
+  createStructure(structureData: StructureCreationDto): Observable<StructureCreationResponseDto> {
+    return this.structureApi.createStructure(structureData).pipe(
+      tap(response => {
+        this.notification.displayNotification(
+          `Structure créée avec succès.`,
+          'valid'
+        );
+
+        // If the response indicates we need to re-authenticate to get a new token with structureId
+        if (response.accessToken) {
+          console.log('Refreshing token after structure creation...');
+          // Refresh the token to get a new one with the structureId
+          try {
+            this.authService.updateTokenAndState(response.accessToken);
+
+            // AJOUT : Forcer le rechargement du profil utilisateur
+            this.userService.getCurrentUserProfile(true).subscribe({
+              next: () => {
+                console.log('User profile refreshed after structure creation');
+                // Déclencher le chargement des données de structure
+                const currentUser = this.authService.currentUser();
+                if (currentUser?.structureId) {
+                  this.loadAllStructureData(currentUser.structureId);
+                }
+              },
+              error: (error) => {
+                console.error('Error refreshing user profile:', error);
+              }
+            });
+
+            this.notification.displayNotification(
+              'Session mise à jour avec les informations de structure.',
+              'info'
+            );
+            // Navigate to the dashboard or another appropriate page
+            this.router.navigate(['/admin/dashboard']);
+          } catch (error) {
+            console.error('Error refreshing token after structure creation:');
+            this.notification.displayNotification(
+              'Erreur lors de la mise à jour de la session. Veuillez vous reconnecter.',
+              'error'
+            );
+            this.router.navigate(['/auth/login']);
+          }
+        }
+      }),
+      catchError(error => {
+        console.error('Error creating structure:', error);
+        this.notification.displayNotification(
+          'Erreur lors de la création de la structure.',
+          'error'
+        );
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
    * Charge toutes les données liées à la structure de l'utilisateur
    * Cette méthode centralise le chargement de toutes les données nécessaires
    */
-  private loadAllStructureData(): void {
-    const userProfile = this.userService.currentUserProfileData();
+  private loadAllStructureData(structureId?: number): void {
 
-    if (!userProfile?.structureId) {
-      this.resetStructureData();
-      return;
+    let userStructureId: number;
+
+    if (!structureId) {
+      const userProfile = this.userService.currentUserProfileData();
+      if (!userProfile?.structureId) {
+        this.resetStructureData();
+        return;
+      }
+      userStructureId = userProfile.structureId;
+    } else {
+      userStructureId = structureId;
     }
+
 
     console.log('UserStructureService: Chargement de toutes les données de structure...');
     this.isLoadingSig.set(true);
     this.isStructureDataLoadedSig.set(false);
 
     // 1. Charger d'abord la structure principale
-    this.structureService.getStructureById(userProfile.structureId, true).pipe(
+    this.structureService.getStructureById(userStructureId, true).pipe(
       tap(structure => {
         this.userStructureSig.set(structure || null);
 
@@ -156,7 +235,7 @@ export class UserStructureService {
       // 2. Puis charger les areas en parallèle si la structure existe
       switchMap(structure => {
         if (!structure) {
-          return of({ structure: null, areas: [], events: [] });
+          return of({structure: null, areas: [], events: []});
         }
 
         return forkJoin({
@@ -232,7 +311,6 @@ export class UserStructureService {
       map(() => true)
     );
   }
-
 
 
   /**
@@ -395,20 +473,20 @@ export class UserStructureService {
         const currentUser = this.authService.currentUser();
         if (currentUser && !currentUser.structureId) {
           // User no longer has a structure, redirect to dashboard
-          this.router.navigate(['/admin/dashboard']);
+          this.router.navigate(['/']);
         }
       })
     )
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-      error: (error) => {
-        console.error('Erreur lors de la mise à jour des données utilisateur:', error);
-        this.notification.displayNotification(
-          'Erreur lors de la mise à jour. Veuillez vous reconnecter.',
-          'error'
-        );
-      }
-    });
+        error: (error) => {
+          console.error('Erreur lors de la mise à jour des données utilisateur:', error);
+          this.notification.displayNotification(
+            'Erreur lors de la mise à jour. Veuillez vous reconnecter.',
+            'error'
+          );
+        }
+      });
   }
 
   /**
@@ -428,7 +506,11 @@ export class UserStructureService {
    * @param type Le type d'image ('logo' ou 'cover')
    * @returns Observable contenant l'URL de l'image uploadée
    */
-  uploadStructureImage(structureId: number, file: File, type: 'logo' | 'cover'): Observable<{ fileName: string; fileUrl: string; message: string }> {
+  uploadStructureImage(structureId: number, file: File, type: 'logo' | 'cover'): Observable<{
+    fileName: string;
+    fileUrl: string;
+    message: string
+  }> {
     return this.structureApi.uploadStructureImage(structureId, file, type);
   }
 
@@ -635,7 +717,7 @@ export class UserStructureService {
         const currentAreas = this.userStructureAreasSig();
         const updatedAreas = currentAreas.map(area => {
           if (area.id === areaId) {
-            return { ...area, audienceZoneTemplates: templates };
+            return {...area, audienceZoneTemplates: templates};
           }
           return area;
         });

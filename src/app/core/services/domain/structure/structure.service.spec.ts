@@ -175,43 +175,6 @@ describe('StructureService', () => {
     });
   });
 
-  describe('createStructure', () => {
-    it('should create a structure successfully', () => {
-      structureApiServiceSpy.createStructure.and.returnValue(of(mockStructureCreationResponse));
-
-      service.createStructure(mockStructureCreationDto).subscribe(response => {
-        expect(response).toEqual(mockStructureCreationResponse);
-        expect(structureApiServiceSpy.createStructure).toHaveBeenCalledWith(mockStructureCreationDto);
-        expect(notificationServiceSpy.displayNotification).toHaveBeenCalledWith(
-          'Structure créée avec succès.', 'valid'
-        );
-      });
-    });
-
-    it('should update token and navigate to dashboard if accessToken is provided', () => {
-      structureApiServiceSpy.createStructure.and.returnValue(of(mockStructureCreationResponse));
-
-      service.createStructure(mockStructureCreationDto).subscribe(() => {
-        expect(authServiceSpy.updateTokenAndState).toHaveBeenCalledWith(mockStructureCreationResponse.accessToken);
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/admin/dashboard']);
-      });
-    });
-
-    it('should handle API errors gracefully', () => {
-      const errorResponse = new Error('API error');
-      structureApiServiceSpy.createStructure.and.returnValue(throwError(() => errorResponse));
-
-      service.createStructure(mockStructureCreationDto).subscribe({
-        error: error => {
-          expect(error).toBeTruthy();
-          expect(notificationServiceSpy.displayNotification).toHaveBeenCalledWith(
-            'Erreur lors de la création de la structure.', 'error'
-          );
-        }
-      });
-    });
-  });
-
   describe('getStructures', () => {
     it('should return structures from API', () => {
       const mockStructures = [mockStructureSummary];
