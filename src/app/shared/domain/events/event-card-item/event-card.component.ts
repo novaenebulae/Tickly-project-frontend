@@ -5,7 +5,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatRippleModule} from '@angular/material/core';
 
-import {EventSummaryModel} from '../../../../core/models/event/event.model';
+import {EventStatus, EventSummaryModel} from '../../../../core/models/event/event.model';
 
 @Component({
   selector: 'app-event-card',
@@ -31,14 +31,6 @@ export class EventCardComponent implements OnInit {
   ngOnInit(): void {
     if (!this.event) {
       console.error('EventCardComponent: Event input is missing.');
-    } else {
-      // Log pour déboguer
-      // console.log('Event data:', this.event);
-      // console.log('Has seating zones:', !!this.event.audienceZones);
-      // if (this.event.audienceZones) {
-      //   console.log('Active zones:',
-      //     this.event.audienceZones.filter(zone => zone.isActive));
-      // }
     }
   }
 
@@ -81,10 +73,8 @@ export class EventCardComponent implements OnInit {
     return 'Lieu à déterminer';
   }
 
-// get formattedCategories () {
-//     return this.event.categories.map(cat => cat.name).join(', ');
-// }
-
 
   protected readonly Array = Array;
+  protected readonly Event = Event;
+  protected readonly EventStatus = EventStatus;
 }

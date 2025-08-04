@@ -82,6 +82,7 @@
       </div>
 
       <!-- Carte réservation -->
+      @if (getRemainingCapacity() > 0 && event.status === EventStatus.PUBLISHED) {
       <div class="info-card price-card">
         <div class="card-header">
           <div class="icon-wrapper">
@@ -110,6 +111,7 @@
           </div>
         </div>
       </div>
+      }
     </div>
   </div>
 </div>

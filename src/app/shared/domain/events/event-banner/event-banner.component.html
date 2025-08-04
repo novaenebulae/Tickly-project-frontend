@@ -59,6 +59,7 @@
         </div>
       </div>
 
+      @if (event.status === EventStatus.PUBLISHED) {
       <div class="banner-actions">
         <button
           mat-raised-button
@@ -72,6 +73,7 @@
           Réserver
         </button>
       </div>
+      }
     </div>
   </div>
 </div>

@@ -20,7 +20,7 @@ import {UserProfileUpdateDto} from '../../../../core/models/user/user-profile-up
 import {
   ConfirmationDialogComponent,
   ConfirmationDialogData
-} from '../confirmation-dialog/confirmation-dialog.component';
+} from '../../../ui/dialogs/confirmation-dialog/confirmation-dialog.component';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
 /**

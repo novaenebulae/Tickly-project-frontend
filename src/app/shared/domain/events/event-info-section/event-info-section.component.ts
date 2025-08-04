@@ -10,7 +10,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatChipsModule} from '@angular/material/chips';
 import {RouterModule} from '@angular/router';
 
-import {EventModel} from '../../../../core/models/event/event.model';
+import {EventModel, EventStatus} from '../../../../core/models/event/event.model';
 import {StructureModel} from '../../../../core/models/structure/structure.model';
 
 @Component({
@@ -101,4 +101,5 @@ export class EventInfoSectionComponent {
     return this.structure.types.map(type => type.name);
   }
 
+  protected readonly EventStatus = EventStatus;
 }

@@ -244,7 +244,7 @@ export class AuthService {
       try {
         const decodedToken = jwtDecode<JwtPayload>(response.accessToken);
         this.updateUserState(decodedToken, response.accessToken);
-        this.navigateAfterLogin(decodedToken);
+        this.router.navigate(['/']);
       } catch (error) {
         console.error('Failed to decode token or update user state:', error);
         this.clearAuthData();
@@ -345,19 +345,6 @@ export class AuthService {
   public updateUserStructureContext(structureId: number): void {
     this.userStructureIdSig.set(structureId);
 
-  }
-
-  /**
-   * Navigates the user to the appropriate page after login based on their role and setup status.
-   * @param decodedToken - The decoded JWT payload containing user information.
-   */
-  private navigateAfterLogin(decodedToken: JwtPayload): void {
-    if (decodedToken.structureId) {
-      this.router.navigate(['/admin/dashboard']);
-    } else {
-      // Pas de structure assignée, rediriger vers la création de structure
-      this.router.navigate(['/auth/login']);
-    }
   }
 
   /**

@@ -191,7 +191,7 @@ export class NavbarComponent implements OnInit {
   openProfileDialog(): void {
     this.closeMenus();
 
-    import('../../ui/dialogs/edit-profile-dialog/edit-profile-dialog.component')
+    import('../../domain/users/edit-profile-modal/edit-profile-dialog.component')
       .then(({ EditProfileDialogComponent }) => {
         this.dialog.open(EditProfileDialogComponent, {
           width: '500px',
@@ -229,7 +229,7 @@ export class NavbarComponent implements OnInit {
   openFriendsDialog(): void {
     this.closeMenus();
 
-    import('../../ui/dialogs/manage-friends-dialog/manage-friends-dialog.component')
+    import('../../domain/users/manage-friends-modal/manage-friends-dialog.component')
       .then(({ ManageFriendsDialogComponent }) => {
         this.dialog.open(ManageFriendsDialogComponent, {
           width: '800px',

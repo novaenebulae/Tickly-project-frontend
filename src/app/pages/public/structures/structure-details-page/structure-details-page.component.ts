@@ -151,7 +151,8 @@ export class StructureDetailsPageComponent implements OnInit {
 
           events = eventsResult;
           console.log(events);
-          const featuredEvents = events.filter((event) => event.featuredEvent);
+          let featuredEvents = events.filter((event) => event.featuredEvent);
+          featuredEvents = featuredEvents.sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
 
           console.log(featuredEvents);
 

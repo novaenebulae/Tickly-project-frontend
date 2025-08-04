@@ -162,4 +162,6 @@ export class EventBannerComponent implements OnChanges {
       this.bookEvent.emit();
     }
   }
+
+  protected readonly EventStatus = EventStatus;
 }

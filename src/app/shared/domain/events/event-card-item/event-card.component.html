@@ -19,10 +19,12 @@
     }
 
     <!-- Bouton Réserver superposé sur l'image -->
+    @if (event.status === EventStatus.PUBLISHED) {
     <button mat-flat-button color="accent" class="event-card__button-reserve-overlay" (click)="bookEvent(event.id); $event.stopPropagation();">
       <span>Réserver</span>
       <mat-icon>event_seat</mat-icon>
     </button>
+    }
   </div>
 
   <!-- Détails de l'événement -->
@@ -55,7 +57,7 @@
     </div>
   </div>
 
-  <!-- Boutons d'action et prix -->
+  <!-- Bouton d'action -->
   <div class="event-card__footer">
     <div class="event-card__buttons">
       <button mat-flat-button color="primary" class="event-card__button-discover" (click)="viewEventDetails(event.id)">
@@ -63,6 +65,5 @@
         <mat-icon>arrow_forward</mat-icon>
       </button>
     </div>
-
   </div>
 </div>
