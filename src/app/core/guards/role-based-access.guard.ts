@@ -3,6 +3,7 @@ import {CanActivateFn, Router, UrlTree} from '@angular/router';
 import {AuthService} from '../services/domain/user/auth.service';
 import {NotificationService} from '../services/domain/utilities/notification.service';
 import {UserRole} from '../models/user/user-role.enum';
+import {UserService} from '../services/domain/user/user.service';
 
 /**
  * Configuration pour les accès basés sur les rôles
@@ -23,6 +24,7 @@ export interface RoleAccessConfig {
 export function createRoleBasedGuard(config: RoleAccessConfig): CanActivateFn {
   return (route, state): boolean | UrlTree => {
     const authService = inject(AuthService);
+    const userService = inject(UserService);
     const notification = inject(NotificationService);
     const router = inject(Router);
     const targetUrl = state.url.toString();
@@ -43,16 +45,17 @@ export function createRoleBasedGuard(config: RoleAccessConfig): CanActivateFn {
 
     // Récupérer les données utilisateur
     const currentUser = authService.currentUser();
-    const userStructureId = authService.userStructureId();
+    const userRole = userService.currentUserProfileData()?.role ?? UserRole.SPECTATOR;
+    const userStructureId = userService.currentUserProfileData()?.structureId ?? null;
 
     console.log(`${guardName}: Current user data:`, {
       userId: currentUser?.userId,
-      role: currentUser?.role,
-      structureId: currentUser?.structureId,
+      role: userRole,
+      structureId: userStructureId,
     });
 
     // Vérifier si l'utilisateur a un rôle autorisé
-    const hasRequiredRole = currentUser?.role && config.allowedRoles.includes(currentUser.role);
+    const hasRequiredRole = userRole && config.allowedRoles.includes(userRole);
 
     if (!hasRequiredRole) {
       console.log(`${guardName}: User does not have required role. Redirecting to home.`);

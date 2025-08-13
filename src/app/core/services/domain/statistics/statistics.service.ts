@@ -18,6 +18,7 @@ import {EventStatisticsDto} from '../../../models/statistics/event-statistics.mo
 // Other Domain Services
 import {NotificationService} from '../utilities/notification.service';
 import {AuthService} from '../user/auth.service';
+import {UserService} from '../user/user.service';
 
 /**
  * Domain service for statistics functionality.
@@ -30,6 +31,7 @@ export class StatisticsService {
   private statisticsApi = inject(StatisticsApiService);
   private notification = inject(NotificationService);
   private authService = inject(AuthService);
+  private userService = inject(UserService);
 
   // --- State Management using Signals ---
 
@@ -56,7 +58,7 @@ export class StatisticsService {
    */
   getStructureDashboardStats(forceRefresh = false): Observable<StructureDashboardStatsDto | null> {
     // Get the current user's structure ID
-    const structureId = this.authService.userStructureId();
+    const structureId = this.userService.currentUserProfileData()?.structureId;
 
     if (!structureId) {
       this.notification.displayNotification(

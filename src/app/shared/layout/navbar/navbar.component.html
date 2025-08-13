@@ -92,7 +92,7 @@
             </a>
           </li>
         }
-        @if (isLoggedIn() && ALLOWED_TEAM_ROLES.includes(currentUser()?.role!)) {
+        @if (isLoggedIn() && ALLOWED_TEAM_ROLES.includes(currentUserProfile()?.role!)) {
           <!-- Espace Personnel Link -->
           <li class="nav-item">
             <a class="nav-link"
@@ -250,7 +250,7 @@
       <mat-divider></mat-divider>
 
       <!-- Staff Link (if user is staff) -->
-      @if (currentUser()?.role !== UserRole.SPECTATOR) {
+      @if (currentUserProfile()?.role !== UserRole.SPECTATOR) {
         <a mat-menu-item routerLink="/admin" (click)="navigateAndCloseMenus()">
           <mat-icon>admin_panel_settings</mat-icon>
           <span>Administration</span>
@@ -258,7 +258,7 @@
       }
 
       <!-- Structure Creation Button (only for SPECTATOR users) -->
-      @if (currentUser()?.role === UserRole.SPECTATOR) {
+      @if (currentUserProfile()?.role === UserRole.SPECTATOR) {
           <a mat-menu-item
              routerLink="/create-structure"
              (click)="navigateAndCloseMenus()">

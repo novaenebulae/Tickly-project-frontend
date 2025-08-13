@@ -27,6 +27,7 @@ import {
 } from '../../../../../../shared/domain/structures/structure-gallery-manager/structure-gallery-manager.component';
 import {FileUploadResponseDto} from '../../../../../../core/models/files/file-upload-response.model';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {UserService} from '../../../../../../core/services/domain/user/user.service';
 
 @Component({
   selector: 'app-structure-medias',
@@ -49,6 +50,7 @@ export class StructureMediasComponent implements OnInit {
   private userStructureService = inject(UserStructureService);
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
+  private userService = inject(UserService);
   private dialog = inject(MatDialog);
   private cdRef = inject(ChangeDetectorRef);
   private location = inject(Location);
@@ -67,9 +69,9 @@ export class StructureMediasComponent implements OnInit {
 
   // 🔥 AJOUT : Computed signal pour déterminer si l'utilisateur est en mode readonly
   public readonly isReadonly = computed(() => {
-    const currentUser = this.authService.currentUser();
-    return currentUser?.role === UserRole.ORGANIZATION_SERVICE ||
-      currentUser?.role === UserRole.RESERVATION_SERVICE;
+    const currentUserRole = this.userService.currentUserProfileData()?.role;
+    return currentUserRole === UserRole.ORGANIZATION_SERVICE ||
+      currentUserRole === UserRole.RESERVATION_SERVICE;
   });
 
 

@@ -28,7 +28,7 @@ export interface UserModel {
   /**
    * The role of the user.
    */
-  role: UserRole;
+  role?: UserRole;
 
   /**
    * The ID of the structure associated with the user (if administrator).

@@ -10,6 +10,7 @@ import {MenuItem, MenuItemComponent} from '../../domain/admin/menu-item/menu-ite
 import {UserStructureService} from '../../../core/services/domain/user-structure/user-structure.service';
 import {AuthService} from '../../../core/services/domain/user/auth.service';
 import {UserRole} from '../../../core/models/user/user-role.enum';
+import {UserService} from '../../../core/services/domain/user/user.service';
 
 @Component({
   selector: 'app-admin-sidenav',
@@ -28,11 +29,11 @@ import {UserRole} from '../../../core/models/user/user-role.enum';
 })
 export class AdminSidenavComponent {
   private userStructureService = inject(UserStructureService);
-  private authService = inject(AuthService);
+  private userService = inject(UserService);
 
   protected structureInfos = this.userStructureService.userStructure;
   protected isLoading = this.userStructureService.isLoading;
-  protected currentUserRole = computed(() => this.authService.currentUser()?.role);
+  protected currentUserProfileData = computed(() => this.userService.currentUserProfileData());
 
   sideNavCollapsed = signal(false);
 
@@ -42,13 +43,13 @@ export class AdminSidenavComponent {
 
   // Helper method to check if user has one of the specified roles
   private hasRole(roles: UserRole[]): boolean {
-    const userRole = this.currentUserRole();
+    const userRole = this.currentUserProfileData()?.role;
     return userRole ? roles.includes(userRole) : false;
   }
 
   // Helper method to get the appropriate label based on user role
   private getEditLabel(): string {
-    const userRole = this.currentUserRole();
+    const userRole = this.currentUserProfileData()?.role;
     if (userRole === UserRole.ORGANIZATION_SERVICE || userRole === UserRole.RESERVATION_SERVICE) {
       return 'Détails';
     }

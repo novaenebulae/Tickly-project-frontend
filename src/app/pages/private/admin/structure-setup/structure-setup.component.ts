@@ -24,6 +24,7 @@ import {StructureTypeModel} from '../../../../core/models/structure/structure-ty
 import {StructureAddressModel} from '../../../../core/models/structure/structure-address.model';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {UserStructureService} from '../../../../core/services/domain/user-structure/user-structure.service';
+import {UserService} from '../../../../core/services/domain/user/user.service';
 
 @Component({
   selector: 'app-structure-setup',
@@ -53,6 +54,7 @@ export class StructureSetupComponent implements OnInit {
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private userService = inject(UserService);
   private structureService = inject(StructureService);
   private userStructureService = inject(UserStructureService);
   private router = inject(Router);
@@ -62,7 +64,7 @@ export class StructureSetupComponent implements OnInit {
 
   ngOnInit(): void {
     // Check if the user needs structure setup
-    if (!this.authService.currentUser()?.structureId !== null && this.authService.currentUser()?.structureId !== undefined) {
+    if (!this.userService.currentUserProfileData()?.structureId !== null && this.userService.currentUserProfileData()?.structureId !== undefined) {
       this.notificationService.displayNotification(
         'Vous n\'avez pas besoin de configurer une structure.',
         'error'

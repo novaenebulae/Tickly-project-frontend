@@ -14,12 +14,14 @@ import {
 import {StructureTypeModel} from '../../../models/structure/structure-type.model';
 import {StructureAddressModel} from '../../../models/structure/structure-address.model';
 import {StructureSummaryModel} from '../../../models/structure/structure-summary.model';
+import {UserService} from '../user/user.service';
 
 describe('StructureService', () => {
   let service: StructureService;
   let structureApiServiceSpy: jasmine.SpyObj<StructureApiService>;
   let notificationServiceSpy: jasmine.SpyObj<NotificationService>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
+  let userServiceSpy: jasmine.SpyObj<UserService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
   const mockStructureTypes: StructureTypeModel[] = [
@@ -85,8 +87,6 @@ describe('StructureService', () => {
     structureApiServiceSpy.getStructureById.and.returnValue(of(undefined));
     structureApiServiceSpy.createStructure.and.returnValue(of(mockStructureCreationResponse));
     structureApiServiceSpy.getStructureTypes.and.returnValue(of(mockStructureTypes));
-
-    authServiceSpy.userStructureId.and.returnValue(1);
 
     TestBed.configureTestingModule({
       providers: [

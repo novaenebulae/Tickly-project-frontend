@@ -15,8 +15,9 @@ import {AuthApiService} from '../../api/auth/auth-api.service';
 import {NotificationService} from '../utilities/notification.service';
 import {APP_CONFIG} from '../../../config/app-config';
 import {AuthResponseDto, JwtPayload, LoginCredentials} from '../../../models/auth/auth.model';
-import {UserRegistrationDto} from '../../../models/user/user.model';
+import {UserModel, UserRegistrationDto} from '../../../models/user/user.model';
 import {UserRole} from '../../../models/user/user-role.enum';
+import {UserService} from './user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -32,11 +33,6 @@ export class AuthService {
 
   private isLoggedInSig: WritableSignal<boolean> = signal(false);
   public readonly isLoggedIn = computed(() => this.isLoggedInSig());
-
-  private userRoleSig: WritableSignal<UserRole | null> = signal(null);
-
-  private userStructureIdSig: WritableSignal<number | null> = signal(null);
-  public readonly userStructureId = computed(() => this.userStructureIdSig());
 
   private keepLoggedInSig: WritableSignal<boolean> = signal(
     localStorage.getItem(APP_CONFIG.auth.keepLoggedInKey) === 'true'
@@ -199,8 +195,6 @@ export class AuthService {
       if (!tokenInLocalStorage) {
         this.currentUserSig.set(null);
         this.isLoggedInSig.set(false);
-        this.userRoleSig.set(null);
-        this.userStructureIdSig.set(null);
         console.log('AuthService: Session data cleared because "keep me logged in" was not active.');
       }
     } else {
@@ -337,18 +331,9 @@ export class AuthService {
 
     this.currentUserSig.set(decodedToken);
     this.isLoggedInSig.set(true);
-    this.userRoleSig.set(decodedToken.role as UserRole);
-    this.userStructureIdSig.set(decodedToken.structureId || null);
-  }
-
-  /**
-   * Met à jour le contexte de structure utilisateur (appelé après changement de structure).
-   * @param structureId - Le nouvel ID de structure.
-   */
-  public updateUserStructureContext(structureId: number): void {
-    this.userStructureIdSig.set(structureId);
 
   }
+
 
   /**
    * Clears all authentication data from signals and storage.
@@ -356,8 +341,6 @@ export class AuthService {
   private clearAuthData(): void {
     this.currentUserSig.set(null);
     this.isLoggedInSig.set(false);
-    this.userRoleSig.set(null);
-    this.userStructureIdSig.set(null);
 
     // Clear tokens from both storage mechanisms
     localStorage.removeItem(APP_CONFIG.auth.tokenKey);

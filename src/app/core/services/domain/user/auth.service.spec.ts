@@ -20,7 +20,6 @@ describe('AuthService', () => {
   const mockDecodedToken: JwtPayload = {
     userId: 1,
     sub: 'user@example.com',
-    role: UserRole.SPECTATOR,
     exp: Math.floor(Date.now() / 1000) + 3600 // Expiration dans 1 heure
   };
   // Token généré à partir de mockDecodedToken (header.payload.signature)
@@ -34,7 +33,6 @@ describe('AuthService', () => {
     lastName: 'Doe',
     email: 'user@example.com',
     userId: 1,
-    role: UserRole.SPECTATOR
   };
 
   const mockLoginCredentials: LoginCredentials = {
@@ -124,7 +122,6 @@ describe('AuthService', () => {
         lastName: 'Doe',
         email: 'user@example.com',
         userId: 1,
-        role: UserRole.SPECTATOR
         // accessToken is intentionally omitted
       };
       authApiServiceSpy.register.and.returnValue(of(responseWithoutToken));

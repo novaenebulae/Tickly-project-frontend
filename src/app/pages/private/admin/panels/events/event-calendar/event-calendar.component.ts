@@ -40,6 +40,7 @@ import {
   EventDetailsModalService
 } from '../../../../../../shared/domain/admin/event-details-modal/event-details-modal.service';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {UserService} from '../../../../../../core/services/domain/user/user.service';
 
 @Component({
   selector: 'app-event-calendar',
@@ -67,20 +68,19 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 export class EventCalendarComponent implements OnInit {
 
   private router = inject(Router);
-  private eventService = inject(EventService);
   private userStructureService = inject(UserStructureService);
-  private authService = inject(AuthService);
   private eventDetailsModalService = inject(EventDetailsModalService);
   private destroyRef = inject(DestroyRef);
   private cdRef = inject(ChangeDetectorRef);
+  private userService = inject(UserService);
 
   // Check if the user has permission to edit events
   get canEditEvents(): boolean {
-    const currentUser = this.authService.currentUser();
-    if (!currentUser) return false;
+    const currentUserRole = this.userService.currentUserProfileData()?.role;
+    if (!currentUserRole) return false;
 
-    return currentUser.role === UserRole.STRUCTURE_ADMINISTRATOR ||
-      currentUser.role === UserRole.ORGANIZATION_SERVICE;
+    return currentUserRole === UserRole.STRUCTURE_ADMINISTRATOR ||
+      currentUserRole === UserRole.ORGANIZATION_SERVICE;
   }
 
   // État de chargement

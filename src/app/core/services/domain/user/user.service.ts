@@ -17,6 +17,7 @@ import {NotificationService} from '../utilities/notification.service';
 import {UserModel} from '../../../models/user/user.model';
 import {UserProfileUpdateDto} from '../../../models/user/user-profile-update.dto';
 import {UserFavoriteStructureModel} from '../../../models/user/user-favorite-structure.model';
+import {APP_CONFIG} from '../../../config/app-config';
 
 // ChangePasswordDto is removed as this logic will be in AuthService
 
@@ -162,6 +163,7 @@ export class UserService {
     );
   }
 
+
   /**
    * Uploade un avatar pour l'utilisateur courant.
    * En cas de succès, récupère le profil utilisateur mis à jour et met à jour les signaux.
@@ -235,7 +237,7 @@ export class UserService {
         console.log('error.error?.message:', error.error?.message);
 
         this.notification.displayNotification(
-          error.message || "Erreur lors de la demande de suppression du compte.",
+          error.userMessage || "Erreur lors de la demande de suppression du compte.",
           'error'
         );
         return of(false);

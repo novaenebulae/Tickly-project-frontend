@@ -24,6 +24,7 @@ import {
   TeamMemberStatus
 } from '../../../models/user/team-member.model';
 import {UserRole} from '../../../models/user/user-role.enum';
+import {UserService} from '../user/user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +34,7 @@ export class TeamManagementService {
   private userStructureService = inject(UserStructureService);
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
+  private userService = inject(UserService);
 
   // Signals pour la gestion d'état
   private teamMembersSig = signal<TeamMember[]>([]);
@@ -228,8 +230,8 @@ export class TeamManagementService {
    * Vérifie si l'utilisateur actuel peut gérer l'équipe.
    */
   canManageTeam(): boolean {
-    const currentUser = this.authService.currentUser();
-    return currentUser?.role === UserRole.STRUCTURE_ADMINISTRATOR;
+    const currentUserRole = this.userService.currentUserProfileData()?.role;
+    return currentUserRole === UserRole.STRUCTURE_ADMINISTRATOR;
   }
 
   /**
@@ -249,9 +251,9 @@ export class TeamManagementService {
   canRemoveMember(member: TeamMember): boolean {
     if (!this.canEditMember(member)) return false;
 
-    const currentUser = this.authService.currentUser();
+    const currentUserRole = this.userService.currentUserProfileData()?.role;
     // Un administrateur de structure ne peut pas supprimer un autre administrateur
-    return !(currentUser?.role === UserRole.STRUCTURE_ADMINISTRATOR &&
+    return !(currentUserRole === UserRole.STRUCTURE_ADMINISTRATOR &&
       member.role === UserRole.STRUCTURE_ADMINISTRATOR);
   }
 

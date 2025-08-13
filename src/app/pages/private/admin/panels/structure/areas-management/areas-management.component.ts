@@ -39,6 +39,7 @@ import {
   ConfirmationDialogData
 } from '../../../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog';
+import {UserService} from '../../../../../../core/services/domain/user/user.service';
 
 @Component({
   selector: 'app-areas-management',
@@ -52,7 +53,7 @@ export class AreasManagementComponent implements OnInit {
   private userStructureService = inject(UserStructureService);
   private notification = inject(NotificationService);
   private fb = inject(FormBuilder);
-  private authService = inject(AuthService);
+  private userService = inject(UserService);
   private cdRef = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
   private dialog = inject(MatDialog);
@@ -77,8 +78,7 @@ export class AreasManagementComponent implements OnInit {
   public readonly editingAudienceZone = computed(() => this.editingAudienceZoneTemplateSig());
 
   public readonly isReadonly = computed(() => {
-    const currentUser = this.authService.currentUser();
-    return currentUser?.role === UserRole.RESERVATION_SERVICE;
+    return this.userService.currentUserProfileData()?.role === UserRole.RESERVATION_SERVICE;
   });
 
 

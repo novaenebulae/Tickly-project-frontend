@@ -41,6 +41,7 @@ import {
 } from '../../../../../../shared/ui/dialogs/confirmation-dialog/confirmation-dialog.component';
 import {EventService} from '../../../../../../core/services/domain/event/event.service';
 import {EventStatus} from '../../../../../../core/models/event/event.model';
+import {UserService} from '../../../../../../core/services/domain/user/user.service';
 
 
 @Component({
@@ -66,6 +67,7 @@ export class StructureEditComponent implements OnInit {
   private userStructureService = inject(UserStructureService);
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
+  private userService = inject(UserService);
   private dialog = inject(MatDialog);
   private eventService = inject(EventService);
   private destroyRef = inject(DestroyRef);
@@ -90,15 +92,15 @@ export class StructureEditComponent implements OnInit {
 
   // Computed signal to determine if the form should be readonly
   public readonly isReadonly = computed(() => {
-    const currentUser = this.authService.currentUser();
-    return currentUser?.role === UserRole.ORGANIZATION_SERVICE ||
-      currentUser?.role === UserRole.RESERVATION_SERVICE;
+    const currentUserRole = this.userService.currentUserProfileData()?.role;
+    return currentUserRole === UserRole.ORGANIZATION_SERVICE ||
+      currentUserRole === UserRole.RESERVATION_SERVICE;
   });
 
   // Computed signal to determine if the current user is a structure administrator
   public readonly isStructureAdmin = computed(() => {
-    const currentUser = this.authService.currentUser();
-    return currentUser?.role === UserRole.STRUCTURE_ADMINISTRATOR;
+    const currentUserRole = this.userService.currentUserProfileData()?.role;
+    return currentUserRole === UserRole.STRUCTURE_ADMINISTRATOR;
   });
 
 

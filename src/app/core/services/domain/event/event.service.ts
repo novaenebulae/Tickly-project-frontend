@@ -30,6 +30,7 @@ import {StructureAreaModel} from '../../../models/structure/structure-area.model
 import {APP_CONFIG} from '../../../config/app-config';
 import {FileUploadResponseDto} from '../../../models/files/file-upload-response.model';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {UserService} from '../user/user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -38,6 +39,7 @@ export class EventService {
   private eventApi = inject(EventApiService);
   private notification = inject(NotificationService);
   private authService = inject(AuthService);
+  private userService = inject(UserService);
   private destroyRef = inject(DestroyRef);
 
   // --- State Management using Signals ---
@@ -640,11 +642,11 @@ export class EventService {
    * @returns True if the user has permission, false otherwise.
    */
   hasEventManagementPermission(): boolean {
-    const currentUser = this.authService.currentUser();
-    if (!currentUser) return false;
+    const currentUserRole = this.userService.currentUserProfileData()?.role;
+    if (!currentUserRole) return false;
 
-    return currentUser.role === UserRole.STRUCTURE_ADMINISTRATOR ||
-           currentUser.role === UserRole.ORGANIZATION_SERVICE;
+    return currentUserRole === UserRole.STRUCTURE_ADMINISTRATOR ||
+           currentUserRole === UserRole.ORGANIZATION_SERVICE;
   }
 
   /**
@@ -657,11 +659,11 @@ export class EventService {
     if (!event || !event.id) return false;
     if (!this.hasEventManagementPermission()) return false;
 
-    const currentAuthUser = this.authService.currentUser();
-    if (!currentAuthUser || !currentAuthUser.structureId) return false; // User not logged in or no structureId
+    const currentAuthUserStructureId = this.userService.currentUserProfileData()?.structureId;
+    if (!currentAuthUserStructureId || !currentAuthUserStructureId) return false; // User not logged in or no structureId
 
     // User can edit if they belong to the structure that created/hosts the event
-    return event.structure.id === currentAuthUser.structureId;
+    return event.structure.id === currentAuthUserStructureId;
   }
 
   /**

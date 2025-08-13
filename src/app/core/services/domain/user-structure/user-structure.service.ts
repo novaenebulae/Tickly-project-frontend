@@ -91,14 +91,15 @@ export class UserStructureService {
     // Effect pour charger toutes les données quand l'utilisateur ou son profil change
     effect(() => {
       const authUser = this.authService.currentUser();
+      const authUserStructureId = this.userService.currentUserProfileData()?.structureId;
 
-      if (authUser && authUser.structureId) {
+      if (authUser && authUserStructureId) {
         untracked(() => {
           // Vérifier si la structure actuelle correspond toujours
           const currentStructure = this.userStructureSig();
-          if (!currentStructure || currentStructure.id !== authUser.structureId && authUser.structureId) {
-            console.log('Loading structure data for structureId:', authUser.structureId);
-            this.loadAllStructureData(authUser.structureId!);
+          if (!currentStructure || currentStructure.id !== authUserStructureId && authUserStructureId) {
+            console.log('Loading structure data for structureId:', authUserStructureId);
+            this.loadAllStructureData(authUserStructureId!);
           }
         });
       } else {
@@ -117,10 +118,10 @@ export class UserStructureService {
    * @returns True if the user has permission, false otherwise.
    */
   hasStructureManagementPermission(): boolean {
-    const currentUser = this.authService.currentUser();
-    if (!currentUser) return false;
+    const currentUserRole = this.userService.currentUserProfileData()?.role;
+    if (!currentUserRole) return false;
 
-    return currentUser.role === UserRole.STRUCTURE_ADMINISTRATOR;
+    return currentUserRole === UserRole.STRUCTURE_ADMINISTRATOR;
   }
 
   /**
@@ -129,11 +130,11 @@ export class UserStructureService {
    * @returns True if the user has permission, false otherwise.
    */
   hasAreaManagementPermission(): boolean {
-    const currentUser = this.authService.currentUser();
-    if (!currentUser) return false;
+    const currentUserRole = this.userService.currentUserProfileData()?.role;
+    if (!currentUserRole) return false;
 
-    return currentUser.role === UserRole.STRUCTURE_ADMINISTRATOR ||
-      currentUser.role === UserRole.ORGANIZATION_SERVICE;
+    return currentUserRole === UserRole.STRUCTURE_ADMINISTRATOR ||
+      currentUserRole === UserRole.ORGANIZATION_SERVICE;
   }
 
   /**
@@ -162,9 +163,9 @@ export class UserStructureService {
               next: () => {
                 console.log('User profile refreshed after structure creation');
                 // Déclencher le chargement des données de structure
-                const currentUser = this.authService.currentUser();
-                if (currentUser?.structureId) {
-                  this.loadAllStructureData(currentUser.structureId);
+                const currentUserStructureId = this.userService.currentUserProfileData()?.structureId;
+                if (currentUserStructureId) {
+                  this.loadAllStructureData(currentUserStructureId);
                 }
               },
               error: (error) => {
@@ -227,10 +228,6 @@ export class UserStructureService {
     this.structureService.getStructureById(userStructureId, true).pipe(
       tap(structure => {
         this.userStructureSig.set(structure || null);
-
-        if (structure) {
-          this.authService.updateUserStructureContext(structure.id!);
-        }
       }),
       // 2. Puis charger les areas en parallèle si la structure existe
       switchMap(structure => {
@@ -319,7 +316,7 @@ export class UserStructureService {
    * @returns Observable of EventModel[] or empty array if no structure ID is associated.
    */
   getUserStructureEvents(forceRefresh = false): Observable<EventSummaryModel[]> {
-    const userStructureId = this.authService.userStructureId();
+    const userStructureId = this.userService.currentUserProfileData()?.structureId;
     if (!userStructureId) {
       return of([]);
     }
@@ -362,10 +359,6 @@ export class UserStructureService {
         this.userStructureSig.set(structure || null);
         this.isLoadingSig.set(false);
 
-        if (structure) {
-          // Mettre à jour le signal d'AuthService si nécessaire
-          this.authService.updateUserStructureContext(structure.id!);
-        }
       }),
       catchError(error => {
         this.userStructureSig.set(null);
@@ -471,7 +464,8 @@ export class UserStructureService {
       tap(() => {
         // Navigate to appropriate page based on user's new state
         const currentUser = this.authService.currentUser();
-        if (currentUser && !currentUser.structureId) {
+        const currentUserStructureId = this.userService.currentUserProfileData()?.structureId;
+        if (currentUser && !currentUserStructureId) {
           // User no longer has a structure, redirect to dashboard
           this.router.navigate(['/']);
         }

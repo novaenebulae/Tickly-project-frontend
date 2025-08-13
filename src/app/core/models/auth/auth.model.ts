@@ -16,16 +16,6 @@ export interface JwtPayload {
   userId: number;
 
   /**
-   * The role of the user.
-   */
-  role: UserRole;
-
-  /**
-   * The ID of the structure associated with the user (optional).
-   */
-  structureId?: number;
-
-  /**
    * The timestamp indicating when the token was issued (in seconds since epoch).
    */
   iat?: number;
@@ -75,10 +65,6 @@ export interface AuthResponseDto {
    */
   userId: number;
 
-  /**
-   * The role of the user.
-   */
-  role: UserRole;
 }
 
 /**
