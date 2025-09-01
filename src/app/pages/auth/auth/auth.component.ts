@@ -63,8 +63,8 @@ export class AuthComponent {
    * Login form with email, password and keepLoggedIn fields
    */
   formulaire = this.formBuilder.group({
-    email: ['francois.petit@tickly.dev', [Validators.required, Validators.email]],
-    password: ['Tickly123!', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required],
     keepLoggedIn: [false],
   });
 

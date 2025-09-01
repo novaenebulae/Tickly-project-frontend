@@ -1,13 +1,14 @@
 <div class="favorites-container">
-  <!-- En-tête avec titre et actions -->
   <div class="favorites-header">
     <div class="header-title">
       <h2>
         <mat-icon>favorite</mat-icon>
         Mes Structures Favorites
-        <span class="favorites-count" *ngIf="favoritesCount() > 0">
+        @if (favoritesCount() > 0) {
+          <span class="favorites-count">
           ({{ favoritesCount() }})
         </span>
+        }
       </h2>
       <p class="header-subtitle">
         Retrouvez ici toutes vos structures préférées !
@@ -16,67 +17,70 @@
   </div>
 
   <!-- État de chargement global -->
-  <div class="loading-state" *ngIf="isLoading() && favoritesCount() === 0">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p>Chargement de vos favoris...</p>
-  </div>
+  @if (isLoading() && favoritesCount() === 0) {
+    <div class="loading-state">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Chargement de vos favoris...</p>
+    </div>
+  }
 
   <!-- État vide -->
-  <div class="empty-state" *ngIf="!isLoading() && favoritesCount() === 0">
-    <div class="empty-content">
-      <mat-icon class="empty-icon">favorite_border</mat-icon>
-      <h3>Aucune structure favorite</h3>
-      <p>Vous n'avez pas encore ajouté de structures à vos favoris.</p>
-      <p>Parcourez notre catalogue et cliquez sur le cœur pour ajouter vos structures préférées !</p>
-      <button
-        mat-raised-button
-        color="primary"
-        routerLink="/structures"
-        class="browse-button">
-        <mat-icon>explore</mat-icon>
-        Découvrir les structures
-      </button>
+  @if (!isLoading() && favoritesCount() === 0) {
+    <div class="empty-state">
+      <div class="empty-content">
+        <mat-icon class="empty-icon">favorite_border</mat-icon>
+        <h3>Aucune structure favorite</h3>
+        <p>Vous n'avez pas encore ajouté de structures à vos favoris.</p>
+        <p>Parcourez notre catalogue et cliquez sur le cœur pour ajouter vos structures préférées !</p>
+        <button
+          mat-raised-button
+          color="primary"
+          routerLink="/structures"
+          class="browse-button">
+          <mat-icon>explore</mat-icon>
+          Découvrir les structures
+        </button>
+      </div>
     </div>
-  </div>
-
+  }
   <!-- Grille des favoris utilisant les cards structures -->
-  <div
-    class="favorites-grid grid-view"
-    *ngIf="favoritesCount() > 0">
+  @if (favoritesCount() > 0) {
+    <div class="favorites-grid grid-view">
+      @for (favorite of favorites(); track favorite.id) {
+        <div class="favorite-item-wrapper">
+          <app-structure-card
+            [structure]="favorite.structure"
+            [showActions]="true"
+            [showFavoriteButton]="true"
+            [isFavorite]="true"
+            (viewDetails)="onViewStructureDetails($event)"
+            (bookEvent)="onBookStructureEvents($event)"
+            (favorite)="onToggleFavorite($event)"
+            class="structure-card-favorite">
+          </app-structure-card>
 
-    @for (favorite of favorites(); track favorite.id) {
-      <div class="favorite-item-wrapper">
-        <app-structure-card
-          [structure]="favorite.structure"
-          [showActions]="true"
-          [showFavoriteButton]="true"
-          [isFavorite]="true"
-          (viewDetails)="onViewStructureDetails($event)"
-          (bookEvent)="onBookStructureEvents($event)"
-          (favorite)="onToggleFavorite($event)"
-          class="structure-card-favorite">
-        </app-structure-card>
-
-        <!-- Informations supplémentaires des favoris -->
-        <div class="favorite-meta-info">
-          <div class="added-date">
-            <mat-icon>schedule</mat-icon>
-            <span>Ajouté le {{ formatAddedDate(favorite.addedAt) }}</span>
+          <div class="favorite-meta-info">
+            <div class="added-date">
+              <mat-icon>schedule</mat-icon>
+              <span>Ajouté le {{ favorite.addedAt | date:'short' }}</span>
+            </div>
           </div>
         </div>
-      </div>
-    }
-  </div>
+      }
+    </div>
+  }
 
   <!-- Actions rapides -->
-  <div class="quick-actions" *ngIf="favoritesCount() > 0">
-    <button
-      mat-stroked-button
-      color="primary"
-      routerLink="/structures"
-      class="action-button">
-      <mat-icon>add</mat-icon>
-      Ajouter d'autres favoris
-    </button>
-  </div>
+  @if (favoritesCount() > 0) {
+    <div class="quick-actions">
+      <button
+        mat-stroked-button
+        color="primary"
+        routerLink="/structures"
+        class="action-button">
+        <mat-icon>add</mat-icon>
+        Ajouter d'autres favoris
+      </button>
+    </div>
+  }
 </div>

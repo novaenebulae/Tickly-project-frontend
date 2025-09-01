@@ -15,240 +15,279 @@
     </div>
 
     <!-- État de chargement -->
-    <div class="loading-container" *ngIf="isLoading()">
-      <mat-spinner></mat-spinner>
-      <p>Chargement de vos billets...</p>
-    </div>
+    @if (isLoading()) {
+      <div class="loading-container">
+        <mat-spinner></mat-spinner>
+        <p>Chargement de vos billets...</p>
+      </div>
+    }
 
     <!-- Contenu principal -->
-    <div class="tickets-content" *ngIf="!isLoading()">
+    @if (!isLoading()) {
+      <div class="tickets-content">
 
-      <!-- Message si aucun billet -->
-      <div class="no-tickets" *ngIf="groupedReservations().length === 0">
-        <mat-icon>inbox</mat-icon>
-        <h2>Aucun billet trouvé</h2>
-        <p>Vous n'avez encore réservé aucun billet.</p>
-        <button mat-raised-button color="primary" routerLink="/events">
-          Découvrir les événements
-        </button>
-      </div>
+        <!-- Message si aucun billet -->
+        @if (groupedReservations().length === 0) {
+          <div class="no-tickets">
+            <mat-icon>inbox</mat-icon>
+            <h2>Aucun billet trouvé</h2>
+            <p>Vous n'avez encore réservé aucun billet.</p>
+            <button mat-raised-button color="primary" routerLink="/events">
+              Découvrir les événements
+            </button>
+          </div>
+        }
 
-      <!-- Onglets des réservations -->
-      <mat-tab-group *ngIf="groupedReservations().length > 0" class="tickets-tabs" dynamicHeight>
+        <!-- Onglets des réservations -->
+        @if (groupedReservations().length > 0) {
+          <mat-tab-group class="tickets-tabs" dynamicHeight>
 
-        <!-- Réservations à venir -->
-        <mat-tab [label]="'À venir (' + upcomingReservations().size + ')'">
-          <div class="tab-content">
-            <div class="events-grid" *ngIf="upcomingReservations().size > 0">
-              <mat-card class="event-card"
-                        *ngFor="let entry of upcomingReservations() | keyvalue"
-                        (click)="openReservationTickets(entry.value)">
-                <mat-card-header>
-                  <div class="event-header">
-                    <div class="event-image">
-                      <img [src]="entry.value.tickets[0].eventSnapshot.mainPhotoUrl"
-                           [alt]="entry.value.tickets[0].eventSnapshot.name"
-                           *ngIf="entry.value.tickets[0].eventSnapshot.mainPhotoUrl">
-                      <mat-icon *ngIf="!entry.value.tickets[0].eventSnapshot.mainPhotoUrl">event</mat-icon>
-                    </div>
-                    <div class="event-info">
-                      <mat-card-title>{{ entry.value.tickets[0].eventSnapshot.name }}</mat-card-title>
-                      <mat-card-subtitle>
-                        {{ formatEventDate(entry.value.tickets[0].eventSnapshot.startDate) }}
-                      </mat-card-subtitle>
-                    </div>
-                    <div class="tickets-summary">
-                      <mat-chip [ngClass]="getStatusColor(getReservationMainStatus(entry.value))">
-                        {{ getReservationTicketsSummary(entry.value) }}
-                      </mat-chip>
-                    </div>
+            <!-- Réservations à venir -->
+            <mat-tab [label]="'À venir (' + upcomingReservations().size + ')'">
+              <div class="tab-content">
+                @if (upcomingReservations().size > 0) {
+                  <div class="events-grid">
+                    @for (entry of upcomingReservations() | keyvalue; track entry.key) {
+                      <mat-card class="event-card"
+                                (click)="openReservationTickets(entry.value)">
+                        <mat-card-header>
+                          <div class="event-header">
+                            <div class="event-image">
+                              @if (entry.value.tickets[0].eventSnapshot.mainPhotoUrl) {
+                                <img [src]="entry.value.tickets[0].eventSnapshot.mainPhotoUrl"
+                                     [alt]="entry.value.tickets[0].eventSnapshot.name">
+                              } @else {
+                                <mat-icon>event</mat-icon>
+                              }
+                            </div>
+                            <div class="event-info">
+                              <mat-card-title>{{ entry.value.tickets[0].eventSnapshot.name }}</mat-card-title>
+                              <mat-card-subtitle>
+                                {{ formatEventDate(entry.value.tickets[0].eventSnapshot.startDate) }}
+                              </mat-card-subtitle>
+                            </div>
+                            <div class="tickets-summary">
+                              <mat-chip [ngClass]="getStatusColor(getReservationMainStatus(entry.value))">
+                                {{ getReservationTicketsSummary(entry.value) }}
+                              </mat-chip>
+                            </div>
+                          </div>
+                        </mat-card-header>
+
+                        <mat-card-content>
+                          <div class="participants-preview">
+                            @for (ticket of entry.value.tickets.slice(0, 3); track ticket.id) {
+                              <div class="participant-item"
+                                   [class.invalid]="ticket.status !== TicketStatus.VALID">
+                                <mat-icon>person</mat-icon>
+                                <span>{{ ticket.participant.firstName }} {{ ticket.participant.lastName }}</span>
+                                <mat-chip [ngClass]="getStatusColor(ticket.status)" class="mini-status status-badge">
+                                  {{ getStatusLabel(ticket.status) }}
+                                </mat-chip>
+                              </div>
+                            }
+                            @if (entry.value.tickets.length > 3) {
+                              <div class="more-participants">
+                                <span>+{{ entry.value.tickets.length - 3 }} autre{{ entry.value.tickets.length - 3 > 1 ? 's' : '' }} participant{{ entry.value.tickets.length - 3 > 1 ? 's' : '' }}</span>
+                              </div>
+                            }
+                          </div>
+                        </mat-card-content>
+
+                        <mat-card-actions>
+                          <button mat-button color="primary">
+                            <mat-icon>qr_code</mat-icon>
+                            Voir les billets
+                          </button>
+                          <button mat-button (click)="downloadReservationPdfsFromCard($event, entry.value)">
+                            <mat-icon>download</mat-icon>
+                            Télécharger PDF
+                          </button>
+                          <!-- Bouton d'annulation pour les réservations avec des billets valides -->
+                          @if (hasValidReservationTickets(entry.value)) {
+                            <button mat-button
+                                    color="warn"
+                                    (click)="cancelTicket($event, entry.value.reservationId)">
+                              <mat-icon>cancel</mat-icon>
+                              Annuler la réservation
+                            </button>
+                          }
+                        </mat-card-actions>
+                      </mat-card>
+                    }
                   </div>
-                </mat-card-header>
+                }
 
-                <mat-card-content>
-                  <div class="participants-preview">
-                    <div class="participant-item"
-                         *ngFor="let ticket of entry.value.tickets.slice(0, 3)"
-                           [class.invalid]="ticket.status !== TicketStatus.VALID">
-                      <mat-icon>person</mat-icon>
-                      <span>{{ ticket.participant.firstName }} {{ ticket.participant.lastName }}</span>
-                      <mat-chip [ngClass]="getStatusColor(ticket.status)" class="mini-status status-badge">
-                        {{ getStatusLabel(ticket.status) }}
-                      </mat-chip>
-                    </div>
-                    <div class="more-participants" *ngIf="entry.value.tickets.length > 3">
-                      <span>+{{ entry.value.tickets.length - 3 }} autre{{ entry.value.tickets.length - 3 > 1 ? 's' : '' }} participant{{ entry.value.tickets.length - 3 > 1 ? 's' : '' }}</span>
-                    </div>
+                @if (upcomingReservations().size === 0) {
+                  <div class="empty-state">
+                    <mat-icon>event_upcoming</mat-icon>
+                    <h3>Aucun événement à venir</h3>
+                    <p>Vous n'avez pas de billets pour des événements futurs.</p>
+                    <button mat-raised-button color="primary" routerLink="/events">
+                      Réserver des billets
+                    </button>
                   </div>
-                </mat-card-content>
+                }
+              </div>
+            </mat-tab>
 
-                <mat-card-actions>
-                  <button mat-button color="primary">
-                    <mat-icon>qr_code</mat-icon>
-                    Voir les billets
-                  </button>
-                  <button mat-button (click)="downloadReservationPdfsFromCard($event, entry.value)">
-                    <mat-icon>download</mat-icon>
-                    Télécharger PDF
-                  </button>
-                  <!-- Bouton d'annulation pour les réservations avec des billets valides -->
-                  <button *ngIf="hasValidReservationTickets(entry.value)"
-                          mat-button
-                          color="warn"
-                          (click)="cancelTicket($event, entry.value.reservationId)">
+            <!-- Réservations passées -->
+            <mat-tab [label]="'Passés (' + pastReservations().size + ')'">
+              <div class="tab-content">
+                @if (pastReservations().size > 0) {
+                  <div class="events-grid">
+                    @for (entry of pastReservations() | keyvalue; track entry.key) {
+                      <mat-card class="event-card past-event"
+                                (click)="openReservationTickets(entry.value)">
+                        <mat-card-header>
+                          <div class="event-header">
+                            <div class="event-image">
+                              @if (entry.value.tickets[0].eventSnapshot.mainPhotoUrl) {
+                                <img [src]="entry.value.tickets[0].eventSnapshot.mainPhotoUrl"
+                                     [alt]="entry.value.tickets[0].eventSnapshot.name">
+                              } @else {
+                                <mat-icon>event</mat-icon>
+                              }
+                            </div>
+                            <div class="event-info">
+                              <mat-card-title>{{ entry.value.tickets[0].eventSnapshot.name }}</mat-card-title>
+                              <mat-card-subtitle>
+                                {{ formatEventDate(entry.value.tickets[0].eventSnapshot.startDate) }}
+                              </mat-card-subtitle>
+                            </div>
+                            <div class="tickets-summary">
+                              <mat-chip [ngClass]="getStatusColor(getReservationMainStatus(entry.value))">
+                                {{ getReservationTicketsSummary(entry.value) }}
+                              </mat-chip>
+                            </div>
+                          </div>
+                        </mat-card-header>
+
+                        <mat-card-content>
+                          <div class="participants-preview">
+                            @for (ticket of entry.value.tickets.slice(0, 3); track ticket.id) {
+                              <div class="participant-item"
+                                   [class.used]="ticket.status === TicketStatus.USED">
+                                <mat-icon>person</mat-icon>
+                                <span>{{ ticket.participant.firstName }} {{ ticket.participant.lastName }}</span>
+                                <mat-chip [ngClass]="getStatusColor(ticket.status)" class="mini-status status-badge">
+                                  {{ getStatusLabel(ticket.status) }}
+                                </mat-chip>
+                              </div>
+                            }
+                            @if (entry.value.tickets.length > 3) {
+                              <div class="more-participants">
+                                <span>+{{ entry.value.tickets.length - 3 }} autre{{ entry.value.tickets.length - 3 > 1 ? 's' : '' }}</span>
+                              </div>
+                            }
+                          </div>
+                        </mat-card-content>
+
+                        <mat-card-actions>
+                          <button mat-button>
+                            <mat-icon>visibility</mat-icon>
+                            Voir les détails
+                          </button>
+                          <button mat-button (click)="downloadReservationPdfsFromCard($event, entry.value)">
+                            <mat-icon>download</mat-icon>
+                            Télécharger PDF
+                          </button>
+                        </mat-card-actions>
+                      </mat-card>
+                    }
+                  </div>
+                }
+
+                @if (pastReservations().size === 0) {
+                  <div class="empty-state">
+                    <mat-icon>history</mat-icon>
+                    <h3>Aucun événement passé</h3>
+                    <p>Vous n'avez pas encore assisté à d'événements.</p>
+                  </div>
+                }
+              </div>
+            </mat-tab>
+
+            <!-- Réservations annulées -->
+            <mat-tab [label]="'Annulés (' + cancelledReservations().size + ')'">
+              <div class="tab-content">
+                @if (cancelledReservations().size > 0) {
+                  <div class="events-grid">
+                    @for (entry of cancelledReservations() | keyvalue; track entry.key) {
+                      <mat-card class="event-card cancelled-event"
+                                (click)="openReservationTickets(entry.value)">
+                        <mat-card-header>
+                          <div class="event-header">
+                            <div class="event-image">
+                              @if (entry.value.tickets[0].eventSnapshot.mainPhotoUrl) {
+                                <img [src]="entry.value.tickets[0].eventSnapshot.mainPhotoUrl"
+                                     [alt]="entry.value.tickets[0].eventSnapshot.name">
+                              } @else {
+                                <mat-icon>event</mat-icon>
+                              }
+                            </div>
+                            <div class="event-info">
+                              <mat-card-title>{{ entry.value.tickets[0].eventSnapshot.name }}</mat-card-title>
+                              <mat-card-subtitle>
+                                {{ formatEventDate(entry.value.tickets[0].eventSnapshot.startDate) }}
+                              </mat-card-subtitle>
+                            </div>
+                            <div class="tickets-summary">
+                              <mat-chip [ngClass]="getStatusColor(TicketStatus.CANCELLED)">
+                                {{ getReservationTicketsSummary(entry.value) }}
+                              </mat-chip>
+                            </div>
+                          </div>
+                        </mat-card-header>
+
+                        <mat-card-content>
+                          <div class="participants-preview">
+                            @for (ticket of entry.value.tickets.slice(0, 3); track ticket.id) {
+                              <div class="participant-item"
+                                   [class.cancelled]="ticket.status === TicketStatus.CANCELLED">
+                                <mat-icon>person</mat-icon>
+                                <span>{{ ticket.participant.firstName }} {{ ticket.participant.lastName }}</span>
+                                <mat-chip [ngClass]="getStatusColor(ticket.status)" class="mini-status status-badge">
+                                  {{ getStatusLabel(ticket.status) }}
+                                </mat-chip>
+                              </div>
+                            }
+                            @if (entry.value.tickets.length > 3) {
+                              <div class="more-participants">
+                                <span>+{{ entry.value.tickets.length - 3 }} autre{{ entry.value.tickets.length - 3 > 1 ? 's' : '' }}</span>
+                              </div>
+                            }
+                          </div>
+                        </mat-card-content>
+
+                        <mat-card-actions>
+                          <button mat-button>
+                            <mat-icon>visibility</mat-icon>
+                            Voir les détails
+                          </button>
+                          <button mat-button (click)="downloadReservationPdfsFromCard($event, entry.value)">
+                            <mat-icon>download</mat-icon>
+                            Télécharger PDF
+                          </button>
+                        </mat-card-actions>
+                      </mat-card>
+                    }
+                  </div>
+                }
+
+                @if (cancelledReservations().size === 0) {
+                  <div class="empty-state">
                     <mat-icon>cancel</mat-icon>
-                    Annuler la réservation
-                  </button>
-                </mat-card-actions>
-              </mat-card>
-            </div>
-
-            <div class="empty-state" *ngIf="upcomingReservations().size === 0">
-              <mat-icon>event_upcoming</mat-icon>
-              <h3>Aucun événement à venir</h3>
-              <p>Vous n'avez pas de billets pour des événements futurs.</p>
-              <button mat-raised-button color="primary" routerLink="/events">
-                Réserver des billets
-              </button>
-            </div>
-          </div>
-        </mat-tab>
-
-        <!-- Réservations passées -->
-        <mat-tab [label]="'Passés (' + pastReservations().size + ')'">
-          <div class="tab-content">
-            <div class="events-grid" *ngIf="pastReservations().size > 0">
-              <mat-card class="event-card past-event"
-                        *ngFor="let entry of pastReservations() | keyvalue"
-                        (click)="openReservationTickets(entry.value)">
-                <mat-card-header>
-                  <div class="event-header">
-                    <div class="event-image">
-                      <img [src]="entry.value.tickets[0].eventSnapshot.mainPhotoUrl"
-                           [alt]="entry.value.tickets[0].eventSnapshot.name"
-                           *ngIf="entry.value.tickets[0].eventSnapshot.mainPhotoUrl">
-                      <mat-icon *ngIf="!entry.value.tickets[0].eventSnapshot.mainPhotoUrl">event</mat-icon>
-                    </div>
-                    <div class="event-info">
-                      <mat-card-title>{{ entry.value.tickets[0].eventSnapshot.name }}</mat-card-title>
-                      <mat-card-subtitle>
-                        {{ formatEventDate(entry.value.tickets[0].eventSnapshot.startDate) }}
-                      </mat-card-subtitle>
-                    </div>
-                    <div class="tickets-summary">
-                      <mat-chip [ngClass]="getStatusColor(getReservationMainStatus(entry.value))">
-                        {{ getReservationTicketsSummary(entry.value) }}
-                      </mat-chip>
-                    </div>
+                    <h3>Aucune réservation annulée</h3>
+                    <p>Vous n'avez pas de réservations annulées.</p>
                   </div>
-                </mat-card-header>
+                }
+              </div>
+            </mat-tab>
 
-                <mat-card-content>
-                  <div class="participants-preview">
-                    <div class="participant-item"
-                         *ngFor="let ticket of entry.value.tickets.slice(0, 3)"
-                         [class.used]="ticket.status === TicketStatus.USED">
-                      <mat-icon>person</mat-icon>
-                      <span>{{ ticket.participant.firstName }} {{ ticket.participant.lastName }}</span>
-                      <mat-chip [ngClass]="getStatusColor(ticket.status)" class="mini-status status-badge">
-                        {{ getStatusLabel(ticket.status) }}
-                      </mat-chip>
-                    </div>
-                    <div class="more-participants" *ngIf="entry.value.tickets.length > 3">
-                      <span>+{{ entry.value.tickets.length - 3 }} autre{{ entry.value.tickets.length - 3 > 1 ? 's' : '' }}</span>
-                    </div>
-                  </div>
-                </mat-card-content>
-
-                <mat-card-actions>
-                  <button mat-button>
-                    <mat-icon>visibility</mat-icon>
-                    Voir les détails
-                  </button>
-                  <button mat-button (click)="downloadReservationPdfsFromCard($event, entry.value)">
-                    <mat-icon>download</mat-icon>
-                    Télécharger PDF
-                  </button>
-                </mat-card-actions>
-              </mat-card>
-            </div>
-
-            <div class="empty-state" *ngIf="pastReservations().size === 0">
-              <mat-icon>history</mat-icon>
-              <h3>Aucun événement passé</h3>
-              <p>Vous n'avez pas encore assisté à d'événements.</p>
-            </div>
-          </div>
-        </mat-tab>
-
-        <!-- Réservations annulées -->
-        <mat-tab [label]="'Annulés (' + cancelledReservations().size + ')'">
-          <div class="tab-content">
-            <div class="events-grid" *ngIf="cancelledReservations().size > 0">
-              <mat-card class="event-card cancelled-event"
-                        *ngFor="let entry of cancelledReservations() | keyvalue"
-                        (click)="openReservationTickets(entry.value)">
-                <mat-card-header>
-                  <div class="event-header">
-                    <div class="event-image">
-                      <img [src]="entry.value.tickets[0].eventSnapshot.mainPhotoUrl"
-                           [alt]="entry.value.tickets[0].eventSnapshot.name"
-                           *ngIf="entry.value.tickets[0].eventSnapshot.mainPhotoUrl">
-                      <mat-icon *ngIf="!entry.value.tickets[0].eventSnapshot.mainPhotoUrl">event</mat-icon>
-                    </div>
-                    <div class="event-info">
-                      <mat-card-title>{{ entry.value.tickets[0].eventSnapshot.name }}</mat-card-title>
-                      <mat-card-subtitle>
-                        {{ formatEventDate(entry.value.tickets[0].eventSnapshot.startDate) }}
-                      </mat-card-subtitle>
-                    </div>
-                    <div class="tickets-summary">
-                      <mat-chip [ngClass]="getStatusColor(TicketStatus.CANCELLED)">
-                        {{ getReservationTicketsSummary(entry.value) }}
-                      </mat-chip>
-                    </div>
-                  </div>
-                </mat-card-header>
-
-                <mat-card-content>
-                  <div class="participants-preview">
-                    <div class="participant-item"
-                         *ngFor="let ticket of entry.value.tickets.slice(0, 3)"
-                         [class.cancelled]="ticket.status === TicketStatus.CANCELLED">
-                      <mat-icon>person</mat-icon>
-                      <span>{{ ticket.participant.firstName }} {{ ticket.participant.lastName }}</span>
-                      <mat-chip [ngClass]="getStatusColor(ticket.status)" class="mini-status status-badge">
-                        {{ getStatusLabel(ticket.status) }}
-                      </mat-chip>
-                    </div>
-                    <div class="more-participants" *ngIf="entry.value.tickets.length > 3">
-                      <span>+{{ entry.value.tickets.length - 3 }} autre{{ entry.value.tickets.length - 3 > 1 ? 's' : '' }}</span>
-                    </div>
-                  </div>
-                </mat-card-content>
-
-                <mat-card-actions>
-                  <button mat-button>
-                    <mat-icon>visibility</mat-icon>
-                    Voir les détails
-                  </button>
-                  <button mat-button (click)="downloadReservationPdfsFromCard($event, entry.value)">
-                    <mat-icon>download</mat-icon>
-                    Télécharger PDF
-                  </button>
-                </mat-card-actions>
-              </mat-card>
-            </div>
-
-            <div class="empty-state" *ngIf="cancelledReservations().size === 0">
-              <mat-icon>cancel</mat-icon>
-              <h3>Aucune réservation annulée</h3>
-              <p>Vous n'avez pas de réservations annulées.</p>
-            </div>
-          </div>
-        </mat-tab>
-
-      </mat-tab-group>
-    </div>
+          </mat-tab-group>
+        }
+      </div>
+    }
   </div>
 </div>

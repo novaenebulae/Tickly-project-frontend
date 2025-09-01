@@ -8,7 +8,7 @@ RUN npm install
 
 RUN npm run build
 
-# Étape 2: Création du serveur Nginx statique final (inchangée)
+# Étape 2: Création du serveur Nginx statique final
 FROM nginx:1.27-alpine
 # Copier l'application Angular compilée
 # Le chemin de sortie est défini dans angular.json : "outputPath": "dist/tickly-frontend"

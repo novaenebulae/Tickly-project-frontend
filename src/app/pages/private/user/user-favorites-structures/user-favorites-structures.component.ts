@@ -1,5 +1,5 @@
 import {Component, computed, inject, signal, WritableSignal} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {CommonModule, DatePipe} from '@angular/common';
 import {Router, RouterModule} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
@@ -23,7 +23,8 @@ import {StructureSummaryModel} from '../../../../core/models/structure/structure
     MatProgressSpinnerModule,
     MatTooltipModule,
     MatBadgeModule,
-    StructureCardComponent
+    StructureCardComponent,
+    DatePipe
   ],
   templateUrl: './user-favorites-structures.component.html',
   styleUrls: ['./user-favorites-structures.component.scss'],
@@ -36,7 +37,6 @@ export class UserFavoritesStructuresComponent {
   // Signaux connectés directement au service
   public readonly favorites = this.favoritesService.favorites;
   public readonly isLoading = this.favoritesService.isLoading;
-  public readonly currentUser = this.authService.currentUser;
 
   // Signaux dérivés et locaux
   public readonly favoritesCount = computed(() => this.favorites().length);
@@ -65,20 +65,6 @@ export class UserFavoritesStructuresComponent {
    */
   onToggleFavorite(structure: StructureSummaryModel): void {
     this.favoritesService.toggleFavorite(structure.id).subscribe();
-  }
-
-  /**
-   * Formate la date d'ajout en favoris.
-   * @param date - Date d'ajout.
-   * @returns Date formatée.
-   */
-  formatAddedDate(date: Date | string): string {
-    if (!date) return '';
-    return new Intl.DateTimeFormat('fr-FR', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    }).format(new Date(date));
   }
 
 }
