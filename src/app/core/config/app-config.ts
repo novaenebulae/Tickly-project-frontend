@@ -2,8 +2,8 @@ import {environment} from '../../../environments/environment';
 
 /**
  * @file Application wide configuration settings.
- * @licence Proprietary
- * @author VotreNomOuEquipe
+ * @licence MIT
+ * @author Lucas OLIVAREZ
  */
 
 /**
@@ -130,7 +130,7 @@ interface AppConfig {
  * if those files also export an object that merges with or replaces parts of this.
  */
 export const APP_CONFIG: AppConfig = {
-  appName: 'OLIVAREZ Lucas - CDA - Ticketing App',
+  appName: 'Tickly',
   appVersion: '1.0.0',
 
   api: {
