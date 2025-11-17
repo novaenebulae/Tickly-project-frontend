@@ -52,7 +52,7 @@
               (click)="hidePassword.set(!hidePassword())"
               aria-label="Afficher/masquer le mot de passe"
               class="password-toggle">
-              <mat-icon>{{hidePassword() ? 'visibility_off' : 'visibility'}}</mat-icon>
+              <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
             </button>
             @if (formulaire.get('password')?.hasError('required') && formulaire.get('password')?.touched) {
               <mat-error>Le mot de passe est requis</mat-error>
@@ -98,6 +98,23 @@
                 Connexion...
               } @else {
                 Connexion
+              }
+            </button>
+          </div>
+          <div class="auth-actions">
+            <button
+              type="button"
+              mat-raised-button
+              color="primary"
+              (click)="demoAccess()"
+              [disabled]="isLoading()"
+              class="btn-secondary"
+            >
+              @if (isLoading()) {
+                <mat-spinner diameter="20" class="spinner-inline"></mat-spinner>
+                Connexion...
+              } @else {
+                Accès rapide (démo)
               }
             </button>
           </div>

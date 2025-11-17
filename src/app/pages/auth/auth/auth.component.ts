@@ -68,6 +68,11 @@ export class AuthComponent {
     keepLoggedIn: [false],
   });
 
+  demoCredentials: LoginCredentials = {
+    email: "francois.petit@tickly.dev",
+    password: "Tickly123!"
+  }
+
   /**
    * Handles user login form submission
    */
@@ -103,6 +108,25 @@ export class AuthComponent {
     } else {
       console.warn('AuthComponent: Login form is invalid');
     }
+  }
+
+  demoAccess(): void {
+    this.authService.login(this.demoCredentials, false)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (success) => {
+          if (success) {
+            console.log('AuthComponent: Login successful (navigation handled by AuthService).');
+          }
+          this.isLoading.set(false);
+          this.cdRef.markForCheck();
+        },
+        error: (err) => {
+          console.error('AuthComponent: Login error:', err);
+          this.isLoading.set(false);
+          this.cdRef.markForCheck();
+        },
+      });
   }
 
 }
